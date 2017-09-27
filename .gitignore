@@ -1,0 +1,15 @@
+devdocs
+client_body_temp
+fastcgi_temp
+logs
+mime.types
+models.lua
+nginx.conf.compiled
+proxy_temp
+scgi_temp
+uwsgi_temp
+config.lua
+.*.swp
+.*.swo
+static/run
+projects

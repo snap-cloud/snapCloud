@@ -1,0 +1,44 @@
+URL:         /users
+Methods:     GET
+Description: Get a list of users. Returns an empty list if no parameters provided,
+             except when the query issuer is an admin.
+Parameters:  matchtext, page, pagesize
+
+URL:         /users/c
+Methods:     GET
+Description: Get the currently logged user's username.
+Parameters:  password
+
+URL:         /users/:username
+Methods:     GET, DELETE, POST
+Description: Get info about a user, or delete/add/update a user.
+
+URL:         /users/:username/login
+Methods:     POST
+Description: Logs a user into the system.
+
+URL:         /projects
+Methods:     GET
+Description: Get a list of published projects. Returns an empty list if no parameters
+             provided, except when the query issuer is an admin.
+Parameters:  updatedrange, publishedrange, page, pagesize, matchtext.
+
+URL:         /projects/:username
+Methods:     GET
+Description: Get all projects by a user.
+             Response will depend on parameters and query issuer permissions.
+Parameters:  ispublished, publishedrange, updatedrange, page, pagesize, matchtext
+
+URL:         /projects/:username/:projectname
+Methods:     GET, DELETE, POST
+Description: Get/delete/add/update a particular project.
+             Response will depend on query issuer permissions.
+
+URL:         /projects/:username/:projectname/metadata
+Methods:     GET, DELETE, POST
+Description: Get/delete/add/update a project metadata.
+Parameters:  projectname, ispublic, ispublished, notes, lastupdated, lastshared.
+
+URL:         /projects/:username/:projectname/thumbnail/:size
+Methods:     GET, DELETE, POST
+Description: Get/delete/add/update a big/small project thumbnail.
