@@ -13,33 +13,8 @@ local Model = package.loaded.Model
 local util = package.loaded.util
 local respond_to = package.loaded.respond_to
 
--- Response utils
-
-jsonResponse = function (json)
-    return {
-        layout = false, 
-        status = 200, 
-        readyState = 4, 
-        json = json or {}
-    }
-end
-
-okResponse = function (message)
-    return jsonResponse({ message = message })
-end
-
-cors_options = function (self)
-    self.res.headers['access-control-allow-headers'] = 'Content-Type'
-    self.res.headers['access-control-allow-method'] = 'POST, GET, DELETE, OPTIONS'
-    return { status = 200, layout = false }
-end
-
-err = {
-    notLoggedIn = 'you are not logged in',
-    auth = 'you do not have permission to perform this action',
-    nonexistentUser = 'no user with this username exists',
-    nonexistentProject = 'this project does not exist, or you do not have permissions to access it'
-}
+require 'disk'
+require 'responses'
 
 -- Database abstractions
 
@@ -51,47 +26,34 @@ local Projects = Model:extend('projects', {
     primary_key = { 'username', 'projectname' }
 })
 
--- Before filter
-
-app:before_filter(function (self)
-    -- unescape all parameters
-    for k,v in pairs(self.params) do
-        self.params[k] = util.unescape(v)
-    end
-
-    -- Set Access Control header
-    self.res.headers['Access-Control-Allow-Origin'] = 'http://localhost:8080'
-    self.res.headers['Access-Control-Allow-Credentials'] = 'true'
-
-    if (not self.session.username) then
-        self.session.username = ''
-    end
-end)
-
 -- API Endpoints
 -- =============
 
-app:get('/users', function (self)
-
+app:match('users', '/users', respond_to({
     -- Methods:     GET
     -- Description: Get a list of users. Returns an empty list if no parameters provided,
     --              except when the query issuer is an admin.
     -- Parameters:  matchtext, page, pagesize
 
-    return jsonResponse(Users:select({ fields = 'username' }))
-end)
+    OPTIONS = cors_options,
+    GET = function (self)
+        -- TODO: security, filters and pagination
+        return jsonResponse(Users:select({ fields = 'username' }))
+    end
+}))
 
-app:get('current_user', '/users/c', function (self)
+app:match('current_user', '/users/c', respond_to({
 
     -- Methods:     GET
     -- Description: Get the currently logged user's username.
-    -- Parameters:  password
 
-    return jsonResponse(self.session.username)
-end)
+    OPTIONS = cors_options,
+    GET = function (self)
+        return jsonResponse({ username = self.session.username })
+    end
+}))
 
 app:match('user', '/users/:username', respond_to({
-
     -- Methods:     GET, DELETE, POST
     -- Description: Get info about a user, or delete/add/update a user.
 
@@ -121,8 +83,8 @@ app:match('user', '/users/:username', respond_to({
 
     POST = capture_errors(function (self)
         validate.assert_valid(self.params, {
-            { 'username', exists = true, min_length = 2, max_length = 200 },
-            { 'password', exists = true, min_length = 3 },
+            { 'username', exists = true, min_length = 4, max_length = 200 },
+            { 'password', exists = true, min_length = 6 },
             { 'password_repeat', equals = self.params.password, 'passwords do not match' },
             { 'email', exists = true, min_length = 5 },
         })
@@ -145,7 +107,6 @@ app:match('user', '/users/:username', respond_to({
 }))
 
 app:match('login', '/users/:username/login', respond_to({
-
     -- Methods:     POST
     -- Description: Logs a user into the system.
     -- Parameters:  password
@@ -165,8 +126,24 @@ app:match('login', '/users/:username/login', respond_to({
     end)
 }))
 
-app:match('projects', '/projects', respond_to({
+app:match('logout', '/users/:username/logout', respond_to({
+    -- Methods:     POST
+    -- Description: Logs out a user from the system.
 
+    OPTIONS = cors_options,
+    POST = capture_errors(function (self)
+        if (self.session.username ~= self.params.username) then
+            -- Someone is trying to log someone else out
+            yield_error(err.auth)
+        else
+            self.session.username = ''
+            return okResponse('user ' .. self.params.username .. ' logged out')
+        end
+    end)
+}))
+
+
+app:match('projects', '/projects', respond_to({
     -- Methods:     GET
     -- Description: Get a list of published projects. Returns an empty list if no parameters
     --              provided, except when the query issuer is an admin.
@@ -174,11 +151,11 @@ app:match('projects', '/projects', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
+        -- TODO
     end
 }))
 
 app:match('user_projects', '/projects/:username', respond_to({
-
     -- Methods:     GET
     -- Description: Get all projects by a user.
     --              Response will depend on parameters and query issuer permissions.
@@ -186,37 +163,136 @@ app:match('user_projects', '/projects/:username', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
+        -- TODO
     end
 }))
 
 app:match('project', '/projects/:username/:projectname', respond_to({
-
     -- Methods:     GET, DELETE, POST
     -- Description: Get/delete/add/update a particular project.
     --              Response will depend on query issuer permissions.
+    -- Parameters:  ispublic, ispublished, notes, thumbnail
 
     OPTIONS = cors_options,
-    GET = function (self)
-    end
+    GET = capture_errors(function (self)
+        local project = Projects:find(self.params.username, self.params.projectname)
+        if not project then
+            yield_error(err.nonexistentProject)
+        end
+
+        if (not Users:find(self.params.username)) then
+            yield_error(err.nonexistentUser)
+        end
+
+        if (self.params.username ~= self.session.username) then
+            yield_error(err.auth)
+        end
+
+        project.contents = retrieveFromDisk(project.id, 'project.xml')
+        return jsonResponse(project)
+    end),
+    DELETE = capture_errors(function (self)
+        -- TODO
+    end),
+    POST = capture_errors(function (self)
+        validate.assert_valid(self.params, {
+            { 'projectname', exists = true },
+            { 'username', exists = true },
+            { 'thumbnail', exists = true }
+        })
+
+        if (not Users:find(self.params.username)) then
+            yield_error(err.nonexistentUser)
+        end
+
+        if (self.params.username ~= self.session.username) then
+            yield_error(err.auth)
+        end
+
+        ngx.req.read_body()
+        self.params.contents = ngx.req.get_body_data()
+
+        if (not self.params.contents) then
+            yield_error('Empty project contents')
+        end
+
+        local project = Projects:find(self.params.username, self.params.projectname)
+
+        if (project) then
+            local shouldUpdateSharedDate =
+                ((not project.lastshared and self.params.ispublished)
+                or (self.params.ispublished and not project.ispublished))
+
+            project:update({
+                lastupdated = db.format_date(),
+                lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+                notes = self.params.notes,
+                ispublic = self.params.ispublic,
+                ispublished = self.params.ispublished
+            })
+        else
+            Projects:create({
+                projectname = self.params.projectname,
+                username = self.params.username,
+                lastupdated = db.format_date(),
+                lastshared = self.params.ispublished and db.format_date() or nil,
+                notes = self.params.notes,
+                ispublic = self.params.ispublic,
+                ispublished = self.params.ispublished
+            })
+            project = Projects:find(self.params.username, self.params.projectname)
+        end
+
+        saveToDisk(project.id, 'project.xml', self.params.contents)
+        saveToDisk(project.id, 'thumbnail', self.params.thumbnail)
+
+        if not (retrieveFromDisk(project.id, 'project.xml') and retrieveFromDisk(project.id, 'thumbnail')) then
+            project:delete()
+            yield_error('Could not save project ' .. self.params.projectname)
+        else
+            return okResponse('project ' .. self.params.projectname .. ' saved')
+        end
+
+    end)
 }))
 
-app:match('project_meta', '/users/:username/:projectname/metadata', respond_to({
-
+app:match('project_meta', '/projects/:username/:projectname/metadata', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/delete/add/update a project metadata.
     -- Parameters:  projectname, ispublic, ispublished, notes, lastupdated, lastshared.
 
     OPTIONS = cors_options,
-    GET = function (self)
-    end
+    GET = capture_errors(function (self)
+        -- TODO
+    end),
+    DELETE = capture_errors(function (self)
+        -- TODO
+    end),
+    POST = capture_errors(function (self)
+        -- TODO
+    end)
 }))
 
-app:match('project_thumb', '/users/:username/:projectname/thumbnail/:size', respond_to({
-
+app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond_to({
     -- Methods:     GET, DELETE, POST
-    -- Description: Get/delete/add/update a big/small project thumbnail.
+    -- Description: Get/delete/add/update a project thumbnail.
 
     OPTIONS = cors_options,
-    GET = function (self)
-    end
+    GET = capture_errors(function (self)
+        local project = Projects:find(self.params.username, self.params.projectname)
+        if not project then
+            yield_error(err.nonexistentProject)
+        elseif self.params.username ~= self.session.username
+            and not project.isPublic then
+            yield_error(err.auth)
+        else
+            return rawResponse(retrieveFromDisk(project.id, 'thumbnail'))
+        end
+    end),
+    DELETE = capture_errors(function (self)
+        -- TODO
+    end),
+    POST = capture_errors(function (self)
+        -- TODO
+    end)
 }))

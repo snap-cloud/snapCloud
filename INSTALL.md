@@ -1,6 +1,16 @@
 # Snap!Cloud Install Guide
 
+## Cloning the repository
+
+First of all, clone the Snap!Cloud repository into a local folder:
+
+```
+$ git clone https://github.com/bromagosa/snapCloud.git
+```
+
 ## Prereqs
+
+For Debian-based distros, you can skip this whole section by running the prereqs.sh script, that will try to automatically install all dependencies. You will still need to follow all steps after "Setting up a Lapis project" afterwards.
 
 ### Lua 5.1
 
@@ -24,11 +34,10 @@ Once OpenResty is ready, installing Lapis is just a matter of asking the LuaRock
 # apt-get install luarocks
 ```
 
-Additional Lua packages you need for the Snap!Cloud to work properly are the Bcrypt module, used for secure password encryption, and the XML module, used to parse and build Snap<i>!</i> projects. You can use LuaRocks to install them all as root:
+Additional Lua packages you need for the Snap!Cloud to work properly are the Bcrypt module and the md5 module used for secure password encryption. You can use LuaRocks to install them all as root:
 
 ```
 # luarocks install lapis
-# luarocks install xml
 # luarocks install bcrypt
 # luarocks install md5
 # luarocks install luasec
@@ -42,15 +51,9 @@ The Snap!Cloud backend uses PostreSQL for storage, so you'll need to install it 
 # apt-get install postgresql postgresql-client
 ```
 
-## Cloning the repository and getting Lapis ready
+## Setting up a Lapis project
 
-First of all, clone the Snap!Cloud repository into a local folder:
-
-```
-$ git clone https://github.com/bromagosa/snapCloud.git
-```
-
-Then, just tell Lapis to set up that folder as a Lapis web application:
+We now need to tell Lapis to set up the repository folder as a Lapis web application:
 
 ```
 $ cd snapCloud

@@ -48,8 +48,6 @@ CREATE TABLE projects (
     projectname text NOT NULL,
     ispublic boolean,
     ispublished boolean,
-    path text,
-    thumbnail text,
     notes text,
     lastupdated timestamp with time zone,
     lastshared timestamp with time zone,

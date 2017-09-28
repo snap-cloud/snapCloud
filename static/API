@@ -7,7 +7,6 @@ Parameters:  matchtext, page, pagesize
 URL:         /users/c
 Methods:     GET
 Description: Get the currently logged user's username.
-Parameters:  password
 
 URL:         /users/:username
 Methods:     GET, DELETE, POST
@@ -16,6 +15,11 @@ Description: Get info about a user, or delete/add/update a user.
 URL:         /users/:username/login
 Methods:     POST
 Description: Logs a user into the system.
+Parameters:  password
+
+URL:         /users/:username/logout
+Methods:     POST
+Description: Logs out a user from the system.
 
 URL:         /projects
 Methods:     GET
@@ -39,6 +43,6 @@ Methods:     GET, DELETE, POST
 Description: Get/delete/add/update a project metadata.
 Parameters:  projectname, ispublic, ispublished, notes, lastupdated, lastshared.
 
-URL:         /projects/:username/:projectname/thumbnail/:size
+URL:         /projects/:username/:projectname/thumbnail
 Methods:     GET, DELETE, POST
-Description: Get/delete/add/update a big/small project thumbnail.
+Description: Get/delete/add/update a project thumbnail.
