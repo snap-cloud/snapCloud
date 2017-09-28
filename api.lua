@@ -12,19 +12,13 @@ local bcrypt = package.loaded.bcrypt
 local Model = package.loaded.Model
 local util = package.loaded.util
 local respond_to = package.loaded.respond_to
+local Users = package.loaded.Users
+local Projects = package.loaded.Projects
 
 require 'disk'
 require 'responses'
+require 'validation'
 
--- Database abstractions
-
-local Users = Model:extend('users', {
-    primary_key = { 'username' }
-})
-
-local Projects = Model:extend('projects', {
-    primary_key = { 'username', 'projectname' }
-})
 
 -- API Endpoints
 -- =============
@@ -67,17 +61,13 @@ app:match('user', '/users/:username', respond_to({
     end,
 
     DELETE = capture_errors(function (self)
-        local visitor = Users:find(self.session.username)
-        local user = Users:find(self.params.username)
 
-        if not (visitor and visitor.isadmin) then
-            yield_error(visitor and err.auth or err.notLoggedIn)
+        assert_all({'logged_in', 'admin'}, self)
+
+        if not (user:delete()) then
+            yield_error('Could not delete user ' .. self.params.username)
         else
-            if not (user:delete()) then
-                yield_error('Could not delete user ' .. self.params.username)
-            else
-                return okResponse('User ' .. self.params.username .. ' has been removed.')
-            end
+            return okResponse('User ' .. self.params.username .. ' has been removed.')
         end
     end),
 
@@ -115,9 +105,9 @@ app:match('login', '/users/:username/login', respond_to({
     POST = capture_errors(function (self)
         local user = Users:find(self.params.username)
 
-        if (not user) then
-            yield_error('invalid username')
-        elseif (bcrypt.verify(self.params.password, user.password)) then
+        assert_user_exists(self, user)
+
+        if (bcrypt.verify(self.params.password, user.password)) then
             self.session.username = user.username
             return okResponse('User ' .. self.params.username .. ' logged in')
         else
@@ -132,13 +122,9 @@ app:match('logout', '/users/:username/logout', respond_to({
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
-        if (self.session.username ~= self.params.username) then
-            -- Someone is trying to log someone else out
-            yield_error(err.auth)
-        else
-            self.session.username = ''
-            return okResponse('user ' .. self.params.username .. ' logged out')
-        end
+        assert_users_match(self)
+        self.session.username = ''
+        return okResponse('user ' .. self.params.username .. ' logged out')
     end)
 }))
 
@@ -176,18 +162,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
-        if not project then
-            yield_error(err.nonexistentProject)
-        end
-
-        if (not Users:find(self.params.username)) then
-            yield_error(err.nonexistentUser)
-        end
-
-        if (self.params.username ~= self.session.username) then
-            yield_error(err.auth)
-        end
-
+        assert_all({ 'project_exists', 'user_exists', 'users_match' }, self)
         project.contents = retrieveFromDisk(project.id, 'project.xml')
         return jsonResponse(project)
     end),
@@ -201,13 +176,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             { 'thumbnail', exists = true }
         })
 
-        if (not Users:find(self.params.username)) then
-            yield_error(err.nonexistentUser)
-        end
-
-        if (self.params.username ~= self.session.username) then
-            yield_error(err.auth)
-        end
+        assert_all({ 'user_exists', 'users_match' }, self)
 
         ngx.req.read_body()
         self.params.contents = ngx.req.get_body_data()
@@ -246,7 +215,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         saveToDisk(project.id, 'project.xml', self.params.contents)
         saveToDisk(project.id, 'thumbnail', self.params.thumbnail)
 
-        if not (retrieveFromDisk(project.id, 'project.xml') and retrieveFromDisk(project.id, 'thumbnail')) then
+        if not (retrieveFromDisk(project.id, 'project.xml')
+            and retrieveFromDisk(project.id, 'thumbnail')) then
             project:delete()
             yield_error('Could not save project ' .. self.params.projectname)
         else
@@ -280,14 +250,14 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
-        if not project then
-            yield_error(err.nonexistentProject)
-        elseif self.params.username ~= self.session.username
+        assert_project_exists(self, project)
+
+        if self.params.username ~= self.session.username
             and not project.isPublic then
             yield_error(err.auth)
-        else
-            return rawResponse(retrieveFromDisk(project.id, 'thumbnail'))
         end
+
+        return rawResponse(retrieveFromDisk(project.id, 'thumbnail'))
     end),
     DELETE = capture_errors(function (self)
         -- TODO

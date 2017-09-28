@@ -18,6 +18,16 @@ package.loaded.respond_to = require('lapis.application').respond_to
 
 local app = package.loaded.app
 
+-- Database abstractions
+
+package.loaded.Users = package.loaded.Model:extend('users', {
+    primary_key = { 'username' }
+})
+
+package.loaded.Projects = package.loaded.Model:extend('projects', {
+    primary_key = { 'username', 'projectname' }
+})
+
 
 -- Before filter
 
