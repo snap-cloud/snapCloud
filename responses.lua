@@ -29,7 +29,7 @@ end
 
 cors_options = function (self)
     self.res.headers['access-control-allow-headers'] = 'Content-Type'
-    self.res.headers['access-control-allow-method'] = 'POST, GET, DELETE, OPTIONS'
+    self.res.headers['access-control-allow-methods'] = 'GET, POST, DELETE, OPTIONS'
     return { status = 200, layout = false }
 end
 

@@ -12,6 +12,7 @@ local bcrypt = package.loaded.bcrypt
 local Model = package.loaded.Model
 local util = package.loaded.util
 local respond_to = package.loaded.respond_to
+local json_params = package.loaded.json_params
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 
@@ -105,7 +106,7 @@ app:match('login', '/users/:username/login', respond_to({
     POST = capture_errors(function (self)
         local user = Users:find(self.params.username)
 
-        assert_user_exists(self, user)
+        if not user then yield_error(err.nonexistentUser) end
 
         if (bcrypt.verify(self.params.password, user.password)) then
             self.session.username = user.username
@@ -149,7 +150,8 @@ app:match('user_projects', '/projects/:username', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
-        -- TODO
+        assert_all({'user_exists', 'users_match'}, self)
+        return jsonResponse(Projects:select('where username = ?', self.params.username))
     end
 }))
 
@@ -161,27 +163,33 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
+        -- TODO: what to do with project media?
         local project = Projects:find(self.params.username, self.params.projectname)
-        assert_all({ 'project_exists', 'user_exists', 'users_match' }, self)
-        project.contents = retrieveFromDisk(project.id, 'project.xml')
-        return jsonResponse(project)
+        assert_all({'project_exists', 'user_exists', 'users_match'}, self)
+        return rawResponse(retrieveFromDisk(project.id, 'project.xml'))
     end),
     DELETE = capture_errors(function (self)
-        -- TODO
+        assert_all({'project_exists', 'user_exists', 'users_match'}, self)
+        local project = Projects:find(self.params.username, self.params.projectname)
+        deleteDirectory(project.id)
+        if not (project:delete()) then
+            yield_error('Could not delete user ' .. self.params.username)
+        else
+            return okResponse('User ' .. self.params.username .. ' has been removed.')
+        end
     end),
     POST = capture_errors(function (self)
         validate.assert_valid(self.params, {
             { 'projectname', exists = true },
-            { 'username', exists = true },
-            { 'thumbnail', exists = true }
+            { 'username', exists = true }
         })
 
-        assert_all({ 'user_exists', 'users_match' }, self)
+        assert_all({'user_exists', 'users_match'}, self)
 
         ngx.req.read_body()
-        self.params.contents = ngx.req.get_body_data()
+        body = util.from_json(ngx.req.get_body_data())
 
-        if (not self.params.contents) then
+        if (not body.xml) then
             yield_error('Empty project contents')
         end
 
@@ -212,11 +220,13 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             project = Projects:find(self.params.username, self.params.projectname)
         end
 
-        saveToDisk(project.id, 'project.xml', self.params.contents)
-        saveToDisk(project.id, 'thumbnail', self.params.thumbnail)
+        saveToDisk(project.id, 'project.xml', body.xml)
+        saveToDisk(project.id, 'thumbnail', body.thumbnail)
+        saveToDisk(project.id, 'media.xml', body.media)
 
         if not (retrieveFromDisk(project.id, 'project.xml')
-            and retrieveFromDisk(project.id, 'thumbnail')) then
+            and retrieveFromDisk(project.id, 'thumbnail')
+            and retrieveFromDisk(project.id, 'media.xml')) then
             project:delete()
             yield_error('Could not save project ' .. self.params.projectname)
         else
@@ -250,7 +260,8 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
-        assert_project_exists(self, project)
+
+        if not project then yield_error(err.nonexistentProject) end
 
         if self.params.username ~= self.session.username
             and not project.isPublic then

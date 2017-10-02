@@ -10,7 +10,7 @@ err = {
     impersonate = 'you are trying to perform an action in someone else\'s name',
     auth = 'you do not have permission to perform this action',
     nonexistentUser = 'no user with this username exists',
-    nonexistentProject = 'this project does not exist, or you do not have permissions to access it'
+    nonexistentProject = 'this project does not exist'
 }
 
 assert_all = function (assertions, self)
@@ -25,9 +25,9 @@ assert_logged_in = function (self)
     end
 end
 
-assert_admin = function (self, visitor)
-    local visitor = Users:find(self.session.username)
-    if not (visitor and visitor.isadmin) then
+assert_admin = function (self)
+    local user = Users:find(self.session.username)
+    if not (user and user.isadmin) then
         yield_error(err.auth)
     end
 end
@@ -39,13 +39,13 @@ assert_users_match = function (self)
     end
 end
 
-assert_user_exists = function (self, user)
-    if not (user or Users:find(self.params.username)) then
+assert_user_exists = function (self)
+    if not Users:find(self.session.username) then
         yield_error(err.nonexistentUser)
     end
 end
 
-assert_project_exists = function (self, project)
+assert_project_exists = function (self)
     if not (Projects:find(self.params.username, self.params.projectname)) then
         yield_error(err.nonexistentProject)
     end

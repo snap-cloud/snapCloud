@@ -8,6 +8,7 @@ local lapis = require 'lapis'
 package.loaded.app = lapis.Application()
 package.loaded.db = require 'lapis.db'
 package.loaded.app_helpers = require 'lapis.application'
+package.loaded.json_params = package.loaded.app_helpers.json_params
 package.loaded.capture_errors = package.loaded.app_helpers.capture_errors_json
 package.loaded.yield_error = package.loaded.app_helpers.yield_error
 package.loaded.validate = require 'lapis.validate'
