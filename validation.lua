@@ -25,11 +25,11 @@ local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 
 err = {
-    notLoggedIn = 'you are not logged in',
-    impersonate = 'you are trying to perform an action in someone else\'s name',
-    auth = 'you do not have permission to perform this action',
-    nonexistentUser = 'no user with this username exists',
-    nonexistentProject = 'this project does not exist'
+    not_logged_in = 'You are not logged in',
+    auth = 'You do not have permission to perform this action',
+    nonexistent_user = 'No user with this username exists',
+    nonexistent_project = 'This project does not exist',
+    not_public_project = 'This project is not public'
 }
 
 assert_all = function (assertions, self)
@@ -38,35 +38,35 @@ assert_all = function (assertions, self)
     end
 end
 
-assert_logged_in = function (self)
+assert_logged_in = function (self, message)
     if not self.params.username then
-        yield_error(err.notLoggedIn)
+        yield_error(message or err.not_logged_in)
     end
 end
 
-assert_admin = function (self)
+assert_admin = function (self, message)
     local user = Users:find(self.session.username)
     if not (user and user.isadmin) then
-        yield_error(err.auth)
+        yield_error(message or err.auth)
     end
 end
 
-assert_users_match = function (self)
+assert_users_match = function (self, message)
     if (self.session.username ~= self.params.username) then
         -- Someone is trying to impersonate someone else
-        yield_error(err.impersonate)
+        yield_error(message or err.auth)
     end
 end
 
-assert_user_exists = function (self)
+assert_user_exists = function (self, message)
     if not Users:find(self.session.username) then
-        yield_error(err.nonexistentUser)
+        yield_error(message or err.nonexistent_user)
     end
 end
 
-assert_project_exists = function (self)
+assert_project_exists = function (self, message)
     if not (Projects:find(self.params.username, self.params.projectname)) then
-        yield_error(err.nonexistentProject)
+        yield_error(message or err.nonexistent_project)
     end
 end
 

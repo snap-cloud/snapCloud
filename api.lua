@@ -43,6 +43,16 @@ require 'validation'
 -- API Endpoints
 -- =============
 
+app:match('init', '/init', respond_to({
+    OPTIONS = cors_options,
+    POST = function (self)
+        if not self.session.username or
+            (self.session.username and self.cookies.persist_session == 'false') then
+            self.session.username = ''
+        end
+    end
+}))
+
 app:match('users', '/users', respond_to({
     -- Methods:     GET
     -- Description: Get a list of users. Returns an empty list if no parameters provided,
@@ -125,10 +135,11 @@ app:match('login', '/users/:username/login', respond_to({
     POST = capture_errors(function (self)
         local user = Users:find(self.params.username)
 
-        if not user then yield_error(err.nonexistentUser) end
+        if not user then yield_error(err.nonexistent_user) end
 
         if (bcrypt.verify(self.params.password, user.password)) then
             self.session.username = user.username
+            self.cookies.persist_session = self.params.persist
             return okResponse('User ' .. self.params.username .. ' logged in')
         else
             yield_error('invalid password')
@@ -136,15 +147,15 @@ app:match('login', '/users/:username/login', respond_to({
     end)
 }))
 
-app:match('logout', '/users/:username/logout', respond_to({
+app:match('logout', '/logout', respond_to({
     -- Methods:     POST
     -- Description: Logs out a user from the system.
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
-        assert_users_match(self)
         self.session.username = ''
-        return okResponse('user ' .. self.params.username .. ' logged out')
+        self.cookies.persist_session = 'false'
+        return okResponse('logged out')
     end)
 }))
 
@@ -185,7 +196,10 @@ app:match('project', '/projects/:username/:projectname', respond_to({
     GET = capture_errors(function (self)
         -- TODO: what to do with project media?
         local project = Projects:find(self.params.username, self.params.projectname)
-        assert_all({'project_exists', 'user_exists', 'users_match'}, self)
+
+        if not project then yield_error(err.nonexistent_project) end
+        if not project.ispublic then assert_users_match(self, err.not_public_project) end
+
         return rawResponse(retrieveFromDisk(project.id, 'project.xml'))
     end),
     DELETE = capture_errors(function (self)
@@ -275,7 +289,7 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         assert_all({'user_exists', 'users_match'}, self)
 
         local project = Projects:find(self.params.username, self.params.projectname)
-        if not project then yield_error(err.nonexistentProject) end
+        if not project then yield_error(err.nonexistent_project) end
 
         local shouldUpdateSharedDate =
             ((not project.lastshared and self.params.ispublished)
@@ -308,7 +322,7 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
-        if not project then yield_error(err.nonexistentProject) end
+        if not project then yield_error(err.nonexistent_project) end
 
         if self.params.username ~= self.session.username
             and not project.ispublic then
