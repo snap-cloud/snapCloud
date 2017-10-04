@@ -1,6 +1,25 @@
 -- API module
 -- ==========
 -- See static/API for API description
+--
+-- written by Bernat Romagosa
+--
+-- Copyright (C) 2017 by Bernat Romagosa
+--
+-- This file is part of Snap Cloud.
+--
+-- Snap Cloud is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU Affero General Public License as
+-- published by the Free Software Foundation, either version 3 of
+-- the License, or (at your option) any later version.
+--
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+-- GNU Affero General Public License for more details.
+--
+-- You should have received a copy of the GNU Affero General Public License
+-- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local app = package.loaded.app
 local db = package.loaded.db
@@ -159,7 +178,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/delete/add/update a particular project.
     --              Response will depend on query issuer permissions.
-    -- Parameters:  ispublic, ispublished, notes, thumbnail
+    -- Parameters:  ispublic, ispublished
+    -- Body:        xml, notes, thumbnail
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
@@ -186,8 +206,10 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 
         assert_all({'user_exists', 'users_match'}, self)
 
+        -- Read request body and parse it into JSON
         ngx.req.read_body()
-        body = util.from_json(ngx.req.get_body_data())
+        local body_data = ngx.req.get_body_data()
+        local body = body_data and util.from_json(body_data) or nil
 
         if (not body.xml) then
             yield_error('Empty project contents')
@@ -203,7 +225,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             project:update({
                 lastupdated = db.format_date(),
                 lastshared = shouldUpdateSharedDate and db.format_date() or nil,
-                notes = self.params.notes,
+                notes = body.notes,
                 ispublic = self.params.ispublic,
                 ispublished = self.params.ispublished
             })
@@ -213,7 +235,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 username = self.params.username,
                 lastupdated = db.format_date(),
                 lastshared = self.params.ispublished and db.format_date() or nil,
-                notes = self.params.notes,
+                notes = body.notes,
                 ispublic = self.params.ispublic,
                 ispublished = self.params.ispublished
             })
@@ -239,7 +261,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 app:match('project_meta', '/projects/:username/:projectname/metadata', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/delete/add/update a project metadata.
-    -- Parameters:  projectname, ispublic, ispublished, notes, lastupdated, lastshared.
+    -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
+    -- Body:        notes, projectname
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
@@ -249,31 +272,49 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         -- TODO
     end),
     POST = capture_errors(function (self)
-        -- TODO
+        assert_all({'user_exists', 'users_match'}, self)
+
+        local project = Projects:find(self.params.username, self.params.projectname)
+        if not project then yield_error(err.nonexistentProject) end
+
+        local shouldUpdateSharedDate =
+            ((not project.lastshared and self.params.ispublished)
+            or (self.params.ispublished and not project.ispublished))
+
+        -- Read request body and parse it into JSON
+        ngx.req.read_body()
+        local body_data = ngx.req.get_body_data()
+        local body = body_data and util.from_json(body_data) or nil
+        local new_name = body and body.projectname or nil
+        local new_notes = body and body.notes or nil
+
+        project:update({
+            projectname = new_name or project.projectname,
+            lastupdated = db.format_date(),
+            lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+            notes = new_notes or project.notes,
+            ispublic = self.params.ispublic or project.ispublic,
+            ispublished = self.params.ispublished or project.ispublished
+        })
+
+        return okResponse('project ' .. self.params.projectname .. ' updated')
     end)
 }))
 
 app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond_to({
-    -- Methods:     GET, DELETE, POST
-    -- Description: Get/delete/add/update a project thumbnail.
+    -- Methods:     GET
+    -- Description: Get a project thumbnail.
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
-
         if not project then yield_error(err.nonexistentProject) end
 
         if self.params.username ~= self.session.username
-            and not project.isPublic then
+            and not project.ispublic then
             yield_error(err.auth)
         end
 
         return rawResponse(retrieveFromDisk(project.id, 'thumbnail'))
-    end),
-    DELETE = capture_errors(function (self)
-        -- TODO
-    end),
-    POST = capture_errors(function (self)
-        -- TODO
     end)
 }))

@@ -4,43 +4,27 @@
 
 local config = require('lapis.config')
 
-config('development', {
+config({'development', 'production'}, {
     postgres = {
         host = '127.0.0.1:5432',
-        user = 'beetle',
+        user = 'snap',
         password = 'postgres_password',
         database = 'postgres_database'
     },
-    site_name = 'Beetle Cloud',
+    site_name = 'Snap Cloud',
     port = 8080,
-    session_name = 'beetlesession',
+    session_name = 'snapsession',
     secret = 'a super secret phrase you should never ever make public',
+
+    -- Change to the relative (or absolute) path of your disk storage
+    -- directory.  Note that the user running Lapis needs to have
+    -- read & write permissions to that path.
+    store_path = 'store'
 
      -- for sending email
     mail_server = "",
     mail_user     = "",
     mail_password = "",
     mail_from = "",
-    mail_footer = ""
-})
-
-config('production', {
-    postgres = {
-        host = '127.0.0.1:5432',
-        user = 'beetle',
-        password = 'postgres_password',
-        database = 'postgres_database'
-    },
-    code_cache = 'on',
-    site_name = 'Beetle Cloud',
-    port = 80,
-    session_name = 'beetlesession',
-    secret = 'a super secret phrase you should never ever make public',
-
-     -- for sending email
-    mail_server = "",
-    mail_user     = "",
-    mail_password = "",
-    mail_from = "".
     mail_footer = ""
 })

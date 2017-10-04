@@ -37,12 +37,15 @@ URL:         /projects/:username/:projectname
 Methods:     GET, DELETE, POST
 Description: Get/delete/add/update a particular project.
              Response will depend on query issuer permissions.
+Parameters:  ispublic, ispublished
+Body:        xml, notes, thumbnail
 
 URL:         /projects/:username/:projectname/metadata
 Methods:     GET, DELETE, POST
 Description: Get/delete/add/update a project metadata.
 Parameters:  projectname, ispublic, ispublished, notes, lastupdated, lastshared.
+Body:        notes, projectname
 
 URL:         /projects/:username/:projectname/thumbnail
-Methods:     GET, DELETE, POST
-Description: Get/delete/add/update a project thumbnail.
+Methods:     GET
+Description: Get a project thumbnail.
