@@ -1,5 +1,6 @@
 -- API module
 -- ==========
+--
 -- See static/API for API description
 --
 -- written by Bernat Romagosa
@@ -67,7 +68,6 @@ app:match('users', '/users', respond_to({
 }))
 
 app:match('current_user', '/users/c', respond_to({
-
     -- Methods:     GET
     -- Description: Get the currently logged user's username.
 
@@ -91,7 +91,6 @@ app:match('user', '/users/:username', respond_to({
     end,
 
     DELETE = capture_errors(function (self)
-
         assert_all({'logged_in', 'admin'}, self)
 
         if not (user:delete()) then
@@ -174,14 +173,46 @@ app:match('projects', '/projects', respond_to({
 
 app:match('user_projects', '/projects/:username', respond_to({
     -- Methods:     GET
-    -- Description: Get all projects by a user.
+    -- Description: Get metadata for a project list by a user.
     --              Response will depend on parameters and query issuer permissions.
     -- Parameters:  ispublished, publishedrange, updatedrange, page, pagesize, matchtext
 
+    -- TODO publishedrange, updatedrange, page, pagesize
+
     OPTIONS = cors_options,
     GET = function (self)
-        assert_all({'user_exists', 'users_match'}, self)
-        return jsonResponse(Projects:select('where username = ?', self.params.username))
+        assert_user_exists(self)
+
+        if self.session.username ~= self.params.username then
+            local visitor = Users:find(self.session.username)
+            if not visitor or not visitor.isadmin then
+                self.params.ispublished = 'true'
+            end
+        end
+
+        local query = 'select * from projects ' .. 
+            db.interpolate_query('where username = ?', self.params.username)
+
+        -- Apply all where clauses
+        if self.params.ispublished ~= nil then
+            query = query ..
+                db.interpolate_query(
+                    ' and ispublished = ?',
+                    self.params.ispublished == 'true'
+                )
+        end
+
+        if self.params.matchtext ~= nil then
+            query = query ..
+                db.interpolate_query(
+                    ' and (projectname ~* ? or notes ~* ?)',
+                    self.params.matchtext,
+                    self.params.matchtext
+                )
+        end
+
+        return jsonResponse(db.query(query))
+--        return jsonResponse(Projects:select('where username = ?', self.params.username))
     end
 }))
 
@@ -194,7 +225,6 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
-        -- TODO: what to do with project media?
         local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
@@ -240,8 +270,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 lastupdated = db.format_date(),
                 lastshared = shouldUpdateSharedDate and db.format_date() or nil,
                 notes = body.notes,
-                ispublic = self.params.ispublic,
-                ispublished = self.params.ispublished
+                ispublic = self.params.ispublic or project.ispublic,
+                ispublished = self.params.ispublished or project.ispublic
             })
         else
             Projects:create({
@@ -250,8 +280,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 lastupdated = db.format_date(),
                 lastshared = self.params.ispublished and db.format_date() or nil,
                 notes = body.notes,
-                ispublic = self.params.ispublic,
-                ispublished = self.params.ispublished
+                ispublic = self.params.ispublic or false,
+                ispublished = self.params.ispublished or false
             })
             project = Projects:find(self.params.username, self.params.projectname)
         end
@@ -274,16 +304,18 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 
 app:match('project_meta', '/projects/:username/:projectname/metadata', respond_to({
     -- Methods:     GET, DELETE, POST
-    -- Description: Get/delete/add/update a project metadata.
+    -- Description: Get/add/update a project metadata.
     -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
     -- Body:        notes, projectname
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
-        -- TODO
-    end),
-    DELETE = capture_errors(function (self)
-        -- TODO
+        local project = Projects:find(self.params.username, self.params.projectname)
+
+        if not project then yield_error(err.nonexistent_project) end
+        if not project.ispublic then assert_users_match(self, err.not_public_project) end
+
+        return jsonResponse(project)
     end),
     POST = capture_errors(function (self)
         assert_all({'user_exists', 'users_match'}, self)
