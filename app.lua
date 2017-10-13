@@ -36,6 +36,7 @@ package.loaded.bcrypt = require 'bcrypt'
 package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
 package.loaded.respond_to = require('lapis.application').respond_to
+package.loaded.cached = require('lapis.cache').cached
 
 local app = package.loaded.app
 

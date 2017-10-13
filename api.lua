@@ -33,6 +33,7 @@ local Model = package.loaded.Model
 local util = package.loaded.util
 local respond_to = package.loaded.respond_to
 local json_params = package.loaded.json_params
+local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 
@@ -161,14 +162,39 @@ app:match('logout', '/logout', respond_to({
 
 app:match('projects', '/projects', respond_to({
     -- Methods:     GET
-    -- Description: Get a list of published projects. Returns an empty list if no parameters
-    --              provided, except when the query issuer is an admin.
+    -- Description: Get a list of published projects.
     -- Parameters:  updatedrange, publishedrange, page, pagesize, matchtext.
 
+    -- TODO publishedrange, updatedrange
+
     OPTIONS = cors_options,
-    GET = function (self)
-        -- TODO
-    end
+    GET = cached({
+        exptime = 30, -- 30 seconds
+        function (self)
+            local query = 'where ispublished'
+
+            -- Apply where clauses
+            if self.params.matchtext then
+                query = query ..
+                    db.interpolate_query(
+                        ' and (projectname ~* ? or notes ~* ?)',
+                        self.params.matchtext,
+                        self.params.matchtext
+                    )
+            end
+
+            local paginator = Projects:paginated(query .. ' order by lastshared desc', { per_page = self.params.pagesize or 16 })
+
+            if self.params.page then
+                return jsonResponse({
+                    pages = paginator:num_pages(),
+                    projects = paginator:get_page(self.params.page)
+                })
+            else
+                return jsonResponse(paginator:get_all())
+            end
+        end
+    })
 }))
 
 app:match('user_projects', '/projects/:username', respond_to({
@@ -177,7 +203,7 @@ app:match('user_projects', '/projects/:username', respond_to({
     --              Response will depend on parameters and query issuer permissions.
     -- Parameters:  ispublished, publishedrange, updatedrange, page, pagesize, matchtext
 
-    -- TODO publishedrange, updatedrange, page, pagesize
+    -- TODO publishedrange, updatedrange
 
     OPTIONS = cors_options,
     GET = function (self)
@@ -190,10 +216,9 @@ app:match('user_projects', '/projects/:username', respond_to({
             end
         end
 
-        local query = 'select * from projects ' .. 
-            db.interpolate_query('where username = ?', self.params.username)
+        local query = db.interpolate_query('where username = ?', self.params.username)
 
-        -- Apply all where clauses
+        -- Apply where clauses
         if self.params.ispublished ~= nil then
             query = query ..
                 db.interpolate_query(
@@ -202,7 +227,7 @@ app:match('user_projects', '/projects/:username', respond_to({
                 )
         end
 
-        if self.params.matchtext ~= nil then
+        if self.params.matchtext then
             query = query ..
                 db.interpolate_query(
                     ' and (projectname ~* ? or notes ~* ?)',
@@ -211,8 +236,16 @@ app:match('user_projects', '/projects/:username', respond_to({
                 )
         end
 
-        return jsonResponse(db.query(query))
---        return jsonResponse(Projects:select('where username = ?', self.params.username))
+        local paginator = Projects:paginated(query .. ' order by lastshared desc', { per_page = self.params.pagesize or 16 })
+
+        if self.params.page then
+            return jsonResponse({
+                pages = paginator:num_pages(),
+                projects = paginator:get_page(self.params.page)
+            })
+        else
+            return jsonResponse(paginator:get_all())
+        end
     end
 }))
 
@@ -352,15 +385,19 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
     -- Description: Get a project thumbnail.
 
     OPTIONS = cors_options,
-    GET = capture_errors(function (self)
-        local project = Projects:find(self.params.username, self.params.projectname)
-        if not project then yield_error(err.nonexistent_project) end
+    GET = capture_errors(
+    cached({
+        exptime = 30,
+        function (self)
+            local project = Projects:find(self.params.username, self.params.projectname)
+            if not project then yield_error(err.nonexistent_project) end
 
-        if self.params.username ~= self.session.username
-            and not project.ispublic then
-            yield_error(err.auth)
+            if self.params.username ~= self.session.username
+                and not project.ispublic then
+                yield_error(err.auth)
+            end
+
+            return rawResponse(retrieveFromDisk(project.id, 'thumbnail'))
         end
-
-        return rawResponse(retrieveFromDisk(project.id, 'thumbnail'))
-    end)
+    }))
 }))
