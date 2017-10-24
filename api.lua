@@ -114,6 +114,7 @@ app:match('user', '/users/:username', respond_to({
         end
 
         Users:create({
+            created = db.format_date(),
             username = self.params.username,
             password = bcrypt.digest(self.params.password, 11),
             email = self.params.email,
@@ -310,6 +311,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             Projects:create({
                 projectname = self.params.projectname,
                 username = self.params.username,
+                created = db.format_date(),
                 lastupdated = db.format_date(),
                 lastshared = self.params.ispublished and db.format_date() or nil,
                 notes = body.notes,

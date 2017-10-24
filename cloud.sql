@@ -49,6 +49,7 @@ CREATE TABLE projects (
     ispublic boolean,
     ispublished boolean,
     notes text,
+    created timestamp with time zone,
     lastupdated timestamp with time zone,
     lastshared timestamp with time zone,
     username dom_username NOT NULL
@@ -84,6 +85,7 @@ ALTER SEQUENCE projects_id_seq OWNED BY projects.id;
 
 CREATE TABLE users (
     id integer NOT NULL,
+    created timestamp with time zone,
     username dom_username NOT NULL,
     email text,
     password text,
