@@ -56,7 +56,7 @@ package.loaded.Projects = package.loaded.Model:extend('projects', {
 
 app:before_filter(function (self)
     -- unescape all parameters
-    for k,v in pairs(self.params) do
+    for k, v in pairs(self.params) do
         self.params[k] = package.loaded.util.unescape(v)
     end
 

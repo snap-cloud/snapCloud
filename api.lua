@@ -164,7 +164,8 @@ app:match('logout', '/logout', respond_to({
 app:match('projects', '/projects', respond_to({
     -- Methods:     GET
     -- Description: Get a list of published projects.
-    -- Parameters:  updatedrange, publishedrange, page, pagesize, matchtext.
+    -- Parameters:  updatedrange, publishedrange, page, pagesize, matchtext,
+    --              withthumbnail.
 
     -- TODO publishedrange, updatedrange
 
@@ -185,15 +186,18 @@ app:match('projects', '/projects', respond_to({
             end
 
             local paginator = Projects:paginated(query .. ' order by lastshared desc', { per_page = self.params.pagesize or 16 })
+            local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
-            if self.params.page then
-                return jsonResponse({
-                    pages = paginator:num_pages(),
-                    projects = paginator:get_page(self.params.page)
-                })
-            else
-                return jsonResponse(paginator:get_all())
+            if self.params.withthumbnail == 'true' then
+                for k, project in pairs(projects) do
+                    project.thumbnail = retrieveFromDisk(project.id, 'thumbnail')
+                end
             end
+
+            return jsonResponse({
+                pages = self.params.page and paginator:num_pages() or nil,
+                projects = projects,
+            })
         end
     })
 }))
@@ -202,7 +206,8 @@ app:match('user_projects', '/projects/:username', respond_to({
     -- Methods:     GET
     -- Description: Get metadata for a project list by a user.
     --              Response will depend on parameters and query issuer permissions.
-    -- Parameters:  ispublished, publishedrange, updatedrange, page, pagesize, matchtext
+    -- Parameters:  ispublished, publishedrange, updatedrange, page, pagesize, matchtext,
+    --              withthumbnail.
 
     -- TODO publishedrange, updatedrange
 
@@ -238,15 +243,18 @@ app:match('user_projects', '/projects/:username', respond_to({
         end
 
         local paginator = Projects:paginated(query .. ' order by lastshared desc', { per_page = self.params.pagesize or 16 })
+        local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
-        if self.params.page then
-            return jsonResponse({
-                pages = paginator:num_pages(),
-                projects = paginator:get_page(self.params.page)
-            })
-        else
-            return jsonResponse(paginator:get_all())
+        if self.params.withthumbnail == 'true' then
+            for k, project in pairs(projects) do
+                project.thumbnail = retrieveFromDisk(project.id, 'thumbnail')
+            end
         end
+
+        return jsonResponse({
+            pages = self.params.page and paginator:num_pages() or nil,
+            projects = projects,
+        })
     end
 }))
 
