@@ -138,7 +138,10 @@ app:match('login', '/users/:username/login', respond_to({
 
         if not user then yield_error(err.nonexistent_user) end
 
-        if (bcrypt.verify(self.params.password, user.password)) then
+        ngx.req.read_body()
+        local password = ngx.req.get_body_data()
+
+        if (bcrypt.verify(password, user.password)) then
             self.session.username = user.username
             self.cookies.persist_session = self.params.persist
             return okResponse('User ' .. self.params.username .. ' logged in')
@@ -161,6 +164,8 @@ app:match('logout', '/logout', respond_to({
 }))
 
 
+-- TODO refactor the following two, as they share most of the code
+
 app:match('projects', '/projects', respond_to({
     -- Methods:     GET
     -- Description: Get a list of published projects.
@@ -171,7 +176,7 @@ app:match('projects', '/projects', respond_to({
 
     OPTIONS = cors_options,
     GET = cached({
-        exptime = 30, -- 30 seconds
+        exptime = 30, -- cache expires after 30 seconds
         function (self)
             local query = 'where ispublished'
 
@@ -185,7 +190,7 @@ app:match('projects', '/projects', respond_to({
                     )
             end
 
-            local paginator = Projects:paginated(query .. ' order by lastshared desc', { per_page = self.params.pagesize or 16 })
+            local paginator = Projects:paginated(query .. ' order by created desc', { per_page = self.params.pagesize or 16 })
             local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
             if self.params.withthumbnail == 'true' then
@@ -397,7 +402,7 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
     OPTIONS = cors_options,
     GET = capture_errors(
     cached({
-        exptime = 30,
+        exptime = 30, -- cache expires after 30 seconds
         function (self)
             local project = Projects:find(self.params.username, self.params.projectname)
             if not project then yield_error(err.nonexistent_project) end

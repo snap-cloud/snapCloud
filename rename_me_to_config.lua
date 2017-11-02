@@ -13,6 +13,10 @@ config({'development', 'production'}, {
     },
     site_name = 'Snap Cloud',
     port = 8080,
+    ssl_port = 443,
+    enable_https = true,
+    num_workers = 1,
+    code_cache = 'off'
     session_name = 'snapsession',
     secret = 'a super secret phrase you should never ever make public',
 
@@ -27,4 +31,10 @@ config({'development', 'production'}, {
     mail_password = "",
     mail_from = "",
     mail_footer = ""
+})
+
+config('production', {
+    num_workers = 12,
+    code_cache = 'on',
+    store_path = '/opt/snap'
 })
