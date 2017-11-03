@@ -87,13 +87,14 @@ app:match('user', '/users/:username', respond_to({
     -- Description: Get info about a user, or delete/add/update a user.
 
     OPTIONS = cors_options,
-    GET = function (self)
+    GET =capture_errors(function (self)
+        if not users_match(self) then assert_admin(self) end
         return jsonResponse(
             Users:select(
                 'where username = ? limit 1',
                 self.params.username,
-                { fields = 'username, location, about, joined' }))
-    end,
+                { fields = 'username, location, about, joined, isadmin, email' })[1])
+    end),
 
     DELETE = capture_errors(function (self)
         assert_all({'logged_in', 'admin'}, self)
@@ -274,13 +275,13 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
-        if not project.ispublic or users_match() then assert_admin(self, err.not_public_project) end
+        if not project.ispublic or users_match(self) then assert_admin(self, err.not_public_project) end
 
         return rawResponse(retrieveFromDisk(project.id, 'project.xml'))
     end),
     DELETE = capture_errors(function (self)
         assert_all({'project_exists', 'user_exists'}, self)
-        if not users_match() then assert_admin(self) end
+        if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
         deleteDirectory(project.id)
