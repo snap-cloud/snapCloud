@@ -52,10 +52,14 @@ assert_admin = function (self, message)
 end
 
 assert_users_match = function (self, message)
-    if (self.session.username ~= self.params.username) then
+    if (not users_match(self)) then
         -- Someone is trying to impersonate someone else
         yield_error(message or err.auth)
     end
+end
+
+users_match = function (self)
+    return (self.session.username == self.params.username)
 end
 
 assert_user_exists = function (self, message)

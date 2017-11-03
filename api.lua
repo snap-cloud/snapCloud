@@ -55,6 +55,7 @@ app:match('init', '/init', respond_to({
     end
 }))
 
+--[[
 app:match('users', '/users', respond_to({
     -- Methods:     GET
     -- Description: Get a list of users. Returns an empty list if no parameters provided,
@@ -67,14 +68,17 @@ app:match('users', '/users', respond_to({
         return jsonResponse(Users:select({ fields = 'username' }))
     end
 }))
+]]--
 
 app:match('current_user', '/users/c', respond_to({
     -- Methods:     GET
-    -- Description: Get the currently logged user's username.
+    -- Description: Get the currently logged user's username and credentials.
 
     OPTIONS = cors_options,
     GET = function (self)
-        return jsonResponse({ username = self.session.username })
+        return jsonResponse({
+            username = self.session.username,
+            isadmin = self.session.isadmin })
     end
 }))
 
@@ -86,9 +90,9 @@ app:match('user', '/users/:username', respond_to({
     GET = function (self)
         return jsonResponse(
             Users:select(
-                'where username = ?',
+                'where username = ? limit 1',
                 self.params.username,
-                { fields = 'username, location, about, joined' })[1])
+                { fields = 'username, location, about, joined' }))
     end,
 
     DELETE = capture_errors(function (self)
@@ -130,7 +134,7 @@ app:match('user', '/users/:username', respond_to({
 app:match('login', '/users/:username/login', respond_to({
     -- Methods:     POST
     -- Description: Logs a user into the system.
-    -- Parameters:  password
+    -- Body:        password.
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
@@ -143,6 +147,7 @@ app:match('login', '/users/:username/login', respond_to({
 
         if (bcrypt.verify(password, user.password)) then
             self.session.username = user.username
+            self.session.isadmin = user.isadmin
             self.cookies.persist_session = self.params.persist
             return okResponse('User ' .. self.params.username .. ' logged in')
         else
@@ -169,10 +174,7 @@ app:match('logout', '/logout', respond_to({
 app:match('projects', '/projects', respond_to({
     -- Methods:     GET
     -- Description: Get a list of published projects.
-    -- Parameters:  updatedrange, publishedrange, page, pagesize, matchtext,
-    --              withthumbnail.
-
-    -- TODO publishedrange, updatedrange
+    -- Parameters:  page, pagesize, matchtext, withthumbnail.
 
     OPTIONS = cors_options,
     GET = cached({
@@ -211,10 +213,7 @@ app:match('user_projects', '/projects/:username', respond_to({
     -- Methods:     GET
     -- Description: Get metadata for a project list by a user.
     --              Response will depend on parameters and query issuer permissions.
-    -- Parameters:  ispublished, publishedrange, updatedrange, page, pagesize, matchtext,
-    --              withthumbnail.
-
-    -- TODO publishedrange, updatedrange
+    -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail.
 
     OPTIONS = cors_options,
     GET = function (self)
@@ -275,12 +274,14 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
-        if not project.ispublic then assert_users_match(self, err.not_public_project) end
+        if not project.ispublic or users_match() then assert_admin(self, err.not_public_project) end
 
         return rawResponse(retrieveFromDisk(project.id, 'project.xml'))
     end),
     DELETE = capture_errors(function (self)
-        assert_all({'project_exists', 'user_exists', 'users_match'}, self)
+        assert_all({'project_exists', 'user_exists'}, self)
+        if not users_match() then assert_admin(self) end
+
         local project = Projects:find(self.params.username, self.params.projectname)
         deleteDirectory(project.id)
         if not (project:delete()) then
@@ -366,7 +367,8 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         return jsonResponse(project)
     end),
     POST = capture_errors(function (self)
-        assert_all({'user_exists', 'users_match'}, self)
+        assert_user_exists(self)
+        if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
         if not project then yield_error(err.nonexistent_project) end
