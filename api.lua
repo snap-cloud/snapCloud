@@ -64,7 +64,6 @@ app:match('users', '/users', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
-        -- TODO: security, filters and pagination
         return jsonResponse(Users:select({ fields = 'username' }))
     end
 }))
@@ -84,7 +83,8 @@ app:match('current_user', '/users/c', respond_to({
 
 app:match('user', '/users/:username', respond_to({
     -- Methods:     GET, DELETE, POST
-    -- Description: Get info about a user, or delete/add/update a user.
+    -- Description: Get info about a user, or delete/add a user.
+    -- Parameters:  username, password, password_repeat, email
 
     OPTIONS = cors_options,
     GET =capture_errors(function (self)
@@ -132,6 +132,34 @@ app:match('user', '/users/:username', respond_to({
 
 }))
 
+app:match('newpassword', '/users/:username/newpassword', respond_to({
+    -- Methods:     POST
+    -- Description: Sets a new password for a user.
+    -- Parameters:  password, password_repeat, newpassword
+
+    OPTIONS = cors_options,
+    POST = capture_errors(function (self)
+        local user = Users:find(self.params.username)
+
+        assert_all({'user_exists', 'users_match'}, self)
+
+        if not bcrypt.verify(self.params.oldpassword, user.password) then
+            yield_error('wrong password')
+        end
+
+        validate.assert_valid(self.params, {
+            { 'password_repeat', equals = self.params.newpassword, 'passwords do not match' },
+            { 'newpassword', exists = true, min_length = 6 }
+        })
+
+        user:update({
+            password = bcrypt.digest(self.params.newpassword, 11)
+        })
+
+        return okResponse('Password updated')
+    end)
+}))
+
 app:match('login', '/users/:username/login', respond_to({
     -- Methods:     POST
     -- Description: Logs a user into the system.
@@ -152,14 +180,14 @@ app:match('login', '/users/:username/login', respond_to({
             self.cookies.persist_session = self.params.persist
             return okResponse('User ' .. self.params.username .. ' logged in')
         else
-            yield_error('invalid password')
+            yield_error('wrong password')
         end
     end)
 }))
 
 app:match('logout', '/logout', respond_to({
     -- Methods:     POST
-    -- Description: Logs out a user from the system.
+    -- Description: Logs out the current user from the system.
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)

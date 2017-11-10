@@ -1,51 +1,50 @@
-URL:         /users
+/users/c
 Methods:     GET
-Description: Get a list of users. Returns an empty list if no parameters provided,
-             except when the query issuer is an admin.
-Parameters:  matchtext, page, pagesize
+Description: Get the currently logged user's username and credentials.
 
-URL:         /users/c
-Methods:     GET
-Description: Get the currently logged user's username.
-
-URL:         /users/:username
+/users/:username
 Methods:     GET, DELETE, POST
-Description: Get info about a user, or delete/add/update a user.
+Description: Get info about a user, or delete/add a user.
+Parameters:  password, password_repeat, email
 
-URL:         /users/:username/login
+/users/:username/newpassword
+Methods:     POST
+Description: Sets a new password for a user.
+Parameters:  password, password_repeat, newpassword
+
+/users/:username/login
 Methods:     POST
 Description: Logs a user into the system.
-Parameters:  password
+Body:        password.
 
-URL:         /users/:username/logout
+/logout
 Methods:     POST
-Description: Logs out a user from the system.
+Description: Logs out the current user from the system.
 
-URL:         /projects
+/projects
 Methods:     GET
-Description: Get a list of published projects. Returns an empty list if no parameters
-             provided, except when the query issuer is an admin.
-Parameters:  updatedrange, publishedrange, page, pagesize, matchtext.
+Description: Get a list of published projects.
+Parameters:  page, pagesize, matchtext, withthumbnail.
 
-URL:         /projects/:username
+/projects/:username
 Methods:     GET
-Description: Get all projects by a user.
+Description: Get metadata for a project list by a user.
              Response will depend on parameters and query issuer permissions.
-Parameters:  ispublished, publishedrange, updatedrange, page, pagesize, matchtext
+Parameters:  ispublished, page, pagesize, matchtext, withthumbnail.
 
-URL:         /projects/:username/:projectname
+/projects/:username/:projectname
 Methods:     GET, DELETE, POST
 Description: Get/delete/add/update a particular project.
              Response will depend on query issuer permissions.
 Parameters:  ispublic, ispublished
 Body:        xml, notes, thumbnail
 
-URL:         /projects/:username/:projectname/metadata
+/projects/:username/:projectname/metadata
 Methods:     GET, DELETE, POST
-Description: Get/delete/add/update a project metadata.
-Parameters:  projectname, ispublic, ispublished, notes, lastupdated, lastshared.
+Description: Get/add/update a project metadata.
+Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
 Body:        notes, projectname
 
-URL:         /projects/:username/:projectname/thumbnail
+/projects/:username/:projectname/thumbnail
 Methods:     GET
 Description: Get a project thumbnail.
