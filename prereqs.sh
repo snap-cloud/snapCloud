@@ -23,6 +23,10 @@ print_ok "Installing lua 5.1..."
 apt-get install lua5.1 -y
 if [ $? -ne 0 ]; then error; fi
 
+print_ok "Installing libssl..."
+apt-get install libssl-dev -y
+if [ $? -ne 0 ]; then error; fi
+
 print_ok "Installing luarocks..."
 apt-get install luarocks -y
 if [ $? -ne 0 ]; then error; fi
@@ -35,7 +39,7 @@ luarocks install luasec
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing PostgreSQL..."
-apt-get install postgresql postgresql-client
+apt-get install postgresql postgresql-client -y
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Prerequisites installed."

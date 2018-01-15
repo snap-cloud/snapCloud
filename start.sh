@@ -1,0 +1,1 @@
+authbind --deep lapis server
