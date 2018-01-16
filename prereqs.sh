@@ -31,11 +31,23 @@ print_ok "Installing luarocks..."
 apt-get install luarocks -y
 if [ $? -ne 0 ]; then error; fi
 
+print_ok "Installing OpenResty..."
+wget -qO - https://openresty.org/package/pubkey.gpg | apt-key add -
+apt-get -y install software-properties-common
+add-apt-repository -y "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main"
+apt-get update
+apt-get install openresty -y
+if [ $? -ne 0 ]; then error; fi
+
 print_ok "Installing lua packages..."
 luarocks install lapis
 luarocks install bcrypt
 luarocks install md5
 luarocks install luasec
+if [ $? -ne 0 ]; then error; fi
+
+print_ok "Installing authbind..."
+apt-get install authbind -y
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing PostgreSQL..."

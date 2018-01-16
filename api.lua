@@ -303,7 +303,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
-        if not project.ispublic or users_match(self) then assert_admin(self, err.not_public_project) end
+        if not (project.ispublic or users_match(self)) then assert_admin(self, err.not_public_project) end
 
         return rawResponse(retrieveFromDisk(project.id, 'project.xml'))
     end),

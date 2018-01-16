@@ -43,6 +43,15 @@ Additional Lua packages you need for the Snap!Cloud to work properly are the Bcr
 # luarocks install luasec
 ```
 
+### Authbind
+
+In order to serve the cloud over HTTPS, we need the cloud user to have permissions over port 443, for which we're going to be using the `authbind` utility.
+
+```
+# apt-get install authbind -y
+```
+
+
 ### PostgreSQL
 
 The Snap!Cloud backend uses PostreSQL for storage, so you'll need to install it too. Again, under Debian/Ubuntu this is trivial:
@@ -91,6 +100,16 @@ If it all goes well, you should now have all tables properly set up. You can mak
 ### Lapis database configuration
 
 Now, rename the `rename_me_to_config.lua` file to `config.lua`, as the filename says, and edit it according to your own setup. The `.gitconfig` file makes sure this file is never pushed to the repository, but you should still be careful to never share it, as it contains the database password and the secret phrase used to hash Lapis sessions.
+
+### Giving permissions for SSL
+
+We now need to configure authbind so that user `snap` can start a service over the SSL port. To do so, we simply need to create a file and assign its ownership to `snap`:
+
+```
+# touch /etc/authbind/byport/443
+# chown snap:snap /etc/authbind/byport/443
+# chmod +x /etc/authbind/byport/443
+```
 
 ## Running the Snap!Cloud
 
