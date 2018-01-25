@@ -6,12 +6,12 @@ local config = require('lapis.config')
 
 config({'development', 'production'}, {
     postgres = {
-        host = '127.0.0.1:5432',
-        user = 'snap',
-        password = 'postgres_password',
-        database = 'postgres_database'
+        host = os.getenv('DATABASE_URL') or '127.0.0.1:5432',
+        user = os.getenv('DATABASE_USERNAME') or 'snap',
+        password = os.getenv('DATABASE_PASSWORD') or 'postgres_password',
+        database = os.getenv('DATABASE_NAME') or 'postgres_database'
     },
-    site_name = 'Snap Cloud',
+    site_name = 'dev | Snap Cloud',
     port = 8080,
     ssl_port = 443,
     enable_https = true,
@@ -34,6 +34,14 @@ config({'development', 'production'}, {
 })
 
 config('production', {
+    site_name = 'Snap Cloud',
+    postgres = {
+        host = os.getenv('DATABASE_URL'),
+        user = os.getenv('DATABASE_USERNAME'),
+        password = os.getenv('DATABASE_PASSWORD'),
+        database = os.getenv('DATABASE_NAME')
+    }
+    secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 12,
     code_cache = 'on',
     store_path = '/opt/snap'
