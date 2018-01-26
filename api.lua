@@ -145,7 +145,7 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
 
         assert_all({'user_exists', 'users_match'}, self)
 
-        if self.params.oldpassword ~= hash_password(user.password, user.salt) then
+        if user.password ~= hash_password(self.params.password, user.salt) then
             yield_error('wrong password')
         end
 
@@ -176,7 +176,7 @@ app:match('login', '/users/:username/login', respond_to({
         ngx.req.read_body()
         local password = ngx.req.get_body_data()
 
-        if (password == hash_password(user.password, user.salt)) then
+        if (hash_password(password, user.salt) == user.password) then
             self.session.username = user.username
             self.session.isadmin = user.isadmin
             self.cookies.persist_session = self.params.persist

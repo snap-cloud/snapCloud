@@ -1,1 +1,1 @@
-authbind --deep lapis server
+authbind --deep lapis server --production

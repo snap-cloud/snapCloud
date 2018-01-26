@@ -90,7 +90,6 @@ CREATE TABLE users (
     email text,
     salt text,
     password text,
-    joined timestamp with time zone,
     about text,
     location text,
     isadmin boolean

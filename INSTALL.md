@@ -38,9 +38,9 @@ Additional Lua packages you need for the Snap!Cloud to work properly are the Bcr
 
 ```
 # luarocks install lapis
-# luarocks install bcrypt
 # luarocks install md5
 # luarocks install luasec
+# luarocks install luacrypto
 ```
 
 ### Authbind

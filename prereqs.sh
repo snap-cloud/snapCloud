@@ -41,9 +41,9 @@ if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing lua packages..."
 luarocks install lapis
-luarocks install bcrypt
 luarocks install md5
 luarocks install luasec
+luarocks install luacrypto
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing authbind..."
