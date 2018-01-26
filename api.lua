@@ -392,6 +392,13 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
     GET = capture_errors(function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
 
+        print(self.req.headers.connection)
+        print(self.req.headers.referer)
+        print(self.req.headers.host)
+        print(self.req.headers.origin)
+        print(self.req.headers.cookie)
+        print(self.req.headers['user-agent'])
+
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
 
