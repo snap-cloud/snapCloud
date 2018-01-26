@@ -31,12 +31,14 @@ local file = io.open(filename, 'r')
 local usage = 'Usage:\n\nlua migrate.lua [user/projects] [file.xml]\n'
 local raw_data
 
+require 'disk'
+
 local db = pgmoon.new({
-  host = url:match("([^:]*)"), -- only up to ":"
-  port = url:match("^.*%:(.*)"), -- after ":"
-  database = os.getenv('DATABASE_NAME'),
-  user = os.getenv('DATABASE_USERNAME'),
-  password = os.getenv('DATABASE_PASSWORD')
+    host = url:match("([^:]*)"), -- only up to ":"
+    port = url:match("^.*%:(.*)"), -- after ":"
+    database = os.getenv('DATABASE_NAME'),
+    user = os.getenv('DATABASE_USERNAME'),
+    password = os.getenv('DATABASE_PASSWORD')
 })
 
 assert(db:connect())
@@ -74,7 +76,34 @@ function migrate_user()
 end
 
 function migrate_projects()
+    -- STILL UNTESTED
+    -- Only for the first project. We need to iterate over mod(6) to get them all
+    local fields = {}
+    local i = 1
+    raw_data:gsub("([^".. "\1" .."]*)" .. "\2", function (field)
+        fields[i] = field
+        i = i + 1
+    end)
+
     print('migrating projects')
+
+    print(db:query("insert into projects (projectname, username, ispublic, ispublished, created, lastupdated, lastshared) values (" ..
+        "'" .. fields[1] .. "', " ..
+        "'" .. fields[2] .. "', " ..
+        fields[3] .. ', false, ' ..
+        "'" .. fields[4] .. "', " ..
+        "'" .. fields[4] .. "', " ..
+        ((fields[3] == 'true') and ("'" .. fields[4] .. "';" ) or "NULL;")
+        ))
+
+    -- We need to get the project ID by asking the DB. Maybe the query returns it?
+    saveToDisk(project_id, 'project.xml', fields[6])
+    -- To get the thumbnail, we need to parse the XML and extract the <thumbnail>
+    -- tag contents
+    saveToDisk(project_id, 'thumbnail', thumbnail)
+    -- We need to find the media XML from the media file. We could probably just
+    -- concatenate it into the project XML and forget about this extra file
+    saveToDisk(project.id, 'media.xml', get_media(fields[1], fields[2])) 
 end
 
 _G['migrate_' .. table]()

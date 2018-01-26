@@ -92,7 +92,7 @@ app:match('user', '/users/:username', respond_to({
             Users:select(
                 'where username = ? limit 1',
                 self.params.username,
-                { fields = 'username, location, about, joined, isadmin, email' })[1])
+                { fields = 'username, location, about, created, isadmin, email' })[1])
     end),
 
     DELETE = capture_errors(function (self)
