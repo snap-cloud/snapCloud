@@ -32,13 +32,18 @@ package.loaded.json_params = package.loaded.app_helpers.json_params
 package.loaded.capture_errors = package.loaded.app_helpers.capture_errors_json
 package.loaded.yield_error = package.loaded.app_helpers.yield_error
 package.loaded.validate = require 'lapis.validate'
-package.loaded.bcrypt = require 'bcrypt'
 package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
 package.loaded.respond_to = require('lapis.application').respond_to
 package.loaded.cached = require('lapis.cache').cached
+package.loaded.resty_sha512 = require "resty.sha512"
+package.loaded.resty_string = require "resty.string"
 
 local app = package.loaded.app
+
+-- Generate a random seed for random number generation
+-- This is used to generate random salt strings for hashing passwords
+math.randomseed(os.time())
 
 
 -- Database abstractions

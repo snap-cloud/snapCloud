@@ -28,7 +28,6 @@ local app_helpers = package.loaded.db
 local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local validate = package.loaded.validate
-local bcrypt = package.loaded.bcrypt
 local Model = package.loaded.Model
 local util = package.loaded.util
 local respond_to = package.loaded.respond_to
@@ -118,10 +117,13 @@ app:match('user', '/users/:username', respond_to({
             yield_error('User ' .. self.params.username .. ' already exists');
         end
 
+        local salt = tostring(math.random())
+
         Users:create({
             created = db.format_date(),
             username = self.params.username,
-            password = bcrypt.digest(self.params.password, 11),
+            salt = salt,
+            password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
             email = self.params.email,
             isadmin = false,
             joined = db.format_date()
@@ -143,7 +145,7 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
 
         assert_all({'user_exists', 'users_match'}, self)
 
-        if not bcrypt.verify(self.params.oldpassword, user.password) then
+        if self.params.oldpassword ~= hash_password(user.password, user.salt) then
             yield_error('wrong password')
         end
 
@@ -153,7 +155,7 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
         })
 
         user:update({
-            password = bcrypt.digest(self.params.newpassword, 11)
+            password = hash_password(self.params.newpassword, user.salt)
         })
 
         return okResponse('Password updated')
@@ -174,7 +176,7 @@ app:match('login', '/users/:username/login', respond_to({
         ngx.req.read_body()
         local password = ngx.req.get_body_data()
 
-        if (bcrypt.verify(password, user.password)) then
+        if (password == hash_password(user.password, user.salt)) then
             self.session.username = user.username
             self.session.isadmin = user.isadmin
             self.cookies.persist_session = self.params.persist

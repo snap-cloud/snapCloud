@@ -23,6 +23,9 @@
 local yield_error = package.loaded.yield_error
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
+local resty_sha512 = package.loaded.resty_sha512
+local resty_string = package.loaded.resty_string
+
 
 err = {
     not_logged_in = 'You are not logged in',
@@ -74,3 +77,13 @@ assert_project_exists = function (self, message)
     end
 end
 
+hash_password = function (password, salt)
+    -- we're following the same policy as the old cloud in order to keep user 
+    -- passwords unchanged
+    local sha512 = resty_sha512:new()
+    sha512:update(password)
+    local prehash = resty_string.to_hex(sha512:final())
+    sha512 = resty_sha512:new()
+    sha512:update(prehash .. salt)
+    return resty_string.to_hex(sha512:final())
+end

@@ -88,6 +88,7 @@ CREATE TABLE users (
     created timestamp with time zone,
     username dom_username NOT NULL,
     email text,
+    salt text,
     password text,
     joined timestamp with time zone,
     about text,

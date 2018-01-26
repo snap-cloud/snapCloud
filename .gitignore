@@ -12,3 +12,5 @@ uwsgi_temp
 *.key
 .*.swp
 .*.swo
+.swp
+.swo
