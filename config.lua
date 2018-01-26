@@ -16,14 +16,14 @@ config({'development', 'production'}, {
     ssl_port = 443,
     enable_https = true,
     num_workers = 1,
-    code_cache = 'off'
+    code_cache = 'off',
     session_name = 'snapsession',
     secret = 'a super secret phrase you should never ever make public',
 
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have
     -- read & write permissions to that path.
-    store_path = 'store'
+    store_path = 'store',
 
      -- for sending email
     mail_server = "",
@@ -40,7 +40,7 @@ config('production', {
         user = os.getenv('DATABASE_USERNAME'),
         password = os.getenv('DATABASE_PASSWORD'),
         database = os.getenv('DATABASE_NAME')
-    }
+    },
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 12,
     code_cache = 'on',
