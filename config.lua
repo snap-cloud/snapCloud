@@ -13,8 +13,7 @@ config({'development', 'production'}, {
     },
     site_name = 'dev | Snap Cloud',
     port = 8080,
-    ssl_port = 443,
-    enable_https = true,
+    enable_ssl = false,
     num_workers = 1,
     code_cache = 'off',
     session_name = 'snapsession',
@@ -41,6 +40,8 @@ config('production', {
         password = os.getenv('DATABASE_PASSWORD'),
         database = os.getenv('DATABASE_NAME')
     },
+    ssl_port = 443,
+    enable_https = true,
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 12,
     code_cache = 'on',
