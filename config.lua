@@ -8,8 +8,8 @@ config({'development', 'production'}, {
     postgres = {
         host = os.getenv('DATABASE_URL') or '127.0.0.1:5432',
         user = os.getenv('DATABASE_USERNAME') or 'snap',
-        password = os.getenv('DATABASE_PASSWORD') or 'postgres_password',
-        database = os.getenv('DATABASE_NAME') or 'postgres_database'
+        password = os.getenv('DATABASE_PASSWORD') or 'snap-cloud-password',
+        database = os.getenv('DATABASE_NAME') or 'snap_cloud'
     },
     site_name = 'dev | Snap Cloud',
     port = 8080,
