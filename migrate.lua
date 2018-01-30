@@ -28,8 +28,9 @@ local url = os.getenv('DATABASE_URL')
 local table = arg[1] or nil
 local filename = arg[2] or nil
 local file = io.open(filename, 'r')
+local file_size
+local buffer_size = tonumber(arg[3]) or 524288 -- Seems to be the sweet spot in my system
 local usage = 'Usage:\n\nlua migrate.lua [users/projects] [file.xml]\n'
-local raw_data
 
 require 'disk'
 
@@ -48,8 +49,8 @@ if not (arg[1] and arg[2]) then
 end
 
 if file then
-    raw_data = file:read("*all")
-    file:close()
+    file_size = file:seek('end')
+    file:seek('set', 0)
 else
     print('Could not read ' .. filename)  
     print(usage)
@@ -57,17 +58,28 @@ else
 end
 
 function migrate_collection(entities)
-    
-    separator = {
+    local separator = {
         users = "\0",
         projects = "\3"
     }
 
-    raw_data:gsub("([^".. separator[entities] .."]*)" .. "\1", function (raw_item)
-        -- we call either migrate_user or migrate_project by removing
-        -- the last letter of entities (user[s], project[s])
+    local file_position = 1
+
+    while file_position < file_size do
+        local index = nil
+        local raw_item = ''
+        local buffer = ''
+        file:seek('set', file_position - 1)
+
+        while not index do
+            buffer = file:read(buffer_size)
+            index = buffer:find(separator[entities])
+            raw_item = raw_item .. buffer:sub(1, index)
+        end
+        file_position = file_position + raw_item:len()
         _G['migrate_' .. entities:sub(1, -2)](raw_item)
-    end)
+    end
+    print('all done')
 end
 
 function migrate_user(raw_user)
@@ -79,7 +91,6 @@ function migrate_user(raw_user)
     end)
 
     print('migrating user ' .. fields[2])
-
     print(db:query("insert into users (created, username, salt, password, email, isadmin) values (" ..
         "'" .. fields[8] .. "', " ..
         "'" .. fields[2] .. "', " ..
@@ -93,13 +104,14 @@ function migrate_project(raw_project)
     -- STILL UNTESTED
     local fields = {}
     local i = 1
-    raw_project:gsub("([^".. "\1" .."]*)" .. "\2", function (field)
+    raw_project:gsub("([^".. "\2" .."]*)" .. "\2", function (field)
         fields[i] = field
         i = i + 1
     end)
 
     print('migrating project ' .. fields[1])
 
+    --[[
     print(db:query("insert into projects (projectname, username, ispublic, ispublished, created, lastupdated, lastshared) values (" ..
         "'" .. fields[1] .. "', " ..
         "'" .. fields[2] .. "', " ..
@@ -115,8 +127,12 @@ function migrate_project(raw_project)
     -- tag contents
     saveToDisk(project_id, 'thumbnail', thumbnail)
     -- We need to find the media XML from the media file. We could probably just
-    -- concatenate it into the project XML and forget about this extra file
+    -- concatenate it into the project XML and forget about this extra file, or
+    -- import all media altogether later
     saveToDisk(project.id, 'media.xml', get_media(fields[1], fields[2])) 
+    --]]
 end
 
+--local time = os.time()
 _G['migrate_collection'](table)
+--print(os.time() - time)
