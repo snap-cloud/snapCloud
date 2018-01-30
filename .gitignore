@@ -13,3 +13,4 @@ uwsgi_temp
 .*.swo
 .swp
 .swo
+.env
