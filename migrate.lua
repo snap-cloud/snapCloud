@@ -51,7 +51,7 @@ if file then
     raw_data = file:read("*all")
     file:close()
 else
-    print('Could not read ' .. filename)  
+    print('Could not read ' .. filename)
     print(usage)
     os.exit()
 end
@@ -66,6 +66,9 @@ function migrate_user()
 
     print('migrating user ' .. fields[2])
 
+    print(db:insert('users', {
+
+    }))
     print(db:query("insert into users (created, username, salt, password, email, isadmin) values (" ..
         "'" .. fields[8] .. "', " ..
         "'" .. fields[2] .. "', " ..
@@ -103,7 +106,7 @@ function migrate_projects()
     saveToDisk(project_id, 'thumbnail', thumbnail)
     -- We need to find the media XML from the media file. We could probably just
     -- concatenate it into the project XML and forget about this extra file
-    saveToDisk(project.id, 'media.xml', get_media(fields[1], fields[2])) 
+    saveToDisk(project.id, 'media.xml', get_media(fields[1], fields[2]))
 end
 
 _G['migrate_' .. table]()
