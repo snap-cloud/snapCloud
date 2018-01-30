@@ -28,7 +28,7 @@ local url = os.getenv('DATABASE_URL')
 local table = arg[1] or nil
 local filename = arg[2] or nil
 local file = io.open(filename, 'r')
-local usage = 'Usage:\n\nlua migrate.lua [user/projects] [file.xml]\n'
+local usage = 'Usage:\n\nlua migrate.lua [users/projects] [file.xml]\n'
 local raw_data
 
 require 'disk'
@@ -56,10 +56,24 @@ else
     os.exit()
 end
 
-function migrate_user()
+function migrate_collection(entities)
+    
+    separator = {
+        users = "\0",
+        projects = "\3"
+    }
+
+    raw_data:gsub("([^".. separator[entities] .."]*)" .. "\1", function (raw_item)
+        -- we call either migrate_user or migrate_project by removing
+        -- the last letter of entities (user[s], project[s])
+        _G['migrate_' .. entities:sub(1, -2)](raw_item)
+    end)
+end
+
+function migrate_user(raw_user)
     local fields = {}
     local i = 1
-    raw_data:gsub("([^".. "\1" .."]*)" .. "\1", function (field)
+    raw_user:gsub("([^".. "\1" .."]*)" .. "\1", function (field)
         fields[i] = field
         i = i + 1
     end)
@@ -75,17 +89,16 @@ function migrate_user()
         "false);"))
 end
 
-function migrate_projects()
+function migrate_project(raw_project)
     -- STILL UNTESTED
-    -- Only for the first project. We need to iterate over mod(6) to get them all
     local fields = {}
     local i = 1
-    raw_data:gsub("([^".. "\1" .."]*)" .. "\2", function (field)
+    raw_project:gsub("([^".. "\1" .."]*)" .. "\2", function (field)
         fields[i] = field
         i = i + 1
     end)
 
-    print('migrating projects')
+    print('migrating project ' .. fields[1])
 
     print(db:query("insert into projects (projectname, username, ispublic, ispublished, created, lastupdated, lastshared) values (" ..
         "'" .. fields[1] .. "', " ..
@@ -106,4 +119,4 @@ function migrate_projects()
     saveToDisk(project.id, 'media.xml', get_media(fields[1], fields[2])) 
 end
 
-_G['migrate_' .. table]()
+_G['migrate_collection'](table)
