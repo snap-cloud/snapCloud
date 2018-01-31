@@ -24,13 +24,14 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local pgmoon = require('pgmoon')
+local xml = require('xml')
 local url = os.getenv('DATABASE_URL')
 local table = arg[1] or nil
 local filename = arg[2] or nil
 local file = io.open(filename, 'r')
 local file_size
-local buffer_size = tonumber(arg[3]) or 524288 -- Seems to be the sweet spot in my system
-local usage = 'Usage:\n\nlua migrate.lua [users/projects] [file.xml]\n'
+local buffer_size = tonumber(arg[3]) or 393216 -- Seems to be the sweet spot in my system
+local usage = 'Usage:\n\nlua migrate.lua [users/projects/mediae] [file.xml] [buffer size]\n'
 
 require 'disk'
 
@@ -60,6 +61,7 @@ end
 function migrate_collection(entities)
     local separator = {
         users = "\0",
+        mediae = "\3",
         projects = "\3"
     }
 
@@ -92,16 +94,15 @@ function migrate_user(raw_user)
 
     print('migrating user ' .. fields[2])
     print(db:query("insert into users (created, username, salt, password, email, isadmin) values (" ..
-        "'" .. fields[8] .. "', " ..
-        "'" .. fields[2] .. "', " ..
-        "'" .. fields[5] .. "', " ..
-        "'" .. fields[4] .. "', " ..
-        "'" .. fields[3] .. "', " ..
+        db:escape_literal(fields[8]) .. ", " ..
+        db:escape_literal(fields[2]) .. ", " ..
+        db:escape_literal(fields[5]) .. ", " ..
+        db:escape_literal(fields[4]) .. ", " ..
+        db:escape_literal(fields[3]) .. ", " ..
         "false);"))
 end
 
 function migrate_project(raw_project)
-    -- STILL UNTESTED
     local fields = {}
     local i = 1
     raw_project:gsub("([^".. "\2" .."]*)" .. "\2", function (field)
@@ -109,30 +110,79 @@ function migrate_project(raw_project)
         i = i + 1
     end)
 
-    print('migrating project ' .. fields[1])
+    -- print('migrating project ' .. fields[1])
+    
+    local result, err = db:query("insert into projects (projectname, username, ispublic, ispublished, created, lastupdated, lastshared) values (" ..
+        db:escape_literal(fields[1]) .. ", " ..
+        db:escape_literal(fields[2]) .. ", " ..
+        db:escape_literal(fields[3]) .. ", false, " ..
+        db:escape_literal(fields[4]) .. ", " ..
+        db:escape_literal(fields[4]) .. ", " ..
+        ((fields[3] == "true") and (db:escape_literal(fields[4])) or "NULL") ..
+        ") on conflict(projectname, username) do update set projectname = excluded.projectname, username = excluded.username returning id;"
+    )
 
-    --[[
-    print(db:query("insert into projects (projectname, username, ispublic, ispublished, created, lastupdated, lastshared) values (" ..
-        "'" .. fields[1] .. "', " ..
-        "'" .. fields[2] .. "', " ..
-        fields[3] .. ', false, ' ..
-        "'" .. fields[4] .. "', " ..
-        "'" .. fields[4] .. "', " ..
-        ((fields[3] == 'true') and ("'" .. fields[4] .. "';" ) or "NULL;")
-        ))
-
-    -- We need to get the project ID by asking the DB. Maybe the query returns it?
-    saveToDisk(project_id, 'project.xml', fields[6])
-    -- To get the thumbnail, we need to parse the XML and extract the <thumbnail>
-    -- tag contents
-    saveToDisk(project_id, 'thumbnail', thumbnail)
-    -- We need to find the media XML from the media file. We could probably just
-    -- concatenate it into the project XML and forget about this extra file, or
-    -- import all media altogether later
-    saveToDisk(project.id, 'media.xml', get_media(fields[1], fields[2])) 
-    --]]
+    if (result) then
+        saveToDisk(result[1].id, 'project.xml', fields[6])
+        if (not generate_thumbnail(result[1].id)) then
+            local log = io.open('/tmp/import.log', 'a')
+            log:write(raw_project)
+            log:close()
+        end
+        -- We need to find the media XML from the media file. We could probably just
+        -- concatenate it into the project XML and forget about this extra file, or
+        -- import all media altogether later
+    --    saveToDisk(project.id, 'media.xml', get_media(fields[1], fields[2])) 
+    else
+        print(err)
+        os.exit()
+    end
 end
 
---local time = os.time()
+function migrate_media(raw_media)
+    local fields = {}
+    local i = 1
+    raw_media:gsub("([^".. "\2" .."]*)" .. "\2", function (field)
+        fields[i] = field
+        i = i + 1
+    end)
+
+    -- print('migrating media for ' .. fields[1])
+    
+    local result, err = db:query("select id from projects where projectname = " ..
+        db:escape_literal(fields[1]) .. 
+        ' and username = ' .. db:escape_literal(fields[2]) .. ';'
+    )
+
+    if (result) then
+        saveToDisk(result[1].id, 'media.xml', fields[5])
+    else
+        print(err)
+        os.exit()
+    end
+end
+
+
+function generate_thumbnail(id)
+    local project_file = io.open(directoryForId(id) .. '/project.xml')
+    if (project_file) then
+        local project = xml.load(project_file:read('*all'))
+        project_file:close()
+        saveToDisk(id, 'thumbnail', xml.find(project, 'thumbnail')[1])
+        return true
+    else
+        return false
+    end
+end
+
+-- Benchmarking buffer sizes
+--[[
+local command = io.popen('date +%s%N')
+local time = tonumber(command:read('*all'))
+command:close()
+]]
 _G['migrate_collection'](table)
---print(os.time() - time)
+--[[local command = io.popen('date +%s%N')
+print(tonumber(command:read('*all')) - time)
+command:close()
+]]

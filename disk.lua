@@ -33,8 +33,12 @@ saveToDisk = function (id, filename, contents)
     local dir = directoryForId(id)
     os.execute('mkdir -p ' .. dir)
     local file = io.open(dir .. '/' .. filename, 'w+')
-    file:write(contents)
-    file:close()
+    if (file) then
+        file:write(contents)
+        file:close()
+    else
+        print('could not save ' .. filename .. ' to ' .. dir)
+    end
 end
 
 retrieveFromDisk = function (id, filename)
