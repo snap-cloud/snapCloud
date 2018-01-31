@@ -14,11 +14,14 @@ description = {
 }
 dependencies = {
    "lua >= 5.1, < 5.2",
-   "md5",
    "lapis",
+   "md5",
    "luasec",
-   "luacrypto"
+   "luacrypto",
+   "mailgun"
 }
 build = {
-    type = "builtin"
+    type = "builtin",
+
+    modules = {}
 }

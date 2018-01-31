@@ -24,11 +24,19 @@ config({'development', 'production'}, {
     -- read & write permissions to that path.
     store_path = 'store',
 
-     -- for sending email
-    mail_server = "",
-    mail_user     = "",
-    mail_password = "",
-    mail_from = "",
+    -- for sending email
+    email_smtp = {
+
+    },
+
+    -- we should migrate to using an API form of sending email soon.
+    email_api = {
+
+    },
+    mail_server = os.getenv("SMTP_DOMAIN"),
+    mail_user     = os.getenv("SMTP_USERNAME"),
+    mail_password = os.getenv("SMTP_PASSWORD"),
+    mail_from = "noreply@snap-cloud.cs10.org",
     mail_footer = ""
 })
 
