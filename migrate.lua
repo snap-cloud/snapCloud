@@ -28,9 +28,9 @@ local xml = require('xml')
 local url = os.getenv('DATABASE_URL')
 local table = arg[1] or nil
 local filename = arg[2] or nil
-local file = io.open(filename, 'r')
+local file
 local file_size
-local buffer_size = tonumber(arg[3]) or 393216 -- Seems to be the sweet spot in my system
+local buffer_size = tonumber(arg[3]) or 393216
 local usage = 'Usage:\n\nlua migrate.lua [users/projects/mediae] [file.xml] [buffer size]\n'
 
 require 'disk'
@@ -47,7 +47,10 @@ assert(db:connect())
 
 if not (arg[1] and arg[2]) then
     print(usage)
+    os.exit()
 end
+
+file = io.open(filename, 'r')
 
 if file then
     file_size = file:seek('end')
@@ -80,6 +83,12 @@ function migrate_collection(entities)
         end
         file_position = file_position + raw_item:len()
         _G['migrate_' .. entities:sub(1, -2)](raw_item)
+
+        -- We may run out of memory after importing huge items, so we are forcing
+        -- garbage collection after every item bigger than 5MB
+        if (raw_item:len() > 5000000) then
+            collectgarbage()
+        end
     end
     print('all done')
 end
@@ -92,14 +101,21 @@ function migrate_user(raw_user)
         i = i + 1
     end)
 
-    print('migrating user ' .. fields[2])
-    print(db:query("insert into users (created, username, salt, password, email, isadmin) values (" ..
+    -- print('migrating user ' .. fields[2])
+
+    local result, err = db:query("insert into users (created, username, salt, password, email, isadmin) values (" ..
         db:escape_literal(fields[8]) .. ", " ..
         db:escape_literal(fields[2]) .. ", " ..
         db:escape_literal(fields[5]) .. ", " ..
         db:escape_literal(fields[4]) .. ", " ..
         db:escape_literal(fields[3]) .. ", " ..
-        "false);"))
+        "false) on conflict do nothing;"
+    )
+
+    if (not result) then
+        print(err)
+        os.exit()
+    end
 end
 
 function migrate_project(raw_project)
@@ -129,10 +145,6 @@ function migrate_project(raw_project)
             log:write(raw_project)
             log:close()
         end
-        -- We need to find the media XML from the media file. We could probably just
-        -- concatenate it into the project XML and forget about this extra file, or
-        -- import all media altogether later
-    --    saveToDisk(project.id, 'media.xml', get_media(fields[1], fields[2])) 
     else
         print(err)
         os.exit()
@@ -162,7 +174,6 @@ function migrate_media(raw_media)
     end
 end
 
-
 function generate_thumbnail(id)
     local project_file = io.open(directoryForId(id) .. '/project.xml')
     if (project_file) then
@@ -175,14 +186,4 @@ function generate_thumbnail(id)
     end
 end
 
--- Benchmarking buffer sizes
---[[
-local command = io.popen('date +%s%N')
-local time = tonumber(command:read('*all'))
-command:close()
-]]
 _G['migrate_collection'](table)
---[[local command = io.popen('date +%s%N')
-print(tonumber(command:read('*all')) - time)
-command:close()
-]]

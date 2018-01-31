@@ -25,11 +25,11 @@
 
 local config = require("lapis.config").get()
 
-directoryForId = function (id)
+function directoryForId(id)
     return config.store_path .. '/' .. math.floor(id / 1000) .. '/' .. id
 end
 
-saveToDisk = function (id, filename, contents)
+function saveToDisk(id, filename, contents)
     local dir = directoryForId(id)
     os.execute('mkdir -p ' .. dir)
     local file = io.open(dir .. '/' .. filename, 'w+')
@@ -41,7 +41,7 @@ saveToDisk = function (id, filename, contents)
     end
 end
 
-retrieveFromDisk = function (id, filename)
+function retrieveFromDisk(id, filename)
     local dir = directoryForId(id)
     local file = io.open(dir .. '/' .. filename, 'r')
     if (file) then
@@ -53,6 +53,6 @@ retrieveFromDisk = function (id, filename)
     end
 end
 
-deleteDirectory = function (id)
+function deleteDirectory(id)
     os.execute('rm -r ' .. directoryForId(id))
 end
