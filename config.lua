@@ -12,7 +12,7 @@ config({'development', 'production'}, {
         database = os.getenv('DATABASE_NAME') or 'snap_cloud'
     },
     site_name = 'dev | Snap Cloud',
-    port = 8080,
+    port = os.getenv('PORT') or 8080,
     enable_ssl = false,
     num_workers = 1,
     code_cache = 'off',
