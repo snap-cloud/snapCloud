@@ -307,7 +307,10 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not project then yield_error(err.nonexistent_project) end
         if not (project.ispublic or users_match(self)) then assert_admin(self, err.not_public_project) end
 
-        return rawResponse(retrieveFromDisk(project.id, 'project.xml'))
+        return jsonResponse({
+            media = retrieveFromDisk(project.id, 'media.xml'),
+            project = retrieveFromDisk(project.id, 'project.xml')
+        })
     end),
     DELETE = capture_errors(function (self)
         assert_all({'project_exists', 'user_exists'}, self)
