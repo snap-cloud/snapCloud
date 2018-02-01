@@ -393,6 +393,21 @@ app:match('project', '/projects/:username/:projectname', respond_to({
     end)
 }))
 
+app:match('generate_notes', '/generate_notes', respond_to({
+    OPTIONS = cors_options,
+    GET = capture_errors(function (self)
+        assert_admin(self)
+        local count = 0
+        local projects = Projects:select('where notes is null', { fields = 'id, username, projectname' })
+        for k, project in pairs(projects) do
+            project:update({ notes = parse_notes(project.id) })
+            count = count + 1
+        end
+        return okResponse('notes updated for ' .. count .. ' projects.')
+    end
+    )
+}))
+
 app:match('project_meta', '/projects/:username/:projectname/metadata', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/add/update a project metadata.
@@ -402,13 +417,6 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
-
-        print(self.req.headers.connection)
-        print(self.req.headers.referer)
-        print(self.req.headers.host)
-        print(self.req.headers.origin)
-        print(self.req.headers.cookie)
-        print(self.req.headers['user-agent'])
 
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end

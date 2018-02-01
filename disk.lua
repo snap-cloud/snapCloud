@@ -70,3 +70,14 @@ function generate_thumbnail(id)
         return false
     end
 end
+
+function parse_notes(id)
+    local project_file = io.open(directory_for_id(id) .. '/project.xml')
+    if (project_file) then
+        local project = xml.load(project_file:read('*all'))
+        local notes = xml.find(project, 'notes')[1]
+        return notes
+    else
+        return ''
+    end
+end
