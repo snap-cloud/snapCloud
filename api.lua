@@ -36,6 +36,22 @@ local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 
+local Mailgun = require("mailgun").Mailgun
+
+local config = require('lapis.config').get()
+
+-- local mailer = Mailgun({
+--     domain = 'sandbox2cc7c6f953aa4338beeca56b6c030fae.mailgun.org',
+--     api_key = 'key-76e871b1bd2dde7a2a5adf3624c58f1c',
+--     default_sender = 'noreply@snap-cloud.cs10.org'
+-- })
+
+local mailer = Mailgun({
+    domain = 'snap-cloud.cs10.org',
+    api_key = 'key-76e871b1bd2dde7a2a5adf3624c58f1c',
+    default_sender = 'noreply@snap-cloud.cs10.org'
+})
+
 require 'disk'
 require 'responses'
 require 'validation'
@@ -74,6 +90,17 @@ app:match('current_user', '/users/c', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
+        mailer:send_email({
+          from = "noreply@snap-cloud.cs10.org",
+          to = "cycomachead@gmail.com",
+          subject = "CURRENT USER METHOD",
+          html = true,
+          body = [[
+            <h1>Hello world</h1>
+            <p>Here is my email to you.</p>
+            <hr />
+          ]]
+        })
         return jsonResponse({
             username = self.session.username,
             isadmin = self.session.isadmin })
@@ -128,6 +155,8 @@ app:match('user', '/users/:username', respond_to({
             isadmin = false,
             joined = db.format_date()
         })
+
+        -- TODO: SEND EMAIL
 
         return okResponse('User ' .. self.params.username .. ' created')
     end)

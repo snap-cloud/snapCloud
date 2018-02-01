@@ -25,19 +25,15 @@ config({'development', 'production'}, {
     store_path = 'store',
 
     -- for sending email
-    email_smtp = {
-
+    mailgun = {
+        domain = os.getenv('MAILGUN_DOMAIN'),
+        api_key = os.getenv('MAILGUN_API_KEY')
     },
-
-    -- we should migrate to using an API form of sending email soon.
-    email_api = {
-
-    },
-    mail_server = os.getenv("SMTP_DOMAIN"),
-    mail_user     = os.getenv("SMTP_USERNAME"),
-    mail_password = os.getenv("SMTP_PASSWORD"),
     mail_from = "noreply@snap-cloud.cs10.org",
-    mail_footer = ""
+    mail_footer = "This is a test",
+
+    measure_performance = true
+
 })
 
 config('production', {
@@ -53,5 +49,9 @@ config('production', {
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 12,
     code_cache = 'on',
-    store_path = '/opt/snap'
+    store_path = '/opt/snap',
+
+    --- TODO: See if we can turn this on without a big hit
+    measure_performance = false
+
 })
