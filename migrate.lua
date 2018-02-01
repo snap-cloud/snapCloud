@@ -24,7 +24,6 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local pgmoon = require('pgmoon')
-local xml = require('xml')
 local url = os.getenv('DATABASE_URL')
 local table = arg[1] or nil
 local filename = arg[2] or nil
@@ -139,12 +138,7 @@ function migrate_project(raw_project)
     )
 
     if (result) then
-        saveToDisk(result[1].id, 'project.xml', fields[6])
-        if (not generate_thumbnail(result[1].id)) then
-            local log = io.open('/tmp/import.log', 'a')
-            log:write(raw_project)
-            log:close()
-        end
+        save_to_disk(result[1].id, 'project.xml', fields[6])
     else
         print(err)
         os.exit()
@@ -167,22 +161,10 @@ function migrate_media(raw_media)
     )
 
     if (result) then
-        saveToDisk(result[1].id, 'media.xml', fields[5])
+        save_to_disk(result[1].id, 'media.xml', fields[5])
     else
         print(err)
         os.exit()
-    end
-end
-
-function generate_thumbnail(id)
-    local project_file = io.open(directoryForId(id) .. '/project.xml')
-    if (project_file) then
-        local project = xml.load(project_file:read('*all'))
-        project_file:close()
-        saveToDisk(id, 'thumbnail', xml.find(project, 'thumbnail')[1])
-        return true
-    else
-        return false
     end
 end
 

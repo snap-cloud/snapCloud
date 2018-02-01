@@ -25,12 +25,12 @@
 
 local config = require("lapis.config").get()
 
-function directoryForId(id)
+function directory_for_id(id)
     return config.store_path .. '/' .. math.floor(id / 1000) .. '/' .. id
 end
 
-function saveToDisk(id, filename, contents)
-    local dir = directoryForId(id)
+function save_to_disk(id, filename, contents)
+    local dir = directory_for_id(id)
     os.execute('mkdir -p ' .. dir)
     local file = io.open(dir .. '/' .. filename, 'w+')
     if (file) then
@@ -41,8 +41,8 @@ function saveToDisk(id, filename, contents)
     end
 end
 
-function retrieveFromDisk(id, filename)
-    local dir = directoryForId(id)
+function retrieve_from_disk(id, filename)
+    local dir = directory_for_id(id)
     local file = io.open(dir .. '/' .. filename, 'r')
     if (file) then
         local contents = file:read("*all")
@@ -53,6 +53,19 @@ function retrieveFromDisk(id, filename)
     end
 end
 
-function deleteDirectory(id)
-    os.execute('rm -r ' .. directoryForId(id))
+function delete_directory(id)
+    os.execute('rm -r ' .. directory_for_id(id))
+end
+
+function generate_thumbnail(id)
+    local project_file = io.open(directory_for_id(id) .. '/project.xml')
+    if (project_file) then
+        local project = xml.load(project_file:read('*all'))
+        local thumbnail = xml.find(project, 'thumbnail')[1]
+        project_file:close()
+        save_to_disk(id, 'thumbnail', thumbnail)
+        return thumbnail
+    else
+        return false
+    end
 end
