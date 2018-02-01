@@ -23,6 +23,7 @@
 
 -- we store max 1000 projects per dir
 
+local xml = require("xml")
 local config = require("lapis.config").get()
 
 function directory_for_id(id)

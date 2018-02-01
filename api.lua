@@ -229,7 +229,9 @@ app:match('projects', '/projects', respond_to({
             if self.params.withthumbnail == 'true' then
                 for k, project in pairs(projects) do
                     -- Lazy Thumbnail generation
-                    project.thumbnail = retrieve_from_disk(project.id, 'thumbnail') or generate_thumbnail(project.id)
+                    project.thumbnail =
+                        retrieve_from_disk(project.id, 'thumbnail') or
+                            generate_thumbnail(project.id)
                 end
             end
 
@@ -283,7 +285,10 @@ app:match('user_projects', '/projects/:username', respond_to({
 
         if self.params.withthumbnail == 'true' then
             for k, project in pairs(projects) do
-                project.thumbnail = retrieve_from_disk(project.id, 'thumbnail')
+                -- Lazy Thumbnail generation
+                project.thumbnail =
+                    retrieve_from_disk(project.id, 'thumbnail') or
+                        generate_thumbnail(project.id)
             end
         end
 
@@ -458,7 +463,11 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
                 yield_error(err.auth)
             end
 
-            return rawResponse(retrieve_from_disk(project.id, 'thumbnail'))
+            -- Lazy Thumbnail generation
+            return rawResponse(
+                retrieve_from_disk(project.id, 'thumbnail') or
+                    generate_thumbnail(project.id))
+ 
         end
     }))
 }))
