@@ -67,8 +67,7 @@ app:before_filter(function (self)
 
     -- Set Access Control header
     -- FIXME change to actual domain in production
-    local origin = ngx.var.http_referer and ngx.var.http_referer:match('^(%w+://[^/]+)') or 'http://localhost:8080'
-    self.res.headers['Access-Control-Allow-Origin'] = origin
+    self.res.headers['Access-Control-Allow-Origin'] = 'http://romagosa.work'
     self.res.headers['Access-Control-Allow-Credentials'] = 'true'
 
 end)

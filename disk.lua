@@ -23,22 +23,27 @@
 
 -- we store max 1000 projects per dir
 
+local xml = require("xml")
 local config = require("lapis.config").get()
 
-directoryForId = function (id)
+function directory_for_id(id)
     return config.store_path .. '/' .. math.floor(id / 1000) .. '/' .. id
 end
 
-saveToDisk = function (id, filename, contents)
-    local dir = directoryForId(id)
+function save_to_disk(id, filename, contents)
+    local dir = directory_for_id(id)
     os.execute('mkdir -p ' .. dir)
     local file = io.open(dir .. '/' .. filename, 'w+')
-    file:write(contents)
-    file:close()
+    if (file) then
+        file:write(contents)
+        file:close()
+    else
+        print('could not save ' .. filename .. ' to ' .. dir)
+    end
 end
 
-retrieveFromDisk = function (id, filename)
-    local dir = directoryForId(id)
+function retrieve_from_disk(id, filename)
+    local dir = directory_for_id(id)
     local file = io.open(dir .. '/' .. filename, 'r')
     if (file) then
         local contents = file:read("*all")
@@ -49,6 +54,38 @@ retrieveFromDisk = function (id, filename)
     end
 end
 
-deleteDirectory = function (id)
-    os.execute('rm -r ' .. directoryForId(id))
+function delete_directory(id)
+    os.execute('rm -r ' .. directory_for_id(id))
+end
+
+function generate_thumbnail(id)
+    local project_file = io.open(directory_for_id(id) .. '/project.xml')
+    if (project_file) then
+        local project = xml.load(project_file:read('*all'))
+        local thumbnail = xml.find(project, 'thumbnail')[1]
+        project_file:close()
+        save_to_disk(id, 'thumbnail', thumbnail)
+        return thumbnail
+    else
+        return false
+    end
+end
+
+function parse_notes(id)
+    local project_file = io.open(directory_for_id(id) .. '/project.xml')
+    local notes
+    if (project_file) then
+        if pcall(
+            function ()
+                local project = xml.load(project_file:read('*all'))
+                notes = xml.find(project, 'notes')[1]
+            end) then
+            return notes
+        else
+            print('there was an error parsing notes for project ' .. id)
+            return nil
+        end
+    else
+        return nil
+    end
 end
