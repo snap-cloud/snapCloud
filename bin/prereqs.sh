@@ -40,10 +40,7 @@ apt-get install openresty -y
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing lua packages..."
-luarocks install lapis
-luarocks install md5
-luarocks install luasec
-luarocks install luacrypto
+luarocks install snap-cloud-beta-0.rockspec
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing authbind..."

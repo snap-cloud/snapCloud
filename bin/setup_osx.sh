@@ -15,8 +15,6 @@ fi
 # Note that we must use lua 5.1 becaus lapis isn't yet in the 5.2 directory
 # on luarocks. (Current brew default is lua 5.2)
 brew install lua@5.1 postgres pcre
-# TODO: Verify these are covered in openresty deps.
-# nginx openssl
 
 brew tap denji/nginx
 brew install denji/nginx/openreset
@@ -34,7 +32,4 @@ OPENSSL_BREW='/usr/local/opt/openssl/'
 # Link directories for installing lapis
 ln -s $OPENSSL_BREW $LUA_ROCKS_SEARCH_DIR
 
-$LUAROCKS_CMD install lapis
-$LUAROCKS_CMD install md5
-$LUAROCKS_CMD install luasec
-$LUAROCKS_CMD install luacrypto
+$LUAROCKS_CMD install snap-cloud-beta-0.rockspec # OPENSSL_DIR=$OPENSSL_BREW
