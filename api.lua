@@ -316,7 +316,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         return rawResponse(
             '<snapdata>' ..
             retrieve_from_disk(project.id, 'project.xml') ..
-            retrieve_from_disk(project.id, 'media.xml') or '<media></media>' ..
+            (retrieve_from_disk(project.id, 'media.xml') or '<media></media>') ..
             '</snapdata>'
         )
     end),
