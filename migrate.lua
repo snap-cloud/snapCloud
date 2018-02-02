@@ -44,20 +44,19 @@ local db = pgmoon.new({
 
 assert(db:connect())
 
-if not (arg[1] and arg[2]) then
+if (not (arg[1] and arg[2])) and (arg[1] ~= 'notes') then
     print(usage)
     os.exit()
-end
-
-file = io.open(filename, 'r')
-
-if file then
-    file_size = file:seek('end')
-    file:seek('set', 0)
-else
-    print('Could not read ' .. filename)  
-    print(usage)
-    os.exit()
+elseif (arg[1] ~= 'notes') then
+    file = io.open(filename, 'r')
+    if file then
+        file_size = file:seek('end')
+        file:seek('set', 0)
+    else
+        print('Could not read ' .. filename)
+        print(usage)
+        os.exit()
+    end
 end
 
 function migrate_collection(entities)
@@ -66,6 +65,11 @@ function migrate_collection(entities)
         mediae = "\3",
         projects = "\3"
     }
+
+    if entities == 'notes' then
+        migrate_notes()
+        os.exit(0)
+    end
 
     local file_position = 1
 
@@ -126,7 +130,7 @@ function migrate_project(raw_project)
     end)
 
     -- print('migrating project ' .. fields[1])
-    
+
     local result, err = db:query("insert into projects (projectname, username, ispublic, ispublished, created, lastupdated, lastshared) values (" ..
         db:escape_literal(fields[1]) .. ", " ..
         db:escape_literal(fields[2]) .. ", " ..
@@ -134,14 +138,13 @@ function migrate_project(raw_project)
         db:escape_literal(fields[4]) .. ", " ..
         db:escape_literal(fields[4]) .. ", " ..
         ((fields[3] == "true") and (db:escape_literal(fields[4])) or "NULL") ..
-        ") on conflict(projectname, username) do update set projectname = excluded.projectname, username = excluded.username returning id;"
+        ") on conflict do nothing;"
     )
 
-    if (result) then
+    if (result and result[1]) then
         save_to_disk(result[1].id, 'project.xml', fields[6])
-    else
-        print(err)
-        os.exit()
+    elseif (err ~= 1) then
+        dump_error(err, raw_project)
     end
 end
 
@@ -154,18 +157,38 @@ function migrate_media(raw_media)
     end)
 
     -- print('migrating media for ' .. fields[1])
-    
+
     local result, err = db:query("select id from projects where projectname = " ..
-        db:escape_literal(fields[1]) .. 
+        db:escape_literal(fields[1]) ..
         ' and username = ' .. db:escape_literal(fields[2]) .. ';'
     )
 
-    if (result) then
+    if result and fields[5] and result[1] and not (io.open(directory_for_id(result[1].id) .. '/media.xml', 'r')) then
         save_to_disk(result[1].id, 'media.xml', fields[5])
-    else
-        print(err)
-        os.exit()
+    elseif not result[1] then
+        dump_error('could not find project', raw_media)
+    elseif (err ~= 1) then
+        dump_error(err, raw_media)
     end
 end
 
-_G['migrate_collection'](table)
+function migrate_notes()
+    local result, err = db:query('select id from projects where notes is null')
+    for k, project in pairs(result) do
+        local notes = parse_notes(project.id)
+        if notes ~= nil and notes ~= '' then
+            db:query('update projects set notes = ' .. db:escape_literal(notes) .. 'where id = ' .. project.id .. ';')
+            print('updated notes for project ' .. project.id)
+        end
+    end
+end
+
+function dump_error(err, raw_item)
+    print(err)
+    print('Could not import item. Dumping the whole raw contents into errors.log')
+    local file = io.open('errors.log', 'a')
+    file:write(raw_item)
+    file:close()
+end
+
+migrate_collection(table)

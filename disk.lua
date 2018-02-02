@@ -73,11 +73,19 @@ end
 
 function parse_notes(id)
     local project_file = io.open(directory_for_id(id) .. '/project.xml')
+    local notes
     if (project_file) then
-        local project = xml.load(project_file:read('*all'))
-        local notes = xml.find(project, 'notes')[1]
-        return notes
+        if pcall(
+            function ()
+                local project = xml.load(project_file:read('*all'))
+                notes = xml.find(project, 'notes')[1]
+            end) then
+            return notes
+        else
+            print('there was an error parsing notes for project ' .. id)
+            return nil
+        end
     else
-        return ''
+        return nil
     end
 end

@@ -314,9 +314,9 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not (project.ispublic or users_match(self)) then assert_admin(self, err.not_public_project) end
 
         return rawResponse(
-            '<snapdata>' .. 
+            '<snapdata>' ..
             retrieve_from_disk(project.id, 'project.xml') ..
-            retrieve_from_disk(project.id, 'media.xml') .. 
+            retrieve_from_disk(project.id, 'media.xml') or '<media></media>' ..
             '</snapdata>'
         )
     end),
@@ -393,21 +393,6 @@ app:match('project', '/projects/:username/:projectname', respond_to({
     end)
 }))
 
-app:match('generate_notes', '/generate_notes', respond_to({
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
-        assert_admin(self)
-        local count = 0
-        local projects = Projects:select('where notes is null', { fields = 'id, username, projectname' })
-        for k, project in pairs(projects) do
-            project:update({ notes = parse_notes(project.id) })
-            count = count + 1
-        end
-        return okResponse('notes updated for ' .. count .. ' projects.')
-    end
-    )
-}))
-
 app:match('project_meta', '/projects/:username/:projectname/metadata', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/add/update a project metadata.
@@ -475,7 +460,7 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
             return rawResponse(
                 retrieve_from_disk(project.id, 'thumbnail') or
                     generate_thumbnail(project.id))
- 
+
         end
     }))
 }))
