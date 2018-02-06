@@ -37,6 +37,22 @@ local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 
 local Mailgun = require("mailgun").Mailgun
+local ses = require ('resty.aws_email')
+local aws_auth_config = {
+  aws_key = 'AKIAJFGLKYXYHGSSLJCA',
+  aws_secret   = "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",
+  aws_region   = "us-east-1",
+  email_from = 'noreply@cs10.org'
+}
+
+local email = ses:new(aws_auth_config)
+local res, err = email:send('cycomachead@gmail.com', 'hello there', 'Sent using AWS Simple Email Service API')
+
+if not sent then
+  print('Failed: ' .. err)
+else
+  print('Sent')
+end
 
 local config = require('lapis.config').get()
 
@@ -257,10 +273,7 @@ app:match('projects', '/projects', respond_to({
 
             if self.params.withthumbnail == 'true' then
                 for k, project in pairs(projects) do
-                    -- Lazy Thumbnail generation
-                    project.thumbnail =
-                        retrieve_from_disk(project.id, 'thumbnail') or
-                            generate_thumbnail(project.id)
+                    project.thumbnail = retrieveFromDisk(project.id, 'thumbnail')
                 end
             end
 
@@ -314,10 +327,7 @@ app:match('user_projects', '/projects/:username', respond_to({
 
         if self.params.withthumbnail == 'true' then
             for k, project in pairs(projects) do
-                -- Lazy Thumbnail generation
-                project.thumbnail =
-                    retrieve_from_disk(project.id, 'thumbnail') or
-                        generate_thumbnail(project.id)
+                project.thumbnail = retrieveFromDisk(project.id, 'thumbnail')
             end
         end
 
@@ -342,19 +352,14 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not project then yield_error(err.nonexistent_project) end
         if not (project.ispublic or users_match(self)) then assert_admin(self, err.not_public_project) end
 
-        return rawResponse(
-            '<snapdata>' ..
-            retrieve_from_disk(project.id, 'project.xml') ..
-            (retrieve_from_disk(project.id, 'media.xml') or '<media></media>') ..
-            '</snapdata>'
-        )
+        return rawResponse(retrieveFromDisk(project.id, 'project.xml'))
     end),
     DELETE = capture_errors(function (self)
         assert_all({'project_exists', 'user_exists'}, self)
         if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
-        delete_directory(project.id)
+        deleteDirectory(project.id)
         if not (project:delete()) then
             yield_error('Could not delete user ' .. self.params.username)
         else
@@ -406,13 +411,13 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             project = Projects:find(self.params.username, self.params.projectname)
         end
 
-        save_to_disk(project.id, 'project.xml', body.xml)
-        save_to_disk(project.id, 'thumbnail', body.thumbnail)
-        save_to_disk(project.id, 'media.xml', body.media)
+        saveToDisk(project.id, 'project.xml', body.xml)
+        saveToDisk(project.id, 'thumbnail', body.thumbnail)
+        saveToDisk(project.id, 'media.xml', body.media)
 
-        if not (retrieve_from_disk(project.id, 'project.xml')
-            and retrieve_from_disk(project.id, 'thumbnail')
-            and retrieve_from_disk(project.id, 'media.xml')) then
+        if not (retrieveFromDisk(project.id, 'project.xml')
+            and retrieveFromDisk(project.id, 'thumbnail')
+            and retrieveFromDisk(project.id, 'media.xml')) then
             project:delete()
             yield_error('Could not save project ' .. self.params.projectname)
         else
@@ -431,6 +436,13 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
+
+        print(self.req.headers.connection)
+        print(self.req.headers.referer)
+        print(self.req.headers.host)
+        print(self.req.headers.origin)
+        print(self.req.headers.cookie)
+        print(self.req.headers['user-agent'])
 
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
@@ -485,11 +497,7 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
                 yield_error(err.auth)
             end
 
-            -- Lazy Thumbnail generation
-            return rawResponse(
-                retrieve_from_disk(project.id, 'thumbnail') or
-                    generate_thumbnail(project.id))
-
+            return rawResponse(retrieveFromDisk(project.id, 'thumbnail'))
         end
     }))
 }))
