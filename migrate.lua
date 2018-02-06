@@ -53,13 +53,14 @@ elseif (arg[1] ~= 'notes') then
         file_size = file:seek('end')
         file:seek('set', 0)
     else
-        print('Could not read ' .. filename)
+        print('Could not read ' .. filename)  
         print(usage)
         os.exit()
     end
 end
 
 function migrate_collection(entities)
+    local count = 0
     local separator = {
         users = "\0",
         mediae = "\3",
@@ -86,6 +87,10 @@ function migrate_collection(entities)
         end
         file_position = file_position + raw_item:len()
         _G['migrate_' .. entities:sub(1, -2)](raw_item)
+        count = count + 1
+        if (count % 10000 == 0) then
+             print(count .. ' projects processed')
+	end
 
         -- We may run out of memory after importing huge items, so we are forcing
         -- garbage collection after every item bigger than 5MB
@@ -130,7 +135,7 @@ function migrate_project(raw_project)
     end)
 
     -- print('migrating project ' .. fields[1])
-
+    
     local result, err = db:query("insert into projects (projectname, username, ispublic, ispublished, created, lastupdated, lastshared) values (" ..
         db:escape_literal(fields[1]) .. ", " ..
         db:escape_literal(fields[2]) .. ", " ..
@@ -138,10 +143,11 @@ function migrate_project(raw_project)
         db:escape_literal(fields[4]) .. ", " ..
         db:escape_literal(fields[4]) .. ", " ..
         ((fields[3] == "true") and (db:escape_literal(fields[4])) or "NULL") ..
-        ") on conflict do nothing;"
+        ") on conflict(projectname, username) do update set projectname = excluded.projectname, username = excluded.username returning id;"
     )
 
-    if (result and result[1]) then
+    if (result and result[1] and not (io.open(directory_for_id(result[1].id) .. '/project.xml', 'r'))) then
+        print('project ' .. result[1].id .. ' was missing its project file')
         save_to_disk(result[1].id, 'project.xml', fields[6])
     elseif (err ~= 1) then
         dump_error(err, raw_project)
@@ -157,9 +163,9 @@ function migrate_media(raw_media)
     end)
 
     -- print('migrating media for ' .. fields[1])
-
+    
     local result, err = db:query("select id from projects where projectname = " ..
-        db:escape_literal(fields[1]) ..
+        db:escape_literal(fields[1]) .. 
         ' and username = ' .. db:escape_literal(fields[2]) .. ';'
     )
 
@@ -173,19 +179,26 @@ function migrate_media(raw_media)
 end
 
 function migrate_notes()
-    local result, err = db:query('select id from projects where notes is null')
+    local count = 0
+    local result, err = db:query("select id from projects where notes is null or notes = ''")
     for k, project in pairs(result) do
         local notes = parse_notes(project.id)
         if notes ~= nil and notes ~= '' then
             db:query('update projects set notes = ' .. db:escape_literal(notes) .. 'where id = ' .. project.id .. ';')
             print('updated notes for project ' .. project.id)
         end
+	count = count + 1
+	notes = nil
+	if count % 100 == 0 then
+	    print(count .. ' projects inspected for notes')
+	    collectgarbage()
+	end
     end
 end
 
 function dump_error(err, raw_item)
     print(err)
-    print('Could not import item. Dumping the whole raw contents into errors.log')
+    print('Could not import item. Dumping the whole raw contents into errors.log') 
     local file = io.open('errors.log', 'a')
     file:write(raw_item)
     file:close()
