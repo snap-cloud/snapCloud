@@ -283,21 +283,25 @@ app:match('user_projects', '/projects/:username', respond_to({
         local paginator = Projects:paginated(query .. ' order by lastshared desc', { per_page = self.params.pagesize or 16 })
         local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
-        if self.params.withthumbnail == 'true' then
+	-- Lazy Notes generation
+        if self.params.updatingnotes == 'true' then
             for k, project in pairs(projects) do
-                -- Lazy Thumbnail generation
-                project.thumbnail =
-                    retrieve_from_disk(project.id, 'thumbnail') or
-                        generate_thumbnail(project.id)
-                -- Lazy Notes generation
-                if self.params.updatingnotes == 'true' and
-                    (project.notes == nil or project.notes == '') then
+                if (project.notes == nil or project.notes == '') then
                     local notes = parse_notes(project.id)
                     if notes then
                         project:update({ notes = notes })
                         project.notes = notes
                     end
                 end
+            end
+        end
+
+        if self.params.withthumbnail == 'true' then
+            for k, project in pairs(projects) do
+                -- Lazy Thumbnail generation
+                project.thumbnail =
+                    retrieve_from_disk(project.id, 'thumbnail') or
+                        generate_thumbnail(project.id)
             end
         end
 
