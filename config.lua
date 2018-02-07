@@ -13,6 +13,8 @@ config({'development', 'production'}, {
     },
     site_name = 'dev | Snap Cloud',
     port = os.getenv('PORT') or 8080,
+    ssl_port = os.getenv('SSL_PORT') or 443,
+    ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'home',
     enable_ssl = false,
     num_workers = 1,
     code_cache = 'off',
@@ -29,6 +31,10 @@ config({'development', 'production'}, {
         domain = os.getenv('MAILGUN_DOMAIN'),
         api_key = os.getenv('MAILGUN_API_KEY')
     },
+    mail_user = os.getenv('MAIL_SMTP_USER'),
+    mail_password = os.getenv('MAIL_SMTP_PASSWORD'),
+    mail_server = os.getenv('MAIL_SMTP_SERVER'),
+    mail_from_name = 'Snap!Cloud',
     mail_from = "noreply@snap-cloud.cs10.org",
     mail_footer = "This is a test",
 
@@ -44,7 +50,7 @@ config('production', {
         password = os.getenv('DATABASE_PASSWORD'),
         database = os.getenv('DATABASE_NAME')
     },
-    ssl_port = 443,
+    ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'snap-cloud.cs10.org',
     enable_https = true,
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 12,
