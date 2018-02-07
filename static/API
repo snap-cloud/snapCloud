@@ -1,3 +1,7 @@
+/init
+Methods:     POST
+Description: Clears the session username in case the persist_session cookie is false.
+
 /users/c
 Methods:     GET
 Description: Get the currently logged user's username and credentials.
@@ -30,7 +34,9 @@ Parameters:  page, pagesize, matchtext, withthumbnail.
 Methods:     GET
 Description: Get metadata for a project list by a user.
              Response will depend on parameters and query issuer permissions.
-Parameters:  ispublished, page, pagesize, matchtext, withthumbnail.
+             The updatingnotes parameter checks for empty values in the notes column
+             of the database and fills them with the notes in the project XML.
+Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes.
 
 /projects/:username/:projectname
 Methods:     GET, DELETE, POST
