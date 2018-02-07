@@ -80,10 +80,8 @@ end
 hash_password = function (password, salt)
     -- we're following the same policy as the old cloud in order to keep user 
     -- passwords unchanged
-    local sha512 = resty_sha512:new()
-    sha512:update(password)
-    local prehash = resty_string.to_hex(sha512:final())
+    -- "password" comes prehashed from the client
     sha512 = resty_sha512:new()
-    sha512:update(prehash .. salt)
+    sha512:update(password .. salt)
     return resty_string.to_hex(sha512:final())
 end
