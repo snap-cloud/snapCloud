@@ -41,10 +41,6 @@ package.loaded.resty_string = require "resty.string"
 
 local app = package.loaded.app
 
--- Generate a random seed for random number generation
--- This is used to generate random salt strings for hashing passwords
-math.randomseed(os.time())
-
 
 -- Database abstractions
 
@@ -78,7 +74,7 @@ end)
 app:get('/', function(self)
     return { redirect_to = self:build_url('static/index.html') }
 end)
-    
+
 
 -- The API is implemented in the api.lua file
 

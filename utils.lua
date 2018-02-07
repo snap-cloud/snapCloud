@@ -108,10 +108,16 @@ local function send_smtp_mail(rcpt, subject, body)
 end
 
 -- local Mailgun = require("mailgun").Mailgun
+-- local mailer = Mailgun({
+--     domain = config.mailgun.domain,
+--     api_key = config.mailgun.api_key,
+--     default_sender = 'noreply@snap-cloud.cs10.org'
+-- })
 
 
 local function send_email(recepient, subject, body)
-
+    -- TODO: Use the mailgun api when SSL is figured out.
+    send_smtp_mail(recepient, subject, body)
 end
 
 
