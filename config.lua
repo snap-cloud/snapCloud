@@ -15,10 +15,10 @@ config({'development', 'production'}, {
     port = 8080,
     ssl_port = 443,
     enable_https = true,
-    num_workers = 1,
-    code_cache = 'off',
+    num_workers = 12,
+    code_cache = 'on',
     session_name = 'snapsession',
-    secret = 'a super secret phrase you should never ever make public',
+    secret = os.getenv('SESSION_SECRET_BASE'),
 
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have
@@ -44,5 +44,5 @@ config('production', {
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 12,
     code_cache = 'on',
-    store_path = '/opt/snap'
+    store_path = 'store'
 })
