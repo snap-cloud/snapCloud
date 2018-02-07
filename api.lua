@@ -247,7 +247,7 @@ app:match('user_projects', '/projects/:username', respond_to({
     -- Methods:     GET
     -- Description: Get metadata for a project list by a user.
     --              Response will depend on parameters and query issuer permissions.
-    -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail.
+    -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes.
 
     OPTIONS = cors_options,
     GET = function (self)
@@ -289,6 +289,15 @@ app:match('user_projects', '/projects/:username', respond_to({
                 project.thumbnail =
                     retrieve_from_disk(project.id, 'thumbnail') or
                         generate_thumbnail(project.id)
+                -- Lazy Notes generation
+                if self.params.updatingnotes == 'true' and
+                    (project.notes == nil or project.notes == '') then
+                    local notes = parse_notes(project.id)
+                    if notes then
+                        project:update({ notes = notes })
+                        project.notes = notes
+                    end
+                end
             end
         end
 

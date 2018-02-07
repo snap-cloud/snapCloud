@@ -44,10 +44,10 @@ local db = pgmoon.new({
 
 assert(db:connect())
 
-if (not (arg[1] and arg[2])) and (arg[1] ~= 'notes') then
+if not (arg[1] and arg[2]) then
     print(usage)
     os.exit()
-elseif (arg[1] ~= 'notes') then
+else
     file = io.open(filename, 'r')
     if file then
         file_size = file:seek('end')
@@ -66,11 +66,6 @@ function migrate_collection(entities)
         mediae = "\3",
         projects = "\3"
     }
-
-    if entities == 'notes' then
-        migrate_notes()
-        os.exit(0)
-    end
 
     local file_position = 1
 
@@ -175,24 +170,6 @@ function migrate_media(raw_media)
         dump_error('could not find project', raw_media)
     elseif (err ~= 1) then
         dump_error(err, raw_media)
-    end
-end
-
-function migrate_notes()
-    local count = 0
-    local result, err = db:query("select id from projects where notes is null or notes = ''")
-    for k, project in pairs(result) do
-        local notes = parse_notes(project.id)
-        if notes ~= nil and notes ~= '' then
-            db:query('update projects set notes = ' .. db:escape_literal(notes) .. 'where id = ' .. project.id .. ';')
-            print('updated notes for project ' .. project.id)
-        end
-	count = count + 1
-	notes = nil
-	if count % 100 == 0 then
-	    print(count .. ' projects inspected for notes')
-	    collectgarbage()
-	end
     end
 end
 
