@@ -93,7 +93,7 @@ app:before_filter(function (self)
     end
 
     -- Set Access Control header
-    if domain_allowed[self.req.headers.origin:gsub('https*://', '')] then
+    if self.req.headers.origin and domain_allowed[self.req.headers.origin:gsub('https*://', '')] then
         self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
         self.res.headers['Access-Control-Allow-Credentials'] = 'true'
     end
