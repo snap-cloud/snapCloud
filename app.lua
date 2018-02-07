@@ -41,6 +41,33 @@ package.loaded.resty_string = require "resty.string"
 
 local app = package.loaded.app
 
+-- Store whitelisted domains
+local domain_allowed = {}
+domain_allowed['snap.berkeley.edu'] = true
+domain_allowed['snap-cloud.cs10.org'] = true
+domain_allowed['romagosa.work'] = true
+domain_allowed['snap4arduino.rocks'] = true
+domain_allowed['cs10.github.io'] = true
+domain_allowed['bjc.edc.org'] = true
+domain_allowed['byob.eecs.berkeley.edu'] = true
+domain_allowed['courses.edge.edx.org'] = true
+domain_allowed['courses.edx.org'] = true
+domain_allowed['cs10.org'] = true
+domain_allowed['d37djvu3ytnwxt.cloudfront.net'] = true
+domain_allowed['eliza.csc.ncsu.edu'] = true
+domain_allowed['lambda.cs10.org'] = true
+domain_allowed['preview.courses.edge.edx.org'] = true
+domain_allowed['preview.courses.edx.org'] = true
+domain_allowed['preview.edge.edx.org'] = true
+domain_allowed['preview.edx.org'] = true
+domain_allowed['snap.apps.miosoft.com'] = true
+domain_allowed['studio.edge.edx.org'] = true
+domain_allowed['studio.edx.org'] = true
+domain_allowed['web.media.mit.edu'] = true
+domain_allowed['bjc-edc-2017-18.github.io'] = true
+domain_allowed['bjcredir.herokuapp.com'] = true
+domain_allowed['edge.edx.org'] = true
+
 -- Generate a random seed for random number generation
 -- This is used to generate random salt strings for hashing passwords
 math.randomseed(os.time())
@@ -66,9 +93,10 @@ app:before_filter(function (self)
     end
 
     -- Set Access Control header
-    -- FIXME change to actual domain in production
-    self.res.headers['Access-Control-Allow-Origin'] = 'http://romagosa.work'
-    self.res.headers['Access-Control-Allow-Credentials'] = 'true'
+    if domain_allowed[self.req.headers.origin:gsub('https*://', '')] then
+        self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
+        self.res.headers['Access-Control-Allow-Credentials'] = 'true'
+    end
 
 end)
 
