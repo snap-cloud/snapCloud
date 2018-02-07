@@ -49,12 +49,6 @@ end
 
 local config = require('lapis.config').get()
 
--- local mailer = Mailgun({
---     domain = 'sandbox2cc7c6f953aa4338beeca56b6c030fae.mailgun.org',
---     api_key = 'key-76e871b1bd2dde7a2a5adf3624c58f1c',
---     default_sender = 'noreply@snap-cloud.cs10.org'
--- })
-
 require 'disk'
 require 'responses'
 require 'validation'
@@ -269,7 +263,7 @@ app:match('user_projects', '/projects/:username', respond_to({
     -- Methods:     GET
     -- Description: Get metadata for a project list by a user.
     --              Response will depend on parameters and query issuer permissions.
-    -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail.
+    -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes.
 
     OPTIONS = cors_options,
     GET = function (self)
@@ -305,6 +299,19 @@ app:match('user_projects', '/projects/:username', respond_to({
         local paginator = Projects:paginated(query .. ' order by lastshared desc', { per_page = self.params.pagesize or 16 })
         local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
+	-- Lazy Notes generation
+        if self.params.updatingnotes == 'true' then
+            for k, project in pairs(projects) do
+                if (project.notes == nil or project.notes == '') then
+                    local notes = parse_notes(project.id)
+                    if notes then
+                        project:update({ notes = notes })
+                        project.notes = notes
+                    end
+                end
+            end
+        end
+
         if self.params.withthumbnail == 'true' then
             for k, project in pairs(projects) do
                 project.thumbnail = retrieveFromDisk(project.id, 'thumbnail')
@@ -332,7 +339,12 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not project then yield_error(err.nonexistent_project) end
         if not (project.ispublic or users_match(self)) then assert_admin(self, err.not_public_project) end
 
-        return rawResponse(retrieveFromDisk(project.id, 'project.xml'))
+        return rawResponse(
+            '<snapdata>' ..
+            (retrieve_from_disk(project.id, 'project.xml') or '<project></project>') ..
+            (retrieve_from_disk(project.id, 'media.xml') or '<media></media>') ..
+            '</snapdata>'
+        )
     end),
     DELETE = capture_errors(function (self)
         assert_all({'project_exists', 'user_exists'}, self)
