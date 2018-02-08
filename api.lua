@@ -129,13 +129,11 @@ app:match('user', '/users/:username', respond_to({
             joined = db.format_date()
         })
 
-        --[[
-        send_email(self.params.email, 'Welcome to Snap!', [[
-            Hello,
-
-            Welcome to Snap!
-        ]])
-        --]]
+        --send_email(self.params.email, 'Welcome to Snap!', [[
+        --    Hello,
+--
+  --          Welcome to Snap!
+    --    ]])
 
         return okResponse('User ' .. self.params.username .. ' created')
     end)

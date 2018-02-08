@@ -37,7 +37,7 @@ function save_to_disk(id, filename, contents)
     if (file) then
         file:write(contents)
         file:close()
-    else
+    end
 end
 
 function retrieve_from_disk(id, filename)

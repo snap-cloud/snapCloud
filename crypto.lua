@@ -22,7 +22,7 @@
 
 local resty_sha512 = package.loaded.resty_sha512
 local resty_string = package.loaded.resty_string
-local resty_random = package.loaded.resty.random
+local resty_random = package.loaded.resty_random
 
 hash_password = function (password, salt)
     -- we're following the same policy as the old cloud in order to keep user 
