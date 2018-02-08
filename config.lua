@@ -52,7 +52,7 @@ config('production', {
     },
     port = port or 80,
     site_name = 'Snap Cloud',
-    hostname = 'snap-clous.cs10.org',
+    hostname = 'snap-cloud.cs10.org',
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'snap-cloud.cs10.org',
     enable_https = true,
     secret = os.getenv('SESSION_SECRET_BASE'),
