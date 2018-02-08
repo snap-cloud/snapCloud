@@ -18,7 +18,7 @@ config({'development', 'production'}, {
     hostname = 'localhost',
     port = port,
     ssl_port = os.getenv('SSL_PORT') or 443,
-    ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'home',
+    ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'host',
     enable_https = false,
     num_workers = 1,
     code_cache = 'off',

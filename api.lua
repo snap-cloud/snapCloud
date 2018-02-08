@@ -41,8 +41,6 @@ local utils = require('utils')
 local secure_salt = utils.secure_salt
 local send_email = utils.send_email
 
-local config = require('lapis.config').get()
-
 require 'disk'
 require 'responses'
 require 'validation'
