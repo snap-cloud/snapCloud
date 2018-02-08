@@ -124,8 +124,6 @@ app:match('user', '/users/:username', respond_to({
             yield_error('User ' .. self.params.username .. ' already exists');
         end
 
-        local salt =
-
         Users:create({
             created = db.format_date(),
             username = self.params.username,
