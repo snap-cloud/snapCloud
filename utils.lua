@@ -123,6 +123,5 @@ end
 
 
 return {
-    secure_salt = secure_salt,
-    send_email = send_email
+    secure_salt = secure_salt
 }
