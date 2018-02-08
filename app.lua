@@ -69,7 +69,7 @@ app:before_filter(function (self)
     -- Set Access Control header
     self.res.headers['Access-Control-Allow-Origin'] = CORS_LIST
     self.res.headers['Access-Control-Allow-Credentials'] = 'true'
-
+    self.res.headers['Vary'] = 'Origin'
 end)
 
 
