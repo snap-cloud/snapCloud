@@ -5,6 +5,7 @@
 local config = require('lapis.config')
 
 config({'development', 'production'}, {
+    use_daemon = 'off',
     postgres = {
         host = os.getenv('DATABASE_URL') or '127.0.0.1:5432',
         user = os.getenv('DATABASE_USERNAME') or 'snap',
@@ -12,6 +13,7 @@ config({'development', 'production'}, {
         database = os.getenv('DATABASE_NAME') or 'snap_cloud'
     },
     site_name = 'dev | Snap Cloud',
+    hostname = 'localhost',
     port = os.getenv('PORT') or 8080,
     ssl_port = os.getenv('SSL_PORT') or 443,
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'home',
@@ -43,13 +45,15 @@ config({'development', 'production'}, {
 })
 
 config('production', {
-    site_name = 'Snap Cloud',
+    use_daemon = 'on',
     postgres = {
         host = os.getenv('DATABASE_URL'),
         user = os.getenv('DATABASE_USERNAME'),
         password = os.getenv('DATABASE_PASSWORD'),
         database = os.getenv('DATABASE_NAME')
     },
+    site_name = 'Snap Cloud',
+    hostname = 'snap-clous.cs10.org',
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'snap-cloud.cs10.org',
     enable_https = true,
     secret = os.getenv('SESSION_SECRET_BASE'),
@@ -59,5 +63,4 @@ config('production', {
 
     --- TODO: See if we can turn this on without a big hit
     measure_performance = false
-
 })
