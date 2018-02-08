@@ -15,7 +15,7 @@ config({'development', 'production'}, {
     port = os.getenv('PORT') or 8080,
     ssl_port = os.getenv('SSL_PORT') or 443,
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'home',
-    enable_ssl = false,
+    enable_https = false,
     num_workers = 1,
     code_cache = 'off',
     session_name = 'snapsession',
