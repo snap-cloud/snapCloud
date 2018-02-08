@@ -13,6 +13,7 @@ The Snap! Cloud is an API-only adaptation of the [Beetle Cloud](http://github.co
 * [Bruno Silvestre](https://github.com/brunoos)'s [LuaSec](https://luarocks.org/modules/brunoos/luasec) module is used for SSL support. - [[ MIT ](https://opensource.org/licenses/MIT)]
 * [Michal Kottman](https://github.com/mkottman)'s [LuaCrypto](https://luarocks.org/modules/luarocks/luacrypto) module is the Lua frontend to the OpenSSL library. - [[ MIT ](https://opensource.org/licenses/MIT)]
 * [Leafo](http://leafo.net/)'s [PgMoon](https://luarocks.org/modules/leafo/pgmoon) module is used to connect to the PostgreSQL database for migrations - [[ MIT ](https://opensource.org/licenses/MIT)]
+* [Nick Muerdter](https://github.com/GUI)'s [lua-resty-auto-ssl](https://luarocks.org/modules/gui/lua-resty-auto-ssl) module is used to automatically get and renew SSL certificates from [Let's Encrypt](https://letsencrypt.org/). 
 
 ### Did we forget to mention your stuff?
 Sorry about that! Please file an issue stating what we forgot, or just send us a pull request modifying this [README](https://github.com/bromagosa/beetleCloud/edit/master/README.md).

@@ -2,7 +2,6 @@ store/*/
 client_body_temp
 fastcgi_temp
 logs
-models.lua
 nginx.conf.compiled
 proxy_temp
 scgi_temp
