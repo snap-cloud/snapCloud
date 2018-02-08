@@ -27,7 +27,7 @@ Email functionality.
 We are using a hack by Michael Aschauer (@backface), but should move towards an API-based service.
 ]]
 
-local function send_smtp_mail(rcpt, subject, body)
+send_smtp_mail = function(rcpt, subject, body)
     local socket = require 'socket'
     local base = _G
     -----------------------------------------------------------------------------
@@ -117,12 +117,7 @@ end
 --     default_sender = 'noreply@snap-cloud.cs10.org'
 -- })
 
-local function send_email(recepient, subject, body)
+send_email = function(recepient, subject, body)
     -- TODO: Use the mailgun api when SSL is figured out.
     send_smtp_mail(recepient, subject, body)
 end
-
-return {
-    secure_salt = secure_salt,
-    send_email = send_email
-}
