@@ -43,12 +43,7 @@ config({'development', 'production'}, {
     mail_from = "noreply@snap-cloud.cs10.org",
     mail_footer = "This is a test",
 
-    measure_performance = true,
-
-    cors_domains = {
-        'localhost:' .. port,
-        'snap.berkeley.edu'
-    }
+    measure_performance = true
 })
 
 config('production', {
@@ -70,29 +65,6 @@ config('production', {
 
     --- TODO: See if we can turn this on without a big hit
     measure_performance = false,
-
-    cors_domains = {
-        'snap.berkeley.edu',
-        -- MIRRORS
-        'cs10.org',
-        'bjc.edc.org',
-        'web.media.mit.edu',
-        'byob.eecs.berkeley.edu',
-        -- RESEARCH PROJECTS
-        'eliza.csc.ncsu.edu',
-        'lambda.cs10.org',
-        -- EDX (sad)
-        'courses.edge.edx.org',
-        'courses.edx.org',
-        'd37djvu3ytnwxt.cloudfront.net',
-        'preview.courses.edge.edx.org',
-        'preview.courses.edx.org',
-        'preview.edge.edx.org',
-        'preview.edx.org',
-        'studio.edge.edx.org',
-        'studio.edx.org',
-        'edge.edx.org'
-    },
 
     store_path = 'store'
 })
