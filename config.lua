@@ -3,6 +3,7 @@
 -- Lapis session encryption.
 
 local config = require('lapis.config')
+local port = os.getenv('PORT') or 8080
 
 config({'development', 'production'}, {
     use_daemon = 'off',
@@ -14,7 +15,7 @@ config({'development', 'production'}, {
     },
     site_name = 'dev | Snap Cloud',
     hostname = 'localhost',
-    port = os.getenv('PORT') or 8080,
+    port = port,
     ssl_port = os.getenv('SSL_PORT') or 443,
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'home',
     enable_https = false,
@@ -42,6 +43,10 @@ config({'development', 'production'}, {
 
     measure_performance = true
 
+    cors_domains = {
+        'localhost:' .. port,
+        'snap.berkeley.edu',
+    }
 })
 
 config('production', {
@@ -62,5 +67,28 @@ config('production', {
     store_path = '/opt/snap',
 
     --- TODO: See if we can turn this on without a big hit
-    measure_performance = false
+    measure_performance = false,
+
+    cors_domains = {
+        'snap.berkeley.edu',
+        -- MIRRORS
+        'cs10.org',
+        'bjc.edc.org',
+        'web.media.mit.edu',
+        'byob.eecs.berkeley.edu',
+        -- RESEARCH PROJECTS
+        'eliza.csc.ncsu.edu',
+        'lambda.cs10.org',
+        -- EDX (sad)
+        'courses.edge.edx.org',
+        'courses.edx.org',
+        'd37djvu3ytnwxt.cloudfront.net',
+        'preview.courses.edge.edx.org',
+        'preview.courses.edx.org',
+        'preview.edge.edx.org',
+        'preview.edx.org',
+        'studio.edge.edx.org',
+        'studio.edx.org',
+        'edge.edx.org'
+    }
 })
