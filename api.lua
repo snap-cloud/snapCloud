@@ -3,9 +3,9 @@
 --
 -- See static/API for API description
 --
--- written by Bernat Romagosa
+-- Written by Bernat Romagosa
 --
--- Copyright (C) 2017 by Bernat Romagosa
+-- Copyright (C) 2018 by Bernat Romagosa
 --
 -- This file is part of Snap Cloud.
 --
@@ -36,14 +36,11 @@ local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 
-local utils = require('utils')
--- This is used to generate random salt strings for hashing passwords
-local secure_salt = utils.secure_salt
-local send_email = utils.send_email
-
 require 'disk'
 require 'responses'
 require 'validation'
+require 'crypto'
+require 'email'
 
 
 -- API Endpoints
@@ -132,11 +129,13 @@ app:match('user', '/users/:username', respond_to({
             joined = db.format_date()
         })
 
+        --[[
         send_email(self.params.email, 'Welcome to Snap!', [[
             Hello,
 
             Welcome to Snap!
         ]])
+        --]]
 
         return okResponse('User ' .. self.params.username .. ' created')
     end)

@@ -1,9 +1,9 @@
 -- Disk storage utils
 -- ==================
 --
--- written by Bernat Romagosa
+-- Written by Bernat Romagosa
 --
--- Copyright (C) 2017 by Bernat Romagosa
+-- Copyright (C) 2018 by Bernat Romagosa
 --
 -- This file is part of Snap Cloud.
 --
@@ -24,7 +24,7 @@
 -- we store max 1000 projects per dir
 
 local xml = require("xml")
-local config = require("lapis.config").get()
+local config = package.loaded.config
 
 function directory_for_id(id)
     return config.store_path .. '/' .. math.floor(id / 1000) .. '/' .. id
@@ -38,8 +38,6 @@ function save_to_disk(id, filename, contents)
         file:write(contents)
         file:close()
     else
-        print('could not save ' .. filename .. ' to ' .. dir)
-    end
 end
 
 function retrieve_from_disk(id, filename)
@@ -82,7 +80,6 @@ function parse_notes(id)
             end) then
             return notes
         else
-            print('there was an error parsing notes for project ' .. id)
             return nil
         end
     else

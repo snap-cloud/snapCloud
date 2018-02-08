@@ -1,7 +1,3 @@
--- You need to rename this file to config.lua and set the proper
--- password and database name, as well as a secret phrase for
--- Lapis session encryption.
-
 local config = require('lapis.config')
 local port = os.getenv('PORT') or 8080
 

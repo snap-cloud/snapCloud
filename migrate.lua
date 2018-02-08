@@ -6,7 +6,7 @@
 --
 -- written by Bernat Romagosa
 --
--- Copyright (C) 2017 by Bernat Romagosa
+-- Copyright (C) 2018 by Bernat Romagosa
 --
 -- This file is part of Snap Cloud.
 --
