@@ -10,7 +10,8 @@ $ git clone https://github.com/bromagosa/snapCloud.git
 
 ## Prereqs
 
-For Debian-based distros, you can skip this whole section by running the prereqs.sh script, that will try to automatically install all dependencies. You will still need to follow all steps after "Setting up the database" afterwards.
+For Debian-based distros, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a the database" afterwards.
+
 
 ### Lua 5.1
 
@@ -95,9 +96,9 @@ A PostgreSQL script is provided to help you get all tables set up easily. Howeve
 
 $ psql
 
-> CREATE USER snap WITH PASSWORD 'postgres_password';
+> CREATE USER snap WITH PASSWORD 'snap-cloud-password';
 > ALTER ROLE snap WITH LOGIN;
-> CREATE DATABASE snapcloud OWNER snap;
+> CREATE DATABASE snap_cloud OWNER snap;
 ```
 
 ### Building the database schema
@@ -106,14 +107,16 @@ Continue by logging in as `snap` and running the provided SQL file:
 
 ```
 # su - snap
-$ psql -U snap -d snapcloud -a -f cloud.sql
+$ psql -U snap -d snap_cloud -a -f cloud.sql
 ```
 
 If it all goes well, you should now have all tables properly set up. You can make sure it all worked by firing up the PostgreSQL shell and running the `\dt` command, which should print a list of all tables (`projects` and `users`).
 
 ### Lapis database configuration
 
-Now, rename the `rename_me_to_config.lua` file to `config.lua`, as the filename says, and edit it according to your own setup. The `.gitconfig` file makes sure this file is never pushed to the repository, but you should still be careful to never share it, as it contains the database password and the secret phrase used to hash Lapis sessions.
+The above username and password are the default values, defined in `config.lua`. You can override those values by defining environment variables, that lapis will read when the app is booted up.
+
+In development, it's completely fine to stick with these provided values. However, on a production server you must create a much stronger password, which should be stored in an environment variable.
 
 ### Giving permissions to use HTTP(S) ports
 

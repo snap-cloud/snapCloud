@@ -47,30 +47,26 @@ domain_allowed['snap.berkeley.edu'] = true
 domain_allowed['snap-cloud.cs10.org'] = true
 domain_allowed['romagosa.work'] = true
 domain_allowed['snap4arduino.rocks'] = true
-domain_allowed['cs10.github.io'] = true
+-- Snap! Mirrors
+domain_allowed['cs10.org'] = true
 domain_allowed['bjc.edc.org'] = true
 domain_allowed['byob.eecs.berkeley.edu'] = true
-domain_allowed['courses.edge.edx.org'] = true
-domain_allowed['courses.edx.org'] = true
-domain_allowed['cs10.org'] = true
-domain_allowed['d37djvu3ytnwxt.cloudfront.net'] = true
+domain_allowed['web.media.mit.edu'] = true
+domain_allowed['snap.apps.miosoft.com'] = true
+-- Snap! Research Projects
 domain_allowed['eliza.csc.ncsu.edu'] = true
 domain_allowed['lambda.cs10.org'] = true
+-- All edX Sites, and test sites
+domain_allowed['courses.edge.edx.org'] = true
+domain_allowed['courses.edx.org'] = true
+domain_allowed['d37djvu3ytnwxt.cloudfront.net'] = true
 domain_allowed['preview.courses.edge.edx.org'] = true
 domain_allowed['preview.courses.edx.org'] = true
 domain_allowed['preview.edge.edx.org'] = true
 domain_allowed['preview.edx.org'] = true
-domain_allowed['snap.apps.miosoft.com'] = true
 domain_allowed['studio.edge.edx.org'] = true
 domain_allowed['studio.edx.org'] = true
-domain_allowed['web.media.mit.edu'] = true
-domain_allowed['bjc-edc-2017-18.github.io'] = true
-domain_allowed['bjcredir.herokuapp.com'] = true
 domain_allowed['edge.edx.org'] = true
-
--- Generate a random seed for random number generation
--- This is used to generate random salt strings for hashing passwords
-math.randomseed(os.time())
 
 
 -- Database abstractions
@@ -85,7 +81,6 @@ package.loaded.Projects = package.loaded.Model:extend('projects', {
 
 
 -- Before filter
-
 app:before_filter(function (self)
     -- unescape all parameters
     for k, v in pairs(self.params) do
@@ -96,8 +91,8 @@ app:before_filter(function (self)
     if self.req.headers.origin and domain_allowed[self.req.headers.origin:gsub('https*://', '')] then
         self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
         self.res.headers['Access-Control-Allow-Credentials'] = 'true'
+        self.res.headers['Vary'] = 'Origin'
     end
-
 end)
 
 
@@ -106,7 +101,7 @@ end)
 app:get('/', function(self)
     return { redirect_to = self:build_url('static/index.html') }
 end)
-    
+
 
 -- The API is implemented in the api.lua file
 

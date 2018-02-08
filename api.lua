@@ -36,6 +36,11 @@ local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 
+local utils = require('utils')
+-- This is used to generate random salt strings for hashing passwords
+local secure_salt = utils.secure_salt
+local send_email = utils.send_email
+
 require 'disk'
 require 'responses'
 require 'validation'
@@ -86,7 +91,7 @@ app:match('user', '/users/:username', respond_to({
     -- Parameters:  username, password, password_repeat, email
 
     OPTIONS = cors_options,
-    GET =capture_errors(function (self)
+    GET = capture_errors(function (self)
         if not users_match(self) then assert_admin(self) end
         return jsonResponse(
             Users:select(
@@ -117,17 +122,21 @@ app:match('user', '/users/:username', respond_to({
             yield_error('User ' .. self.params.username .. ' already exists');
         end
 
-        local salt = tostring(math.random())
-
         Users:create({
             created = db.format_date(),
             username = self.params.username,
-            salt = salt,
+            salt = secure_salt(),
             password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
             email = self.params.email,
             isadmin = false,
             joined = db.format_date()
         })
+
+        send_email(self.params.email, 'Welcome to Snap!', [[
+            Hello,
+
+            Welcome to Snap!
+        ]])
 
         return okResponse('User ' .. self.params.username .. ' created')
     end)
@@ -473,7 +482,6 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
             return rawResponse(
                 retrieve_from_disk(project.id, 'thumbnail') or
                     generate_thumbnail(project.id))
-
         end
     }))
 }))

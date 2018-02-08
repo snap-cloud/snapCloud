@@ -1,7 +1,7 @@
 #!/bin/bash
 
 print_ok() {
-   echo -e "\033[32m$1\033[0m" 
+   echo -e "\033[32m$1\033[0m"
 }
 
 print_error() {
@@ -44,12 +44,8 @@ apt-get -y install openssl
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing lua packages..."
-luarocks install lapis
-luarocks install md5
-luarocks install luasec
-luarocks install luacrypto
-luarocks install xml
-luarocks install lua-resty-auto-ssl
+luarocks install snap-cloud-beta-0.rockspec
+
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing authbind..."
