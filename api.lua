@@ -239,7 +239,10 @@ app:match('projects', '/projects', respond_to({
 
             if self.params.withthumbnail == 'true' then
                 for k, project in pairs(projects) do
-                    project.thumbnail = retrieveFromDisk(project.id, 'thumbnail')
+                    -- Lazy Thumbnail generation
+                    project.thumbnail =
+                        retrieve_from_disk(project.id, 'thumbnail') or
+                            generate_thumbnail(project.id)
                 end
             end
 
@@ -306,7 +309,10 @@ app:match('user_projects', '/projects/:username', respond_to({
 
         if self.params.withthumbnail == 'true' then
             for k, project in pairs(projects) do
-                project.thumbnail = retrieveFromDisk(project.id, 'thumbnail')
+                -- Lazy Thumbnail generation
+                project.thumbnail =
+                    retrieve_from_disk(project.id, 'thumbnail') or
+                        generate_thumbnail(project.id)
             end
         end
 
@@ -343,7 +349,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
-        deleteDirectory(project.id)
+        delete_directory(project.id)
         if not (project:delete()) then
             yield_error('Could not delete user ' .. self.params.username)
         else
@@ -395,13 +401,13 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             project = Projects:find(self.params.username, self.params.projectname)
         end
 
-        saveToDisk(project.id, 'project.xml', body.xml)
-        saveToDisk(project.id, 'thumbnail', body.thumbnail)
-        saveToDisk(project.id, 'media.xml', body.media)
+        save_to_disk(project.id, 'project.xml', body.xml)
+        save_to_disk(project.id, 'thumbnail', body.thumbnail)
+        save_to_disk(project.id, 'media.xml', body.media)
 
-        if not (retrieveFromDisk(project.id, 'project.xml')
-            and retrieveFromDisk(project.id, 'thumbnail')
-            and retrieveFromDisk(project.id, 'media.xml')) then
+        if not (retrieve_from_disk(project.id, 'project.xml')
+            and retrieve_from_disk(project.id, 'thumbnail')
+            and retrieve_from_disk(project.id, 'media.xml')) then
             project:delete()
             yield_error('Could not save project ' .. self.params.projectname)
         else
@@ -420,13 +426,6 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
-
-        print(self.req.headers.connection)
-        print(self.req.headers.referer)
-        print(self.req.headers.host)
-        print(self.req.headers.origin)
-        print(self.req.headers.cookie)
-        print(self.req.headers['user-agent'])
 
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
@@ -481,7 +480,11 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
                 yield_error(err.auth)
             end
 
-            return rawResponse(retrieveFromDisk(project.id, 'thumbnail'))
+            -- Lazy Thumbnail generation
+            return rawResponse(
+                retrieve_from_disk(project.id, 'thumbnail') or
+                    generate_thumbnail(project.id)
+            )
         end
     }))
 }))
