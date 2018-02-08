@@ -41,11 +41,11 @@ config({'development', 'production'}, {
     mail_from = "noreply@snap-cloud.cs10.org",
     mail_footer = "This is a test",
 
-    measure_performance = true
+    measure_performance = true,
 
     cors_domains = {
         'localhost:' .. port,
-        'snap.berkeley.edu',
+        'snap.berkeley.edu'
     }
 })
 

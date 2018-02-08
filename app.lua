@@ -40,7 +40,8 @@ package.loaded.resty_sha512 = require "resty.sha512"
 package.loaded.resty_string = require "resty.string"
 
 local app = package.loaded.app
-
+local build_cors_string = require('utils').build_cors_string
+local config = require('lapis.config').get()
 
 -- Database abstractions
 
@@ -55,6 +56,10 @@ package.loaded.Projects = package.loaded.Model:extend('projects', {
 
 -- Before filter
 
+local CORS_LIST = build_cors_string(config.cors_domains)
+
+print(CORS_LIST)
+
 app:before_filter(function (self)
     -- unescape all parameters
     for k, v in pairs(self.params) do
@@ -62,8 +67,7 @@ app:before_filter(function (self)
     end
 
     -- Set Access Control header
-    -- FIXME change to actual domain in production
-    self.res.headers['Access-Control-Allow-Origin'] = 'http://romagosa.work'
+    self.res.headers['Access-Control-Allow-Origin'] = CORS_LIST
     self.res.headers['Access-Control-Allow-Credentials'] = 'true'
 
 end)

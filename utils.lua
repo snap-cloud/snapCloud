@@ -7,6 +7,27 @@ local config = require("lapis.config").get()
 local resty_random = require ("resty.random")
 local str = require("resty.string")
 
+local function map(func, array)
+  local new_array = {}
+  for i,v in ipairs(array) do
+    new_array[i] = func(v)
+  end
+  return new_array
+end
+
+-- A CORS Header is a set of "origins" separated by a space.
+-- Each protocol (http, https) counts as a different origin.
+-- To make configuration easy, we duplicate the list of allowed URLs.
+local function build_cors_string(cors_table)
+    local function prefix(text)
+        return function(item)
+                return text .. '://' .. item
+            end
+    end
+    return table.concat(map(prefix('http'), cors_table), ' ') ..
+        ' ' .. table.concat(map(prefix('https'), cors_table), ' ')
+end
+
 local function secure_salt()
     local strong_random = resty_random.bytes(16,true)
         -- attempt to generate 16 bytes of
@@ -123,6 +144,7 @@ end
 
 
 return {
+    build_cors_string = build_cors_string,
     secure_salt = secure_salt,
     send_email = send_email
 }
