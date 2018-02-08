@@ -1,7 +1,7 @@
 #!/bin/bash
 
 print_ok() {
-   echo -e "\033[32m$1\033[0m" 
+   echo -e "\033[32m$1\033[0m"
 }
 
 print_error() {
@@ -39,8 +39,13 @@ apt-get update
 apt-get install openresty -y
 if [ $? -ne 0 ]; then error; fi
 
+print_ok "Installing OpenSSL..."
+apt-get -y install openssl
+if [ $? -ne 0 ]; then error; fi
+
 print_ok "Installing lua packages..."
 luarocks install snap-cloud-beta-0.rockspec
+
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing authbind..."
@@ -52,4 +57,4 @@ apt-get install postgresql postgresql-client -y
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Prerequisites installed."
-print_ok "Please follow all instructions after 'Setting up a Lapis project' in INSTALL.md"
+print_ok "Please follow all instructions after 'Setting up the database' in INSTALL.md"

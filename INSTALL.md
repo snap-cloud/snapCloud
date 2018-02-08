@@ -10,7 +10,7 @@ $ git clone https://github.com/bromagosa/snapCloud.git
 
 ## Prereqs
 
-For Debian-based distros, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a Lapis project" afterwards.
+For Debian-based distros, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a the database" afterwards.
 
 
 ### Lua 5.1
@@ -40,8 +40,18 @@ Additional Lua packages you need for the Snap!Cloud to work properly are the Bcr
 ```
 # luarocks install lapis
 # luarocks install md5
+# luarocks install xml
 # luarocks install luasec
 # luarocks install luacrypto
+```
+
+#### Only for the MioSoft Cloud migration
+
+When using the migrate.lua script to import collections exported from the MioSoft Cloud (previous Snap! Cloud), you'll need to also install the following Lua rock:
+
+```
+# luarocks install pgmoon
+
 ```
 
 ### Authbind
@@ -52,7 +62,6 @@ In order to serve the cloud over HTTPS, we need the cloud user to have permissio
 # apt-get install authbind -y
 ```
 
-
 ### PostgreSQL
 
 The Snap!Cloud backend uses PostreSQL for storage, so you'll need to install it too. Again, under Debian/Ubuntu this is trivial:
@@ -61,13 +70,18 @@ The Snap!Cloud backend uses PostreSQL for storage, so you'll need to install it 
 # apt-get install postgresql postgresql-client
 ```
 
-## Setting up a Lapis project
+### SSL
 
-We now need to tell Lapis to set up the repository folder as a Lapis web application:
+To serve the backend over SSL we are making use of the Let's Encrypt API through the [Lua-Resty-AutoSSL](https://github.com/GUI/lua-resty-auto-ssl) package. You will also need to install its dependencies:
 
 ```
-$ cd snapCloud
-$ lapis new --lua
+# apt-get install openssl
+```
+
+Once the dependencies are met, you can install the Lua rock:
+
+```
+# luarocks install lua-resty-auto-ssl
 ```
 
 ## Setting up the database
@@ -100,18 +114,21 @@ If it all goes well, you should now have all tables properly set up. You can mak
 
 ### Lapis database configuration
 
-The above username and password are the default values, defined in `config.lua`. You can override those values by defining environment variables, that lapis will read when the app is booted up. 
+The above username and password are the default values, defined in `config.lua`. You can override those values by defining environment variables, that lapis will read when the app is booted up.
 
 In development, it's completely fine to stick with these provided values. However, on a production server you must create a much stronger password, which should be stored in an environment variable.
 
-### Giving permissions for SSL
+### Giving permissions to use HTTP(S) ports
 
-We now need to configure authbind so that user `snap` can start a service over the SSL port. To do so, we simply need to create a file and assign its ownership to `snap`:
+We now need to configure authbind so that user `snap` can start a service over the HTTP and HTTPS ports. To do so, we simply need to create a file and assign its ownership to `snap`:
 
 ```
 # touch /etc/authbind/byport/443
 # chown snap:snap /etc/authbind/byport/443
 # chmod +x /etc/authbind/byport/443
+# touch /etc/authbind/byport/80
+# chown snap:snap /etc/authbind/byport/80
+# chmod +x /etc/authbind/byport/80
 ```
 
 ## Running the Snap!Cloud
@@ -119,13 +136,34 @@ We now need to configure authbind so that user `snap` can start a service over t
 If it all went well, you're now ready to fire up Lapis. While in development, just run this command under your Snap!Cloud local folder:
 
 ```
-$ lapis server
+$ ./start.sh
 ```
 
-You can now point your browser to `http://localhost:8080`.
+You can now point your browser to `https://localhost`.
 
-When deploying it, you'll need to add the `--production` flag to it, and if you're using port 80 you'll need to run Lapis from a user account with permission to do so:
+## Setting up the Snap!Cloud as a system daemon
+
+We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace [YOUR USERNAME] by your actual user. If you have followed this guide, it should be `snap`:
+
 
 ```
-$ lapis server --production
+    start-stop-daemon --start --quiet --startas $DAEMON -u [YOUR USERNAME] -- --boot || status =$?
+```
+
+Then use `update-rc.d` to create the necessary symbolic links:
+
+```
+# update-rc.d snapcloud_daemon defaults
+```
+
+You can now start and stop the Snap!Cloud by running:
+
+```
+# /etc/init.d/snapcloud_daemon start
+```
+
+and
+
+```
+# /etc/init.d/snapcloud_daemon stop
 ```

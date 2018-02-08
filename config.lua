@@ -5,6 +5,7 @@
 local config = require('lapis.config')
 local port = os.getenv('PORT') or 8080
 
+-- TODO: Pull out the different pieces into a dev only section
 config({'development', 'production'}, {
     use_daemon = 'off',
     postgres = {
@@ -21,8 +22,9 @@ config({'development', 'production'}, {
     enable_https = false,
     num_workers = 1,
     code_cache = 'off',
+
     session_name = 'snapsession',
-    secret = 'a super secret phrase you should never ever make public',
+    secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
 
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have
@@ -57,6 +59,7 @@ config('production', {
         password = os.getenv('DATABASE_PASSWORD'),
         database = os.getenv('DATABASE_NAME')
     },
+    port = port or 80,
     site_name = 'Snap Cloud',
     hostname = 'snap-clous.cs10.org',
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'snap-cloud.cs10.org',
@@ -64,7 +67,6 @@ config('production', {
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 12,
     code_cache = 'on',
-    store_path = '/opt/snap',
 
     --- TODO: See if we can turn this on without a big hit
     measure_performance = false,
@@ -90,5 +92,7 @@ config('production', {
         'studio.edge.edx.org',
         'studio.edx.org',
         'edge.edx.org'
-    }
+    },
+
+    store_path = 'store'
 })

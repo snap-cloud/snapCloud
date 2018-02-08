@@ -40,8 +40,37 @@ package.loaded.resty_sha512 = require "resty.sha512"
 package.loaded.resty_string = require "resty.string"
 
 local app = package.loaded.app
+
 local build_cors_string = require('utils').build_cors_string
 local config = require('lapis.config').get()
+
+-- Store whitelisted domains
+local domain_allowed = {}
+domain_allowed['snap.berkeley.edu'] = true
+domain_allowed['snap-cloud.cs10.org'] = true
+domain_allowed['romagosa.work'] = true
+domain_allowed['snap4arduino.rocks'] = true
+domain_allowed['cs10.github.io'] = true
+domain_allowed['bjc.edc.org'] = true
+domain_allowed['byob.eecs.berkeley.edu'] = true
+domain_allowed['courses.edge.edx.org'] = true
+domain_allowed['courses.edx.org'] = true
+domain_allowed['cs10.org'] = true
+domain_allowed['d37djvu3ytnwxt.cloudfront.net'] = true
+domain_allowed['eliza.csc.ncsu.edu'] = true
+domain_allowed['lambda.cs10.org'] = true
+domain_allowed['preview.courses.edge.edx.org'] = true
+domain_allowed['preview.courses.edx.org'] = true
+domain_allowed['preview.edge.edx.org'] = true
+domain_allowed['preview.edx.org'] = true
+domain_allowed['snap.apps.miosoft.com'] = true
+domain_allowed['studio.edge.edx.org'] = true
+domain_allowed['studio.edx.org'] = true
+domain_allowed['web.media.mit.edu'] = true
+domain_allowed['bjc-edc-2017-18.github.io'] = true
+domain_allowed['bjcredir.herokuapp.com'] = true
+domain_allowed['edge.edx.org'] = true
+
 
 -- Database abstractions
 
@@ -58,8 +87,6 @@ package.loaded.Projects = package.loaded.Model:extend('projects', {
 
 local CORS_LIST = build_cors_string(config.cors_domains)
 
-print(CORS_LIST)
-
 app:before_filter(function (self)
     -- unescape all parameters
     for k, v in pairs(self.params) do
@@ -67,9 +94,11 @@ app:before_filter(function (self)
     end
 
     -- Set Access Control header
-    self.res.headers['Access-Control-Allow-Origin'] = CORS_LIST
-    self.res.headers['Access-Control-Allow-Credentials'] = 'true'
-    self.res.headers['Vary'] = 'Origin'
+    if self.req.headers.origin and domain_allowed[self.req.headers.origin:gsub('https*://', '')] then
+        self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
+        self.res.headers['Access-Control-Allow-Credentials'] = 'true'
+        self.res.headers['Vary'] = 'Origin'
+    end
 end)
 
 

@@ -93,7 +93,7 @@ app:match('user', '/users/:username', respond_to({
     -- Parameters:  username, password, password_repeat, email
 
     OPTIONS = cors_options,
-    GET =capture_errors(function (self)
+    GET = capture_errors(function (self)
         if not users_match(self) then assert_admin(self) end
         return jsonResponse(
             Users:select(
@@ -483,8 +483,7 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
             -- Lazy Thumbnail generation
             return rawResponse(
                 retrieve_from_disk(project.id, 'thumbnail') or
-                    generate_thumbnail(project.id)
-            )
+                    generate_thumbnail(project.id))
         end
     }))
 }))

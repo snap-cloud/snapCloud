@@ -18,7 +18,9 @@ dependencies = {
    "md5",
    "luasec",
    "luacrypto",
-   "mailgun"
+   "mailgun",
+   "xml",
+   "lua-resty-auto-ssl"
 }
 build = {
     type = "builtin",
