@@ -41,12 +41,6 @@ local utils = require('utils')
 local secure_salt = utils.secure_salt
 local send_email = utils.send_email
 
-if not sent then
-  print('Failed: ' .. err)
-else
-  print('Sent')
-end
-
 local config = require('lapis.config').get()
 
 -- local mailer = Mailgun({
