@@ -47,12 +47,9 @@ end
 
 htmlPage = function (title, contents)
     return {
-        layout = true,
         status = 200,
         readyState = 4,
-        '<html><head><title>Snap! Cloud - ' .. title ..
-        '</title></head><body><h1>' .. title .. '</h1>' ..
-        contents .. '</body></html>'
+        '<h1>' .. title .. '</h1>' .. contents
     }
 end
 
