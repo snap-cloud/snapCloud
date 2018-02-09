@@ -18,7 +18,7 @@ fi
 NAME=snapcloud
 DESC="SnapCloud service"
 PATH=/home/cloud/snapCloud
-DAEMON=/home/cloud/snapCloud/start.sh
+DAEMON=/home/cloud/snapCloud/bin/start.sh
 
 test -f "$DAEMON" || exit 0
 

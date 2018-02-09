@@ -14,3 +14,4 @@ uwsgi_temp
 .swp
 .swo
 .env
+setenv
