@@ -122,10 +122,11 @@ app:match('user', '/users/:username', respond_to({
             yield_error('User ' .. self.params.username .. ' already exists');
         end
 
+        local salt = secure_salt()
         Users:create({
             created = db.format_date(),
             username = self.params.username,
-            salt = secure_salt(),
+            salt = salt,
             password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
             email = self.params.email,
             isadmin = false,
