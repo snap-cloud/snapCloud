@@ -40,7 +40,7 @@ assert_all = function (assertions, self)
 end
 
 assert_logged_in = function (self, message)
-    if not self.params.username then
+    if not self.session.username then
         yield_error(message or err.not_logged_in)
     end
 end
@@ -60,7 +60,7 @@ assert_users_match = function (self, message)
 end
 
 users_match = function (self)
-    return (self.session.username == self.params.username)
+    return (self.session.username == self.params.username:lower())
 end
 
 assert_user_exists = function (self, message)
@@ -70,7 +70,7 @@ assert_user_exists = function (self, message)
 end
 
 assert_project_exists = function (self, message)
-    if not (Projects:find(self.params.username, self.params.projectname)) then
+    if not (Projects:find(self.params.username:lower(), self.params.projectname)) then
         yield_error(message or err.nonexistent_project)
     end
 end

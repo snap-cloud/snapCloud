@@ -34,11 +34,11 @@ hash_password = function (password, salt)
 end
 
 secure_salt = function ()
-    local strong_random = resty_random.bytes(16,true)
+    local strong_random = resty_random.bytes(16, true)
     -- attempt to generate 16 bytes of
     -- cryptographically strong random data
     while strong_random == nil do
-        strong_random = resty_random.bytes(16,true)
+        strong_random = resty_random.bytes(16, true)
     end
 
     return resty_string.to_hex(strong_random)
