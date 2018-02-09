@@ -38,6 +38,22 @@ CREATE DOMAIN dom_username AS text;
 
 ALTER DOMAIN dom_username OWNER TO cloud;
 
+--
+-- Name: expire_token(); Type: FUNCTION; Schema: public; Owner: cloud
+--
+
+CREATE FUNCTION expire_token() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+  DELETE FROM tokens WHERE created < NOW() - INTERVAL '3 days';
+RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.expire_token() OWNER TO cloud;
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -87,7 +103,7 @@ ALTER SEQUENCE projects_id_seq OWNED BY projects.id;
 --
 
 CREATE TABLE tokens (
-    created timestamp with time zone,
+    created timestamp without time zone DEFAULT now() NOT NULL,
     username dom_username NOT NULL,
     purpose text,
     value text NOT NULL
@@ -173,6 +189,13 @@ ALTER TABLE ONLY users
 
 ALTER TABLE ONLY tokens
     ADD CONSTRAINT value_pkey PRIMARY KEY (value);
+
+
+--
+-- Name: expire_token_trigger; Type: TRIGGER; Schema: public; Owner: cloud
+--
+
+CREATE TRIGGER expire_token_trigger AFTER INSERT ON tokens FOR EACH STATEMENT EXECUTE PROCEDURE expire_token();
 
 
 --
