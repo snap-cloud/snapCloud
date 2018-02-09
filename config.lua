@@ -1,7 +1,3 @@
--- You need to rename this file to config.lua and set the proper
--- password and database name, as well as a secret phrase for
--- Lapis session encryption.
-
 local config = require('lapis.config')
 local port = os.getenv('PORT') or 8080
 
@@ -57,7 +53,7 @@ config('production', {
     },
     port = port or 80,
     site_name = 'Snap Cloud',
-    hostname = 'snap-clous.cs10.org',
+    hostname = 'snap-cloud.cs10.org',
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'snap-cloud.cs10.org',
     enable_https = true,
     enable_auto_ssl = 'true', -- lapis needs a string

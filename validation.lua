@@ -1,9 +1,9 @@
 -- Validation and errors
 -- =====================
 --
--- written by Bernat Romagosa
+-- Written by Bernat Romagosa
 --
--- Copyright (C) 2017 by Bernat Romagosa
+-- Copyright (C) 2018 by Bernat Romagosa
 --
 -- This file is part of Snap Cloud.
 --
@@ -23,8 +23,6 @@
 local yield_error = package.loaded.yield_error
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
-local resty_sha512 = package.loaded.resty_sha512
-local resty_string = package.loaded.resty_string
 
 
 err = {
@@ -42,7 +40,7 @@ assert_all = function (assertions, self)
 end
 
 assert_logged_in = function (self, message)
-    if not self.params.username then
+    if not self.session.username then
         yield_error(message or err.not_logged_in)
     end
 end
@@ -62,7 +60,7 @@ assert_users_match = function (self, message)
 end
 
 users_match = function (self)
-    return (self.session.username == self.params.username)
+    return (self.session.username == self.params.username:lower())
 end
 
 assert_user_exists = function (self, message)
@@ -72,16 +70,7 @@ assert_user_exists = function (self, message)
 end
 
 assert_project_exists = function (self, message)
-    if not (Projects:find(self.params.username, self.params.projectname)) then
+    if not (Projects:find(self.params.username:lower(), self.params.projectname)) then
         yield_error(message or err.nonexistent_project)
     end
-end
-
-hash_password = function (password, salt)
-    -- we're following the same policy as the old cloud in order to keep user 
-    -- passwords unchanged
-    -- "password" comes prehashed from the client
-    sha512 = resty_sha512:new()
-    sha512:update(password .. salt)
-    return resty_string.to_hex(sha512:final())
 end

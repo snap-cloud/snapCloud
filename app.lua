@@ -1,10 +1,10 @@
 -- Snap Cloud
 -- ==========
 --
--- a cloud backend for Snap!
--- written by Bernat Romagosa
+-- A cloud backend for Snap!
+-- Written by Bernat Romagosa
 --
--- Copyright (C) 2017 by Bernat Romagosa
+-- Copyright (C) 2018 by Bernat Romagosa
 --
 -- This file is part of Snap Cloud.
 --
@@ -38,6 +38,8 @@ package.loaded.respond_to = require('lapis.application').respond_to
 package.loaded.cached = require('lapis.cache').cached
 package.loaded.resty_sha512 = require "resty.sha512"
 package.loaded.resty_string = require "resty.string"
+package.loaded.resty_random = require "resty.random"
+package.loaded.config = require("lapis.config").get()
 
 local app = package.loaded.app
 
