@@ -28,7 +28,7 @@ hash_password = function (password, salt)
     -- we're following the same policy as the old cloud in order to keep user 
     -- passwords unchanged
     -- "password" comes prehashed from the client
-    sha512 = resty_sha512:new()
+    local sha512 = resty_sha512:new()
     sha512:update(password .. salt)
     return resty_string.to_hex(sha512:final())
 end
@@ -42,4 +42,19 @@ secure_salt = function ()
     end
 
     return resty_string.to_hex(strong_random)
+end
+
+secure_token = function ()
+    -- generate a random secure token that can be used for user verification
+    -- and password reset
+    return hash_password(secure_salt(), secure_salt())
+end
+
+random_password = function ()
+    -- generate a random 8 character password
+    local password = resty_string.to_hex(resty_random.bytes(4, true))
+    -- we now calculate the password prehash
+    local sha512 = resty_sha512:new()
+    local prehash = sha512:update(password)
+    return password, resty_string.to_hex(sha512:final())
 end

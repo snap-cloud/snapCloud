@@ -33,24 +33,15 @@ local util = package.loaded.util
 local respond_to = package.loaded.respond_to
 local json_params = package.loaded.json_params
 local cached = package.loaded.cached
-local config = package.loaded.config
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
+local Tokens = package.loaded.Tokens
 
 require 'disk'
 require 'responses'
 require 'validation'
 require 'crypto'
-
-local mail = require "resty.mail"
-
-local mailer, err = mail.new({
-  host = config.mail_server,
-  port = 587,
-  starttls = true,
-  username = config.mail_user,
-  password = config.mail_password
-})
+require 'email'
 
 -- API Endpoints
 -- =============
@@ -138,12 +129,6 @@ app:match('user', '/users/:username', respond_to({
             isadmin = false
         })
 
-        --send_email(self.params.email, 'Welcome to Snap!', [[
-        --    Hello,
---
-  --          Welcome to Snap!
-    --    ]])
-
         return okResponse('User ' .. self.params.username .. ' created')
     end)
 
@@ -152,7 +137,7 @@ app:match('user', '/users/:username', respond_to({
 app:match('newpassword', '/users/:username/newpassword', respond_to({
     -- Methods:     POST
     -- Description: Sets a new password for a user.
-    -- Parameters:  password, password_repeat, newpassword
+    -- Parameters:  oldpassword, password_repeat, newpassword
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
@@ -160,7 +145,7 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
 
         assert_all({'user_exists', 'users_match'}, self)
 
-        if user.password ~= hash_password(self.params.password, user.salt) then
+        if user.password ~= hash_password(self.params.oldpassword, user.salt) then
             yield_error('wrong password')
         end
 
@@ -174,6 +159,60 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
         })
 
         return okResponse('Password updated')
+    end)
+}))
+
+app:match('resetpassword', '/users/:username/resetpassword(/:token)', respond_to({
+    -- Methods:     GET, POST
+    -- Description: Handles password reset requests.
+    -- Parameters:  username, token
+
+    OPTIONS = cors_options,
+    GET = capture_errors(function (self)
+        local token = Tokens:find(self.params.token)
+        if token then
+            local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
+            if query.date_part < 4 then
+                local user = Users:find(token.username)
+                local password, prehash = random_password()
+                user:update({ password = hash_password(prehash, user.salt) })
+                token:delete()
+                return htmlPage(
+                    'Password reset', 
+                    '<p>New password generated for your account <strong>' .. user.username .. '</strong>.</p>' ..
+                    '<p>Your new password is: <strong>' ..  password .. '</strong></p>' ..
+                    '<p>Please log in and change it immediately.</p>' ..
+                    '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
+                )
+            else
+                token:delete()
+                return htmlPage('Expired token', '<p>' .. err.expired_token .. '</p>')
+            end
+        else
+            return htmlPage('Invalid token', '<p>' .. err.invalid_token .. '</p>')
+        end
+    end),
+    POST = capture_errors(function (self)
+        local user = Users:find(self.params.username)
+
+        if not user then yield_error(err.nonexistent_user) end
+
+        local token_value = secure_token()
+
+        Tokens:create({
+                username = self.params.username,
+                created = db.format_date(),
+                value = token_value,
+                purpose = 'password_reset'
+            })
+
+        send_mail(
+            user.email,
+            'Reset password for user ' .. self.params.username,
+            mail_bodies.password_reset,
+            self:build_url('/users/' .. user.username .. '/resetpassword/' .. token_value))
+
+        return okResponse('Password reset request sent.\nPlease check your email.')
     end)
 }))
 
@@ -490,16 +529,4 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
                     generate_thumbnail(project.id))
         end
     }))
-}))
-
-app:match('email', '/test_email/:address', respond_to({
-    OPTIONS = cors_options,
-    GET  = function (self)
-    local ok, err = mailer:send({
-        from = config.mail_from_name .. ' <' .. config.mail_from .. '>',
-        to = { self.params.address },
-        subject = "Snap! Cloud mailing system works!",
-        html = "<h1>Automated mail test</h1><p>This is an automated test email to try out the Snap Cloud mail system.</p>" .. config.mail_footer
-    })
-    end
 }))

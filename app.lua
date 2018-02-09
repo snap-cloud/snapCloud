@@ -81,6 +81,10 @@ package.loaded.Projects = package.loaded.Model:extend('projects', {
     primary_key = { 'username', 'projectname' }
 })
 
+package.loaded.Tokens = package.loaded.Model:extend('tokens', {
+    primary_key = { 'value' }
+})
+
 
 -- Before filter
 app:before_filter(function (self)

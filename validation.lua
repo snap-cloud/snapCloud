@@ -30,7 +30,9 @@ err = {
     auth = 'You do not have permission to perform this action',
     nonexistent_user = 'No user with this username exists',
     nonexistent_project = 'This project does not exist',
-    not_public_project = 'This project is not public'
+    not_public_project = 'This project is not public',
+    expired_token = 'This token has expired',
+    invalid_token = 'This token is either invalid or has expired'
 }
 
 assert_all = function (assertions, self)
