@@ -15,7 +15,8 @@ config({'development', 'production'}, {
     port = port,
     ssl_port = os.getenv('SSL_PORT') or 443,
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'host',
-    enable_https = false,
+    enable_https = true,
+    enable_auto_ssl = 'false',
     num_workers = 1,
     code_cache = 'off',
 
@@ -55,6 +56,7 @@ config('production', {
     hostname = 'snap-cloud.cs10.org',
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'snap-cloud.cs10.org',
     enable_https = true,
+    enable_auto_ssl = 'true', -- lapis needs a string
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 12,
     code_cache = 'on',
