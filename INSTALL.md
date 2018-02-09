@@ -83,6 +83,15 @@ Once the dependencies are met, you can install the Lua rock:
 ```
 # luarocks install lua-resty-auto-ssl
 ```
+**Note**: You can skip installing `lua-resty-auto-ssl` if you are not using LetsEncrypt. In development, LetsEncrypt is disabled by default.
+
+### Getting a self-signed certificate
+Currently, Snap!Cloud is configured to expect a certificate file, even while running locally. You can generate a self-signed cert using the `openssl` command. While self-signed certs are not useful for production sites, it will work just fine when testing things.
+
+Heroku has a good guide on [generating self-signed certs][heroku-guide].
+(The default configuration is for files named host.cert, and host.key. You can adjust the Heroku commands or rename your files afterwards.)
+
+[heroku-guide]: https://devcenter.heroku.com/articles/ssl-certificate-self
 
 ## Setting up the database
 
@@ -136,8 +145,9 @@ We now need to configure authbind so that user `snap` can start a service over t
 If it all went well, you're now ready to fire up Lapis. While in development, just run this command under your Snap!Cloud local folder:
 
 ```
-$ ./start.sh
+$ ./bin/start.sh
 ```
+You will also need to start your Postgres database separately.
 
 You can now point your browser to `https://localhost`.
 
