@@ -126,8 +126,7 @@ app:match('user', '/users/:username', respond_to({
             salt = salt,
             password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
             email = self.params.email,
-            isadmin = false,
-            joined = db.format_date()
+            isadmin = false
         })
 
         --send_email(self.params.email, 'Welcome to Snap!', [[
