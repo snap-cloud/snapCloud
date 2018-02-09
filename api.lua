@@ -33,6 +33,7 @@ local util = package.loaded.util
 local respond_to = package.loaded.respond_to
 local json_params = package.loaded.json_params
 local cached = package.loaded.cached
+local config = package.loaded.config
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 
@@ -40,8 +41,16 @@ require 'disk'
 require 'responses'
 require 'validation'
 require 'crypto'
-require 'email'
 
+local mail = require "resty.mail"
+
+local mailer, err = mail.new({
+  host = config.mail_server,
+  port = 587,
+  starttls = true,
+  username = config.mail_user,
+  password = config.mail_password
+})
 
 -- API Endpoints
 -- =============
@@ -481,4 +490,16 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
                     generate_thumbnail(project.id))
         end
     }))
+}))
+
+app:match('email', '/test_email/:address', respond_to({
+    OPTIONS = cors_options,
+    GET  = function (self)
+    local ok, err = mailer:send({
+        from = config.mail_from_name .. ' <' .. config.mail_from .. '>',
+        to = { self.params.address },
+        subject = "Snap! Cloud mailing system works!",
+        html = "<h1>Automated mail test</h1><p>This is an automated test email to try out the Snap Cloud mail system.</p>" .. config.mail_footer
+    })
+    end
 }))
