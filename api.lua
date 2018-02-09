@@ -93,7 +93,7 @@ app:match('user', '/users/:username', respond_to({
         return jsonResponse(
             Users:select(
                 'where username = ? limit 1',
-                self.params.username:lower(),
+                self.params.username,
                 { fields = 'username, location, about, created, isadmin, email' })[1])
     end),
 
@@ -101,7 +101,7 @@ app:match('user', '/users/:username', respond_to({
         assert_all({'logged_in', 'admin'}, self)
 
         if not (user:delete()) then
-            yield_error('Could not delete user ' .. self.params.username:lower())
+            yield_error('Could not delete user ' .. self.params.username)
         else
             return okResponse('User ' .. self.params.username .. ' has been removed.')
         end
@@ -115,14 +115,14 @@ app:match('user', '/users/:username', respond_to({
             { 'email', exists = true, min_length = 5 },
         })
 
-        if Users:find(self.params.username:lower()) then
+        if Users:find(self.params.username) then
             yield_error('User ' .. self.params.username .. ' already exists');
         end
 
         local salt = secure_salt()
         Users:create({
             created = db.format_date(),
-            username = self.params.username:lower(),
+            username = self.params.username,
             salt = salt,
             password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
             email = self.params.email,
@@ -147,7 +147,7 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
-        local user = Users:find(self.params.username:lower())
+        local user = Users:find(self.params.username)
 
         assert_all({'user_exists', 'users_match'}, self)
 
@@ -175,7 +175,7 @@ app:match('login', '/users/:username/login', respond_to({
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
-        local user = Users:find(self.params.username:lower())
+        local user = Users:find(self.params.username)
 
         if not user then yield_error(err.nonexistent_user) end
 
@@ -259,14 +259,14 @@ app:match('user_projects', '/projects/:username', respond_to({
     GET = function (self)
         assert_user_exists(self)
 
-        if self.session.username ~= self.params.username:lower() then
+        if self.session.username ~= self.params.username then
             local visitor = Users:find(self.session.username)
             if not visitor or not visitor.isadmin then
                 self.params.ispublished = 'true'
             end
         end
 
-        local query = db.interpolate_query('where username = ?', self.params.username:lower())
+        local query = db.interpolate_query('where username = ?', self.params.username)
 
         -- Apply where clauses
         if self.params.ispublished ~= nil then
@@ -327,7 +327,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
-        local project = Projects:find(self.params.username:lower(), self.params.projectname)
+        local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
         if not (project.ispublic or users_match(self)) then assert_admin(self, err.not_public_project) end
@@ -343,7 +343,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         assert_all({'project_exists', 'user_exists'}, self)
         if not users_match(self) then assert_admin(self) end
 
-        local project = Projects:find(self.params.username:lower(), self.params.projectname)
+        local project = Projects:find(self.params.username, self.params.projectname)
         delete_directory(project.id)
         if not (project:delete()) then
             yield_error('Could not delete user ' .. self.params.username)
@@ -368,7 +368,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             yield_error('Empty project contents')
         end
 
-        local project = Projects:find(self.params.username:lower(), self.params.projectname)
+        local project = Projects:find(self.params.username, self.params.projectname)
 
         if (project) then
             local shouldUpdateSharedDate =
@@ -385,7 +385,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         else
             Projects:create({
                 projectname = self.params.projectname,
-                username = self.params.username:lower(),
+                username = self.params.username,
                 created = db.format_date(),
                 lastupdated = db.format_date(),
                 lastshared = self.params.ispublished and db.format_date() or nil,
@@ -393,7 +393,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 ispublic = self.params.ispublic or false,
                 ispublished = self.params.ispublished or false
             })
-            project = Projects:find(self.params.username:lower(), self.params.projectname)
+            project = Projects:find(self.params.username, self.params.projectname)
         end
 
         save_to_disk(project.id, 'project.xml', body.xml)
@@ -420,7 +420,7 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
-        local project = Projects:find(self.params.username:lower(), self.params.projectname)
+        local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
@@ -431,7 +431,7 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         assert_user_exists(self)
         if not users_match(self) then assert_admin(self) end
 
-        local project = Projects:find(self.params.username:lower(), self.params.projectname)
+        local project = Projects:find(self.params.username, self.params.projectname)
         if not project then yield_error(err.nonexistent_project) end
 
         local shouldUpdateSharedDate =
@@ -467,10 +467,10 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
     cached({
         exptime = 30, -- cache expires after 30 seconds
         function (self)
-            local project = Projects:find(self.params.username:lower(), self.params.projectname)
+            local project = Projects:find(self.params.username, self.params.projectname)
             if not project then yield_error(err.nonexistent_project) end
 
-            if self.params.username:lower() ~= self.session.username
+            if self.params.username ~= self.session.username
                 and not project.ispublic then
                 yield_error(err.auth)
             end
