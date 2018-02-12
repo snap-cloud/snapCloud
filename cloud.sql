@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.10
--- Dumped by pg_dump version 9.5.10
+-- Dumped from database version 9.5.11
+-- Dumped by pg_dump version 9.5.11
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -126,7 +126,8 @@ CREATE TABLE users (
     joined timestamp with time zone,
     about text,
     location text,
-    isadmin boolean
+    isadmin boolean,
+    verified boolean
 );
 
 
@@ -215,7 +216,7 @@ ALTER TABLE ONLY tokens
 
 
 --
--- Name: public; Type: ACL; Schema: -; Owner: postgres
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
 --
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
