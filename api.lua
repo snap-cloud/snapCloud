@@ -41,7 +41,6 @@ require 'disk'
 require 'responses'
 require 'validation'
 require 'crypto'
-require 'email'
 
 -- API Endpoints
 -- =============
@@ -56,19 +55,6 @@ app:match('init', '/init', respond_to({
     end
 }))
 
---[[
-app:match('users', '/users', respond_to({
-    -- Methods:     GET
-    -- Description: Get a list of users. Returns an empty list if no parameters provided,
-    --              except when the query issuer is an admin.
-    -- Parameters:  matchtext, page, pagesize
-
-    OPTIONS = cors_options,
-    GET = function (self)
-        return jsonResponse(Users:select({ fields = 'username' }))
-    end
-}))
-]]--
 
 app:match('current_user', '/users/c', respond_to({
     -- Methods:     GET
@@ -81,6 +67,7 @@ app:match('current_user', '/users/c', respond_to({
             isadmin = self.session.isadmin })
     end
 }))
+
 
 app:match('user', '/users/:username', respond_to({
     -- Methods:     GET, DELETE, POST
@@ -126,13 +113,21 @@ app:match('user', '/users/:username', respond_to({
             salt = salt,
             password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
             email = self.params.email,
+            verified = false,
             isadmin = false
         })
 
-        return okResponse('User ' .. self.params.username .. ' created')
+        -- Create a verify_user-type token and send an email to the user asking to
+        -- verify the account.
+        -- We check these on login.
+        create_token(self, 'verify_user', self.params.username, self.params.email)
+        return okResponse(
+            'User ' .. self.params.username ..
+            ' created.\nPlease check your email and validate your\naccount within the next 3 days.')
     end)
 
 }))
+
 
 app:match('newpassword', '/users/:username/newpassword', respond_to({
     -- Methods:     POST
@@ -162,59 +157,53 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
     end)
 }))
 
-app:match('resetpassword', '/users/:username/resetpassword(/:token)', respond_to({
+app:match('resendverification', '/users/:username/resendverification', respond_to({
+    -- Methods:     GET
+    -- Description: Resends user verification email
+    -- Parameters:  username
+
+    OPTIONS = cors_options,
+    POST = capture_errors(function (self)
+        local user = Users:find(self.params.username)
+        if not user then yield_error(err.nonexistent_user) end
+        create_token(self, 'verify_user', self.params.username, user.email)
+        return okResponse(
+            'Verification email for ' .. self.params.username ..
+            ' sent.\nPlease check your email and validate your\naccount within the next 3 days.')
+    end)
+}))
+
+app:match('resetpassword', '/users/:username/password_reset(/:token)', respond_to({
     -- Methods:     GET, POST
     -- Description: Handles password reset requests.
     -- Parameters:  username, token
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
-        local token = Tokens:find(self.params.token)
-        if token then
-            local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
-            if query.date_part < 4 then
-                local user = Users:find(token.username)
+        return check_token(
+            self.params.token,
+            'password_reset',
+            function (user)
                 local password, prehash = random_password()
                 user:update({ password = hash_password(prehash, user.salt) })
-                token:delete()
                 return htmlPage(
-                    'Password reset', 
+                    'Password reset',
                     '<p>New password generated for your account <strong>' .. user.username .. '</strong>.</p>' ..
                     '<p>Your new password is: <strong>' ..  password .. '</strong></p>' ..
                     '<p>Please log in and change it immediately.</p>' ..
                     '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
                 )
-            else
-                token:delete()
-                return htmlPage('Expired token', '<p>' .. err.expired_token .. '</p>')
             end
-        else
-            return htmlPage('Invalid token', '<p>' .. err.invalid_token .. '</p>')
-        end
+        )
     end),
     POST = capture_errors(function (self)
         local user = Users:find(self.params.username)
-
         if not user then yield_error(err.nonexistent_user) end
-
-        local token_value = secure_token()
-
-        Tokens:create({
-                username = self.params.username,
-                created = db.format_date(),
-                value = token_value,
-                purpose = 'password_reset'
-            })
-
-        send_mail(
-            user.email,
-            'Reset password for user ' .. self.params.username,
-            mail_bodies.password_reset,
-            self:build_url('/users/' .. user.username .. '/resetpassword/' .. token_value))
-
+        create_token(self, 'password_reset', self.params.username, user.email)
         return okResponse('Password reset request sent.\nPlease check your email.')
     end)
 }))
+
 
 app:match('login', '/users/:username/login', respond_to({
     -- Methods:     POST
@@ -231,15 +220,66 @@ app:match('login', '/users/:username/login', respond_to({
         local password = ngx.req.get_body_data()
 
         if (hash_password(password, user.salt) == user.password) then
+            if not user.verified then
+                -- Check whether verification token is still unused and valid
+                local token =
+                    Tokens:find({
+                        username = user.username,
+                        purpose = 'verify_user'
+                    })
+                if token then
+                    local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
+                    if query.date_part > 3 then
+                        token:delete()
+                        yield_error(err.nonvalidated_user)
+                    else
+                        user.days_left = 3 - query.date_part
+                    end
+                else
+                    yield_error(err.nonvalidated_user)
+                end
+            end
             self.session.username = user.username
             self.session.isadmin = user.isadmin
             self.cookies.persist_session = self.params.persist
-            return okResponse('User ' .. self.params.username .. ' logged in')
+            if user.verified then
+                return okResponse('User ' .. self.params.username .. ' logged in')
+            else
+                return jsonResponse({ days_left = user.days_left })
+            end
         else
             yield_error('wrong password')
         end
     end)
 }))
+
+
+
+app:match('verifyuser', '/users/:username/verify_user/:token', respond_to({
+    -- Methods:     GET, POST
+    -- Description: Verifies a user's email by means of a token, or removes that token if
+    --              it has expired
+    -- Parameters:  username, token
+
+    OPTIONS = cors_options,
+    GET = capture_errors(function (self)
+        return check_token(
+            self.params.token,
+            'verify_user',
+            function (user)
+                -- success callback
+                user:update({ verified = true })
+                return htmlPage(
+                    'User verified',
+                    '<p>Your account <strong>' .. user.username .. '</strong> has been verified.</p>' ..
+                    '<p>Thank you!</p>' ..
+                    '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
+                )
+            end
+        )
+    end)
+}))
+
 
 app:match('logout', '/logout', respond_to({
     -- Methods:     POST
@@ -296,6 +336,7 @@ app:match('projects', '/projects', respond_to({
         end
     })
 }))
+
 
 app:match('user_projects', '/projects/:username', respond_to({
     -- Methods:     GET
@@ -365,6 +406,7 @@ app:match('user_projects', '/projects/:username', respond_to({
         })
     end
 }))
+
 
 app:match('project', '/projects/:username/:projectname', respond_to({
     -- Methods:     GET, DELETE, POST
@@ -460,6 +502,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
     end)
 }))
 
+
 app:match('project_meta', '/projects/:username/:projectname/metadata', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/add/update a project metadata.
@@ -505,6 +548,7 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         return okResponse('project ' .. self.params.projectname .. ' updated')
     end)
 }))
+
 
 app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond_to({
     -- Methods:     GET

@@ -32,13 +32,18 @@ local mailer, err = mail.new({
 })
 
 mail_bodies = {
-    signup = '<h1>Welcome to Snap<i>!</i></h1>' ..
-             '<p>Your new account has been created, but you still need to verify it within the next 24 hours.</p>' ..
-             '<p>Please follow this link to do so:</p>',
+    verify_user = '<h1>Welcome to Snap<i>!</i></h1>' ..
+                  '<p>Your new account has been created, but you still need to verify it <strong>within the next 3 days</strong> or it will be suspended.</p>' ..
+                  '<p>Please follow this link to do so:</p>',
     password_reset = '<h1>Password reset requested</h1>' ..
                      '<p>We have received a password reset request for your account.</p>' ..
-                     '<p>If you did not ask for a password reset, please ignore this email.</p>' ..
-                     '<p>If you do want to reset your password, please follow this link to do so:</p>'
+                     '<p>If you did not ask to reset your password, please ignore this email.</p>' ..
+                     '<p>If you do want to reset your password, please follow this link <strong>within the next 3 days</strong> to do so:</p>'
+}
+
+mail_subjects = {
+    verify_user = 'Verify user ',
+    password_reset = 'Reset password for '
 }
 
 send_mail = function (address, subject, html, url)
