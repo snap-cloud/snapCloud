@@ -17,21 +17,18 @@ fi
 
 NAME=snapcloud
 DESC="SnapCloud service"
-PATH=/home/cloud/snapCloud
-DAEMON=/home/cloud/snapCloud/start.sh
-
-test -f "$DAEMON" || exit 0
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
 case "$1" in
   start|restart|reload|force-reload)
     log_daemon_msg "Starting $DESC" "$NAME"
-    source /home/cloud/setenv
-    start-stop-daemon --start --quiet --startas $DAEMON -u cloud -- --boot || status =$?
-    log_end_msg $status
+    killall nginx
+    runuser -l cloud -c "(cd /home/cloud/snapCloud; ./start.sh &)"
     ;;
   stop)
     log_daemon_msg "Stopping $DESC" "$NAME"
-    lapis stop
+    runuser -l cloud -c "lapis term"
+    killall nginx
     ;;
 esac
 
