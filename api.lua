@@ -160,7 +160,6 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
 app:match('resendverification', '/users/:username/resendverification', respond_to({
     -- Methods:     GET
     -- Description: Resends user verification email
-    -- Parameters:  username
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
@@ -176,7 +175,6 @@ app:match('resendverification', '/users/:username/resendverification', respond_t
 app:match('resetpassword', '/users/:username/password_reset(/:token)', respond_to({
     -- Methods:     GET, POST
     -- Description: Handles password reset requests.
-    -- Parameters:  username, token
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
@@ -259,7 +257,6 @@ app:match('verifyuser', '/users/:username/verify_user/:token', respond_to({
     -- Methods:     GET, POST
     -- Description: Verifies a user's email by means of a token, or removes that token if
     --              it has expired
-    -- Parameters:  username, token
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
