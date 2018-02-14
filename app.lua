@@ -43,6 +43,13 @@ package.loaded.config = require("lapis.config").get()
 
 local app = package.loaded.app
 
+-- Make cookies persistent
+app.cookie_attributes = function(self)
+    local date = require("date")
+    local expires = date(true):adddays(365):fmt("${http}")
+    return "Expires=" .. expires .. "; Path=/; HttpOnly"
+end
+
 -- Store whitelisted domains
 local domain_allowed = {}
 domain_allowed['snap.berkeley.edu'] = true
