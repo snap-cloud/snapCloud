@@ -19,7 +19,8 @@ config({'development', 'production'}, {
     enable_auto_ssl = 'false',
     num_workers = 1,
     code_cache = 'off',
-
+    log_location = 'stderr',
+    dns_resolver = '',
     session_name = 'snapsession',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
 
@@ -56,6 +57,10 @@ config('production', {
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 12,
     code_cache = 'on',
+
+    log_location = 'stderr',
+    -- DigitalOcean DNS resolvers
+    dns_resolver = '67.207.67.2 ipv6=off',
 
     --- TODO: See if we can turn this on without a big hit
     measure_performance = false,
