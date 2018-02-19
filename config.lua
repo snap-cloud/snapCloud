@@ -1,5 +1,4 @@
 local config = require('lapis.config')
-local port = os.getenv('PORT') or 8080
 
 -- TODO: Pull out the different pieces into a dev only section
 config({'development', 'production'}, {
@@ -12,7 +11,7 @@ config({'development', 'production'}, {
     },
     site_name = 'dev | Snap Cloud',
     hostname = 'localhost',
-    port = port,
+    port = os.getenv('PORT') or 8080,
     ssl_port = os.getenv('SSL_PORT') or 443,
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'host',
     enable_https = true,
@@ -48,7 +47,7 @@ config('production', {
         password = os.getenv('DATABASE_PASSWORD'),
         database = os.getenv('DATABASE_NAME')
     },
-    port = port or 80,
+    port = os.getenv('PORT') or 80,
     site_name = 'Snap Cloud',
     hostname = 'snap-cloud.cs10.org',
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'snap-cloud.cs10.org',
