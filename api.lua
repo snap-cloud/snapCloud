@@ -64,7 +64,9 @@ app:match('current_user', '/users/c', respond_to({
     GET = function (self)
         return jsonResponse({
             username = self.session.username,
-            isadmin = self.session.isadmin })
+            isadmin = self.session.isadmin,
+            verified = self.session.verified
+        })
     end
 }))
 
@@ -239,6 +241,7 @@ app:match('login', '/users/:username/login', respond_to({
             end
             self.session.username = user.username
             self.session.isadmin = user.isadmin
+            self.session.verified = user.verified
             self.cookies.persist_session = self.params.persist
             if user.verified then
                 return okResponse('User ' .. self.params.username .. ' logged in')

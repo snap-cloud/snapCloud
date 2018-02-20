@@ -56,6 +56,8 @@ domain_allowed['snap.berkeley.edu'] = true
 domain_allowed['snap-cloud.cs10.org'] = true
 domain_allowed['romagosa.work'] = true
 domain_allowed['snap4arduino.rocks'] = true
+-- Snap4Arduino for Chromebooks
+domain_allowed['chrome-extension://bdmapaboflkhdmcgdpfooeeeadejodia'] = true
 -- Snap! Mirrors
 domain_allowed['cs10.org'] = true
 domain_allowed['bjc.edc.org'] = true
