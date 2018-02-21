@@ -118,7 +118,7 @@ end)
 -- This module only takes care of the index endpoint
 
 app:get('/', function(self)
-    return { redirect_to = self:build_url('static/index.html') }
+    return { redirect_to = self:build_url('snap/snap.html') }
 end)
 
 
