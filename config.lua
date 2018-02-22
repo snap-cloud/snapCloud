@@ -1,6 +1,5 @@
 local config = require('lapis.config')
 
--- TODO: Pull out the different pieces into a dev only section
 config({'development', 'production'}, {
     postgres = {
         host = os.getenv('DATABASE_URL') or '127.0.0.1:5432',
@@ -10,7 +9,6 @@ config({'development', 'production'}, {
     },
     enable_https = true,
     session_name = 'snapsession',
-    secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
 
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have
@@ -56,6 +54,6 @@ config('production', {
     -- DigitalOcean DNS resolvers
     dns_resolver = '67.207.67.2 ipv6=off',
 
-    --- TODO: See if we can turn this on without a big hit
+    -- TODO: See if we can turn this on without a big hit
     measure_performance = false
 })
