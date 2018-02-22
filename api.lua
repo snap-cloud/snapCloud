@@ -65,6 +65,9 @@ app:match('current_user', '/users/c', respond_to({
 
         if (self.session.username ~= '' and self.session.verified == nil) then
             self.session.verified = (Users:find(self.session.username)).verified
+        elseif self.session.username == '' then
+            self.session.isadmin = false
+            self.session.verified = false
         end
 
         return jsonResponse({
