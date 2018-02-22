@@ -118,9 +118,15 @@ end)
 -- This module only takes care of the index endpoint
 
 app:get('/', function(self)
-    return { redirect_to = self:build_url('static/index.html') }
+    return { redirect_to = self:build_url('snap/snap.html') }
 end)
 
+
+function app:handle_error(err, trace)
+    print(err)
+    print(trace)
+    return errorResponse(err)
+end
 
 -- The API is implemented in the api.lua file
 
