@@ -54,7 +54,7 @@ config('production', {
     enable_https = true,
     enable_auto_ssl = 'true', -- lapis needs a string
     secret = os.getenv('SESSION_SECRET_BASE'),
-    num_workers = 12,
+    num_workers = 16,
     code_cache = 'on',
 
     --- TODO: See if we can turn this on without a big hit
