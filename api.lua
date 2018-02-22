@@ -62,6 +62,11 @@ app:match('current_user', '/users/c', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
+
+        if (self.session.username ~='' and self.session.verified == nil) then
+            self.session.verified = (Users:find(self.session.username)).verified
+        end
+
         return jsonResponse({
             username = self.session.username,
             isadmin = self.session.isadmin,
