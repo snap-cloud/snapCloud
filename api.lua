@@ -63,7 +63,7 @@ app:match('current_user', '/users/c', respond_to({
     OPTIONS = cors_options,
     GET = function (self)
 
-        if (self.session.username ~='' and self.session.verified == nil) then
+        if (self.session.username ~= '' and self.session.verified == nil) then
             self.session.verified = (Users:find(self.session.username)).verified
         end
 
@@ -172,10 +172,14 @@ app:match('resendverification', '/users/:username/resendverification', respond_t
     POST = capture_errors(function (self)
         local user = Users:find(self.params.username)
         if not user then yield_error(err.nonexistent_user) end
+        if user.verified then
+            return okResponse('User ' .. self.params.username .. ' is already verified.\n')
+        end
         create_token(self, 'verify_user', self.params.username, user.email)
         return okResponse(
             'Verification email for ' .. self.params.username ..
-            ' sent.\nPlease check your email and validate your\naccount within the next 3 days.')
+            ' sent.\nPlease check your email and validate your\n' ..
+            'account within the next 3 days.')
     end)
 }))
 
