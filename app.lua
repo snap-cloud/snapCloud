@@ -43,6 +43,8 @@ package.loaded.config = require("lapis.config").get()
 
 local app = package.loaded.app
 
+require 'responses'
+
 -- Make cookies persistent
 app.cookie_attributes = function(self)
     local date = require("date")
