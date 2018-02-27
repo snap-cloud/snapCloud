@@ -24,14 +24,20 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local filename = arg[1] or nil
-local username = arg[2] or nil
-local projectname = arg[3] or nil
+local item_type = arg[2] or nil
+local username = arg[3] or nil
+local projectname = arg[4] or nil
 local file_size
-local buffer_size = tonumber(arg[3]) or 393216
-local count = 0
+local buffer_size = 393216
 local separator = "\3"
 local file_position = 1
 local file = io.open(filename, 'r')
+local usage = 'Usage:\n\nlua extract.lua [file.xml] [project/media] [username] [projectname]\n'
+
+if not arg[4] then
+    print(usage)
+    os.exit()
+end
 
 if file then
     file_size = file:seek('end')
@@ -41,15 +47,16 @@ else
     os.exit()
 end
 
-function test_project(raw_project)
+function test(raw_item)
     local fields = {}
     local i = 1
-    raw_project:gsub("([^".. "\2" .."]*)" .. "\2", function (field)
+    raw_item:gsub("([^".. "\2" .."]*)" .. "\2", function (field)
         fields[i] = field
         i = i + 1
     end)
     if projectname == fields[1] and username == fields[2] then
-        print(fields[6])
+        -- projects hold their data at field 6, but mediae do at field 5
+        print(fields[item_type == 'project' and 6 or 5])
         os.exit()
     end
 end
@@ -66,8 +73,7 @@ while file_position < file_size do
         raw_item = raw_item .. buffer:sub(1, index)
     end
     file_position = file_position + raw_item:len()
-    test_project(raw_item)
-    count = count + 1
+    test(raw_item)
 
     -- We may run out of memory after importing huge items, so we are forcing
     -- garbage collection after every item bigger than 5MB
