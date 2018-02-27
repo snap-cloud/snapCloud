@@ -9,6 +9,7 @@ config({'development', 'production'}, {
     },
     enable_https = true,
     session_name = 'snapsession',
+    ssl_port = os.getenv('SSL_PORT') or 443,
 
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have
@@ -34,7 +35,7 @@ config('development', {
     num_workers = 1,
     code_cache = 'off',
     log_location = 'stderr',
-    dns_resolver = '',
+    dns_resolver = 'localhost',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
     measure_performance = true
 })
