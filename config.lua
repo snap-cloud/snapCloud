@@ -48,7 +48,7 @@ config('production', {
     ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'snap-cloud.cs10.org',
     enable_auto_ssl = 'true', -- lapis needs a string
     secret = os.getenv('SESSION_SECRET_BASE'),
-    num_workers = 12,
+    num_workers = 16,
     code_cache = 'on',
 
     log_location = 'logs/error.log',

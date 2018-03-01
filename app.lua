@@ -43,12 +43,23 @@ package.loaded.config = require("lapis.config").get()
 
 local app = package.loaded.app
 
+require 'responses'
+
+-- Make cookies persistent
+app.cookie_attributes = function(self)
+    local date = require("date")
+    local expires = date(true):adddays(365):fmt("${http}")
+    return "Expires=" .. expires .. "; Path=/; HttpOnly"
+end
+
 -- Store whitelisted domains
 local domain_allowed = {}
 domain_allowed['snap.berkeley.edu'] = true
 domain_allowed['snap-cloud.cs10.org'] = true
 domain_allowed['romagosa.work'] = true
 domain_allowed['snap4arduino.rocks'] = true
+-- Snap4Arduino for Chromebooks
+domain_allowed['chrome-extension://bdmapaboflkhdmcgdpfooeeeadejodia'] = true
 -- Snap! Mirrors
 domain_allowed['cs10.org'] = true
 domain_allowed['bjc.edc.org'] = true
@@ -109,9 +120,15 @@ end)
 -- This module only takes care of the index endpoint
 
 app:get('/', function(self)
-    return { redirect_to = self:build_url('static/index.html') }
+    return { redirect_to = self:build_url('snap/snap.html') }
 end)
 
+
+function app:handle_error(err, trace)
+    print(err)
+    print(trace)
+    return errorResponse(err)
+end
 
 -- The API is implemented in the api.lua file
 

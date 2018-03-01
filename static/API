@@ -8,17 +8,30 @@ Description: Get the currently logged user's username and credentials.
 
 /users/:username
 Methods:     GET, DELETE, POST
-Description: Get info about a user, or delete/add a user.
+Description: Get info about a user, or delete/add a user. All passwords should travel pre-hashed with SHA512.
 Parameters:  password, password_repeat, email
 
 /users/:username/newpassword
 Methods:     POST
-Description: Sets a new password for a user.
-Parameters:  password, password_repeat, newpassword
+Description: Sets a new password for a user. All passwords should travel pre-hashed with SHA512.
+Parameters:  password, password_repeat
+
+/users/:username/password_reset(/:token)
+Methods:     GET, POST
+Description: Handles password reset requests.
+
+/users/:username/verify_user/:token
+Methods:     GET, POST
+Description: Verifies a user's email by means of a token, or removes that token if
+             it has expired.
+
+/users/:username/resendverification
+Methods:     GET
+Description: Resends user verification email.
 
 /users/:username/login
 Methods:     POST
-Description: Logs a user into the system.
+Description: Logs a user into the system. Password should travel pre-hashed with SHA512.
 Body:        password.
 
 /logout

@@ -62,9 +62,19 @@ app:match('current_user', '/users/c', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
+
+        if (self.session.username ~= nil and self.session.username ~= '' and self.session.verified == nil) then
+            self.session.verified = (Users:find(self.session.username)).verified
+        elseif self.session.username == '' then
+            self.session.isadmin = false
+            self.session.verified = false
+        end
+
         return jsonResponse({
             username = self.session.username,
-            isadmin = self.session.isadmin })
+            isadmin = self.session.isadmin,
+            verified = self.session.verified
+        })
     end
 }))
 
@@ -160,23 +170,25 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
 app:match('resendverification', '/users/:username/resendverification', respond_to({
     -- Methods:     GET
     -- Description: Resends user verification email
-    -- Parameters:  username
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
         local user = Users:find(self.params.username)
         if not user then yield_error(err.nonexistent_user) end
+        if user.verified then
+            return okResponse('User ' .. self.params.username .. ' is already verified.\n')
+        end
         create_token(self, 'verify_user', self.params.username, user.email)
         return okResponse(
             'Verification email for ' .. self.params.username ..
-            ' sent.\nPlease check your email and validate your\naccount within the next 3 days.')
+            ' sent.\nPlease check your email and validate your\n' ..
+            'account within the next 3 days.')
     end)
 }))
 
 app:match('resetpassword', '/users/:username/password_reset(/:token)', respond_to({
     -- Methods:     GET, POST
     -- Description: Handles password reset requests.
-    -- Parameters:  username, token
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
@@ -241,6 +253,7 @@ app:match('login', '/users/:username/login', respond_to({
             end
             self.session.username = user.username
             self.session.isadmin = user.isadmin
+            self.session.verified = user.verified
             self.cookies.persist_session = self.params.persist
             if user.verified then
                 return okResponse('User ' .. self.params.username .. ' logged in')
@@ -254,12 +267,10 @@ app:match('login', '/users/:username/login', respond_to({
 }))
 
 
-
 app:match('verifyuser', '/users/:username/verify_user/:token', respond_to({
     -- Methods:     GET, POST
     -- Description: Verifies a user's email by means of a token, or removes that token if
     --              it has expired
-    -- Parameters:  username, token
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
@@ -317,11 +328,11 @@ app:match('projects', '/projects', respond_to({
                     )
             end
 
-            local paginator = Projects:paginated(query .. ' order by created desc', { per_page = self.params.pagesize or 16 })
+            local paginator = Projects:paginated(query .. ' order by firstpublished desc', { per_page = self.params.pagesize or 16 })
             local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
             if self.params.withthumbnail == 'true' then
-                for k, project in pairs(projects) do
+                for _, project in pairs(projects) do
                     -- Lazy Thumbnail generation
                     project.thumbnail =
                         retrieve_from_disk(project.id, 'thumbnail') or
@@ -346,12 +357,14 @@ app:match('user_projects', '/projects/:username', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
+        local order = 'lastshared'
         assert_user_exists(self)
 
         if self.session.username ~= self.params.username then
             local visitor = Users:find(self.session.username)
             if not visitor or not visitor.isadmin then
                 self.params.ispublished = 'true'
+                order = 'firstpublished'
             end
         end
 
@@ -375,12 +388,12 @@ app:match('user_projects', '/projects/:username', respond_to({
                 )
         end
 
-        local paginator = Projects:paginated(query .. ' order by lastshared desc', { per_page = self.params.pagesize or 16 })
+        local paginator = Projects:paginated(query .. ' order by ' .. order .. ' desc', { per_page = self.params.pagesize or 16 })
         local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
 	-- Lazy Notes generation
         if self.params.updatingnotes == 'true' then
-            for k, project in pairs(projects) do
+            for _, project in pairs(projects) do
                 if (project.notes == nil or project.notes == '') then
                     local notes = parse_notes(project.id)
                     if notes then
@@ -392,7 +405,7 @@ app:match('user_projects', '/projects/:username', respond_to({
         end
 
         if self.params.withthumbnail == 'true' then
-            for k, project in pairs(projects) do
+            for _, project in pairs(projects) do
                 -- Lazy Thumbnail generation
                 project.thumbnail =
                     retrieve_from_disk(project.id, 'thumbnail') or
@@ -462,15 +475,19 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 
         if (project) then
             local shouldUpdateSharedDate =
-                ((not project.lastshared and self.params.ispublished)
-                or (self.params.ispublished and not project.ispublished))
+                ((not project.lastshared and self.params.ispublic)
+                or (self.params.ispublic and not project.ispublic))
 
             project:update({
                 lastupdated = db.format_date(),
                 lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+                firstpublished =
+                    project.firstpublished or
+                    (self.params.ispublished and db.format_date()) or
+                    nil,
                 notes = body.notes,
                 ispublic = self.params.ispublic or project.ispublic,
-                ispublished = self.params.ispublished or project.ispublic
+                ispublished = self.params.ispublished or project.ispublished
             })
         else
             Projects:create({
@@ -478,7 +495,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 username = self.params.username,
                 created = db.format_date(),
                 lastupdated = db.format_date(),
-                lastshared = self.params.ispublished and db.format_date() or nil,
+                lastshared = self.params.ispublic and db.format_date() or nil,
+                firstpublished = self.params.ispublished and db.format_date() or nil,
                 notes = body.notes,
                 ispublic = self.params.ispublic or false,
                 ispublished = self.params.ispublished or false
@@ -526,8 +544,8 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         if not project then yield_error(err.nonexistent_project) end
 
         local shouldUpdateSharedDate =
-            ((not project.lastshared and self.params.ispublished)
-            or (self.params.ispublished and not project.ispublished))
+            ((not project.lastshared and self.params.ispublic)
+            or (self.params.ispublic and not project.ispublic))
 
         -- Read request body and parse it into JSON
         ngx.req.read_body()
@@ -540,6 +558,10 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
             projectname = new_name or project.projectname,
             lastupdated = db.format_date(),
             lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+            firstpublished =
+                project.firstpublished or
+                (self.params.ispublished and db.format_date()) or
+                nil,
             notes = new_notes or project.notes,
             ispublic = self.params.ispublic or project.ispublic,
             ispublished = self.params.ispublished or project.ispublished

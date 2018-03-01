@@ -112,7 +112,7 @@ function migrate_user(raw_user)
         db:escape_literal(fields[5]) .. ", " ..
         db:escape_literal(fields[4]) .. ", " ..
         db:escape_literal(fields[3]) .. ", " ..
-        "false) on conflict do nothing;"
+        "false) on conflict (username) do update set email = excluded.email, salt = excluded.salt, password = excluded.password;"
     )
 
     if (not result) then
@@ -138,7 +138,7 @@ function migrate_project(raw_project)
         db:escape_literal(fields[4]) .. ", " ..
         db:escape_literal(fields[4]) .. ", " ..
         ((fields[3] == "true") and (db:escape_literal(fields[4])) or "NULL") ..
-        ") on conflict(projectname, username) do update set projectname = excluded.projectname, username = excluded.username returning id;"
+        ") on conflict(projectname, username) do update set lastupdated = excluded.lastupdated, ispublic = excluded.ispublic returning id;"
     )
 
     if (result and result[1] and not (io.open(directory_for_id(result[1].id) .. '/project.xml', 'r'))) then
