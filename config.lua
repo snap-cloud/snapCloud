@@ -34,7 +34,7 @@ config('development', {
     enable_auto_ssl = 'false',
     num_workers = 1,
     code_cache = 'off',
-    log_location = 'stderr',
+    log_directive = 'stderr notice',
     dns_resolver = 'localhost',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
     measure_performance = true
@@ -51,7 +51,7 @@ config('production', {
     num_workers = 16,
     code_cache = 'on',
 
-    log_location = 'logs/error.log',
+    log_directive = 'logs/error.log warning',
     -- DigitalOcean DNS resolvers
     dns_resolver = '67.207.67.2 ipv6=off',
 
