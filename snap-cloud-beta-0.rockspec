@@ -20,8 +20,7 @@ dependencies = {
    "luacrypto",
    "mailgun",
    "xml",
-   "lua-resty-auto-ssl",
-   "lua-resty-mail"
+   "lua-resty-auto-ssl"
 }
 build = {
     type = "builtin",
