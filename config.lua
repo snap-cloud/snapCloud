@@ -53,7 +53,7 @@ config('production', {
     num_workers = 16,
     code_cache = 'on',
 
-    log_directive = 'logs/error.log warning',
+    log_directive = 'logs/error.log warn',
     -- DigitalOcean DNS resolvers
     dns_resolver = '67.207.67.2 ipv6=off',
 
