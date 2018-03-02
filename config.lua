@@ -45,7 +45,7 @@ config('production', {
     use_daemon = 'on',
     port = os.getenv('PORT') or 80,
     site_name = 'Snap Cloud',
-    hostname = 'cloud.snap.berkeley.edu',
+    hostname = os.getenv('HOSTNAME') or 'cloud.snap.berkeley.edu',
     ssl_cert_name = os.getenv('SSL_CERT_NAME'),
     ssl_second_cert_name = os.getenv('BACKUP_SSL_CERT_NAME'),
     enable_auto_ssl = 'true', -- lapis needs a string
