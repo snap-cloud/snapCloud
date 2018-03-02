@@ -45,6 +45,15 @@ rawResponse = function (contents)
     }
 end
 
+errorResponse = function (err)
+    return {
+        layout = false,
+        status = 404,
+        readyState = 4,
+        json = { errors = {err} }
+    }
+end
+
 htmlPage = function (title, contents)
     return {
         status = 200,

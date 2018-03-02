@@ -43,6 +43,8 @@ package.loaded.config = require("lapis.config").get()
 
 local app = package.loaded.app
 
+require 'responses'
+
 -- Make cookies persistent
 app.cookie_attributes = function(self)
     local date = require("date")
@@ -54,7 +56,6 @@ end
 local domain_allowed = {}
 domain_allowed['snap.berkeley.edu'] = true
 domain_allowed['snap-cloud.cs10.org'] = true
-domain_allowed['romagosa.work'] = true
 domain_allowed['snap4arduino.rocks'] = true
 -- Snap4Arduino for Chromebooks
 domain_allowed['chrome-extension://bdmapaboflkhdmcgdpfooeeeadejodia'] = true
@@ -78,6 +79,9 @@ domain_allowed['preview.edx.org'] = true
 domain_allowed['studio.edge.edx.org'] = true
 domain_allowed['studio.edx.org'] = true
 domain_allowed['edge.edx.org'] = true
+-- Development
+domain_allowed['romagosa.work'] = true
+domain_allowed['localhost:8080'] = true
 
 
 -- Database abstractions
@@ -121,6 +125,12 @@ app:get('/', function(self)
     return { redirect_to = self:build_url('snap/snap.html') }
 end)
 
+
+function app:handle_error(err, trace)
+    print(err)
+    print(trace)
+    return errorResponse(err)
+end
 
 -- The API is implemented in the api.lua file
 
