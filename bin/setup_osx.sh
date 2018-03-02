@@ -17,7 +17,7 @@ fi
 brew install lua@5.1 postgres pcre
 
 brew tap denji/nginx
-brew install denji/nginx/openreset
+brew install denji/nginx/openresty
 
 # Need to link openresty to an nginx name for lapis
 ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx
