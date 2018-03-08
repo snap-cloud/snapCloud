@@ -67,6 +67,7 @@ domain_allowed['web.media.mit.edu'] = true
 domain_allowed['snap.apps.miosoft.com'] = true
 -- Snap! Research Projects
 domain_allowed['eliza.csc.ncsu.edu'] = true
+domain_allowed['arena.csc.ncsu.edu'] = true
 domain_allowed['lambda.cs10.org'] = true
 -- All edX Sites, and test sites
 domain_allowed['courses.edge.edx.org'] = true
