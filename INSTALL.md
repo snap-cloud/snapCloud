@@ -43,6 +43,7 @@ Additional Lua packages you need for the Snap!Cloud to work properly are the Bcr
 # luarocks install xml
 # luarocks install luasec
 # luarocks install luacrypto
+# luarocks install lua-resty-mail
 ```
 
 #### Only for the MioSoft Cloud migration
