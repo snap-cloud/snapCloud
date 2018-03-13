@@ -176,7 +176,7 @@ app:match('resendverification', '/users/:username/resendverification', respond_t
         local user = Users:find(self.params.username)
         if not user then yield_error(err.nonexistent_user) end
         if user.verified then
-            return okResponse('User ' .. self.params.username .. ' is already verified.\n')
+            return okResponse('User ' .. self.params.username .. ' is already verified.\nThere is no need for you to do anything.\n')
         end
         create_token(self, 'verify_user', self.params.username, user.email)
         return okResponse(
@@ -198,12 +198,15 @@ app:match('resetpassword', '/users/:username/password_reset(/:token)', respond_t
             function (user)
                 local password, prehash = random_password()
                 user:update({ password = hash_password(prehash, user.salt) })
+                send_mail(
+                    user.email,
+                    mail_subjects.new_password .. user.username,
+                    mail_bodies.new_password .. '<p><h2>' .. password .. '</h2></p>')
+
                 return htmlPage(
                     'Password reset',
-                    '<p>New password generated for your account <strong>' .. user.username .. '</strong>.</p>' ..
-                    '<p>Your new password is: <strong>' ..  password .. '</strong></p>' ..
-                    '<p>Please log in and change it immediately.</p>' ..
-                    '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
+                    '<p>A new random password has been generated for your account <strong>' .. user.username .. '</strong> and sent to your email address. Please check your inbox.</p>' ..
+                    '<p>After logging in, please proceed to <strong>change your password</strong> as soon as possible.</p>'
                 )
             end
         )

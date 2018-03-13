@@ -7,7 +7,6 @@ config({'development', 'production'}, {
         password = os.getenv('DATABASE_PASSWORD') or 'snap-cloud-password',
         database = os.getenv('DATABASE_NAME') or 'snap_cloud'
     },
-    enable_https = true,
     session_name = 'snapsession',
     ssl_port = os.getenv('SSL_PORT') or 443,
 
@@ -43,6 +42,7 @@ config('development', {
 
 config('production', {
     use_daemon = 'on',
+    enable_https = true,
     port = os.getenv('PORT') or 80,
     site_name = 'Snap Cloud',
     hostname = os.getenv('HOSTNAME') or 'cloud.snap.berkeley.edu',
@@ -50,7 +50,7 @@ config('production', {
     ssl_second_cert_name = os.getenv('SSL_SECOND_CERT_NAME'),
     enable_auto_ssl = 'true', -- lapis needs a string
     secret = os.getenv('SESSION_SECRET_BASE'),
-    num_workers = 16,
+    num_workers = 8,
     code_cache = 'on',
 
     log_directive = 'logs/error.log warn',
