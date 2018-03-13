@@ -56,7 +56,6 @@ end
 local domain_allowed = {}
 domain_allowed['snap.berkeley.edu'] = true
 domain_allowed['snap-cloud.cs10.org'] = true
-domain_allowed['romagosa.work'] = true
 domain_allowed['snap4arduino.rocks'] = true
 -- Snap4Arduino for Chromebooks
 domain_allowed['chrome-extension://bdmapaboflkhdmcgdpfooeeeadejodia'] = true
@@ -80,6 +79,9 @@ domain_allowed['preview.edx.org'] = true
 domain_allowed['studio.edge.edx.org'] = true
 domain_allowed['studio.edx.org'] = true
 domain_allowed['edge.edx.org'] = true
+-- Development
+domain_allowed['romagosa.work'] = true
+domain_allowed['localhost:8080'] = true
 
 
 -- Database abstractions
