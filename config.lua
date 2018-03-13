@@ -7,7 +7,6 @@ config({'development', 'production'}, {
         password = os.getenv('DATABASE_PASSWORD') or 'snap-cloud-password',
         database = os.getenv('DATABASE_NAME') or 'snap_cloud'
     },
-    enable_https = true,
     session_name = 'snapsession',
     ssl_port = os.getenv('SSL_PORT') or 443,
 
@@ -42,6 +41,7 @@ config('development', {
 
 config('production', {
     use_daemon = 'on',
+    enable_https = true,
     port = os.getenv('PORT') or 80,
     site_name = 'Snap Cloud',
     hostname = 'snap-cloud.cs10.org',
@@ -51,7 +51,7 @@ config('production', {
     num_workers = 16,
     code_cache = 'on',
 
-    log_directive = 'logs/error.log warning',
+    -- log_directive = 'logs/error.log warning',
     -- DigitalOcean DNS resolvers
     dns_resolver = '67.207.67.2 ipv6=off',
 

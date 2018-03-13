@@ -18,7 +18,7 @@ dependencies = {
    "md5",
    "luasec",
    "luacrypto",
-   "mailgun",
+   "lua-resty-mail",
    "xml",
    "lua-resty-auto-ssl"
 }
