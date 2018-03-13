@@ -1,7 +1,7 @@
 package = "snap-cloud"
 version = "beta-0"
 source = {
-   url = "http://snap.berkeley.edu"
+   url = "git://github.com/bromagosa/snapCloud.git"
 }
 description = {
    summary = "A Project Server and API for Snap!.",
