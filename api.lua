@@ -623,7 +623,7 @@ app:match('remix', '/projects/:username/:projectname/remix', respond_to({
                 notes = original_project.notes,
                 ispublic = original_project.ispublic,
                 ispublished = original_project.ispublished,
-                remixes = table.insert(original_project.remixes, original_project.id)
+                remixes = table.insert(original_project.remixes or {}, original_project.id)
             })
         project = Projects:find(self.params.username, self.params.projectname)
 
