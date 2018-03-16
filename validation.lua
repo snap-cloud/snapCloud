@@ -71,7 +71,7 @@ users_match = function (self)
 end
 
 assert_user_exists = function (self, message)
-    if not Users:find(self.session.username) then
+    if not Users:find(self.params.username) then
         yield_error(message or err.nonexistent_user)
     end
 end

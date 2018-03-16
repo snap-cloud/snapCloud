@@ -111,6 +111,10 @@ app:before_filter(function (self)
         self.params.username = self.params.username:lower()
     end
 
+    if not self.session.username then
+        self.session.username = ''
+    end
+
     -- Set Access Control header
     if self.req.headers.origin and domain_allowed[self.req.headers.origin:gsub('https*://', '')] then
         self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin

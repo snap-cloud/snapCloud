@@ -35,6 +35,10 @@ config('development', {
     num_workers = 1,
     code_cache = 'off',
     log_directive = 'stderr notice',
+    logging = {
+        queries = true,
+        requests = true
+    },
     dns_resolver = 'localhost',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
     measure_performance = true
