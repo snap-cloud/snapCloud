@@ -428,7 +428,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/delete/add/update a particular project.
     --              Response will depend on query issuer permissions.
-    -- Parameters:  ispublic, ispublished
+    -- Parameters:  delta, ispublic, ispublished
     -- Body:        xml, notes, thumbnail
 
     OPTIONS = cors_options,
@@ -438,10 +438,15 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not project then yield_error(err.nonexistent_project) end
         if not (project.ispublic or users_match(self)) then assert_admin(self, err.not_public_project) end
 
+        -- self.params.delta is a version indicator
+        -- delta = null will fetch the current version
+        -- delta = -1 will fetch the previous saved version
+        -- delta = -2 will fetch the last version before today
+
         return rawResponse(
             '<snapdata>' ..
-            (retrieve_from_disk(project.id, 'project.xml') or '<project></project>') ..
-            (retrieve_from_disk(project.id, 'media.xml') or '<media></media>') ..
+            (retrieve_from_disk(project.id, 'project.xml', self.params.delta) or '<project></project>') ..
+            (retrieve_from_disk(project.id, 'media.xml', self.params.delta) or '<media></media>') ..
             '</snapdata>'
         )
     end),
@@ -480,6 +485,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             local shouldUpdateSharedDate =
                 ((not project.lastshared and self.params.ispublic)
                 or (self.params.ispublic and not project.ispublic))
+
+            backup_project(project.id)
 
             project:update({
                 lastupdated = db.format_date(),

@@ -40,8 +40,11 @@ function save_to_disk(id, filename, contents)
     end
 end
 
-function retrieve_from_disk(id, filename)
+function retrieve_from_disk(id, filename, delta)
     local dir = directory_for_id(id)
+    -- if delta exists, we look for a previous version of the file
+    -- under dir/d[delta]
+    if (delta) then dir = dir .. '/d' .. delta end 
     local file = io.open(dir .. '/' .. filename, 'r')
     if (file) then
         local contents = file:read("*all")
@@ -84,5 +87,23 @@ function parse_notes(id)
         end
     else
         return nil
+    end
+end
+
+function backup_project(id)
+    -- This function is called right before saving a project
+    local dir = directory_for_id(id)
+
+    -- We always save the current copy into the /d-1 folder
+    os.execute('mkdir -p ' .. dir .. '/d-1')
+    os.execute('cp ' .. dir .. '/*.xml '.. dir .. '/d-1')
+
+    -- If the current project was modified more than 12 hours ago,
+    -- we save it into the /d-2 folder
+    local f = io.popen('stat -c %Y ' .. dir .. '/project.xml')
+    local last_modified = f:read()
+    if (os.time() - last_modified > 43200) then
+        os.execute('mkdir -p ' .. dir .. '/d-2')
+        os.execute('cp ' .. dir .. '/*.xml '.. dir .. '/d-2')
     end
 end
