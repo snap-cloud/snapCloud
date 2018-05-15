@@ -514,7 +514,6 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not (retrieve_from_disk(project.id, 'project.xml')
             and retrieve_from_disk(project.id, 'thumbnail')
             and retrieve_from_disk(project.id, 'media.xml')) then
-            project:delete()
             yield_error('Could not save project ' .. self.params.projectname)
         else
             return okResponse('project ' .. self.params.projectname .. ' saved')
