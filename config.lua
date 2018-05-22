@@ -51,8 +51,9 @@ config('production', {
     site_name = 'Snap Cloud',
     hostname = os.getenv('HOSTNAME') or 'cloud.snap.berkeley.edu',
     ssl_cert_name = os.getenv('SSL_CERT_NAME'),
-    ssl_second_cert_name = os.getenv('SSL_SECOND_CERT_NAME'),
-    enable_auto_ssl = 'true', -- lapis needs a string
+    ssl_second_cert_file = os.getenv('SSL_SECOND_CERT_FILE'),
+    ssl_second_cert_private_key = os.getenv('SSL_SECOND_CERT_PRIVATE_KEY'),
+    enable_auto_ssl = 'false', -- lapis needs a string
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 8,
     code_cache = 'on',
