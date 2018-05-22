@@ -56,6 +56,7 @@ config('production', {
     second_hostname = os.getenv('SECOND_HOSTNAME') or 'snap-cloud.cs10.org',
     ssl_second_cert_file = os.getenv('SSL_SECOND_CERT_FILE'),
     ssl_second_cert_private_key = os.getenv('SSL_SECOND_CERT_PRIVATE_KEY'),
+
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 8,
     code_cache = 'on',
