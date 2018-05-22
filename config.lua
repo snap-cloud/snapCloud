@@ -28,10 +28,12 @@ config('development', {
     use_daemon = 'off',
     site_name = 'dev | Snap Cloud',
     hostname = 'localhost',
+    second_hostname = 'localhost'
     port = os.getenv('PORT') or 8080,
-    ssl_cert_name = os.getenv('SSL_CERT_NAME') or 'host',
-    ssl_second_cert_name = os.getenv('SSL_SECOND_CERT_NAME') or 'host',
-    enable_auto_ssl = 'false',
+    ssl_cert_file = os.getenv('SSL_CERT_FILE') or 'host.cer',
+    ssl_cert_private_key = os.getenv('SSL_CERT_PRIVATE_KEY') or 'host.key',
+    ssl_second_cert_file = os.getenv('SSL_SECOND_CERT_FILE'),
+    ssl_second_cert_private_key = os.getenv('SSL_SECOND_CERT_PRIVATE_KEY'),
     num_workers = 1,
     code_cache = 'off',
     log_directive = 'stderr notice',
@@ -39,7 +41,6 @@ config('development', {
         queries = true,
         requests = true
     },
-    dns_resolver = 'localhost',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
     measure_performance = true
 })
@@ -50,17 +51,17 @@ config('production', {
     port = os.getenv('PORT') or 80,
     site_name = 'Snap Cloud',
     hostname = os.getenv('HOSTNAME') or 'cloud.snap.berkeley.edu',
-    ssl_cert_name = os.getenv('SSL_CERT_NAME'),
+    ssl_cert_file = os.getenv('SSL_CERT_FILE'),
+    ssl_cert_private_key = os.getenv('SSL_CERT_PRIVATE_KEY'),
+    second_hostname = os.getenv('SECOND_HOSTNAME') or 'snap-cloud.cs10.org',
     ssl_second_cert_file = os.getenv('SSL_SECOND_CERT_FILE'),
     ssl_second_cert_private_key = os.getenv('SSL_SECOND_CERT_PRIVATE_KEY'),
-    enable_auto_ssl = 'false', -- lapis needs a string
+
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 8,
     code_cache = 'on',
 
     log_directive = 'logs/error.log warn',
-    -- DigitalOcean DNS resolvers
-    dns_resolver = '67.207.67.2 ipv6=off',
 
     -- TODO: See if we can turn this on without a big hit
     measure_performance = false
