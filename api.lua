@@ -580,6 +580,33 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
     end)
 }))
 
+app:match('project_versions', '/projects/:username/:projectname/versions', respond_to({
+    -- Methods:     GET, DELETE, POST
+    -- Description: Get info about backed up project versions.
+    -- Parameters:
+    -- Body:        versions
+
+    OPTIONS = cors_options,
+    GET = capture_errors(function (self)
+        local project = Projects:find(self.params.username, self.params.projectname)
+
+        if not project then yield_error(err.nonexistent_project) end
+        if not project.ispublic then assert_users_match(self, err.not_public_project) end
+
+        return jsonResponse({
+            {
+                lastupdated = project.lastupdated,
+                thumbnail = retrieve_from_disk(project.id, 'thumbnail') or
+                    generate_thumbnail(project.id),
+                notes = parse_notes(project.id),
+                delta = 0
+            },
+            version_metadata(project.id, -1),
+            version_metadata(project.id, -2)
+        })
+    end)
+}))
+
 
 app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond_to({
     -- Methods:     GET

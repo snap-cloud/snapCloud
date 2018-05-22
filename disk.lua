@@ -44,7 +44,7 @@ function retrieve_from_disk(id, filename, delta)
     local dir = directory_for_id(id)
     -- if delta exists, we look for a previous version of the file
     -- under dir/d[delta]
-    if (delta) then dir = dir .. '/d' .. delta end 
+    if (delta) then dir = dir .. '/d' .. delta end
     local file = io.open(dir .. '/' .. filename, 'r')
     if (file) then
         local contents = file:read("*all")
@@ -72,8 +72,12 @@ function generate_thumbnail(id)
     end
 end
 
-function parse_notes(id)
-    local project_file = io.open(directory_for_id(id) .. '/project.xml')
+function parse_notes(id, delta)
+    local dir = directory_for_id(id)
+    -- if delta exists, we look for a previous version of the file
+    -- under dir/d[delta]
+    if (delta) then dir = dir .. '/d' .. delta end
+    local project_file = io.open(dir .. '/project.xml')
     local notes
     if (project_file) then
         if pcall(
@@ -81,10 +85,30 @@ function parse_notes(id)
                 local project = xml.load(project_file:read('*all'))
                 notes = xml.find(project, 'notes')[1]
             end) then
+            project_file:close()
             return notes
         else
+            project_file:close()
             return nil
         end
+    else
+        return nil
+    end
+end
+
+function version_metadata(id, delta)
+    local dir = directory_for_id(id) .. '/d' .. delta
+    local project_file = io.open(dir .. '/project.xml')
+    if (project_file) then
+        local command = io.popen('stat -c %Y ' .. dir .. '/project.xml')
+        local last_modified = command:read()
+        command:close()
+        return {
+            notes = parse_notes(id, delta),
+            thumbnail = retrieve_from_disk(id, 'thumbnail', delta),
+            lastupdated = os.date("%Y-%m-%d %H:%M:%S+00", last_modified),
+            delta = delta
+        }
     else
         return nil
     end
@@ -100,8 +124,9 @@ function backup_project(id)
 
     -- If the current project was modified more than 12 hours ago,
     -- we save it into the /d-2 folder
-    local f = io.popen('stat -c %Y ' .. dir .. '/project.xml')
-    local last_modified = f:read()
+    local command = io.popen('stat -c %Y ' .. dir .. '/project.xml')
+    local last_modified = command:read()
+    command:close()
     if (os.time() - last_modified > 43200) then
         os.execute('mkdir -p ' .. dir .. '/d-2')
         os.execute('cp ' .. dir .. '/*.xml '.. dir .. '/d-2')
