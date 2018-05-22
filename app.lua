@@ -57,6 +57,7 @@ local domain_allowed = {}
 domain_allowed['snap.berkeley.edu'] = true
 domain_allowed['snap-cloud.cs10.org'] = true
 domain_allowed['cloud.snap.berkeley.edu'] = true
+domain_allowed['amazingrobots.net'] = true
 domain_allowed['snap4arduino.rocks'] = true
 -- Snap4Arduino for Chromebooks
 domain_allowed['chrome-extension://bdmapaboflkhdmcgdpfooeeeadejodia'] = true
