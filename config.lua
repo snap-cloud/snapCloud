@@ -28,7 +28,7 @@ config('development', {
     use_daemon = 'off',
     site_name = 'dev | Snap Cloud',
     hostname = 'localhost',
-    second_hostname = 'localhost'
+    second_hostname = 'localhost',
     port = os.getenv('PORT') or 8080,
     ssl_cert_file = os.getenv('SSL_CERT_FILE') or 'host.cer',
     ssl_cert_private_key = os.getenv('SSL_CERT_PRIVATE_KEY') or 'host.key',
