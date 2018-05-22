@@ -18,9 +18,7 @@ dependencies = {
    "md5",
    "luasec",
    "luacrypto",
-   "lua-resty-mail",
    "xml",
-   "lua-resty-auto-ssl",
    "lua-resty-mail"
 }
 build = {
