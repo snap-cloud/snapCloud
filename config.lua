@@ -28,6 +28,7 @@ config('development', {
     use_daemon = 'off',
     site_name = 'dev | Snap Cloud',
     hostname = 'localhost',
+    second_hostname = 'localhost'
     port = os.getenv('PORT') or 8080,
     ssl_cert_file = os.getenv('SSL_CERT_FILE') or 'host.cer',
     ssl_cert_private_key = os.getenv('SSL_CERT_PRIVATE_KEY') or 'host.key',
@@ -52,6 +53,7 @@ config('production', {
     hostname = os.getenv('HOSTNAME') or 'cloud.snap.berkeley.edu',
     ssl_cert_file = os.getenv('SSL_CERT_FILE'),
     ssl_cert_private_key = os.getenv('SSL_CERT_PRIVATE_KEY'),
+    second_hostname = os.getenv('SECOND_HOSTNAME') or 'snap-cloud.cs10.org',
     ssl_second_cert_file = os.getenv('SSL_SECOND_CERT_FILE'),
     ssl_second_cert_private_key = os.getenv('SSL_SECOND_CERT_PRIVATE_KEY'),
     secret = os.getenv('SESSION_SECRET_BASE'),
