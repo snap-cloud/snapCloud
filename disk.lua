@@ -77,7 +77,7 @@ function parse_notes(id, delta)
     -- if delta exists, we look for a previous version of the file
     -- under dir/d[delta]
     if (delta) then dir = dir .. '/d' .. delta end
-    local project_file = io.open(dir .. '/project.xml')
+    local project_file = io.open(dir .. '/project.xml', 'r')
     local notes
     if (project_file) then
         if pcall(
@@ -98,7 +98,7 @@ end
 
 function version_metadata(id, delta)
     local dir = directory_for_id(id) .. '/d' .. delta
-    local project_file = io.open(dir .. '/project.xml')
+    local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
         local command = io.popen('stat -c %Y ' .. dir .. '/project.xml')
         local last_modified = command:read()
@@ -120,7 +120,7 @@ function backup_project(id)
 
     -- We always save the current copy into the /d-1 folder
     os.execute('mkdir -p ' .. dir .. '/d-1')
-    os.execute('cp ' .. dir .. '/*.xml '.. dir .. '/d-1')
+    os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' .. dir .. '/d-1')
 
     -- If the current project was modified more than 12 hours ago,
     -- we save it into the /d-2 folder
@@ -129,6 +129,6 @@ function backup_project(id)
     command:close()
     if (os.time() - last_modified > 43200) then
         os.execute('mkdir -p ' .. dir .. '/d-2')
-        os.execute('cp ' .. dir .. '/*.xml '.. dir .. '/d-2')
+        os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' .. dir .. '/d-2')
     end
 end
