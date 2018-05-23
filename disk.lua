@@ -102,7 +102,7 @@ function version_metadata(id, delta)
     local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
         local command = io.popen('stat -c %Y ' .. dir .. '/project.xml')
-        local last_modified = command:read()
+        local last_modified = tonumber(command:read())
         command:close()
         return {
             notes = parse_notes(id, delta),
@@ -126,7 +126,7 @@ function backup_project(id)
     -- If the current project was modified more than 12 hours ago,
     -- we save it into the /d-2 folder
     local command = io.popen('stat -c %Y ' .. dir .. '/project.xml')
-    local last_modified = command:read()
+    local last_modified = tonumber(command:read())
     command:close()
     if (os.time() - last_modified > 43200) then
         os.execute('mkdir -p ' .. dir .. '/d-2')
