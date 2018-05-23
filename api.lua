@@ -595,7 +595,7 @@ app:match('project_versions', '/projects/:username/:projectname/versions', respo
 
         return jsonResponse({
             {
-                lastupdated = project.lastupdated,
+                lastupdated = util.time_ago_in_words(project.lastupdated, 2),
                 thumbnail = retrieve_from_disk(project.id, 'thumbnail') or
                     generate_thumbnail(project.id),
                 notes = parse_notes(project.id),
