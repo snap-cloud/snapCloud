@@ -34,6 +34,7 @@ config('development', {
     ssl_cert_private_key = os.getenv('SSL_CERT_PRIVATE_KEY') or 'host.key',
     ssl_second_cert_file = os.getenv('SSL_SECOND_CERT_FILE'),
     ssl_second_cert_private_key = os.getenv('SSL_SECOND_CERT_PRIVATE_KEY'),
+    dns_resolver = 'localhost',
     num_workers = 1,
     code_cache = 'off',
     log_directive = 'stderr notice',
@@ -56,6 +57,7 @@ config('production', {
     second_hostname = os.getenv('SECOND_HOSTNAME') or 'snap-cloud.cs10.org',
     ssl_second_cert_file = os.getenv('SSL_SECOND_CERT_FILE'),
     ssl_second_cert_private_key = os.getenv('SSL_SECOND_CERT_PRIVATE_KEY'),
+    dns_resolver = '67.207.67.2 ipv6=off',
 
     secret = os.getenv('SESSION_SECRET_BASE'),
     num_workers = 8,
