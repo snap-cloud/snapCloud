@@ -107,7 +107,7 @@ function version_metadata(id, delta)
             notes = parse_notes(id, delta),
             thumbnail = retrieve_from_disk(id, 'thumbnail', delta),
             -- seconds since last modification
-            lastupdated = (os.time() - last_modified) * 1000,
+            lastupdated = os.time() - last_modified,
             delta = delta
         }
     else
