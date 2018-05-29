@@ -25,7 +25,6 @@
 
 local xml = require("xml")
 local config = package.loaded.config
-local util = package.loaded.util
 
 function directory_for_id(id)
     return config.store_path .. '/' .. math.floor(id / 1000) .. '/' .. id
@@ -107,7 +106,8 @@ function version_metadata(id, delta)
         return {
             notes = parse_notes(id, delta),
             thumbnail = retrieve_from_disk(id, 'thumbnail', delta),
-            lastupdated = util.time_ago_in_words(last_modified, 2),
+            -- seconds since last modification
+            lastupdated = (os.time() - last_modified) * 1000,
             delta = delta
         }
     else

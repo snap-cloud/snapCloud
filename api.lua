@@ -593,9 +593,12 @@ app:match('project_versions', '/projects/:username/:projectname/versions', respo
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
 
+        -- seconds since last modification
+        local query = db.select('extract(epoch from age(now(), ?::timestamp))', project.lastupdated)[1]
+
         return jsonResponse({
             {
-                lastupdated = util.time_ago_in_words(project.lastupdated, 2),
+                lastupdated = query.date_part,
                 thumbnail = retrieve_from_disk(project.id, 'thumbnail') or
                     generate_thumbnail(project.id),
                 notes = parse_notes(project.id),
