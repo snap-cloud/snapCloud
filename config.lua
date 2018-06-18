@@ -71,12 +71,10 @@ config('production', {
 
 -- Compile nginx helper files.
 local path = require('lapis.cmd.path')
-local env = require("lapis.cmd.util").default_environment()
-local additional_config = 'nginx.conf.d/' .. env .. '.conf'
-local template = path.read_file(additional_config)
-local ConfigCompiler = require("lapis.cmd.nginx.config").ConfigCompiler
 local complete_config = config.get()
-local output = ConfigCompiler:compile_config(
+local additional_config = 'nginx.conf.d/' .. config.get()._name .. '.conf'
+local template = path.read_file(additional_config)
+local output = require("lapis.cmd.nginx.config").ConfigCompiler:compile_config(
     template, complete_config, { header = false }
 )
 path.write_file(additional_config .. '.compiled', output)
