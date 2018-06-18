@@ -8,7 +8,6 @@ config({'development', 'production'}, {
         database = os.getenv('DATABASE_NAME') or 'snap_cloud'
     },
     session_name = 'snapsession',
-    ssl_port = os.getenv('SSL_PORT') or 443,
 
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have
@@ -28,12 +27,7 @@ config('development', {
     use_daemon = 'off',
     site_name = 'dev | Snap Cloud',
     hostname = 'localhost',
-    second_hostname = 'localhost',
     port = os.getenv('PORT') or 8080,
-    ssl_cert_file = os.getenv('SSL_CERT_FILE') or 'host.cer',
-    ssl_cert_private_key = os.getenv('SSL_CERT_PRIVATE_KEY') or 'host.key',
-    ssl_second_cert_file = os.getenv('SSL_SECOND_CERT_FILE'),
-    ssl_second_cert_private_key = os.getenv('SSL_SECOND_CERT_PRIVATE_KEY'),
     dns_resolver = 'localhost',
     num_workers = 1,
     code_cache = 'off',
@@ -48,15 +42,10 @@ config('development', {
 
 config('production', {
     use_daemon = 'on',
-    enable_https = true,
     port = os.getenv('PORT') or 80,
+    ssl_port = os.getenv('SSL_PORT') or 443,
     site_name = 'Snap Cloud',
     hostname = os.getenv('HOSTNAME') or 'cloud.snap.berkeley.edu',
-    ssl_cert_file = os.getenv('SSL_CERT_FILE'),
-    ssl_cert_private_key = os.getenv('SSL_CERT_PRIVATE_KEY'),
-    second_hostname = os.getenv('SECOND_HOSTNAME') or 'snap-cloud.cs10.org',
-    ssl_second_cert_file = os.getenv('SSL_SECOND_CERT_FILE'),
-    ssl_second_cert_private_key = os.getenv('SSL_SECOND_CERT_PRIVATE_KEY'),
     dns_resolver = '67.207.67.2 ipv6=off',
 
     secret = os.getenv('SESSION_SECRET_BASE'),
