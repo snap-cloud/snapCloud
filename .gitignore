@@ -4,6 +4,7 @@ store/*/
 setenv
 logs
 nginx.conf.compiled
+nginx.conf.d/*.compiled
 
 client_body_temp
 fastcgi_temp
