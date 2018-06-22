@@ -136,9 +136,25 @@ The above username and password are the default values, defined in `config.lua`.
 
 In development, it's completely fine to stick with these provided values. However, on a production server you must create a much stronger password, which should be stored in an environment variable.
 
+## Production Configuration
+
+### Setting Environment Variables
+
+SnapCloud will read variables from a file `.env` which contains contains data specific to that system. It should look something like this:
+
+```sh
+export LAPIS_ENVIRONMENT=production
+export DATABASE_URL=127.0.0.1:5432
+export DATABASE_USERNAME=cloud
+export DATABASE_PASSWORD=snap-cloud-password
+export DATABASE_NAME=snapcloud
+export HOSTNAME=cloud.snap.berkeley.edu
+```
+There are a lot of options defined in `config.lua`. Setting the environment is helpful because you may want to have a "staging" server with a slightly different configuration.
+
 ### Giving permissions to use HTTP(S) ports
 
-We now need to configure authbind so that user `snap` can start a service over the HTTP and HTTPS ports. To do so, we simply need to create a file and assign its ownership to `snap`:
+(Linux) We now need to configure `authbind` so that user `snap` can start a service over the HTTP and HTTPS ports. To do so, we simply need to create a file and assign its ownership to `snap`:
 
 ```
 # touch /etc/authbind/byport/443
