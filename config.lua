@@ -1,6 +1,7 @@
 local config = require('lapis.config')
 
-config({'development', 'production'}, {
+print('READING CONFIG FILE')
+config({'development', 'staging', 'production'}, {
     postgres = {
         host = os.getenv('DATABASE_URL') or '127.0.0.1:5432',
         user = os.getenv('DATABASE_USERNAME') or 'snap',
@@ -40,16 +41,13 @@ config('development', {
     measure_performance = true
 })
 
-config('production', {
+config({'production', 'staging'}, {
     use_daemon = 'on',
     port = os.getenv('PORT') or 80,
     ssl_port = os.getenv('SSL_PORT') or 443,
-    site_name = 'Snap Cloud',
-    hostname = os.getenv('HOSTNAME') or 'cloud.snap.berkeley.edu',
     dns_resolver = '67.207.67.2 ipv6=off',
 
     secret = os.getenv('SESSION_SECRET_BASE'),
-    num_workers = 8,
     code_cache = 'on',
 
     log_directive = 'logs/error.log warn',
@@ -58,7 +56,22 @@ config('production', {
     measure_performance = false
 })
 
--- Compile nginx helper files.
+config('production', {
+    site_name = 'Snap Cloud',
+    hostname = os.getenv('HOSTNAME') or 'cloud.snap.berkeley.edu',
+    num_workers = 8
+})
+
+config('staging', {
+    site_name = 'staging | Snap Cloud',
+    hostname = os.getenv('HOSTNAME') or 'snap-staging.cs10.org',
+    -- the staging server is a low-cpu server.
+    num_workers = 2
+})
+
+print('Called all the configs')
+-- Compile nginx include files.
+-- Allows setting up a file per application environment.
 local path = require('lapis.cmd.path')
 local complete_config = config.get()
 local additional_config = 'nginx.conf.d/' .. config.get()._name .. '.conf'
@@ -66,4 +79,8 @@ local template = path.read_file(additional_config)
 local output = require("lapis.cmd.nginx.config").ConfigCompiler:compile_config(
     template, complete_config, { header = false }
 )
+print(output)
+print(additional_config .. '.compiled')
+print('set all the variables')
 path.write_file(additional_config .. '.compiled', output)
+print('compiled a file...')
