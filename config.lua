@@ -77,9 +77,9 @@ config('staging', {
 })
 
 -- Compile nginx include files.
+local Compiler = require("lapis.cmd.nginx.config").ConfigCompiler
+local path = require('lapis.cmd.path')
 function compile_configs()
-    local Compiler = require("lapis.cmd.nginx.config").ConfigCompiler
-    local path = require('lapis.cmd.path')
     local complete_config = config.get()
     local files = complete_config.compiled_files
     table.insert(files, complete_config._name)
