@@ -85,7 +85,7 @@ domain_allowed['studio.edx.org'] = true
 domain_allowed['edge.edx.org'] = true
 -- Development
 domain_allowed['romagosa.work'] = true
-domain_allowed['localhost:8080'] = true
+domain_allowed['localhost'] = true
 
 
 -- Database abstractions
@@ -102,6 +102,13 @@ package.loaded.Tokens = package.loaded.Model:extend('tokens', {
     primary_key = { 'value' }
 })
 
+-- Remove the protocol and port from a URL
+function domain_name(url)
+    if not url then
+        return
+    end
+    return url:gsub('https*://', ''):gsub(':%d+$', '')
+end
 
 -- Before filter
 app:before_filter(function (self)
@@ -119,7 +126,8 @@ app:before_filter(function (self)
     end
 
     -- Set Access Control header
-    if self.req.headers.origin and domain_allowed[self.req.headers.origin:gsub('https*://', '')] then
+    local domain = domain_name(self.req.headers.origin)
+    if self.req.headers.origin and domain_allowed[domain] then
         self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
         self.res.headers['Access-Control-Allow-Credentials'] = 'true'
         self.res.headers['Vary'] = 'Origin'
