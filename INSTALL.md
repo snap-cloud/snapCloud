@@ -37,13 +37,9 @@ Once OpenResty is ready, installing Lapis is just a matter of asking the LuaRock
 
 Additional Lua packages you need for the Snap!Cloud to work properly are the Bcrypt module and the md5 module used for secure password encryption. You can use LuaRocks to install them all as root:
 
+All Lua dependencies are contained in the rockspec.
 ```
-# luarocks install lapis
-# luarocks install md5
-# luarocks install xml
-# luarocks install luasec
-# luarocks install luacrypto
-# luarocks install lua-resty-mail
+# luarocks install snap-cloud-beta-0.rockspec
 ```
 
 #### Only for the MioSoft Cloud migration
@@ -102,26 +98,26 @@ Heroku has a good guide on [generating self-signed certs][heroku-guide].
 
 ### Creating a user and a database
 
-A PostgreSQL script is provided to help you get all tables set up easily. However, you will first need to add a user named `snap` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
+A PostgreSQL script is provided to help you get all tables set up easily. However, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
 
 ```
-# adduser snap
+# adduser cloud
 # su - postgres
 
 $ psql
 
-> CREATE USER snap WITH PASSWORD 'snap-cloud-password';
-> ALTER ROLE snap WITH LOGIN;
-> CREATE DATABASE snap_cloud OWNER snap;
+> CREATE USER cloud WITH PASSWORD 'snap-cloud-password';
+> ALTER ROLE cloud WITH LOGIN;
+> CREATE DATABASE snapcloud OWNER cloud;
 ```
 
 ### Building the database schema
 
-Continue by logging in as `snap` and running the provided SQL file:
+Continue by logging in as `cloud` and running the provided SQL file:
 
 ```
-# su - snap
-$ psql -U snap -d snap_cloud -a -f cloud.sql
+# su - cloud
+$ psql -U cloud -d snapcloud -a -f cloud.sql
 ```
 
 If it all goes well, you should now have all tables properly set up. You can make sure it all worked by firing up the PostgreSQL shell and running the `\dt` command, which should print a list of all tables (`projects` and `users`).
@@ -150,14 +146,14 @@ There are a lot of options defined in `config.lua`. Setting the environment is h
 
 ### Giving permissions to use HTTP(S) ports
 
-(Linux) We now need to configure `authbind` so that user `snap` can start a service over the HTTP and HTTPS ports. To do so, we simply need to create a file and assign its ownership to `snap`:
+(Linux) We now need to configure `authbind` so that user `cloud` can start a service over the HTTP and HTTPS ports. To do so, we simply need to create a file and assign its ownership to `cloud`:
 
 ```
 # touch /etc/authbind/byport/443
-# chown snap:snap /etc/authbind/byport/443
+# chown cloud:cloud /etc/authbind/byport/443
 # chmod +x /etc/authbind/byport/443
 # touch /etc/authbind/byport/80
-# chown snap:snap /etc/authbind/byport/80
+# chown cloud:cloud /etc/authbind/byport/80
 # chmod +x /etc/authbind/byport/80
 ```
 
@@ -170,11 +166,11 @@ $ ./bin/start.sh
 ```
 You will also need to start your Postgres database separately.
 
-You can now point your browser to `https://localhost`.
+You can now point your browser to `http://localhost`.
 
 ## Setting up the Snap!Cloud as a system daemon
 
-We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace [YOUR USERNAME] by your actual user. If you have followed this guide, it should be `snap`:
+We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace [YOUR USERNAME] by your actual user. If you have followed this guide, it should be `cloud`:
 
 
 ```
