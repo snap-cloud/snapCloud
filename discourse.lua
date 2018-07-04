@@ -40,26 +40,35 @@ local encoding = require("lapis.util.encoding")
 require 'validation'
 require 'crypto'
 
-local sso_secret = 'snap'
--- TEST URL: http://localhost:8080/discourse-sso?sso=bm9uY2U9NjM3MDljMmM1NmEzYmFkZGFkNmMyMWYyMjk0ZTljM2QmcmV0dXJuX3Nzb191cmw9aHR0cHMlM0ElMkYlMkZzbmFwLWZvcnVtLmNzMTAub3JnJTJGc2Vzc2lvbiUyRnNzb19sb2dpbg%3D%3D&sig=adbe372e7179b9064bdc27641433f3feb160d0766c8aaed0019b59ff4ab66fbe
--- "decoded_payload":"nonce=63709c2c56a3baddad6c21f2294e9c3d&return_sso_url=https%3A%2F%2Fsnap-forum.cs10.org%2Fsession%2Fsso_login"}
+local sso_secret = 'd836444a9e4084d5b224a60c208dce14'
+-- TEST URL: http://localhost:8080/discourse-sso?sso=bm9uY2U9Y2I2ODI1MWVlZmI1MjExZTU4YzAwZmYxMzk1ZjBjMGI%3D%0A&sig=2828aa29899722b35a2f191d34ef9b3ce695e0e6eeec47deb46d588d70c7cb56
+
 app:get('/discourse-sso', function(self)
     local payload = self.params.sso
     local sig = self.params.sig
+    local decoded_sig = encoding.decode_base64(sig)
     local decoded_payload = encoding.decode_base64(payload)
-    local validation_sig = create_signature(sso_secret, payload)
+    local payload_json = util.parse_query_string(decoded_payload)
+
+    local nonce = payload_json.nonce
+    local partial_payload = 'nonce='.. nonce
+    local base64_payload = encoding.encode_base64(partial_payload)
+    local urlencode_payload = util.escape(base64_payload)
+    local validation_sig = create_signature(sso_secret, base64_payload)
+    local base64_sig = encoding.encode_base64(validation_sig)
     -- local hmacSecret = hmac_256()
     return okResponse({
+        payload_json = payload_json,
         validation_sig = validation_sig,
-        valid =  validation_sig == sig,
+        base64_sig = base64_sig,
+        valid =  base64_sig == sig,
         sig = sig,
-        payload = payload,
-        payload_json = util.parse_query_string(decoded_payload)
+        payload = payload
+        -- payload_json = payload_json
     })
 end)
 
 -- 1. Validate the signature, ensure that HMAC-SHA256 of sso_secret, PAYLOAD is equal to the sig
 function create_signature(secret, payload)
-    print(encoding.hmac_sha256(secret, payload))
     return encoding.hmac_sha256(secret, payload)
 end
