@@ -1,3 +1,3 @@
 #!/bin/bash
-source ../setenv
-authbind --deep lapis server production
+source .env
+authbind --deep lapis server $LAPIS_ENVIRONMENT
