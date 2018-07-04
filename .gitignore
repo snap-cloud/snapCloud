@@ -1,15 +1,10 @@
+# User Data
 store/*/
 
+# Private Data
 .env
 setenv
-logs
-nginx.conf.compiled
-
-client_body_temp
-fastcgi_temp
-proxy_temp
-scgi_temp
-uwsgi_temp
+.htpasswd
 
 # Certificates and keys
 certs/*
@@ -18,6 +13,16 @@ certs/*
 *.cer
 *.key
 *.csr
+
+
+logs
+*.conf.compiled
+
+client_body_temp
+fastcgi_temp
+proxy_temp
+scgi_temp
+uwsgi_temp
 
 .*.swp
 .*.swo
