@@ -34,16 +34,32 @@ local respond_to = package.loaded.respond_to
 local json_params = package.loaded.json_params
 local cached = package.loaded.cached
 local resty_string = package.loaded.resty_string
+local encoding = require("lapis.util.encoding")
 
 -- require 'responses'
 require 'validation'
 require 'crypto'
 
-local test_sso_key = 'snap'
-
+local sso_secret = 'snap'
+-- TEST URL: http://localhost:8080/discourse-sso?sso=bm9uY2U9NjM3MDljMmM1NmEzYmFkZGFkNmMyMWYyMjk0ZTljM2QmcmV0dXJuX3Nzb191cmw9aHR0cHMlM0ElMkYlMkZzbmFwLWZvcnVtLmNzMTAub3JnJTJGc2Vzc2lvbiUyRnNzb19sb2dpbg%3D%3D&sig=adbe372e7179b9064bdc27641433f3feb160d0766c8aaed0019b59ff4ab66fbe
+-- "decoded_payload":"nonce=63709c2c56a3baddad6c21f2294e9c3d&return_sso_url=https%3A%2F%2Fsnap-forum.cs10.org%2Fsession%2Fsso_login"}
 app:get('/discourse-sso', function(self)
+    local payload = self.params.sso
+    local sig = self.params.sig
+    local decoded_payload = encoding.decode_base64(payload)
+    local validation_sig = create_signature(sso_secret, payload)
+    -- local hmacSecret = hmac_256()
     return okResponse({
-        sig = self.params.sig,
-        payload = self.params.sso
+        validation_sig = validation_sig,
+        valid =  validation_sig == sig,
+        sig = sig,
+        payload = payload,
+        payload_json = util.parse_query_string(decoded_payload)
     })
 end)
+
+-- 1. Validate the signature, ensure that HMAC-SHA256 of sso_secret, PAYLOAD is equal to the sig
+function create_signature(secret, payload)
+    print(encoding.hmac_sha256(secret, payload))
+    return encoding.hmac_sha256(secret, payload)
+end
