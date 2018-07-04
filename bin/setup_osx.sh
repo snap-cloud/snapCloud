@@ -29,7 +29,5 @@ LUAROCKS_CMD="luarocks-5.1"
 # Needed for lapis
 OPENSSL_BREW='/usr/local/opt/openssl/'
 
-# Link directories for installing lapis
-ln -s $OPENSSL_BREW $LUA_ROCKS_SEARCH_DIR
-
-$LUAROCKS_CMD install snap-cloud-beta-0.rockspec # OPENSSL_DIR=$OPENSSL_BREW
+# For some reason luarocks needs both directories specified...
+$LUAROCKS_CMD install snap-cloud-beta-0.rockspec OPENSSL_DIR=$OPENSSL_BREW CRYPTO_DIR=$OPENSSL_BREW
