@@ -66,7 +66,7 @@ config('production', {
     site_name = 'Snap Cloud',
     num_workers = 8,
     primary_nginx_config = 'berkeley-production.conf',
-    secondary_nginx_config = 'cs10-production.conf'
+    secondary_nginx_config = 'cs10.org-production.conf'
 })
 
 config('staging', {
@@ -74,5 +74,5 @@ config('staging', {
     -- the staging server is a low-cpu server.
     num_workers = 2,
     primary_nginx_config = 'berkeley-staging.conf',
-    secondary_nginx_config = 'cs10-staging.conf'
+    secondary_nginx_config = 'cs10.org-staging.conf'
 })
