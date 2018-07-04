@@ -43,8 +43,9 @@ config('development', {
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
     measure_performance = true,
 
-    primary_nginx_config = 'development.conf',
-    secondary_nginx_config = 'development.conf'
+    -- development needs no special SSL or cert config.
+    primary_nginx_config = 'locations.conf',
+    secondary_nginx_config = 'locations.conf'
 })
 
 config({'production', 'staging'}, {
