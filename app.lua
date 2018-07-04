@@ -101,6 +101,10 @@ package.loaded.Tokens = package.loaded.Model:extend('tokens', {
     primary_key = { 'value' }
 })
 
+-- Remove the protocol and port from a URL
+function standardize_origin(url)
+    return url:gsub('https*://', ''):gsub(':\d+', '')
+end
 
 -- Before filter
 app:before_filter(function (self)
@@ -118,7 +122,9 @@ app:before_filter(function (self)
     end
 
     -- Set Access Control header
-    if self.req.headers.origin and domain_allowed[self.req.headers.origin:gsub('https*://', '')] then
+    -- rem
+    local standardized_origin = standardize_origin(self.req.headers.origin)
+    if self.req.headers.origin and domain_allowed[standardized_origin] then
         self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
         self.res.headers['Access-Control-Allow-Credentials'] = 'true'
         self.res.headers['Vary'] = 'Origin'
