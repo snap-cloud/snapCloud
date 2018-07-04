@@ -5,6 +5,8 @@ setenv
 logs
 nginx.conf.compiled
 
+.htpasswd
+
 client_body_temp
 fastcgi_temp
 proxy_temp
