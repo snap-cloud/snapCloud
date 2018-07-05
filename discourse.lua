@@ -30,12 +30,11 @@ local crypto = package.loaded.crypto
 local config = package.loaded.config
 local encoding = require("lapis.util.encoding")
 
-local sso_secret = config.discourse_sso_secret
-
 app:get('/discourse-sso', capture_errors(function(self)
     -- params are automatically unescaped.
     local payload = self.params.sso
     local signature = self.params.sig
+    local sso_secret = config.discourse_sso_secret
     local computed_signature = create_signature(sso_secret, payload)
 
     if computed_signature ~= signature then
@@ -67,6 +66,11 @@ app:get('/discourse-sso', capture_errors(function(self)
     local url_payload = util.escape(base64_paylod)
     local new_signature = create_signature(sso_secret, base64_paylod)
     local final_url = discourse .. '?sso=' .. url_payload .. '&sig=' .. new_signature
+    -- don't redirect in development so you don't mess up your forum account.
+    if config._name == 'development' then
+        return final_url
+    end
+
     return { redirect_to = final_url }
 end))
 
