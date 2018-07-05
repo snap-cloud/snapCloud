@@ -38,7 +38,7 @@ local encoding = require("lapis.util.encoding")
 
 -- require 'responses'
 require 'validation'
-require 'crypto'
+local hmac = require("crypto.hmac")
 
 local sso_secret = 'd836444a9e4084d5b224a60c208dce14'
 -- TEST URL: http://localhost:8080/discourse-sso?sso=bm9uY2U9Y2I2ODI1MWVlZmI1MjExZTU4YzAwZmYxMzk1ZjBjMGI%3D%0A&sig=2828aa29899722b35a2f191d34ef9b3ce695e0e6eeec47deb46d588d70c7cb56
@@ -46,6 +46,7 @@ local sso_secret = 'd836444a9e4084d5b224a60c208dce14'
 app:get('/discourse-sso', function(self)
     local payload = self.params.sso
     local sig = self.params.sig
+    local unescaped_payload = util.unescape(payload)
     local decoded_sig = encoding.decode_base64(sig)
     local decoded_payload = encoding.decode_base64(payload)
     local payload_json = util.parse_query_string(decoded_payload)
@@ -53,22 +54,28 @@ app:get('/discourse-sso', function(self)
     local nonce = payload_json.nonce
     local partial_payload = 'nonce='.. nonce
     local base64_payload = encoding.encode_base64(partial_payload)
-    local urlencode_payload = util.escape(base64_payload)
-    local validation_sig = create_signature(sso_secret, base64_payload)
+    local urlencode_payload = util.escape(payload)
+    local validation_sig = create_signature(sso_secret, unescaped_payload)
     local base64_sig = encoding.encode_base64(validation_sig)
     -- local hmacSecret = hmac_256()
     return okResponse({
         payload_json = payload_json,
-        validation_sig = validation_sig,
+        unescaped_payload = unescaped_payload,
+        base64_payload = base64_payload,
+        match_payload = urlencode_payload == payload,
         base64_sig = base64_sig,
-        valid =  base64_sig == sig,
+        valid =  validation_sig == sig,
         sig = sig,
-        payload = payload
+        payload = payload,
+        partial_payload = partial_payload,
+        expected_payload = 'nonce=cb68251eefb5211e58c00ff1395f0c0b',
+        expected_base64 = 'bm9uY2U9Y2I2ODI1MWVlZmI1MjExZTU4YzAwZmYxMzk1ZjBjMGI=\n',
+        expected_url_encode = 'bm9uY2U9Y2I2ODI1MWVlZmI1MjExZTU4YzAwZmYxMzk1ZjBjMGI%3D%0A'
         -- payload_json = payload_json
     })
 end)
 
 -- 1. Validate the signature, ensure that HMAC-SHA256 of sso_secret, PAYLOAD is equal to the sig
 function create_signature(secret, payload)
-    return encoding.hmac_sha256(secret, payload)
+    return hmac.digest('sha256', payload, secret)
 end
