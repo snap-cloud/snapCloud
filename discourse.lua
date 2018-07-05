@@ -83,4 +83,5 @@ function create_payload(user, nonce)
 end
 
 function create_redirect_url(discourse_url, payload, signature)
+
 end
