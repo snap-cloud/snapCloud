@@ -47,30 +47,18 @@ app:get('/discourse-sso', capture_errors(function(self)
         -- make sure to include params.
     end
 
-    local decoded_payload = encoding.decode_base64(payload)
-    local parsed_payload = util.parse_query_string(decoded_payload)
+    local request_payload = extract_payload(payload)
     local user = Users:select('where username = ? limit 1',
             self.session.username,
             { fields = 'id, username, verified, isadmin, email' })[1]
-    local redirect_params = {
-        external_id = user.id,
-        username = user.username,
-        require_activation = not user.verified,
-        email = user.email,
-        admin = user.isadmin,
-        nonce = parsed_payload.nonce
-    }
-    local discourse = parsed_payload.return_sso_url
-    local new_payload = util.encode_query_string(redirect_params)
-    local base64_paylod = encoding.encode_base64(new_payload)
-    local url_payload = util.escape(base64_paylod)
-    local new_signature = create_signature(sso_secret, base64_paylod)
-    local final_url = discourse .. '?sso=' .. url_payload .. '&sig=' .. new_signature
-    -- don't redirect in development so you don't mess up your forum account.
-    if config._name == 'development' then
-        return final_url
-    end
+    local final_url = create_redirect_url(
+        parsed_payload.return_sso_url,
+        build_payload(user, request_payload.nonce),
+        create_signature(sso_secret, response_paylod)
+    )
 
+    -- don't redirect in development so you don't mess up your forum account.
+    if config._name == 'development' then return final_url end
     return { redirect_to = final_url }
 end))
 
@@ -78,10 +66,26 @@ function create_signature(secret, payload)
     return crypto.hmac.digest('sha256', payload, secret)
 end
 
-function create_payload(user, nonce)
+function extract_payload(payload)
+    return util.parse_query_string(encoding.decode_base64(payload))
+end
 
+-- Base64 encode the required discourse params.
+-- "require_activation" is a special discourse flag,
+-- for user's whose email is not verified. It enables additional restrictions.
+function build_payload(user, nonce)
+    local params = {
+        external_id = user.id,
+        username = user.username,
+        email = user.email,
+        require_activation = not user.verified,
+        admin = user.isadmin,
+        nonce = nonce
+    }
+    return encoding.encode_base64(util.encode_query_string(params))
 end
 
 function create_redirect_url(discourse_url, payload, signature)
-
+    local url_payload = util.escape(base64_paylod)
+    return discourse_url .. '?sso=' .. url_payload .. '&sig=' .. signature
 end
