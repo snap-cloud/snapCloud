@@ -41,8 +41,8 @@ app:get('/discourse-sso', capture_errors(function(self)
         return errorResponse('Signature does not match. Please try again')
     end
 
-    if not self.session.username then
-        return 'Please login through Snap! then return to the forum.'
+    if not self.session and not self.session.username then
+        return errorResponse('Please login through Snap! then return to the forum.')
         -- redirect to login
         -- make sure to include params.
     end
