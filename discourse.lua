@@ -1,9 +1,14 @@
 -- Discourse SSO module
--- ==========
+-- ====================
 --
 -- Implements a login endpoint for the Discourse forum.
+-- SSO will use the current user session if one exists
+-- Otherwise, it will redirect the user to the login page.
+-- Once the request is verified, the user is redirected to the forum.
+-- https://meta.discourse.org/t/official-single-sign-on-for-discourse-sso/13045
 --
--- Written by Bernat Romagosa
+--
+-- Written by Michael Ball
 --
 -- Copyright (C) 2018 by Michael Ball
 --
@@ -57,11 +62,9 @@ app:get('/discourse-sso', capture_errors(function(self)
     local user = Users:select('where username = ? limit 1',
             self.session.username,
             { fields = 'id, username, verified, isadmin, email' })[1]
-    local final_url = create_redirect_url(
-        parsed_payload.return_sso_url,
-        build_payload(user, request_payload.nonce),
-        create_signature(sso_secret, response_paylod)
-    )
+    local response_paylod = build_payload(user, request_payload.nonce)
+    local final_url = create_redirect_url(request_payload.return_sso_url,
+                                          response_paylod)
 
     -- don't redirect in development so you don't mess up your forum account.
     if config._name == 'development' then return final_url end
@@ -91,7 +94,8 @@ function build_payload(user, nonce)
     return encoding.encode_base64(util.encode_query_string(params))
 end
 
-function create_redirect_url(discourse_url, payload, signature)
+function create_redirect_url(discourse_url, payload)
     local url_payload = util.escape(base64_paylod)
-    return discourse_url .. '?sso=' .. url_payload .. '&sig=' .. signature
+    local sig = create_signature(config.discourse_sso_secret, response_paylod)
+    return discourse_url .. '?sso=' .. url_payload .. '&sig=' .. sig
 end
