@@ -25,9 +25,9 @@
 
 jsonResponse = function (json)
     return {
-        layout = false, 
-        status = 200, 
-        readyState = 4, 
+        layout = false,
+        status = 200,
+        readyState = 4,
         json = json or {}
     }
 end
@@ -38,17 +38,17 @@ end
 
 rawResponse = function (contents)
     return {
-        layout = false, 
-        status = 200, 
-        readyState = 4, 
+        layout = false,
+        status = 200,
+        readyState = 4,
         contents
     }
 end
 
-errorResponse = function (err)
+errorResponse = function (err, status)
     return {
         layout = false,
-        status = 404,
+        status = status or 500,
         readyState = 4,
         json = { errors = {err} }
     }

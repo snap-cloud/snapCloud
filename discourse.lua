@@ -31,20 +31,26 @@ local config = package.loaded.config
 local encoding = require("lapis.util.encoding")
 
 app:get('/discourse-sso', capture_errors(function(self)
+    if self.session.username == '' then
+        local signin_url = '/site/login.html?redirect_to='
+        local redirect_path = util.escape('/discourse-sso?' .. util.encode_query_string(self.params))
+        return { redirect_to = signin_url .. redirect_path }
+    end
+
     -- params are automatically unescaped.
     local payload = self.params.sso
     local signature = self.params.sig
     local sso_secret = config.discourse_sso_secret
-    local computed_signature = create_signature(sso_secret, payload)
 
-    if computed_signature ~= signature then
-        return errorResponse('Signature does not match. Please try again')
+    if not signature or not payload then
+        return errorResponse(
+            'Please go back try again. (Signature or payload is missing.)', 422
+        )
     end
 
-    if not self.session and not self.session.username then
-        return errorResponse('Please login through Snap! then return to the forum.')
-        -- redirect to login
-        -- make sure to include params.
+    local computed_signature = create_signature(sso_secret, payload)
+    if computed_signature ~= signature then
+        return errorResponse('Signature does not match. Please try again', 422)
     end
 
     local request_payload = extract_payload(payload)
