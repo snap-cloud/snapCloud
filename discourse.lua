@@ -63,9 +63,9 @@ app:get('/discourse-sso', capture_errors(function(self)
     local user = Users:select('where username = ? limit 1',
             self.session.username,
             { fields = 'id, username, verified, isadmin, email' })[1]
-    local response_paylod = build_payload(user, request_payload.nonce)
+    local response_payload = build_payload(user, request_payload.nonce)
     local final_url = create_redirect_url(request_payload.return_sso_url,
-                                          response_paylod)
+                                          response_payload)
 
     -- don't redirect in development so you don't mess up your forum account.
     if config._name == 'development' then return final_url end
@@ -96,7 +96,7 @@ function build_payload(user, nonce)
 end
 
 function create_redirect_url(discourse_url, payload)
-    local encoded_payload = util.escape(paylod)
-    local signature = create_signature(paylod)
+    local encoded_payload = util.escape(payload)
+    local signature = create_signature(payload)
     return discourse_url .. '?sso=' .. encoded_payload .. '&sig=' .. signature
 end
