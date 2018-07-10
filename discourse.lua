@@ -96,7 +96,7 @@ function build_payload(user, nonce)
 end
 
 function create_redirect_url(discourse_url, payload)
-    local url_payload = util.escape(base64_paylod)
+    local encoded_payload = util.escape(paylod)
     local signature = create_signature(paylod)
-    return discourse_url .. '?sso=' .. url_payload .. '&sig=' .. signature
+    return discourse_url .. '?sso=' .. encoded_payload .. '&sig=' .. signature
 end
