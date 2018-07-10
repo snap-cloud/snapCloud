@@ -54,8 +54,6 @@ app:get('/discourse-sso', capture_errors(function(self)
         )
     end
 
-    print('ABOUT TO COMPUTE...  ' .. config.discourse_sso_secret)
-    print('')
     local computed_signature = create_signature(payload)
     if computed_signature ~= signature then
         return errorResponse('Signature does not match. Please try again', 422)
