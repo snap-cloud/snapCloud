@@ -35,6 +35,8 @@ local crypto = package.loaded.crypto
 local config = package.loaded.config
 local encoding = require("lapis.util.encoding")
 
+local sso_secret = config.discourse_sso_secret
+
 app:get('/discourse-sso', capture_errors(function(self)
     if self.session.username == '' then
         local signin_url = '/site/login.html?redirect_to='
@@ -45,7 +47,6 @@ app:get('/discourse-sso', capture_errors(function(self)
     -- params are automatically unescaped.
     local payload = self.params.sso
     local signature = self.params.sig
-    local sso_secret = config.discourse_sso_secret
 
     if not signature or not payload then
         return errorResponse(
@@ -53,7 +54,9 @@ app:get('/discourse-sso', capture_errors(function(self)
         )
     end
 
-    local computed_signature = create_signature(sso_secret, payload)
+    print('ABOUT TO COMPUTE...  ' .. config.discourse_sso_secret)
+    print('')
+    local computed_signature = create_signature(payload)
     if computed_signature ~= signature then
         return errorResponse('Signature does not match. Please try again', 422)
     end
@@ -71,8 +74,8 @@ app:get('/discourse-sso', capture_errors(function(self)
     return { redirect_to = final_url }
 end))
 
-function create_signature(secret, payload)
-    return crypto.hmac.digest('sha256', payload, secret)
+function create_signature(payload)
+    return crypto.hmac.digest('sha256', payload, config.discourse_sso_secret)
 end
 
 function extract_payload(payload)
@@ -96,6 +99,6 @@ end
 
 function create_redirect_url(discourse_url, payload)
     local url_payload = util.escape(base64_paylod)
-    local sig = create_signature(config.discourse_sso_secret, response_paylod)
-    return discourse_url .. '?sso=' .. url_payload .. '&sig=' .. sig
+    local signature = create_signature(paylod)
+    return discourse_url .. '?sso=' .. url_payload .. '&sig=' .. signature
 end
