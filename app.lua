@@ -49,7 +49,11 @@ package.loaded.capture_errors = function(fn)
     return lapis_capture_errors({
         on_error = function(self)
             local error = self.errors[1]
-            return errorResponse(error.msg, error.status)
+            if type(error) == 'table' then
+                return errorResponse(error.msg, error.status)
+            else
+                return errorResponse(error, 401)
+            end
         end,
         fn
     })
