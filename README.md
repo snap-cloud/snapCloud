@@ -20,3 +20,6 @@ Sorry about that! Please file an issue stating what we forgot, or just send us a
 
 ### Live instance
 The Snap!Cloud backend is currently live at [https://snap-cloud.cs10.org](https://snap-cloud.cs10.org).
+
+### Contributing
+Please read [CONTRIBUTING.md](CONTRIBUTING.md) before sending us any pull requests. Thank you!
