@@ -45,10 +45,10 @@ rawResponse = function (contents)
     }
 end
 
-errorResponse = function (err)
+errorResponse = function (err, status)
     return {
         layout = false,
-        status = 404,
+        status = status,
         readyState = 4,
         json = { errors = {err} }
     }
