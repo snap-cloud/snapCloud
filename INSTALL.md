@@ -5,8 +5,10 @@
 First of all, clone the Snap!Cloud repository into a local folder:
 
 ```
-$ git clone https://github.com/bromagosa/snapCloud.git
+$ git clone --recursive https://github.com/bromagosa/snapCloud.git
 ```
+
+(Use the `--recursive` option so that you can see the Social site and have a working Snap<em>!</em> install.)
 
 ## Prereqs
 
@@ -159,14 +161,27 @@ There are a lot of options defined in `config.lua`. Setting the environment is h
 
 ## Running the Snap!Cloud
 
-If it all went well, you're now ready to fire up Lapis. While in development, just run this command under your Snap!Cloud local folder:
+If it all went well, you're now ready to fire up Lapis. While in development, just run this command under your Snap!Cloud local folder, if you use authbind:
 
 ```
-$ ./bin/start.sh
+$ ./start.sh
 ```
 You will also need to start your Postgres database separately.
 
-You can now point your browser to `http://localhost`.
+### A Procfile Runner
+We've included a Procfile, which declares all the resources needed to run the app, including postgres.
+
+You can use any tool you'd like to run a procfile, but two common ones are [foreman][foreman] or [node-foreman][nf]. These make it really easy to run all the resources:
+
+```sh
+$ foreman s[tart] # OR
+$ nf s[tart]
+```
+
+You can now point your browser to `http://localhost:8080`.
+
+[foreman]: https://github.com/ddollar/foreman
+[nf]: https://github.com/strongloop/node-foreman
 
 ## Setting up the Snap!Cloud as a system daemon
 
