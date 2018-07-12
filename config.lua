@@ -67,7 +67,7 @@ config('production', {
     site_name = 'Snap Cloud',
     num_workers = 8,
     primary_nginx_config = 'http-only.conf',
-    secondary_nginx_config = 'include nginx.conf.d/ssl-production.conf'
+    secondary_nginx_config = 'include nginx.conf.d/ssl-production.conf;'
 })
 
 config('staging', {
@@ -75,5 +75,5 @@ config('staging', {
     -- the staging server is a low-cpu server.
     num_workers = 2,
     primary_nginx_config = 'http-only.conf',
-    secondary_nginx_config = 'include nginx.conf.d/ssl-staging.conf'
+    secondary_nginx_config = 'include nginx.conf.d/ssl-staging.conf;'
 })
