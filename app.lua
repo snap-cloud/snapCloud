@@ -87,7 +87,7 @@ package.loaded.capture_errors = function(fn)
             if type(error) == 'table' then
                 return errorResponse(error.msg, error.status)
             else
-                return errorResponse(error, 401)
+                return errorResponse(error, 400)
             end
         end,
         fn
