@@ -42,32 +42,6 @@ package.loaded.config = require("lapis.config").get()
 
 local app = package.loaded.app
 
--- wrap the lapis capture errors to provide our own custom error handling
--- just do: yield_error({msg = 'oh no', status = 401})
-local lapis_capture_errors = package.loaded.app_helpers.capture_errors
-package.loaded.capture_errors = function(fn)
-    return lapis_capture_errors({
-        on_error = function(self)
-            local error = self.errors[1]
-            if type(error) == 'table' then
-                return errorResponse(error.msg, error.status)
-            else
-                return errorResponse(error, 401)
-            end
-        end,
-        fn
-    })
-end
-
-require 'responses'
-
--- Make cookies persistent
-app.cookie_attributes = function(self)
-    local date = require("date")
-    local expires = date(true):adddays(365):fmt("${http}")
-    return "Expires=" .. expires .. "; Path=/; HttpOnly"
-end
-
 -- Store whitelisted domains
 local domain_allowed = {}
 domain_allowed['snap.berkeley.edu'] = true
@@ -103,6 +77,31 @@ domain_allowed['edge.edx.org'] = true
 domain_allowed['romagosa.work'] = true
 domain_allowed['localhost'] = true
 
+-- wrap the lapis capture errors to provide our own custom error handling
+-- just do: yield_error({msg = 'oh no', status = 401})
+local lapis_capture_errors = package.loaded.app_helpers.capture_errors
+package.loaded.capture_errors = function(fn)
+    return lapis_capture_errors({
+        on_error = function(self)
+            local error = self.errors[1]
+            if type(error) == 'table' then
+                return errorResponse(error.msg, error.status)
+            else
+                return errorResponse(error, 401)
+            end
+        end,
+        fn
+    })
+end
+
+require 'responses'
+
+-- Make cookies persistent
+app.cookie_attributes = function(self)
+    local date = require("date")
+    local expires = date(true):adddays(365):fmt("${http}")
+    return "Expires=" .. expires .. "; Path=/; HttpOnly"
+end
 
 -- Database abstractions
 
