@@ -45,7 +45,8 @@ config('development', {
 
     -- development needs no special SSL or cert config.
     primary_nginx_config = 'locations.conf',
-    secondary_nginx_config = 'locations.conf'
+    -- A comment disables an include.
+    secondary_nginx_config = ''
 })
 
 config({'production', 'staging'}, {
@@ -65,14 +66,14 @@ config({'production', 'staging'}, {
 config('production', {
     site_name = 'Snap Cloud',
     num_workers = 8,
-    primary_nginx_config = 'berkeley-production.conf',
-    secondary_nginx_config = 'cs10.org-production.conf'
+    primary_nginx_config = 'http-only.conf',
+    secondary_nginx_config = 'include nginx.conf.d/ssl-production.conf'
 })
 
 config('staging', {
     site_name = 'staging | Snap Cloud',
     -- the staging server is a low-cpu server.
     num_workers = 2,
-    primary_nginx_config = 'berkeley-staging.conf',
-    secondary_nginx_config = 'cs10.org-staging.conf'
+    primary_nginx_config = 'http-only.conf',
+    secondary_nginx_config = 'include nginx.conf.d/ssl-staging.conf'
 })
