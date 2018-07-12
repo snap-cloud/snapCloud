@@ -29,7 +29,6 @@ package.loaded.app = lapis.Application()
 package.loaded.db = require 'lapis.db'
 package.loaded.app_helpers = require 'lapis.application'
 package.loaded.json_params = package.loaded.app_helpers.json_params
-package.loaded.capture_errors = package.loaded.app_helpers.capture_errors_json
 package.loaded.yield_error = package.loaded.app_helpers.yield_error
 package.loaded.validate = require 'lapis.validate'
 package.loaded.Model = require('lapis.db.model').Model
@@ -42,6 +41,23 @@ package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
 
 local app = package.loaded.app
+
+-- wrap the lapis capture errors to provide our own custom error handling
+-- just do: yield_error({msg = 'oh no', status = 401})
+local lapis_capture_errors = package.loaded.app_helpers.capture_errors
+package.loaded.capture_errors = function(fn)
+    return lapis_capture_errors({
+        on_error = function(self)
+            local error = self.errors[1]
+            if type(error) == 'table' then
+                return errorResponse(error.msg, error.status)
+            else
+                return errorResponse(error, 401)
+            end
+        end,
+        fn
+    })
+end
 
 require 'responses'
 
@@ -149,7 +165,7 @@ end)
 function app:handle_error(err, trace)
     print(err)
     print(trace)
-    return errorResponse(err)
+    return errorResponse(err, 500)
 end
 
 -- The API is implemented in the api.lua file
