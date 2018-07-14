@@ -1,6 +1,6 @@
 app: lapis server
 db: postgres -D /usr/local/var/postgres
-frontend: site/snippets/build.sh --watch
+frontend: cd site && Snippets/build.sh --watch
 # Install maildev with npm i -g maildev
-# Access sent emails at http://localhost:($PORT + 2)
-emails: type maildev &>/dev/null && maildev -w $(expr $PORT + 2) --incoming-user cloud --incoming-password cloudemail
+# Access sent emails at http://localhost:1080
+emails: type maildev &>/dev/null && maildev --incoming-user cloud --incoming-pass cloudemail

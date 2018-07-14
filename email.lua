@@ -25,8 +25,8 @@ local mail = require "resty.mail"
 
 local mailer, err = mail.new({
   host = config.mail_server,
-  port = 587,
-  starttls = true,
+  port = config.mail_smtp_port,
+  starttls = config._name ~= 'development',
   username = config.mail_user,
   password = config.mail_password
 })
