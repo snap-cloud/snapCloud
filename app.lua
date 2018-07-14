@@ -160,6 +160,10 @@ app:get('/site', function(self)
     return { redirect_to = self:build_url('site/index.html') }
 end)
 
+function app:handle_404()
+    local message = "Failed to find resource: " .. self.req.cmd_url
+    return errorResponse(message, 404)
+end
 
 function app:handle_error(err, trace)
     print(err)
