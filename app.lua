@@ -112,8 +112,7 @@ app:get('/site', function(self)
 end)
 
 function app:handle_404()
-    local message = "Failed to find resource: " .. self.req.cmd_url
-    return errorResponse(message, 404)
+    return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
 end
 
 function app:handle_error(err, trace)
