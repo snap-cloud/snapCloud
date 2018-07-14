@@ -3,4 +3,4 @@
 	url = git://github.com/jmoenig/Snap--Build-Your-Own-Blocks.git
 [submodule "site"]
 	path = site
-	url = https://github.com/bromagosa/SnapSite
+	url = git://github.com/bromagosa/SnapSite.git
