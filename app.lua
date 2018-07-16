@@ -43,6 +43,9 @@ package.loaded.crypto = require('crypto')
 
 local app = package.loaded.app
 
+-- Store whitelisted domains
+local domain_allowed = require('cors')
+
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})
 local lapis_capture_errors = package.loaded.app_helpers.capture_errors
@@ -53,7 +56,7 @@ package.loaded.capture_errors = function(fn)
             if type(error) == 'table' then
                 return errorResponse(error.msg, error.status)
             else
-                return errorResponse(error, 401)
+                return errorResponse(error, 400)
             end
         end,
         fn
@@ -68,42 +71,6 @@ app.cookie_attributes = function(self)
     local expires = date(true):adddays(365):fmt("${http}")
     return "Expires=" .. expires .. "; Path=/; HttpOnly"
 end
-
--- Store whitelisted domains
-local domain_allowed = {}
-domain_allowed['snap.berkeley.edu'] = true
-domain_allowed['snap-cloud.cs10.org'] = true
-domain_allowed['cloud.snap.berkeley.edu'] = true
-domain_allowed['amazingrobots.net'] = true
-domain_allowed['snap4arduino.rocks'] = true
--- Snap4Arduino for Chromebooks
-domain_allowed['chrome-extension://bdmapaboflkhdmcgdpfooeeeadejodia'] = true
--- Snap! Mirrors
-domain_allowed['cs10.org'] = true
-domain_allowed['bjc.edc.org'] = true
-domain_allowed['byob.eecs.berkeley.edu'] = true
-domain_allowed['web.media.mit.edu'] = true
-domain_allowed['snap.apps.miosoft.com'] = true
--- Snap! Research Projects
-domain_allowed['eliza.csc.ncsu.edu'] = true
-domain_allowed['arena.csc.ncsu.edu'] = true
-domain_allowed['stemc.csc.ncsu.edu'] = true
-domain_allowed['lambda.cs10.org'] = true
--- All edX Sites, and test sites
-domain_allowed['courses.edge.edx.org'] = true
-domain_allowed['courses.edx.org'] = true
-domain_allowed['d37djvu3ytnwxt.cloudfront.net'] = true
-domain_allowed['preview.courses.edge.edx.org'] = true
-domain_allowed['preview.courses.edx.org'] = true
-domain_allowed['preview.edge.edx.org'] = true
-domain_allowed['preview.edx.org'] = true
-domain_allowed['studio.edge.edx.org'] = true
-domain_allowed['studio.edx.org'] = true
-domain_allowed['edge.edx.org'] = true
--- Development
-domain_allowed['romagosa.work'] = true
-domain_allowed['localhost'] = true
-
 
 -- Database abstractions
 
@@ -162,6 +129,9 @@ app:get('/site', function(self)
     return { redirect_to = self:build_url('site/index.html') }
 end)
 
+function app:handle_404()
+    return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
+end
 
 function app:handle_error(err, trace)
     print(err)
