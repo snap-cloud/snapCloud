@@ -46,7 +46,7 @@ config('development', {
 
     -- development needs no special SSL or cert config.
     primary_nginx_config = 'locations.conf',
-    -- A comment disables an include.
+    -- empty string when no additional configs are included.
     secondary_nginx_config = ''
 })
 
