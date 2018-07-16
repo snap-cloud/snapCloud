@@ -30,6 +30,7 @@
 local app = package.loaded.app
 local Users = package.loaded.Users
 local capture_errors = package.loaded.capture_errors
+local yield_error = package.loaded.yield_error
 local util = package.loaded.util
 local crypto = package.loaded.crypto
 local config = package.loaded.config
