@@ -30,14 +30,14 @@ require 'responses'
 require 'email'
 
 err = {
-    not_logged_in = 'You are not logged in',
-    auth = 'You do not have permission to perform this action',
-    nonexistent_user = 'No user with this username exists',
-    nonexistent_project = 'This project does not exist',
-    not_public_project = 'This project is not public',
-    expired_token = 'This token has expired',
-    invalid_token = 'This token is either invalid or has expired',
-    nonvalidated_user = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.'
+    not_logged_in = {msg = 'You are not logged in', status = 401},
+    auth = {msg = 'You do not have permission to perform this action', status = 403},
+    nonexistent_user = {msg = 'No user with this username exists', status = 404},
+    nonexistent_project = {msg = 'This project does not exist', status = 404},
+    not_public_project = {msg = 'This project is not public', status = 403},
+    expired_token = {msg = 'This token has expired', status = 401},
+    invalid_token = {msg = 'This token is either invalid or has expired', status = 401},
+    nonvalidated_user = {msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401}
 }
 
 assert_all = function (assertions, self)

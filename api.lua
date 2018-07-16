@@ -40,7 +40,7 @@ local Tokens = package.loaded.Tokens
 require 'disk'
 require 'responses'
 require 'validation'
-require 'crypto'
+require 'passwords'
 
 -- API Endpoints
 -- =============

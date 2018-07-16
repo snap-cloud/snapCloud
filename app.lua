@@ -29,7 +29,6 @@ package.loaded.app = lapis.Application()
 package.loaded.db = require 'lapis.db'
 package.loaded.app_helpers = require 'lapis.application'
 package.loaded.json_params = package.loaded.app_helpers.json_params
-package.loaded.capture_errors = package.loaded.app_helpers.capture_errors_json
 package.loaded.yield_error = package.loaded.app_helpers.yield_error
 package.loaded.validate = require 'lapis.validate'
 package.loaded.Model = require('lapis.db.model').Model
@@ -40,11 +39,29 @@ package.loaded.resty_sha512 = require "resty.sha512"
 package.loaded.resty_string = require "resty.string"
 package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
+package.loaded.crypto = require('crypto')
 
 local app = package.loaded.app
 
 -- Store whitelisted domains
 local domain_allowed = require('cors')
+
+-- wrap the lapis capture errors to provide our own custom error handling
+-- just do: yield_error({msg = 'oh no', status = 401})
+local lapis_capture_errors = package.loaded.app_helpers.capture_errors
+package.loaded.capture_errors = function(fn)
+    return lapis_capture_errors({
+        on_error = function(self)
+            local error = self.errors[1]
+            if type(error) == 'table' then
+                return errorResponse(error.msg, error.status)
+            else
+                return errorResponse(error, 400)
+            end
+        end,
+        fn
+    })
+end
 
 require 'responses'
 
@@ -112,15 +129,19 @@ app:get('/site', function(self)
     return { redirect_to = self:build_url('site/index.html') }
 end)
 
+function app:handle_404()
+    return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
+end
 
 function app:handle_error(err, trace)
     print(err)
     print(trace)
-    return errorResponse(err)
+    return errorResponse(err, 500)
 end
 
 -- The API is implemented in the api.lua file
 
 require 'api'
+require 'discourse'
 
 return app
