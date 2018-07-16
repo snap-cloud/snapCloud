@@ -49,14 +49,19 @@ app:get('/discourse-sso', capture_errors(function(self)
     local signature = self.params.sig
 
     if not signature or not payload then
-        return errorResponse(
-            'Please go back try again. (Signature or payload is missing.)', 422
-        )
+        local message = 'Please go back try again. '
+        if not signature then
+            message = message .. '(Request signature is missing.)'
+        else
+            message = message .. '(Request payload is missing.)'
+        end
+        yield_error({msg = message, status = 422})
     end
 
     local computed_signature = create_signature(payload)
     if computed_signature ~= signature then
-        return errorResponse('Signature does not match. Please try again', 422)
+        yield_error({msg = 'Signature does not match. Please try again.',
+                     status = 422})
     end
 
     local request_payload = extract_payload(payload)
