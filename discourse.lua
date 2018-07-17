@@ -50,7 +50,7 @@ app:get('/discourse-sso', capture_errors(function(self)
     local signature = self.params.sig
 
     if not signature or not payload then
-        local message = 'Please go back try again. '
+        local message = 'Please go back and try again. '
         if not signature then
             message = message .. '(Request signature is missing.)'
         else
