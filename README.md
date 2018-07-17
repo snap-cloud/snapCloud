@@ -19,7 +19,7 @@ The Snap! Cloud is an API-only adaptation of the [Beetle Cloud](http://github.co
 Sorry about that! Please file an issue stating what we forgot, or just send us a pull request modifying this [README](https://github.com/bromagosa/beetleCloud/edit/master/README.md).
 
 ### Live instance
-The Snap!Cloud backend is currently live at [https://snap-cloud.cs10.org](https://snap-cloud.cs10.org).
+The Snap!Cloud backend is currently live at [https://cloud.snap.berkeley.edu](https://cloud.snap.berkeley.edu). See the API description page at [https://cloud.snap.berkeley.edu/static/API](https://cloud.snap.berkeley.edu/static/API).
 
 ### Contributing
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) before sending us any pull requests. Thank you!
