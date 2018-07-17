@@ -11,11 +11,22 @@ if [[-z `which brew`]]; then
     exit 1;
 fi
 
+if [[-z `which npm`]]; then
+    echo 'Skipping installing maildev (an email catcher).'
+    echo 'To install maildev, first install node (npm), then do:'
+    echo '"npm install -g maildev"'
+else
+    echo 'Installing maildev...'
+    npm install -g maildev
+fi
+
+
 # Install basic dependencies via brew
-# Note that we must use lua 5.1 becaus lapis isn't yet in the 5.2 directory
-# on luarocks. (Current brew default is lua 5.2)
+# Note that we must use lua 5.1, not 5.2 or 5.3
+echo 'Installing lua and postgres'
 brew install lua@5.1 postgres pcre
 
+echo 'Installing OpenResty'
 brew tap denji/nginx
 brew install denji/nginx/openresty
 
@@ -29,5 +40,6 @@ LUAROCKS_CMD="luarocks-5.1"
 # Needed for lapis
 OPENSSL_BREW='/usr/local/opt/openssl/'
 
+echo 'Installing lua dependencies'
 # For some reason luarocks needs both directories specified...
 $LUAROCKS_CMD install snap-cloud-beta-0.rockspec OPENSSL_DIR=$OPENSSL_BREW CRYPTO_DIR=$OPENSSL_BREW
