@@ -14,7 +14,6 @@ $ git clone --recursive https://github.com/bromagosa/snapCloud.git
 
 For Debian-based distros, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a the database" afterwards.
 
-
 ### Lua 5.1
 
 Lua is the language that powers the whole Snap!Cloud. Under Debian/Ubuntu, you can install it by means of APT:
@@ -70,7 +69,7 @@ The Snap!Cloud backend uses PostreSQL for storage, so you'll need to install it 
 ```
 
 #### Getting a self-signed certificate
-Currently, Snap!Cloud is configured to expect a certificate file, even while running locally. You can generate a self-signed cert using the `openssl` command. While self-signed certs are not useful for production sites, it will work just fine when testing things.
+You should not need to run locally with SSL enabled. However, you may want to do so, if you were testing either the production or staging configurations. In those cases you might want to generate a self-signed certificate so that you can verify SL works locally.
 
 Heroku has a good guide on [generating self-signed certs][heroku-guide].
 (The default configuration is for files named host.cert, and host.key. You can adjust the Heroku commands or rename your files afterwards.)
@@ -163,8 +162,10 @@ export HOSTNAME=cloud.snap.berkeley.edu
 There are a lot of options defined in `config.lua`. Setting the environment is helpful because you may want to have a "staging" server with a slightly different configuration.
 
 ### Giving permissions to use HTTP(S) ports
+(This section applies only to Linux machines.)
+Authbind allows a user to bind to ports 0-1023. In development, you will likely not need to use authbind as the server defaults to using port 8080 and doesn't need https. However, on the production server, authbind is necessary.
 
-(Linux) We now need to configure `authbind` so that user `cloud` can start a service over the HTTP and HTTPS ports. To do so, we simply need to create a file and assign its ownership to `cloud`:
+We now need to configure `authbind` so that user `cloud` can start a service over the HTTP and HTTPS ports. To do so, we simply need to create a file and assign its ownership to `cloud`:
 
 ```
 # touch /etc/authbind/byport/443
