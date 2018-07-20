@@ -73,6 +73,38 @@ app.cookie_attributes = function(self)
 end
 
 -- Database abstractions
+local function pg_iso8601(ts)
+    -- postgres dates don't include the "T" time seperator
+    -- they are missing the minutes value on timezones, which JS needs
+    return ts:gsub(' ', 'T'):gsub('([%+%-%d+])$', '%1:00')
+end
+
+local function update_timestamps(object)
+    local timestamp_columns = {}
+    timestamp_columns['created'] = true
+    timestamp_columns['updated'] = true
+    timestamp_columns['lastupdated'] = true
+    timestamp_columns['lastshared'] = true
+    timestamp_columns['firstshared'] = true
+    -- replace all timestamps with an ISO8061 formatted string.
+    for column, value in pairs(object) do
+        -- would be nice to do column:find('_at$')
+        if timestamp_columns[column] then
+            object[column] = pg_iso8601(value)
+        end
+    end
+    return object
+end
+
+local original_select = package.loaded.Model.select
+function package.loaded.Model.select(self, query, ...)
+    print('called new select')
+    local result = original_select(self, query, ...)
+    for i, obj in ipairs(result) do
+        result[i] = update_timestamps(obj)
+    end
+    return result
+end
 
 package.loaded.Users = package.loaded.Model:extend('users', {
     primary_key = { 'username' }

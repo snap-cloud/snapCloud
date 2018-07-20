@@ -44,28 +44,6 @@ require 'passwords'
 
 -- API Endpoints
 -- =============
-local function pg_iso8601(ts)
-    -- postgres dates don't include the "T" time seperator
-    -- they are missing the minutes value on timezones, which JS needs
-    return ts:gsub(' ', 'T'):gsub('([%+%-%d+])$', '%1:00')
-end
-
-local function update_timestamps(object)
-    local timestamp_columns = {}
-    timestamp_columns['created'] = true
-    timestamp_columns['updated'] = true
-    timestamp_columns['lastupdated'] = true
-    timestamp_columns['lastshared'] = true
-    timestamp_columns['firstshared'] = true
-    -- replace all timestamps with an ISO8061 formatted string.
-    for column, value in pairs(object) do
-        -- would be nice to do column:find('_at$')
-        if timestamp_columns[column] then
-            object[column] = pg_iso8601(value)
-        end
-    end
-    return object
-end
 
 app:match('init', '/init', respond_to({
     OPTIONS = cors_options,
@@ -109,12 +87,11 @@ app:match('user', '/users/:username', respond_to({
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         if not users_match(self) then assert_admin(self) end
-        user = Users:select(
+        return jsonResponse(
+            Users:select(
                 'where username = ? limit 1',
                 self.params.username,
-                { fields = 'username, location, about, created, isadmin, email' })[1]
-                -- user.created = pg_iso8601(user.created)
-        return jsonResponse(update_timestamps(user))
+                { fields = 'username, location, about, created, isadmin, email' })[1])
     end),
 
     DELETE = capture_errors(function (self)
@@ -357,10 +334,6 @@ app:match('projects', '/projects', respond_to({
             local paginator = Projects:paginated(query .. ' order by firstpublished desc', { per_page = self.params.pagesize or 16 })
             local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
-            for _, project in pairs(projects) do
-                update_timestamps(project)
-            end
-
             if self.params.withthumbnail == 'true' then
                 for _, project in pairs(projects) do
                     -- Lazy Thumbnail generation
@@ -421,11 +394,7 @@ app:match('user_projects', '/projects/:username', respond_to({
         local paginator = Projects:paginated(query .. ' order by ' .. order .. ' desc', { per_page = self.params.pagesize or 16 })
         local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
-        for _, project in pairs(projects) do
-            update_timestamps(project)
-        end
-
-        -- Lazy Notes generation
+	-- Lazy Notes generation
         if self.params.updatingnotes == 'true' then
             for _, project in pairs(projects) do
                 if (project.notes == nil or project.notes == '') then
@@ -574,7 +543,6 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
 
-        update_timestamps(project)
         return jsonResponse(project)
     end),
     POST = capture_errors(function (self)
