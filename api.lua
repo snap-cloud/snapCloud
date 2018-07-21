@@ -91,7 +91,7 @@ app:match('user', '/users/:username', respond_to({
             Users:select(
                 'where username = ? limit 1',
                 self.params.username,
-                { fields = 'username, location, about, created, isadmin, email' })[1])
+                { fields = 'username, location, about, created_at, isadmin, email' })[1])
     end),
 
     DELETE = capture_errors(function (self)
@@ -118,7 +118,7 @@ app:match('user', '/users/:username', respond_to({
 
         local salt = secure_salt()
         Users:create({
-            created = db.format_date(),
+            created_at = db.format_date(),
             username = self.params.username,
             salt = salt,
             password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
@@ -133,7 +133,7 @@ app:match('user', '/users/:username', respond_to({
         create_token(self, 'verify_user', self.params.username, self.params.email)
         return okResponse(
             'User ' .. self.params.username ..
-            ' created.\nPlease check your email and validate your\naccount within the next 3 days.')
+            ' created_at.\nPlease check your email and validate your\naccount within the next 3 days.')
     end)
 
 }))
@@ -243,7 +243,7 @@ app:match('login', '/users/:username/login', respond_to({
                         purpose = 'verify_user'
                     })
                 if token then
-                    local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
+                    local query = db.select("date_part('day', now() - ?::timestamp)", token.created_at)[1]
                     if query.date_part > 3 then
                         token:delete()
                         yield_error(err.nonvalidated_user)
@@ -503,7 +503,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             Projects:create({
                 projectname = self.params.projectname,
                 username = self.params.username,
-                created = db.format_date(),
+                created_at = db.format_date(),
                 lastupdated = db.format_date(),
                 lastshared = self.params.ispublic and db.format_date() or nil,
                 firstpublished = self.params.ispublished and db.format_date() or nil,
@@ -652,7 +652,7 @@ app:match('remix', '/projects/:username/:projectname/remix', respond_to({
         Projects:create({
                 projectname = original_project.projectname,
                 username = visitor.username,
-                created = db.format_date(),
+                created_at = db.format_date(),
                 lastupdated = db.format_date(),
                 lastshared = db.format_date(),
                 firstpublished = original_project.ispublished and db.format_date() or nil,
