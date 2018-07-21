@@ -118,7 +118,6 @@ app:match('user', '/users/:username', respond_to({
 
         local salt = secure_salt()
         Users:create({
-            created_at = db.format_date(),
             username = self.params.username,
             salt = salt,
             password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
@@ -133,7 +132,7 @@ app:match('user', '/users/:username', respond_to({
         create_token(self, 'verify_user', self.params.username, self.params.email)
         return okResponse(
             'User ' .. self.params.username ..
-            ' created_at.\nPlease check your email and validate your\naccount within the next 3 days.')
+            ' created.\nPlease check your email and validate your\naccount within the next 3 days.')
     end)
 
 }))
@@ -331,7 +330,7 @@ app:match('projects', '/projects', respond_to({
                     )
             end
 
-            local paginator = Projects:paginated(query .. ' order by firstpublished desc', { per_page = self.params.pagesize or 16 })
+            local paginator = Projects:paginated(query .. ' order by published_at desc', { per_page = self.params.pagesize or 16 })
             local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
             if self.params.withthumbnail == 'true' then
@@ -360,14 +359,14 @@ app:match('user_projects', '/projects/:username', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
-        local order = 'lastshared'
+        local order = 'shared_at'
         assert_user_exists(self)
 
         if self.session.username ~= self.params.username then
             local visitor = Users:find(self.session.username)
             if not visitor or not visitor.isadmin then
                 self.params.ispublished = 'true'
-                order = 'firstpublished'
+                order = 'published_at'
             end
         end
 
@@ -483,16 +482,15 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 
         if (project) then
             local shouldUpdateSharedDate =
-                ((not project.lastshared and self.params.ispublic)
+                ((not project.shared_at and self.params.ispublic)
                 or (self.params.ispublic and not project.ispublic))
 
             backup_project(project.id)
 
             project:update({
-                lastupdated = db.format_date(),
-                lastshared = shouldUpdateSharedDate and db.format_date() or nil,
-                firstpublished =
-                    project.firstpublished or
+                shared_at = shouldUpdateSharedDate and db.format_date() or nil,
+                published_at =
+                    project.published_at or
                     (self.params.ispublished and db.format_date()) or
                     nil,
                 notes = body.notes,
@@ -503,10 +501,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             Projects:create({
                 projectname = self.params.projectname,
                 username = self.params.username,
-                created_at = db.format_date(),
-                lastupdated = db.format_date(),
-                lastshared = self.params.ispublic and db.format_date() or nil,
-                firstpublished = self.params.ispublished and db.format_date() or nil,
+                shared_at = self.params.ispublic and db.format_date() or nil,
+                published_at = self.params.ispublished and db.format_date() or nil,
                 notes = body.notes,
                 ispublic = self.params.ispublic or false,
                 ispublished = self.params.ispublished or false
@@ -533,7 +529,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 app:match('project_meta', '/projects/:username/:projectname/metadata', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/add/update a project metadata.
-    -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
+    -- Parameters:  projectname, ispublic, ispublished, updated_at, shared_at.
     -- Body:        notes, projectname
 
     OPTIONS = cors_options,
@@ -553,7 +549,7 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         if not project then yield_error(err.nonexistent_project) end
 
         local shouldUpdateSharedDate =
-            ((not project.lastshared and self.params.ispublic)
+            ((not project.shared_at and self.params.ispublic)
             or (self.params.ispublic and not project.ispublic))
 
         -- Read request body and parse it into JSON
@@ -565,10 +561,9 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
 
         project:update({
             projectname = new_name or project.projectname,
-            lastupdated = db.format_date(),
-            lastshared = shouldUpdateSharedDate and db.format_date() or nil,
-            firstpublished =
-                project.firstpublished or
+            shared_at = shouldUpdateSharedDate and db.format_date() or nil,
+            published_at =
+                project.published_at or
                 (self.params.ispublished and db.format_date()) or
                 nil,
             notes = new_notes or project.notes,
@@ -594,11 +589,11 @@ app:match('project_versions', '/projects/:username/:projectname/versions', respo
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
 
         -- seconds since last modification
-        local query = db.select('extract(epoch from age(now(), ?::timestamp))', project.lastupdated)[1]
+        local query = db.select('extract(epoch from age(now(), ?::timestamp))', project.updated_at)[1]
 
         return jsonResponse({
             {
-                lastupdated = query.date_part,
+                updated_at = query.date_part,
                 thumbnail = retrieve_from_disk(project.id, 'thumbnail') or
                     generate_thumbnail(project.id),
                 notes = parse_notes(project.id),
@@ -652,10 +647,8 @@ app:match('remix', '/projects/:username/:projectname/remix', respond_to({
         Projects:create({
                 projectname = original_project.projectname,
                 username = visitor.username,
-                created_at = db.format_date(),
-                lastupdated = db.format_date(),
-                lastshared = db.format_date(),
-                firstpublished = original_project.ispublished and db.format_date() or nil,
+                shared_at = db.format_date(),
+                published_at = original_project.ispublished and db.format_date() or nil,
                 notes = original_project.notes,
                 ispublic = original_project.ispublic,
                 ispublished = original_project.ispublished,
