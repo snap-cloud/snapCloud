@@ -541,7 +541,9 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
-        if not project.ispublic then assert_users_match(self, err.not_public_project) end
+        if not project.ispublic and not user_is_admin(self) then
+             assert_users_match(self, err.not_public_project)
+         end
 
         return jsonResponse(project)
     end),
