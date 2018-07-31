@@ -92,15 +92,15 @@ check_token = function (token_value, purpose, on_success)
             return on_success(user)
         elseif token.purpose ~= purpose then
             -- We simply ignore tokens with different purposes
-            return htmlPage('Invalid token', '<p>' .. err.invalid_token .. '</p>')
+            return htmlPage('Invalid token', '<p>' .. err.invalid_token.msg .. '</p>')
         else
             -- We delete expired tokens with 'verify_user' purpose
             token:delete()
-            return htmlPage('Expired token', '<p>' .. err.expired_token .. '</p>')
+            return htmlPage('Expired token', '<p>' .. err.expired_token.msg .. '</p>')
         end
     else
         -- This token does not exist anymore, or never existed in the first place
-        return htmlPage('Invalid token', '<p>' .. err.invalid_token .. '</p>')
+        return htmlPage('Invalid token', '<p>' .. err.invalid_token.msg .. '</p>')
     end
 end
 
