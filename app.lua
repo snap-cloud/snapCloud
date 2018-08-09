@@ -76,7 +76,8 @@ end
 local function pg_iso8601(ts)
     -- postgres dates don't include the "T" time seperator
     -- they are missing the minutes value on timezones, which JS needs
-    return ts:gsub(' ', 'T'):gsub('([%+%-%d+])$', '%1:00')
+    -- FROM: 2017-09-01 08:33:50.127-07 TO: 2017-09-01T08:33:50.127-07:00
+    return ts:gsub(' ', 'T'):gsub('([%+%-]%d+)$', '%1:00')
 end
 
 local function update_timestamps(object)
@@ -96,10 +97,10 @@ local function update_timestamps(object)
     return object
 end
 
-local original_select = package.loaded.Model.select
-function package.loaded.Model.select(self, query, ...)
-    print('called new select')
-    local result = original_select(self, query, ...)
+-- Have SELECT statements return timestamps from the DB in IS08601
+local original_query = package.loaded.db.query
+function package.loaded.db.query(query, ...)
+    local result = original_query(query, ...)
     for i, obj in ipairs(result) do
         result[i] = update_timestamps(obj)
     end
