@@ -64,20 +64,21 @@ package.loaded.capture_errors = function(fn)
 end
 
 require 'responses'
+local date = require("date")
 
 -- Make cookies persistent
 app.cookie_attributes = function(self)
-    local date = require("date")
     local expires = date(true):adddays(365):fmt("${http}")
     return "Expires=" .. expires .. "; Path=/; HttpOnly; Secure"
 end
 
 -- Database abstractions
-local function pg_iso8601(ts)
+local function pg_iso8601(timestamp)
     -- postgres dates don't include the "T" time seperator
     -- they are missing the minutes value on timezones, which JS needs
-    -- FROM: 2017-09-01 08:33:50.127-07 TO: 2017-09-01T08:33:50.127-07:00
-    return ts:gsub(' ', 'T'):gsub('([%+%-]%d+)$', '%1:00')
+    -- FROM: 2017-09-01 08:33:50.127-07 TO: 2017-09-01T08:33:50-07:00
+    local ts = date(timestamp)
+    return ts:fmt('${iso}' .. ts:fmt('%z'):gsub('(\d\d$)', ':%1'))
 end
 
 local function update_timestamps(object)
