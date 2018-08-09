@@ -78,7 +78,7 @@ local function pg_iso8601(timestamp)
     -- they are missing the minutes value on timezones, which JS needs
     -- FROM: 2017-09-01 08:33:50.127-07 TO: 2017-09-01T08:33:50-07:00
     local ts = date(timestamp)
-    return ts:fmt('${iso}' .. ts:fmt('%z'):gsub('(\d\d$)', ':%1'))
+    return ts:fmt('${iso}' .. ts:fmt('%z'):gsub('(%d%d$)', ':%1'))
 end
 
 local function update_timestamps(object)
