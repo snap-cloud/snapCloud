@@ -73,26 +73,22 @@ app.cookie_attributes = function(self)
 end
 
 -- Database abstractions
-local function pg_iso8601(timestamp)
-    -- postgres dates don't include the "T" time seperator
-    -- they are missing the minutes value on timezones, which JS needs
-    -- FROM: 2017-09-01 08:33:50.127-07 TO: 2017-09-01T08:33:50-07:00
-    local ts = date(timestamp)
-    return ts:fmt('${iso}' .. ts:fmt('%z'):gsub('(%d%d$)', ':%1'))
-end
-
 local function update_timestamps(object)
+    -- replace all timestamps with an ISO8061 formatted string.
+    -- Postgres dates don't include the "T" time seperator
+    -- They are missing the minutes value on timezones, which JS needs
+    -- FROM: 2017-09-01 08:33:50.127-07 TO: 2017-09-01T08:33:50-07:00
     local timestamp_columns = {}
     timestamp_columns['created'] = true
     timestamp_columns['updated'] = true
     timestamp_columns['lastupdated'] = true
     timestamp_columns['lastshared'] = true
     timestamp_columns['firstshared'] = true
-    -- replace all timestamps with an ISO8061 formatted string.
     for column, value in pairs(object) do
         -- would be nice to do column:find('_at$')
         if timestamp_columns[column] then
-            object[column] = pg_iso8601(value)
+            iso_8601_date = date(value):fmt('${iso}%z'):gsub('(%d%d$)', ':%1')
+            object[column] = iso_8601_date
         end
     end
     return object
