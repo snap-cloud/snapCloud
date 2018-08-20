@@ -193,7 +193,6 @@ app:match('resetpassword', '/users/:username/password_reset(/:token)', respond_t
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         return check_token(
-            self.params.username,
             self.params.token,
             'password_reset',
             function (user)

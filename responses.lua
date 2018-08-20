@@ -56,10 +56,9 @@ end
 
 htmlPage = function (title, contents)
     return {
-        layout = true,
         status = 200,
         readyState = 4,
-        html('test')
+        '<h1>' .. title .. '</h1>' .. contents
     }
 end
 

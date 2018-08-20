@@ -84,12 +84,12 @@ assert_project_exists = function (self, message)
     end
 end
 
-check_token = function (username, token_value, purpose, on_success)
-    local user = Users:find(username)
+check_token = function (token_value, purpose, on_success)
     local token = Tokens:find(token_value)
     if token then
         local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
         if query.date_part < 4 and token.purpose == purpose then
+            local user = Users:find(token.username)
             token:delete()
             return on_success(user)
         elseif token.purpose ~= purpose then
