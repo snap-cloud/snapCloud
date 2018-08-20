@@ -112,7 +112,7 @@ app:match('user', '/users/:username', respond_to({
             { 'email', exists = true, min_length = 5 },
         })
 
-        if Users:find(self.params.username) then
+        if self.user then
             yield_error('User ' .. self.params.username .. ' already exists');
         end
 
@@ -146,11 +146,9 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
-        local user = Users:find(self.params.username)
-
         assert_all({'user_exists', 'users_match'}, self)
 
-        if user.password ~= hash_password(self.params.oldpassword, user.salt) then
+        if self.user.password ~= hash_password(self.params.oldpassword, self.user.salt) then
             yield_error('wrong password')
         end
 
@@ -159,8 +157,8 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
             { 'newpassword', exists = true, min_length = 6 }
         })
 
-        user:update({
-            password = hash_password(self.params.newpassword, user.salt)
+        self.user:update({
+            password = hash_password(self.params.newpassword, self.user.salt)
         })
 
         return okResponse('Password updated')
