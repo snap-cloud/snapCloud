@@ -366,10 +366,10 @@ app:match('user_projects', '/projects/:username', respond_to({
     OPTIONS = cors_options,
     GET = function (self)
         local order = 'lastshared'
-        assert_user_exists(self)
 
+        -- TODO use users_match
         if self.session.username ~= self.params.username then
-            local visitor = Users:find(self.session.username)
+            local visitor = self.current_user
             if not visitor or not visitor.isadmin then
                 self.params.ispublished = 'true'
                 order = 'firstpublished'
@@ -551,7 +551,6 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         return jsonResponse(project)
     end),
     POST = capture_errors(function (self)
-        assert_user_exists(self)
         if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
