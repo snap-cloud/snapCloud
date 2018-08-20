@@ -224,19 +224,17 @@ app:match('login', '/users/:username/login', respond_to({
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
-        local user = Users:find(self.params.username)
-
-        if not user then yield_error(err.nonexistent_user) end
+        assert_user_exists(self)
 
         ngx.req.read_body()
         local password = ngx.req.get_body_data()
 
-        if (hash_password(password, user.salt) == user.password) then
-            if not user.verified then
+        if (hash_password(password, self.user.salt) == self.user.password) then
+            if not self.user.verified then
                 -- Check whether verification token is still unused and valid
                 local token =
                     Tokens:find({
-                        username = user.username,
+                        username = self.user.username,
                         purpose = 'verify_user'
                     })
                 if token then
@@ -245,20 +243,20 @@ app:match('login', '/users/:username/login', respond_to({
                         token:delete()
                         yield_error(err.nonvalidated_user)
                     else
-                        user.days_left = 3 - query.date_part
+                        self.user.days_left = 3 - query.date_part
                     end
                 else
                     yield_error(err.nonvalidated_user)
                 end
             end
-            self.session.username = user.username
-            self.session.isadmin = user.isadmin
-            self.session.verified = user.verified
+            self.session.username = self.user.username
+            self.session.isadmin = self.user.isadmin
+            self.session.verified = self.user.verified
             self.cookies.persist_session = self.params.persist
-            if user.verified then
-                return okResponse('User ' .. self.params.username .. ' logged in')
+            if self.user.verified then
+                return okResponse('User ' .. self.user.username .. ' logged in')
             else
-                return jsonResponse({ days_left = user.days_left })
+                return jsonResponse({ days_left = self.user.days_left })
             end
         else
             yield_error('wrong password')
