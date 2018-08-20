@@ -97,12 +97,7 @@ app:match('user', '/users/:username', respond_to({
     DELETE = capture_errors(function (self)
         assert_all({'logged_in', 'admin'}, self)
 
-        local user = Users:find(self.params.username)
-        if not user then
-            yield_error(err.nonexistent_user)
-        end
-
-        if not (user:delete()) then
+        if not (self.user:delete()) then
             yield_error('Could not delete user ' .. self.params.username)
         else
             return okResponse('User ' .. self.params.username .. ' has been removed.')
