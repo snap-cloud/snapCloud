@@ -53,8 +53,7 @@ assert_logged_in = function (self, message)
 end
 
 assert_admin = function (self, message)
-    local user = Users:find(self.session.username)
-    if not (user and user.isadmin) then
+    if not self.current_user.isadmin then
         yield_error(message or err.auth)
     end
 end
@@ -87,6 +86,7 @@ check_token = function (token_value, purpose, on_success)
     if token then
         local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
         if query.date_part < 4 and token.purpose == purpose then
+            -- TODO: use self.user and assert matches token.username
             local user = Users:find(token.username)
             token:delete()
             return on_success(user)
