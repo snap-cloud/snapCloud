@@ -271,11 +271,10 @@ app:match('login', '/users/:username/login', respond_to({
 
 
 app:match('verifyuser', '/users/:username/verify_user/:token', respond_to({
-    -- Methods:     GET, POST
-    -- Description: Verifies a user's email by means of a token, or removes that token if
-    --              it has expired
+    -- Methods:     GET
+    -- Description: Verifies a user's email by means of a token, or removes that token if it has expired
+    -- Will return a success message if the user is already verified.
 
-    OPTIONS = cors_options,
     GET = capture_errors(function (self)
         return check_token(
             self.params.token,
