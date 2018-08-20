@@ -171,14 +171,13 @@ app:match('resendverification', '/users/:username/resendverification', respond_t
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
-        local user = Users:find(self.params.username)
-        if not user then yield_error(err.nonexistent_user) end
-        if user.verified then
-            return okResponse('User ' .. self.params.username .. ' is already verified.\nThere is no need for you to do anything.\n')
+        assert_user_exists(self)
+        if self.user.verified then
+            return okResponse('User ' .. self.user.username .. ' is already verified.\nThere is no need for you to do anything.\n')
         end
-        create_token(self, 'verify_user', self.params.username, user.email)
+        create_token(self, 'verify_user', self.user.username, self.user.email)
         return okResponse(
-            'Verification email for ' .. self.params.username ..
+            'Verification email for ' .. self.user.username ..
             ' sent.\nPlease check your email and validate your\n' ..
             'account within the next 3 days.')
     end)
