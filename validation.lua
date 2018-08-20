@@ -70,8 +70,8 @@ users_match = function (self)
     return (self.session.username == self.params.username)
 end
 
-assert_user_exists = function (self, message)
-    local user = Users:find(self.params.username)
+assert_user_exists = function (self, username, message)
+    local user = Users:find(username)
     if not user then
         yield_error(message or err.nonexistent_user)
     end
