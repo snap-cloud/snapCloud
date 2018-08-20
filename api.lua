@@ -209,9 +209,8 @@ app:match('resetpassword', '/users/:username/password_reset(/:token)', respond_t
         )
     end),
     POST = capture_errors(function (self)
-        local user = Users:find(self.params.username)
-        if not user then yield_error(err.nonexistent_user) end
-        create_token(self, 'password_reset', self.params.username, user.email)
+        assert_user_exists(self)
+        create_token(self, 'password_reset', self.params.username, self.user.email)
         return okResponse('Password reset request sent.\nPlease check your email.')
     end)
 }))
