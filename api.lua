@@ -95,7 +95,7 @@ app:match('user', '/users/:username', respond_to({
     end),
 
     DELETE = capture_errors(function (self)
-        assert_all({'logged_in', 'admin'}, self)
+        assert_all({'user_exists', 'admin'}, self)
 
         if not (self.user:delete()) then
             yield_error('Could not delete user ' .. self.params.username)
