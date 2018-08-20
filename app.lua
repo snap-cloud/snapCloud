@@ -103,10 +103,13 @@ app:before_filter(function (self)
 
     if self.params.username then
         self.params.username = self.params.username:lower()
+        self.user = assert_user_exists(self.params.username)
     end
 
     if not self.session.username then
         self.session.username = ''
+    else
+        self.current_user = assert_user_exists(self.session.username)
     end
 
     -- Set Access Control header
