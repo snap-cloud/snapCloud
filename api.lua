@@ -640,8 +640,8 @@ app:match('remix', '/projects/:username/:projectname/remix', respond_to({
         local original_project = Projects:find(self.params.username, self.params.projectname)
         if not original_project then yield_error(err.nonexistent_project) end
 
-        local visitor = Users:find(self.session.username)
-        if not visitor then yield_error(err.not_logged_in) end
+        local visitor = self.current_user
+        assert_logged_in(self)
 
         Projects:create({
                 projectname = original_project.projectname,
