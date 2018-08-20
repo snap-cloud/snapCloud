@@ -67,9 +67,14 @@ require 'responses'
 
 -- Make cookies persistent
 app.cookie_attributes = function(self)
+    local secure = ' Secure;'
+    -- Exclude security restriction in development
+    if package.loaded.config._name == 'development' then
+        secure = ''
+    end
     local date = require("date")
     local expires = date(true):adddays(365):fmt("${http}")
-    return "Expires=" .. expires .. "; Path=/; HttpOnly; Secure"
+    return "Expires=" .. expires .. "; Path=/; HttpOnly;" .. secure
 end
 
 -- Database abstractions
