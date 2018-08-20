@@ -71,9 +71,11 @@ users_match = function (self)
 end
 
 assert_user_exists = function (self, message)
-    if not Users:find(self.params.username) then
+    local user = Users:find(self.params.username)
+    if not user then
         yield_error(message or err.nonexistent_user)
     end
+    return user
 end
 
 assert_project_exists = function (self, message)
@@ -85,9 +87,6 @@ end
 check_token = function (username, token_value, purpose, on_success)
     local user = Users:find(username)
     local token = Tokens:find(token_value)
-    if user and user.verified and purpose == 'verify_user' then
-        return on_success(user)
-    end
     if token then
         local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
         if query.date_part < 4 and token.purpose == purpose then
