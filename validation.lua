@@ -71,9 +71,11 @@ users_match = function (self)
 end
 
 assert_user_exists = function (self, message)
-    if not Users:find(self.params.username) then
+    local user = Users:find(self.params.username)
+    if not user then
         yield_error(message or err.nonexistent_user)
     end
+    return user
 end
 
 assert_project_exists = function (self, message)

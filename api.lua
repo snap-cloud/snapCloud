@@ -276,24 +276,32 @@ app:match('login', '/users/:username/login', respond_to({
 
 
 app:match('verifyuser', '/users/:username/verify_user/:token', respond_to({
-    -- Methods:     GET, POST
-    -- Description: Verifies a user's email by means of a token, or removes that token if
-    --              it has expired
+    -- Methods:     GET
+    -- Description: Verifies a user's email by means of a token, or removes
+    --              that token if it has expired
+    --              Returns a success message if the user is already verified.
 
-    OPTIONS = cors_options,
     GET = capture_errors(function (self)
+        local user_page = function (user)
+            return htmlPage(
+                'User verified | Welcome to Snap<em>!</em>',
+                '<p>Your account <strong>' .. user.username .. '</strong> has been verified.</p>' ..
+                '<p>Thank you!</p>' ..
+                '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
+            )
+        end
+        local user = assert_user_exists(self)
+        if user.verified then
+            return user_page(user)
+        end
+
         return check_token(
             self.params.token,
             'verify_user',
             function (user)
                 -- success callback
                 user:update({ verified = true })
-                return htmlPage(
-                    'User verified',
-                    '<p>Your account <strong>' .. user.username .. '</strong> has been verified.</p>' ..
-                    '<p>Thank you!</p>' ..
-                    '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
-                )
+                return user_page(user)
             end
         )
     end)
