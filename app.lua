@@ -71,8 +71,8 @@ app.cookie_attributes = function(self)
         return "Path=/; HttpOnly;"
     end
     local date = require("date")
-    local expires = "Expires=" .. date(true):adddays(365):fmt("${http}")
-    return  expires .. "; Path=/; HttpOnly;"
+    local expires = date(true):adddays(365):fmt("${http}")
+    return  "Expires=" .. expires .. "; Path=/; HttpOnly;"
 end
 
 -- Database abstractions
