@@ -191,9 +191,11 @@ app:match('resendverification', '/users/:username/resendverification', respond_t
     end)
 }))
 
-app:match('resetpassword', '/users/:username/password_reset(/:token)', respond_to({
+app:match('password_reset', '/users/:username/password_reset(/:token)', respond_to({
     -- Methods:     GET, POST
     -- Description: Handles password reset requests.
+    --              The route name should match the database token purpose.
+    -- @see validation.create_token
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
@@ -275,11 +277,13 @@ app:match('login', '/users/:username/login', respond_to({
 }))
 
 
-app:match('verifyuser', '/users/:username/verify_user/:token', respond_to({
+app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
     -- Methods:     GET
     -- Description: Verifies a user's email by means of a token, or removes
     --              that token if it has expired
     --              Returns a success message if the user is already verified.
+    --              The route name should match the database token purpose.
+    -- @see validation.create_token
 
     GET = capture_errors(function (self)
         local user_page = function (user)
