@@ -24,7 +24,6 @@
 
 local app = package.loaded.app
 local db = package.loaded.db
-local app_helpers = package.loaded.db
 local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local validate = package.loaded.validate
