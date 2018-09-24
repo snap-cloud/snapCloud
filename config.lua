@@ -55,6 +55,7 @@ config({'test'}, {
     postgres = {
         database = 'snapcloud_test'
     },
+    store_path = 'store/test',
     logging = {
         queries = false,
         locations = false
