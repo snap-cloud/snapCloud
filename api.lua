@@ -516,6 +516,13 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 ispublished = self.params.ispublished or project.ispublished
             })
         else
+            -- Users are automatically verified the first time
+            -- they save a project
+            local user = Users:find(self.params.username)
+            if (not user.verified) then
+                user:update({ verified = true })
+            end
+
             Projects:create({
                 projectname = self.params.projectname,
                 username = self.params.username,
