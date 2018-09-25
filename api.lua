@@ -484,7 +484,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             { 'username', exists = true }
         })
 
-        assert_all({'user_exists', 'users_match'}, self)
+        assert_all({assert_user_exists, assert_users_match}, self)
 
         -- Read request body and parse it into JSON
         ngx.req.read_body()
