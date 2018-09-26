@@ -32,16 +32,15 @@ local Users = package.loaded.Users
 local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local util = package.loaded.util
-local crypto = package.loaded.crypto
 local config = package.loaded.config
 local encoding = require("lapis.util.encoding")
-
-local sso_secret = config.discourse_sso_secret
+local resty_string = package.loaded.resty_string
 
 app:get('/discourse-sso', capture_errors(function(self)
     if self.session.username == '' then
         local signin_url = '/site/login.html?redirect_to='
-        local redirect_path = util.escape('/discourse-sso?' .. util.encode_query_string(self.params))
+        local encoded_params = util.encode_query_string(self.params)
+        local redirect_path = util.escape('/discourse-sso?' .. encoded_params)
         return { redirect_to = signin_url .. redirect_path }
     end
 
@@ -79,7 +78,8 @@ app:get('/discourse-sso', capture_errors(function(self)
 end))
 
 function create_signature(payload)
-    return crypto.hmac.digest('sha256', payload, config.discourse_sso_secret)
+    local secret = config.discourse_sso_secret
+    return resty_string.to_hex(encoding.hmac_sha256(secret, payload))
 end
 
 function extract_payload(payload)

@@ -25,6 +25,7 @@ local db = package.loaded.db
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
+local url = require 'socket.url'
 
 require 'responses'
 require 'email'
@@ -42,7 +43,11 @@ err = {
 
 assert_all = function (assertions, self)
     for k, assertion in pairs(assertions) do
-        _G['assert_' .. assertion](self)
+        if (type(assertion) == 'string') then
+            _G['assert_' .. assertion](self)
+        else
+            assertion(self)
+        end
     end
 end
 
@@ -106,6 +111,11 @@ check_token = function (token_value, purpose, on_success)
     end
 end
 
+--- Creates a token and sends an email
+-- @param self: request object
+-- @param purpose string: token purpose and route name
+-- @param username string
+-- @param email string
 create_token = function (self, purpose, username, email)
     local token_value = secure_token()
     Tokens:create({
@@ -118,5 +128,12 @@ create_token = function (self, purpose, username, email)
         email,
         mail_subjects[purpose] .. username,
         mail_bodies[purpose],
-        self:build_url('/users/' .. username .. '/' .. purpose .. '/' .. token_value))
+        self:build_url(self:url_for(
+            purpose,
+            {
+                username = url.build_path({username}),
+                token = url.build_path({token_value}),
+            }
+        ))
+    )
 end
