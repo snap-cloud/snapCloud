@@ -26,7 +26,8 @@ config({'development', 'staging', 'production', 'test'}, {
     worker_connections = os.getenv('WORKER_CONNECTIONS') or 1024,
 
     hostname = os.getenv('HOSTNAME') or 'localhost',
-    secondary_hostname = os.getenv('SECONDARY_HOSTNAME') or 'localhost'
+    secondary_hostname = os.getenv('SECONDARY_HOSTNAME') or 'localhost',
+    maintenance_mode = os.getenv('MAINTENANCE_MODE') or 'false'
 })
 
 config({'development', 'test'}, {
