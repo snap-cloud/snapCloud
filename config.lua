@@ -12,7 +12,7 @@ config({'development', 'staging', 'production', 'test'}, {
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have
     -- read & write permissions to that path.
-    store_path = 'store',
+    store_path = os.getenv('PROJECT_STORAGE_PATH') or 'store',
 
     -- for sending email
     mail_user = os.getenv('MAIL_SMTP_USER') or 'cloud',
