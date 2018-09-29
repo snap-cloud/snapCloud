@@ -24,7 +24,6 @@
 
 local app = package.loaded.app
 local db = package.loaded.db
-local app_helpers = package.loaded.db
 local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local validate = package.loaded.validate
@@ -63,7 +62,7 @@ app:match('current_user', '/users/c', respond_to({
     OPTIONS = cors_options,
     GET = function (self)
 
-        if (self.session.username ~= nil and self.session.username ~= '' and self.session.verified == nil) then
+        if (self.session.username ~= nil and self.session.username ~= '' and not self.session.verified) then
             self.session.verified = (Users:find(self.session.username)).verified
         elseif self.session.username == '' then
             self.session.isadmin = false
@@ -96,6 +95,11 @@ app:match('user', '/users/:username', respond_to({
 
     DELETE = capture_errors(function (self)
         assert_all({'logged_in', 'admin'}, self)
+
+        local user = Users:find(self.params.username)
+        if not user then
+            yield_error(err.nonexistent_user)
+        end
 
         if not (user:delete()) then
             yield_error('Could not delete user ' .. self.params.username)
@@ -185,9 +189,11 @@ app:match('resendverification', '/users/:username/resendverification', respond_t
     end)
 }))
 
-app:match('resetpassword', '/users/:username/password_reset(/:token)', respond_to({
+app:match('password_reset', '/users/:username/password_reset(/:token)', respond_to({
     -- Methods:     GET, POST
     -- Description: Handles password reset requests.
+    --              The route name should match the database token purpose.
+    -- @see validation.create_token
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
@@ -269,25 +275,36 @@ app:match('login', '/users/:username/login', respond_to({
 }))
 
 
-app:match('verifyuser', '/users/:username/verify_user/:token', respond_to({
-    -- Methods:     GET, POST
-    -- Description: Verifies a user's email by means of a token, or removes that token if
-    --              it has expired
+app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
+    -- Methods:     GET
+    -- Description: Verifies a user's email by means of a token, or removes
+    --              that token if it has expired
+    --              Returns a success message if the user is already verified.
+    --              The route name should match the database token purpose.
+    -- @see validation.create_token
 
-    OPTIONS = cors_options,
     GET = capture_errors(function (self)
+        local user_page = function (user)
+            return htmlPage(
+                'User verified | Welcome to Snap<em>!</em>',
+                '<p>Your account <strong>' .. user.username .. '</strong> has been verified.</p>' ..
+                '<p>Thank you!</p>' ..
+                '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
+            )
+        end
+        local user = assert_user_exists(self)
+        if user.verified then
+            return user_page(user)
+        end
+
         return check_token(
             self.params.token,
             'verify_user',
             function (user)
                 -- success callback
                 user:update({ verified = true })
-                return htmlPage(
-                    'User verified',
-                    '<p>Your account <strong>' .. user.username .. '</strong> has been verified.</p>' ..
-                    '<p>Thank you!</p>' ..
-                    '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
-                )
+                self.session.verified = true
+                return user_page(user)
             end
         )
     end)
@@ -467,7 +484,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             { 'username', exists = true }
         })
 
-        assert_all({'user_exists', 'users_match'}, self)
+        assert_all({assert_user_exists, assert_users_match}, self)
 
         -- Read request body and parse it into JSON
         ngx.req.read_body()
@@ -498,6 +515,14 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 ispublished = self.params.ispublished or project.ispublished
             })
         else
+            -- Users are automatically verified the first time
+            -- they save a project
+            local user = Users:find(self.params.username)
+            if (not user.verified) then
+                user:update({ verified = true })
+                self.session.verified = true
+            end
+
             Projects:create({
                 projectname = self.params.projectname,
                 username = self.params.username,

@@ -25,6 +25,7 @@ local db = package.loaded.db
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
+local url = require 'socket.url'
 
 require 'responses'
 require 'email'
@@ -42,7 +43,11 @@ err = {
 
 assert_all = function (assertions, self)
     for k, assertion in pairs(assertions) do
-        _G['assert_' .. assertion](self)
+        if (type(assertion) == 'string') then
+            _G['assert_' .. assertion](self)
+        else
+            assertion(self)
+        end
     end
 end
 
@@ -71,9 +76,11 @@ users_match = function (self)
 end
 
 assert_user_exists = function (self, message)
-    if not Users:find(self.params.username) then
+    local user = Users:find(self.params.username)
+    if not user then
         yield_error(message or err.nonexistent_user)
     end
+    return user
 end
 
 assert_project_exists = function (self, message)
@@ -92,18 +99,23 @@ check_token = function (token_value, purpose, on_success)
             return on_success(user)
         elseif token.purpose ~= purpose then
             -- We simply ignore tokens with different purposes
-            return htmlPage('Invalid token', '<p>' .. err.invalid_token .. '</p>')
+            return htmlPage('Invalid token', '<p>' .. err.invalid_token.msg .. '</p>')
         else
             -- We delete expired tokens with 'verify_user' purpose
             token:delete()
-            return htmlPage('Expired token', '<p>' .. err.expired_token .. '</p>')
+            return htmlPage('Expired token', '<p>' .. err.expired_token.msg .. '</p>')
         end
     else
         -- This token does not exist anymore, or never existed in the first place
-        return htmlPage('Invalid token', '<p>' .. err.invalid_token .. '</p>')
+        return htmlPage('Invalid token', '<p>' .. err.invalid_token.msg .. '</p>')
     end
 end
 
+--- Creates a token and sends an email
+-- @param self: request object
+-- @param purpose string: token purpose and route name
+-- @param username string
+-- @param email string
 create_token = function (self, purpose, username, email)
     local token_value = secure_token()
     Tokens:create({
@@ -116,5 +128,12 @@ create_token = function (self, purpose, username, email)
         email,
         mail_subjects[purpose] .. username,
         mail_bodies[purpose],
-        self:build_url('/users/' .. username .. '/' .. purpose .. '/' .. token_value))
+        self:build_url(self:url_for(
+            purpose,
+            {
+                username = url.build_path({username}),
+                token = url.build_path({token_value}),
+            }
+        ))
+    )
 end

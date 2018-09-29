@@ -15,11 +15,10 @@ description = {
 dependencies = {
    "lua >= 5.1, < 5.2",
    "lapis",
-   "md5",
-   "luasec",
-   "luacrypto",
+   "luaossl",
    "xml",
-   "lua-resty-mail"
+   "lua-resty-mail",
+   "luasocket"
 }
 build = {
     type = "builtin",
