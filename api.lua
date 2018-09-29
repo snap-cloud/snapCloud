@@ -347,7 +347,7 @@ app:match('projects', '/projects', respond_to({
                     )
             end
 
-            local paginator = Projects:paginated(query .. ' order by published_at desc', { per_page = self.params.pagesize or 16 })
+            local paginator = Projects:paginated(query .. ' order by first_published_at desc', { per_page = self.params.pagesize or 16 })
             local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
             if self.params.withthumbnail == 'true' then
@@ -383,7 +383,7 @@ app:match('user_projects', '/projects/:username', respond_to({
             local visitor = Users:find(self.session.username)
             if not visitor or not visitor.isadmin then
                 self.params.ispublished = 'true'
-                order = 'published_at'
+                order = 'first_published_at'
             end
         end
 
@@ -506,8 +506,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 
             project:update({
                 shared_at = shouldUpdateSharedDate and db.format_date() or nil,
-                published_at =
-                    project.published_at or
+                first_published_at =
+                    project.first_published_at or
                     (self.params.ispublished and db.format_date()) or
                     nil,
                 notes = body.notes,
@@ -527,7 +527,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 projectname = self.params.projectname,
                 username = self.params.username,
                 shared_at = self.params.ispublic and db.format_date() or nil,
-                published_at = self.params.ispublished and db.format_date() or nil,
+                first_published_at = self.params.ispublished and db.format_date() or nil,
                 notes = body.notes,
                 ispublic = self.params.ispublic or false,
                 ispublished = self.params.ispublished or false
@@ -587,8 +587,8 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         project:update({
             projectname = new_name or project.projectname,
             shared_at = shouldUpdateSharedDate and db.format_date() or nil,
-            published_at =
-                project.published_at or
+            first_published_at =
+                project.first_published_at or
                 (self.params.ispublished and db.format_date()) or
                 nil,
             notes = new_notes or project.notes,
@@ -673,7 +673,7 @@ app:match('remix', '/projects/:username/:projectname/remix', respond_to({
                 projectname = original_project.projectname,
                 username = visitor.username,
                 shared_at = db.format_date(),
-                published_at = original_project.ispublished and db.format_date() or nil,
+                first_published_at = original_project.ispublished and db.format_date() or nil,
                 notes = original_project.notes,
                 ispublic = original_project.ispublic,
                 ispublished = original_project.ispublished,
