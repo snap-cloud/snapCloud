@@ -9,7 +9,7 @@ return {
     schema.rename_column('tokens', 'created', 'created_at')
     schema.rename_column('projects', 'lastupdated', 'updated_at')
     schema.rename_column('projects', 'lastshared', 'shared_at')
-    schema.rename_column('projects', 'firstpublished', 'published_at')
+    schema.rename_column('projects', 'firstpublished', 'first_published_at')
   end,
 
   [00000101] = function()
