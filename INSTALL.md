@@ -187,27 +187,30 @@ You will also need to start your Postgres database separately.
 
 ## Setting up the Snap!Cloud as a system daemon
 
-We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace [YOUR USERNAME] by your actual user. If you have followed this guide, it should be `cloud`:
+We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace `cloud` by your actual user. If you have followed this guide, this is not necessary.
 
 
-```
-    start-stop-daemon --start --quiet --startas $DAEMON -u [YOUR USERNAME] -- --boot || status =$?
-```
+`runuser -l cloud`
 
 Then use `update-rc.d` to create the necessary symbolic links:
 
 ```
-# update-rc.d snapcloud_daemon defaults
+$ update-rc.d snapcloud_daemon defaults
 ```
 
 You can now start and stop the Snap!Cloud by running:
 
 ```
-# /etc/init.d/snapcloud_daemon start
+$ service snapcloud_daemon [start|stop]
 ```
 
-and
+### Production Log Rotation
+
+The Snap!Cloud includes a simple logrotation setup that uses the default `logrotate` program. We run this as the `cloud` user, since that is the process that "owns" the log files. The file `bin/logrotate.conf` is a good starting point.
+
+To run it automatically, add the following to the `cloud` user crontab, by running `crontab -e`.
 
 ```
-# /etc/init.d/snapcloud_daemon stop
+0 2 * * * /usr/sbin/logrotate /home/cloud/logrotate.conf --state /home/cloud/logrotate-state
 ```
+This will run the logrotation script at 2AM each night. (You'll want to create the logrotate-state file, and update the paths as necessary.)
