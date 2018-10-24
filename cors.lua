@@ -30,6 +30,7 @@ domain_allowed['snap4arduino.rocks'] = true
 domain_allowed['extensions.snap.berkeley.edu'] = true
 -- Snap4Arduino for Chromebooks
 domain_allowed['chrome-extension://bdmapaboflkhdmcgdpfooeeeadejodia'] = true
+domain_allowed['chrome-extension://ghipaghphhpfncbokoobcjlapbnceipg'] = true
 -- App Server Domains
 -- By Default CORS is not needed on the same domain.
 -- However, we want to allow access on http hosted versions of Snap!.
