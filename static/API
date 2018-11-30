@@ -1,47 +1,63 @@
 /init
 Methods:     POST
 Description: Clears the session username in case the persist_session cookie is false.
+Parameters:
+Body:
 
 /users/c
 Methods:     GET
 Description: Get the currently logged user's username and credentials.
+Parameters:
+Body:
 
 /users/:username
 Methods:     GET, DELETE, POST
 Description: Get info about a user, or delete/add a user. All passwords should travel pre-hashed with SHA512.
 Parameters:  password, password_repeat, email
+Body:
 
 /users/:username/newpassword
 Methods:     POST
 Description: Sets a new password for a user. All passwords should travel pre-hashed with SHA512.
 Parameters:  password, password_repeat
+Body:
 
 /users/:username/password_reset(/:token)
 Methods:     GET, POST
 Description: Handles password reset requests.
+Parameters:
+Body:
 
 /users/:username/verify_user/:token
 Methods:     GET, POST
 Description: Verifies a user's email by means of a token, or removes that token if
              it has expired.
+Parameters:
+Body:
 
 /users/:username/resendverification
 Methods:     GET
 Description: Resends user verification email.
+Parameters:
+Body:
 
 /users/:username/login
 Methods:     POST
 Description: Logs a user into the system. Password should travel pre-hashed with SHA512.
+Parameters:
 Body:        password.
 
 /logout
 Methods:     POST
 Description: Logs out the current user from the system.
+Parameters:
+Body:
 
 /projects
 Methods:     GET
 Description: Get a list of published projects.
 Parameters:  page, pagesize, matchtext, withthumbnail.
+Body:
 
 /projects/:username
 Methods:     GET
@@ -50,6 +66,7 @@ Description: Get metadata for a project list by a user.
              The updatingnotes parameter checks for empty values in the notes column
              of the database and fills them with the notes in the project XML.
 Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes.
+Body:
 
 /projects/:username/:projectname
 Methods:     GET, DELETE, POST
@@ -64,6 +81,14 @@ Description: Get/add/update a project metadata.
 Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
 Body:        notes, projectname
 
+/projects/:username/:projectname/versions
+Methods:     GET, DELETE, POST
+Description: Get info about backed up project versions.
+Parameters:
+Body:        versions
+
 /projects/:username/:projectname/thumbnail
 Methods:     GET
 Description: Get a project thumbnail.
+Parameters:
+Body:
