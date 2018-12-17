@@ -461,7 +461,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         -- delta = -2 will fetch the last version before today
 
         return rawResponse(
-            '<snapdata>' ..
+            '<snapdata id="' .. project.id .. '">' ..
             (retrieve_from_disk(project.id, 'project.xml', self.params.delta) or '<project></project>') ..
             (retrieve_from_disk(project.id, 'media.xml', self.params.delta) or '<media></media>') ..
             '</snapdata>'
