@@ -35,6 +35,7 @@ local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
+local Remixes = package.loaded.Remixes
 
 require 'disk'
 require 'responses'
@@ -461,7 +462,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         -- delta = -2 will fetch the last version before today
 
         return rawResponse(
-            '<snapdata id="' .. project.id .. '">' ..
+            -- if users don't match, this project is being remixed and we need to attach its ID
+            '<snapdata' .. (users_match(self) and '>' or ' remixID="' .. project.id .. '">') ..
             (retrieve_from_disk(project.id, 'project.xml', self.params.delta) or '<project></project>') ..
             (retrieve_from_disk(project.id, 'media.xml', self.params.delta) or '<media></media>') ..
             '</snapdata>'
@@ -537,6 +539,15 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 ispublished = self.params.ispublished or false
             })
             project = Projects:find(self.params.username, self.params.projectname)
+
+            if body.remixID then
+                -- user is remixing a project
+                Remixes:create({
+                    original_project_id = body.remixID,
+                    remixed_project_id = project.id,
+                    created = db.format_date()
+                })
+            end
         end
 
         save_to_disk(project.id, 'project.xml', body.xml)
