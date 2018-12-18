@@ -579,6 +579,18 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
 
+        -- find out about remixes
+        local remixes = Remixes:select('where original_project_id = ?', project.id)
+        local remixed_from = Remixes:select('where remixed_project_id = ?', project.id)[1]
+
+        if remixed_from then
+            local original_project = Projects:select('where id = ?', remixed_from.original_project_id)[1]
+            project.remixedfrom = {
+                username = original_project.username,
+                projectname = original_project.projectname
+            }
+        end
+
         return jsonResponse(project)
     end),
     POST = capture_errors(function (self)
