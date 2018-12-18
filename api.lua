@@ -579,8 +579,6 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
 
-        -- find out about remixes
-        local remixes = Remixes:select('where original_project_id = ?', project.id)
         local remixed_from = Remixes:select('where remixed_project_id = ?', project.id)[1]
 
         if remixed_from then
@@ -628,8 +626,9 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
     end)
 }))
 
+
 app:match('project_versions', '/projects/:username/:projectname/versions', respond_to({
-    -- Methods:     GET, DELETE, POST
+    -- Methods:     GET
     -- Description: Get info about backed up project versions.
     -- Parameters:
     -- Body:        versions
@@ -654,6 +653,48 @@ app:match('project_versions', '/projects/:username/:projectname/versions', respo
             },
             version_metadata(project.id, -1),
             version_metadata(project.id, -2)
+        })
+    end)
+}))
+
+
+app:match('project_remixes', '/projects/:username/:projectname/remixes', respond_to({
+    -- Methods:     GET
+    -- Description: Get a list of all published remixes from a project
+    -- Parameters:  page, pagesize
+    -- Body:
+
+    OPTIONS = cors_options,
+    GET = capture_errors(function (self)
+        local project = Projects:find(self.params.username, self.params.projectname)
+
+        if not project then yield_error(err.nonexistent_project) end
+        if not project.ispublic then assert_users_match(self, err.not_public_project) end
+
+        local paginator =
+            Remixes:paginated(
+                'where original_project_id = ?',
+                project.id,
+                { per_page = self.params.pagesize or 16 }
+            )
+
+        local remixes_metadata = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+        local remixes = {}
+
+        for i, remix in pairs(remixes_metadata) do
+            remixed_project = Projects:select('where id = ? and ispublished', remix.remixed_project_id)[1];
+            if (remixed_project) then
+                -- Lazy Thumbnail generation
+                remixed_project.thumbnail =
+                    retrieve_from_disk(remix.remixed_project_id, 'thumbnail') or
+                        generate_thumbnail(remix.remixed_project_id)
+                table.insert(remixes, remixed_project)
+            end
+        end
+
+        return jsonResponse({
+            pages = self.params.page and paginator:num_pages() or nil,
+            projects = remixes
         })
     end)
 }))

@@ -82,10 +82,16 @@ Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
 Body:        notes, projectname
 
 /projects/:username/:projectname/versions
-Methods:     GET, DELETE, POST
+Methods:     GET
 Description: Get info about backed up project versions.
 Parameters:
 Body:        versions
+
+/projects/:username/:projectname/remixes
+Methods:     GET
+Description: Get a list of all published remixes from a project
+Parameters:  page, pagesize
+Body:
 
 /projects/:username/:projectname/thumbnail
 Methods:     GET
