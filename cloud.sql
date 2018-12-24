@@ -129,7 +129,7 @@ ALTER TABLE public.recent_projects_2_days OWNER TO cloud;
 --
 
 CREATE TABLE public.remixes (
-    original_project_id integer NOT NULL,
+    original_project_id integer,
     remixed_project_id integer NOT NULL,
     created timestamp with time zone
 );
