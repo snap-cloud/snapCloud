@@ -474,11 +474,17 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
-        delete_directory(project.id)
+        local id = project.id
+
+        -- Check out whether this project was a remix of some other project
+        local remix = Remixes:select('where remixed_project_id = ?', id)[1]
+        if remix then remix:delete() end
+
         if not (project:delete()) then
-            yield_error('Could not delete user ' .. self.params.username)
+            yield_error('Could not delete project ' .. self.params.projectname)
         else
-            return okResponse('User ' .. self.params.username .. ' has been removed.')
+            delete_directory(id)
+            return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
         end
     end),
     POST = capture_errors(function (self)
