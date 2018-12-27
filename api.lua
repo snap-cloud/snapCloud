@@ -24,7 +24,6 @@
 
 local app = package.loaded.app
 local db = package.loaded.db
-local app_helpers = package.loaded.db
 local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local validate = package.loaded.validate
@@ -36,6 +35,7 @@ local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
+local Remixes = package.loaded.Remixes
 
 require 'disk'
 require 'responses'
@@ -183,9 +183,11 @@ app:match('resendverification', '/users/:username/resendverification', respond_t
     end)
 }))
 
-app:match('resetpassword', '/users/:username/password_reset(/:token)', respond_to({
+app:match('password_reset', '/users/:username/password_reset(/:token)', respond_to({
     -- Methods:     GET, POST
     -- Description: Handles password reset requests.
+    --              The route name should match the database token purpose.
+    -- @see validation.create_token
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
@@ -264,25 +266,36 @@ app:match('login', '/users/:username/login', respond_to({
 }))
 
 
-app:match('verifyuser', '/users/:username/verify_user/:token', respond_to({
-    -- Methods:     GET, POST
-    -- Description: Verifies a user's email by means of a token, or removes that token if
-    --              it has expired
+app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
+    -- Methods:     GET
+    -- Description: Verifies a user's email by means of a token, or removes
+    --              that token if it has expired
+    --              Returns a success message if the user is already verified.
+    --              The route name should match the database token purpose.
+    -- @see validation.create_token
 
-    OPTIONS = cors_options,
     GET = capture_errors(function (self)
+        local user_page = function (user)
+            return htmlPage(
+                'User verified | Welcome to Snap<em>!</em>',
+                '<p>Your account <strong>' .. user.username .. '</strong> has been verified.</p>' ..
+                '<p>Thank you!</p>' ..
+                '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
+            )
+        end
+        local user = assert_user_exists(self)
+        if user.verified then
+            return user_page(user)
+        end
+
         return check_token(
             self.params.token,
             'verify_user',
             function (user)
                 -- success callback
                 user:update({ verified = true })
-                return htmlPage(
-                    'User verified',
-                    '<p>Your account <strong>' .. user.username .. '</strong> has been verified.</p>' ..
-                    '<p>Thank you!</p>' ..
-                    '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
-                )
+                self.session.verified = true
+                return user_page(user)
             end
         )
     end)
@@ -438,7 +451,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         -- delta = -2 will fetch the last version before today
 
         return rawResponse(
-            '<snapdata>' ..
+            -- if users don't match, this project is being remixed and we need to attach its ID
+            '<snapdata' .. (users_match(self) and '>' or ' remixID="' .. project.id .. '">') ..
             (retrieve_from_disk(project.id, 'project.xml', self.params.delta) or '<project></project>') ..
             (retrieve_from_disk(project.id, 'media.xml', self.params.delta) or '<media></media>') ..
             '</snapdata>'
@@ -449,11 +463,20 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
-        delete_directory(project.id)
+        local id = project.id
+
+        -- Check out whether this project was a remix of some other project, then delete the remix
+        local remix = Remixes:select('where remixed_project_id = ?', id)[1]
+        if remix then remix:delete() end
+
+        -- Check out whether this project has been remixed by other projects, then orphan these remixes
+        local query = db.query('update remixes set original_project_id = null where original_project_id = ?', id);
+
         if not (project:delete()) then
-            yield_error('Could not delete user ' .. self.params.username)
+            yield_error('Could not delete project ' .. self.params.projectname)
         else
-            return okResponse('User ' .. self.params.username .. ' has been removed.')
+            delete_directory(id)
+            return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
         end
     end),
     POST = capture_errors(function (self)
@@ -462,7 +485,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             { 'username', exists = true }
         })
 
-        assert_all({'user_exists', 'users_match'}, self)
+        assert_all({assert_user_exists, assert_users_match}, self)
 
         -- Read request body and parse it into JSON
         ngx.req.read_body()
@@ -494,6 +517,14 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 ispublished = self.params.ispublished or project.ispublished
             })
         else
+            -- Users are automatically verified the first time
+            -- they save a project
+            local user = Users:find(self.params.username)
+            if (not user.verified) then
+                user:update({ verified = true })
+                self.session.verified = true
+            end
+
             Projects:create({
                 projectname = self.params.projectname,
                 username = self.params.username,
@@ -506,6 +537,15 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 ispublished = self.params.ispublished or false
             })
             project = Projects:find(self.params.username, self.params.projectname)
+
+            if body.remixID then
+                -- user is remixing a project
+                Remixes:create({
+                    original_project_id = body.remixID,
+                    remixed_project_id = project.id,
+                    created = db.format_date()
+                })
+            end
         end
 
         save_to_disk(project.id, 'project.xml', body.xml)
@@ -536,6 +576,23 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
 
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then assert_users_match(self, err.not_public_project) end
+
+        local remixed_from = Remixes:select('where remixed_project_id = ?', project.id)[1]
+
+        if remixed_from then
+            if remixed_from.original_project_id then
+                local original_project = Projects:select('where id = ?', remixed_from.original_project_id)[1]
+                project.remixedfrom = {
+                    username = original_project.username,
+                    projectname = original_project.projectname
+                }
+            else
+                project.remixedfrom = {
+                    username = nil,
+                    projectname = nil
+                }
+            end
+        end
 
         return jsonResponse(project)
     end),
@@ -573,8 +630,9 @@ app:match('project_meta', '/projects/:username/:projectname/metadata', respond_t
     end)
 }))
 
+
 app:match('project_versions', '/projects/:username/:projectname/versions', respond_to({
-    -- Methods:     GET, DELETE, POST
+    -- Methods:     GET
     -- Description: Get info about backed up project versions.
     -- Parameters:
     -- Body:        versions
@@ -599,6 +657,48 @@ app:match('project_versions', '/projects/:username/:projectname/versions', respo
             },
             version_metadata(project.id, -1),
             version_metadata(project.id, -2)
+        })
+    end)
+}))
+
+
+app:match('project_remixes', '/projects/:username/:projectname/remixes', respond_to({
+    -- Methods:     GET
+    -- Description: Get a list of all published remixes from a project
+    -- Parameters:  page, pagesize
+    -- Body:
+
+    OPTIONS = cors_options,
+    GET = capture_errors(function (self)
+        local project = Projects:find(self.params.username, self.params.projectname)
+
+        if not project then yield_error(err.nonexistent_project) end
+        if not project.ispublic then assert_users_match(self, err.not_public_project) end
+
+        local paginator =
+            Remixes:paginated(
+                'where original_project_id = ?',
+                project.id,
+                { per_page = self.params.pagesize or 16 }
+            )
+
+        local remixes_metadata = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+        local remixes = {}
+
+        for i, remix in pairs(remixes_metadata) do
+            remixed_project = Projects:select('where id = ? and ispublished', remix.remixed_project_id)[1];
+            if (remixed_project) then
+                -- Lazy Thumbnail generation
+                remixed_project.thumbnail =
+                    retrieve_from_disk(remix.remixed_project_id, 'thumbnail') or
+                        generate_thumbnail(remix.remixed_project_id)
+                table.insert(remixes, remixed_project)
+            end
+        end
+
+        return jsonResponse({
+            pages = self.params.page and paginator:num_pages() or nil,
+            projects = remixes
         })
     end)
 }))
@@ -629,55 +729,3 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
     }))
 }))
 
-
-app:match('remix', '/projects/:username/:projectname/remix', respond_to({
-    -- Methods:     POST
-    -- Description: Remix a project as the currently logged in user.
-
-    OPTIONS = cors_options,
-    POST = capture_errors(function(self)
-        local original_project = Projects:find(self.params.username, self.params.projectname)
-        if not original_project then yield_error(err.nonexistent_project) end
-
-        local visitor = self.current_user
-        assert_logged_in(self)
-
-        Projects:create({
-                projectname = original_project.projectname,
-                username = visitor.username,
-                created = db.format_date(),
-                lastupdated = db.format_date(),
-                lastshared = db.format_date(),
-                firstpublished = original_project.ispublished and db.format_date() or nil,
-                notes = original_project.notes,
-                ispublic = original_project.ispublic,
-                ispublished = original_project.ispublished,
-                remixes = table.insert(original_project.remixes or {}, original_project.id)
-            })
-        project = Projects:find(self.params.username, self.params.projectname)
-
-        save_to_disk(
-            project.id,
-            'project.xml',
-            retrieve_from_disk(original_project.id, 'project.xml')
-        )
-        save_to_disk(
-            project.id,
-            'thumbnail',
-            retrieve_from_disk(original_project.id, 'thumbnail')
-        )
-        save_to_disk(
-            project.id,
-            'media.xml',
-            retrieve_from_disk(original_project.id, 'media.xml')
-        )
-        if not (retrieve_from_disk(project.id, 'project.xml')
-            and retrieve_from_disk(project.id, 'thumbnail')
-            and retrieve_from_disk(project.id, 'media.xml')) then
-            project:delete()
-            yield_error('Could not remix project ' .. self.params.projectname)
-        else
-            return okResponse('project ' .. self.params.projectname .. ' remixed')
-        end
-    end)
-}))
