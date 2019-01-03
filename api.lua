@@ -551,7 +551,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             })
             project = Projects:find(self.params.username, self.params.projectname)
 
-            if (body.remixID ~= cjson.null) then
+            if (body.remixID and body.remixID ~= cjson.null) then
                 -- user is remixing a project
                 Remixes:create({
                     original_project_id = body.remixID,
