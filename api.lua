@@ -37,6 +37,8 @@ local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 local Remixes = package.loaded.Remixes
 
+local cjson = require('cjson')
+
 require 'disk'
 require 'responses'
 require 'validation'
@@ -549,7 +551,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             })
             project = Projects:find(self.params.username, self.params.projectname)
 
-            if body.remixID then
+            if (body.remixID ~= cjson.null) then
                 -- user is remixing a project
                 Remixes:create({
                     original_project_id = body.remixID,
