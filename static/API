@@ -10,6 +10,11 @@ Description: Get the currently logged user's username and credentials.
 Parameters:
 Body:
 
+/users
+Methods:     GET
+Description: If requesting user is an admin, get a paginated list of all users.
+Parameters:  page, pagesize
+
 /users/:username
 Methods:     GET, DELETE, POST
 Description: Get info about a user, or delete/add a user. All passwords should travel pre-hashed with SHA512.
@@ -45,7 +50,7 @@ Body:
 Methods:     POST
 Description: Logs a user into the system. Password should travel pre-hashed with SHA512.
 Parameters:
-Body:        password.
+Body:        password
 
 /logout
 Methods:     POST
@@ -56,7 +61,7 @@ Body:
 /projects
 Methods:     GET
 Description: Get a list of published projects.
-Parameters:  page, pagesize, matchtext, withthumbnail.
+Parameters:  page, pagesize, matchtext, withthumbnail
 Body:
 
 /projects/:username
@@ -65,7 +70,7 @@ Description: Get metadata for a project list by a user.
              Response will depend on parameters and query issuer permissions.
              The updatingnotes parameter checks for empty values in the notes column
              of the database and fills them with the notes in the project XML.
-Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes.
+Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
 Body:
 
 /projects/:username/:projectname
@@ -78,7 +83,7 @@ Body:        xml, notes, thumbnail
 /projects/:username/:projectname/metadata
 Methods:     GET, DELETE, POST
 Description: Get/add/update a project metadata.
-Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
+Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
 Body:        notes, projectname
 
 /projects/:username/:projectname/versions

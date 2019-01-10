@@ -81,6 +81,32 @@ app:match('current_user', '/users/c', respond_to({
 }))
 
 
+app:match('userlist', '/users', respond_to({
+    -- Methods:     GET
+    -- Description: If requesting user is an admin, get a paginated list of all users.
+    -- Parameters:  page, pagesize
+
+    OPTIONS = cors_options,
+    GET = capture_errors(function (self)
+        local visitor = Users:find(self.session.username)
+        if visitor and visitor.isadmin then
+
+            local paginator = Users:paginated({
+                per_page = self.params.pagesize or 16,
+                fields = 'username, id, created, email, verified, isadmin'
+            })
+            local users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+            return jsonResponse({
+                pages = self.params.page and paginator:num_pages() or nil,
+                users = users
+            })
+        else
+            yield_error(err.auth) 
+        end
+    end
+)}))
+
+
 app:match('user', '/users/:username', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get info about a user, or delete/add a user.
@@ -93,7 +119,7 @@ app:match('user', '/users/:username', respond_to({
             Users:select(
                 'where username = ? limit 1',
                 self.params.username,
-                { fields = 'username, location, about, created, isadmin, email' })[1])
+                { fields = 'username, created, isadmin, email' })[1])
     end),
 
     DELETE = capture_errors(function (self)
@@ -232,7 +258,7 @@ app:match('password_reset', '/users/:username/password_reset(/:token)', respond_
 app:match('login', '/users/:username/login', respond_to({
     -- Methods:     POST
     -- Description: Logs a user into the system.
-    -- Body:        password.
+    -- Body:        password
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
@@ -333,7 +359,7 @@ app:match('logout', '/logout', respond_to({
 app:match('projects', '/projects', respond_to({
     -- Methods:     GET
     -- Description: Get a list of published projects.
-    -- Parameters:  page, pagesize, matchtext, withthumbnail.
+    -- Parameters:  page, pagesize, matchtext, withthumbnail
 
     OPTIONS = cors_options,
     GET = cached({
@@ -376,7 +402,7 @@ app:match('user_projects', '/projects/:username', respond_to({
     -- Methods:     GET
     -- Description: Get metadata for a project list by a user.
     --              Response will depend on parameters and query issuer permissions.
-    -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes.
+    -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
 
     OPTIONS = cors_options,
     GET = function (self)
@@ -580,7 +606,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 app:match('project_meta', '/projects/:username/:projectname/metadata', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/add/update a project metadata.
-    -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
+    -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
     -- Body:        notes, projectname
 
     OPTIONS = cors_options,
