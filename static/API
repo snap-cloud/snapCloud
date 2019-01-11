@@ -15,6 +15,7 @@ Methods:     GET
 Description: If requesting user is an admin, get a paginated list of all users
              with username or email matching matchtext, if provided.
 Parameters:  matchtext, page, pagesize
+Body:
 
 /users/:username
 Methods:     GET, DELETE, POST
@@ -35,9 +36,13 @@ Parameters:
 Body:
 
 /users/:username/verify_user/:token
-Methods:     GET, POST
-Description: Verifies a user's email by means of a token, or removes that token if
-             it has expired.
+Methods:     GET
+Description: Verifies a user's email by means of a token, or removes
+             that token if it has expired.
+             If requesting user is an admin, verifies the user and removes
+             the token. Token is irrelevant for admin users.
+             Returns a success message if the user is already verified.
+             The route name should match the database token purpose.
 Parameters:
 Body:
 

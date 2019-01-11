@@ -312,7 +312,9 @@ app:match('login', '/users/:username/login', respond_to({
 app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
     -- Methods:     GET
     -- Description: Verifies a user's email by means of a token, or removes
-    --              that token if it has expired
+    --              that token if it has expired.
+    --              If requesting user is an admin, verifies the user and removes
+    --              the token. Token is irrelevant for admin users.
     --              Returns a success message if the user is already verified.
     --              The route name should match the database token purpose.
     -- @see validation.create_token
@@ -329,6 +331,14 @@ app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
         local user = assert_user_exists(self)
         if user.verified then
             return user_page(user)
+        end
+
+        if not users_match(self) then assert_admin(self)
+            -- admins can verify people without the need of a token
+            local token = Tokens:select('where username = ? and purpose = ?', user.username, 'verify_user')
+            if (token and token[1]) then token[1]:delete() end
+            user:update({ verified = true })
+            return okResponse('User ' .. user.username .. ' has been verified')
         end
 
         return check_token(
