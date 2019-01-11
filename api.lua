@@ -88,21 +88,16 @@ app:match('userlist', '/users', respond_to({
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
-        local visitor = Users:find(self.session.username)
-        if visitor and visitor.isadmin then
-
-            local paginator = Users:paginated({
-                per_page = self.params.pagesize or 16,
-                fields = 'username, id, created, email, verified, isadmin'
-            })
-            local users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
-            return jsonResponse({
-                pages = self.params.page and paginator:num_pages() or nil,
-                users = users
-            })
-        else
-            yield_error(err.auth) 
-        end
+        assert_admin(self)
+        local paginator = Users:paginated({
+            per_page = self.params.pagesize or 16,
+            fields = 'username, id, created, email, verified, isadmin'
+        })
+        local users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+        return jsonResponse({
+            pages = self.params.page and paginator:num_pages() or nil,
+            users = users
+        })
     end
 )}))
 
