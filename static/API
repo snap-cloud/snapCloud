@@ -12,8 +12,9 @@ Body:
 
 /users
 Methods:     GET
-Description: If requesting user is an admin, get a paginated list of all users.
-Parameters:  page, pagesize
+Description: If requesting user is an admin, get a paginated list of all users
+             with username or email matching matchtext, if provided.
+Parameters:  matchtext, page, pagesize
 
 /users/:username
 Methods:     GET, DELETE, POST
