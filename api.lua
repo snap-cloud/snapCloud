@@ -83,16 +83,25 @@ app:match('current_user', '/users/c', respond_to({
 
 app:match('userlist', '/users', respond_to({
     -- Methods:     GET
-    -- Description: If requesting user is an admin, get a paginated list of all users.
-    -- Parameters:  page, pagesize
+    -- Description: If requesting user is an admin, get a paginated list of all users
+    --              with username or email matching matchtext, if provided.
+    -- Parameters:  matchtext, page, pagesize
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         assert_admin(self)
-        local paginator = Users:paginated({
-            per_page = self.params.pagesize or 16,
-            fields = 'username, id, created, email, verified, isadmin'
-        })
+        local paginator = Users:paginated(
+            self.params.matchtext and
+                db.interpolate_query(
+                    'where username ~* ? or email ~* ?',
+                    self.params.matchtext,
+                    self.params.matchtext
+                )
+                or '',
+            {
+                per_page = self.params.pagesize or 16,
+                fields = 'username, id, created, email, verified, isadmin'
+            })
         local users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
         return jsonResponse({
             pages = self.params.page and paginator:num_pages() or nil,
