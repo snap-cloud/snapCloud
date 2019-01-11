@@ -303,7 +303,14 @@ app:match('login', '/users/:username/login', respond_to({
                 return jsonResponse({ days_left = user.days_left })
             end
         else
-            yield_error('wrong password')
+            -- Admins can log in as other people
+            assert_admin(self, 'wrong password')
+            local previous_username = self.session.username
+            self.session.username = user.username
+            self.session.isadmin = user.isadmin
+            self.session.verified = user.verified
+            self.cookies.persist_session = self.params.persist
+            return okResponse('User ' .. previous_username .. ' now logged in as ' .. self.params.username)
         end
     end)
 }))
