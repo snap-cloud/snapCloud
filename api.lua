@@ -97,7 +97,7 @@ app:match('userlist', '/users', respond_to({
                     self.params.matchtext,
                     self.params.matchtext
                 )
-                or '',
+                or 'order by verified, created',
             {
                 per_page = self.params.pagesize or 16,
                 fields = 'username, id, created, email, verified, isadmin'
