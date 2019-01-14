@@ -309,7 +309,7 @@ app:match('login', '/users/:username/login', respond_to({
             self.session.username = user.username
             self.session.isadmin = user.isadmin
             self.session.verified = user.verified
-            self.cookies.persist_session = self.params.persist
+            self.cookies.persist_session = 'false'
             return okResponse('User ' .. previous_username .. ' now logged in as ' .. self.params.username)
         end
     end)
