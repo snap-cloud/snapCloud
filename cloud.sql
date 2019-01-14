@@ -73,11 +73,33 @@ CREATE TABLE public.projects (
     lastshared timestamp with time zone,
     username public.dom_username NOT NULL,
     firstpublished timestamp with time zone,
-    remixedfrom integer
+    deleted timestamp with time zone
 );
 
 
 ALTER TABLE public.projects OWNER TO cloud;
+
+--
+-- Name: active_projects; Type: VIEW; Schema: public; Owner: cloud
+--
+
+CREATE VIEW public.active_projects AS
+ SELECT projects.id,
+    projects.projectname,
+    projects.ispublic,
+    projects.ispublished,
+    projects.notes,
+    projects.created,
+    projects.lastupdated,
+    projects.lastshared,
+    projects.username,
+    projects.firstpublished,
+    projects.deleted
+   FROM public.projects
+  WHERE (projects.deleted IS NULL);
+
+
+ALTER TABLE public.active_projects OWNER TO cloud;
 
 --
 -- Name: count_recent_projects; Type: VIEW; Schema: public; Owner: cloud
