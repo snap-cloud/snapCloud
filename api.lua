@@ -523,6 +523,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
+        --[[
         local id = project.id
 
         -- Check out whether this project was a remix of some other project, then delete the remix
@@ -536,6 +537,15 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             yield_error('Could not delete project ' .. self.params.projectname)
         else
             delete_directory(id)
+            return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
+        end
+        ]]--
+
+        -- Do not actually delete the project; flag it as deleted.
+
+        if not (project:update({ deleted = db.format_date() })) then
+            yield_error('Could not delete project ' .. self.params.projectname)
+        else
             return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
         end
     end),

@@ -78,7 +78,7 @@ package.loaded.Users = package.loaded.Model:extend('users', {
     primary_key = { 'username' }
 })
 
-package.loaded.Projects = package.loaded.Model:extend('projects', {
+package.loaded.Projects = package.loaded.Model:extend('active_projects', {
     primary_key = { 'username', 'projectname' }
 })
 
