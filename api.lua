@@ -127,7 +127,7 @@ app:match('user', '/users/:username', respond_to({
     end),
 
     DELETE = capture_errors(function (self)
-        assert_all({'logged_in', 'admin'}, self)
+        if not users_match(self) then assert_admin(self) end
 
         local user = Users:find(self.params.username)
         if not user then
