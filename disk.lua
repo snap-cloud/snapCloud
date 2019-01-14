@@ -89,10 +89,10 @@ function parse_notes(id, delta)
             return notes
         else
             project_file:close()
-            return nil
+            return ''
         end
     else
-        return nil
+        return ''
     end
 end
 

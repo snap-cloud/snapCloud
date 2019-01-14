@@ -464,7 +464,7 @@ app:match('user_projects', '/projects/:username', respond_to({
 	-- Lazy Notes generation
         if self.params.updatingnotes == 'true' then
             for _, project in pairs(projects) do
-                if (project.notes == nil or project.notes == '') then
+                if (project.notes == nil) then
                     local notes = parse_notes(project.id)
                     if notes then
                         project:update({ notes = notes })
