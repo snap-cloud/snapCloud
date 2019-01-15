@@ -36,6 +36,7 @@ local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
 
 local app_helpers = require("lapis.application")
+local assert_error = app_helpers.assert_error
 
 -- a simple helper for conditionally setting the timestamp fields
 -- TODO: move to a more useful location.
@@ -72,32 +73,25 @@ app:match('user_collections', '/users/:username/collections', respond_to({
     GET = capture_errors(function (self)
         -- TODO
     end),
-    POST = capture_errors(function (self)
-        print('RESPONDING TO REQUEST')
-        -- assert_all({ assert_logged_in, assert_users_match }, self)
+    POST = capture_errors(json_params(function (self)
+        -- TODO (temp off): assert_all({ assert_logged_in, assert_users_match }, self)
         local request_user = assert_user_exists(self)
 
-        -- Read request body and parse it into JSON
-        ngx.req.read_body()
-        local body_data = ngx.req.get_body_data()
-        local body = body_data and util.from_json(body_data) or nil
-        -- TODO: Model validations or this?
-        -- validate.assert_valid(body, { { 'name', exists = true }, })
+        -- Must assert name before generating a slug.
+        validate.assert_valid(self.params, { { 'name', exists = true } })
 
-        collection = app_helpers.assert_error(Collections:create({
-            name = body.name,
-            slug = util.slugify(body.name),
+        return jsonResponse(assert_error(Collections:create({
+            name = self.params.name,
+            slug = util.slugify(self.params.name),
             creator_id = request_user.id,
-            description = body.description,
-            published = body.published,
-            published_at = current_time_or_nil(body.published),
-            shared = body.shared,
-            shared_at = current_time_or_nil(body.shared),
-            thumbnail_id = body.thumbnail_id
-        }))
-
-        return jsonResponse(collection)
-    end)
+            description = self.params.description,
+            published = self.params.published,
+            published_at = current_time_or_nil(self.params.published),
+            shared = self.params.shared,
+            shared_at = current_time_or_nil(self.params.shared),
+            thumbnail_id = self.params.thumbnail_id
+        })))
+    end))
 }))
 
 app:match('collections',
