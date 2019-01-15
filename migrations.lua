@@ -5,7 +5,6 @@
 -- use _at for timestamps, and always add {timezone = true}
 
 local schema = require("lapis.db.schema")
-
 local types = schema.types
 
 return {
@@ -16,7 +15,7 @@ return {
             { 'id', types.serial({primary_key = true}) },
             { 'name', types.text },
             { 'slug', types.text },
-            { 'creator_id', types.foregin_key },
+            { 'creator_id', types.foreign_key },
             { 'created_at', types.time({timezone = true}) },
             { 'updated_at', types.time({timezone = true}) },
             { 'description', types.text({null = true}) },
@@ -24,15 +23,15 @@ return {
             { 'published_at', types.time({timezone = true, null = true}) },
             { 'shared', types.boolean },
             { 'shared_at', types.time({timezone = true, null = true}) },
-            { 'thumbnail_id', types.foregin_key({null = true}) }
+            { 'thumbnail_id', types.foreign_key({null = true}) }
         })
         schema.create_index('collections', 'creator_id')
         schema.create_index('collections', 'creator_id', 'slug')
 
         schema.create_table("collection_memberships", {
             { 'id', types.serial({primary_key = true}) },
-            { 'collection_id', types.foregin_key },
-            { 'project_id', types.foregin_key },
+            { 'collection_id', types.foreign_key },
+            { 'project_id', types.foreign_key },
             { 'created_at', types.time({timezone = true}) },
             { 'updated_at', types.time({timezone = true}) }
         })
