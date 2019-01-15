@@ -31,10 +31,11 @@ local Model = package.loaded.Model
 local util = package.loaded.util
 local respond_to = package.loaded.respond_to
 local json_params = package.loaded.json_params
-local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
+
+local app_helpers = require("lapis.application")
 
 -- a simple helper for conditionally setting the timestamp fields
 -- TODO: move to a more useful location.
@@ -83,7 +84,7 @@ app:match('user_collections', '/users/:username/collections', respond_to({
         -- TODO: Model validations or this?
         -- validate.assert_valid(body, { { 'name', exists = true }, })
 
-        err, collection = assert(Collections:create({
+        collection = app_helpers.assert_error(Collections:create({
             name = body.name,
             slug = util.slugify(body.name),
             creator_id = request_user.id,
@@ -94,7 +95,8 @@ app:match('user_collections', '/users/:username/collections', respond_to({
             shared_at = current_time_or_nil(body.shared),
             thumbnail_id = body.thumbnail_id
         }))
-        return to_json(collection)
+
+        return jsonResponse(collection)
     end)
 }))
 
