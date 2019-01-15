@@ -61,11 +61,12 @@ app:match('user_collections', '/users/:username/collections', respond_to({
     end
 )}))
 
-app:match('collections', '/collections/:name', respond_to({
+app:match('collections',
+          '/users/:username/collections/:collection_name', respond_to({
     -- Methods:     GET, POST, DELETE
     -- Description: Get the info about a collection.
     --              Create and a delete a collection.
-    -- Parameters:  name
+    -- Parameters:  username, collection_name
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
@@ -79,7 +80,8 @@ app:match('collections', '/collections/:name', respond_to({
     end
 )}))
 
-app:match('collection_memberships', '/collections/:name/items', respond_to({
+app:match('collection_memberships',
+          '/users/:username/collections/:collection_name/items', respond_to({
     -- Methods:     GET, POST, DELETE
     -- Description: Get a paginated list of all items in a collection.
     --              Add or remove items from the collection.
