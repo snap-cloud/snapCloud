@@ -340,8 +340,8 @@ app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
             return user_page(user)
         end
 
-        if not self.params.token then assert_admin(self)
-            -- admins can verify people without the need of a token
+        -- admins can verify people without the need of a token
+        if self.params.token == 0 then assert_admin(self)
             local token = Tokens:select('where username = ? and purpose = ?', user.username, 'verify_user')
             if (token and token[1]) then token[1]:delete() end
             user:update({ verified = true })
