@@ -34,6 +34,7 @@ local json_params = package.loaded.json_params
 local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
+local Collections = package.loaded.Collections
 
 -- a simple helper for conditionally setting the timestamp fields
 -- TODO: move to a more useful location.
@@ -55,7 +56,7 @@ app:match('collections_list', '/collections', respond_to({
     GET = capture_errors(function (self)
         -- TODO
     end)
-)}))
+}))
 
 app:match('user_collections', '/users/:username/collections', respond_to({
     -- Methods:     GET, POST
@@ -71,22 +72,31 @@ app:match('user_collections', '/users/:username/collections', respond_to({
         -- TODO
     end),
     POST = capture_errors(function (self)
+        print('RESPONDING TO REQUEST')
         -- assert_all({ assert_logged_in, assert_users_match }, self)
         local request_user = assert_user_exists(self)
-        err, collection assert(Collections:create({
-            name = self.params.name,
-            slug = util.slugify(self.params.name),
+
+        -- Read request body and parse it into JSON
+        ngx.req.read_body()
+        local body_data = ngx.req.get_body_data()
+        local body = body_data and util.from_json(body_data) or nil
+        -- TODO: Model validations or this?
+        -- validate.assert_valid(body, { { 'name', exists = true }, })
+
+        err, collection = assert(Collections:create({
+            name = body.name,
+            slug = util.slugify(body.name),
             creator_id = request_user.id,
-            description = self.params.description,
-            published = self.params.published,
-            published_at = current_time_or_nil(self.params.published),
-            shared = self.params.shared,
-            shared_at = current_time_or_nil(self.params.shared),
-            thumbnail_id = self.params.thumbnail_id
+            description = body.description,
+            published = body.published,
+            published_at = current_time_or_nil(body.published),
+            shared = body.shared,
+            shared_at = current_time_or_nil(body.shared),
+            thumbnail_id = body.thumbnail_id
         }))
         return to_json(collection)
     end)
-)}))
+}))
 
 app:match('collections',
           '/users/:username/collections/:collection_slug', respond_to({
@@ -105,7 +115,7 @@ app:match('collections',
     DELETE = capture_errors(function (self)
         -- delete the collection, remove all project links
     end)
-)}))
+}))
 
 app:match('collection_memberships',
           '/users/:username/collections/:collection_slug/items(/:item_id)', respond_to({
@@ -125,4 +135,4 @@ app:match('collection_memberships',
     DELETE = capture_errors(function (self)
         -- TODO remove item from collection memberships
     end)
-)}))
+}))

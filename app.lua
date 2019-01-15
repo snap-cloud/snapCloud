@@ -138,6 +138,7 @@ end
 
 -- The API is implemented in the api.lua file
 require 'api'
+require 'collections'
 require 'discourse'
 
 return app
