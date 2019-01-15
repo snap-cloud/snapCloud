@@ -113,7 +113,9 @@ app:match('userlist', '/users', respond_to({
 
 app:match('user', '/users/:username', respond_to({
     -- Methods:     GET, DELETE, POST
-    -- Description: Get info about a user, or delete/add a user.
+    -- Description: Get info about a user, or delete/add/update a user. All passwords should
+    --              travel pre-hashed with SHA512.
+
     -- Parameters:  username, password, password_repeat, email
 
     OPTIONS = cors_options,
@@ -142,35 +144,48 @@ app:match('user', '/users/:username', respond_to({
     end),
 
     POST = capture_errors(function (self)
-        validate.assert_valid(self.params, {
-            { 'username', exists = true, min_length = 4, max_length = 200 },
-            { 'password', exists = true, min_length = 6 },
-            { 'password_repeat', equals = self.params.password, 'passwords do not match' },
-            { 'email', exists = true, min_length = 5 },
-        })
+        local existing_user = Users:find(self.params.username)
+        if (self.session.username == self.params.username
+            or self.session.isadmin) then
+            -- user is updating profile, or an admin is updating somebody else's profile
+            existing_user:update({
+                -- we only support changing a user's email at the moment, but we could use
+                -- this method to update their permissions in the future too
+                email = self.params.email or existing_user.email
+            })
+            return okResponse('Profile for user ' .. self.params.username .. ' updated')
+        else
+            -- new user
+            validate.assert_valid(self.params, {
+                { 'username', exists = true, min_length = 4, max_length = 200 },
+                { 'password', exists = true, min_length = 6 },
+                { 'password_repeat', equals = self.params.password, 'passwords do not match' },
+                { 'email', exists = true, min_length = 5 },
+            })
 
-        if Users:find(self.params.username) then
-            yield_error('User ' .. self.params.username .. ' already exists');
-        end
+            if existing_user then
+                yield_error('User ' .. self.params.username .. ' already exists');
+            end
 
-        local salt = secure_salt()
-        Users:create({
-            created = db.format_date(),
-            username = self.params.username,
-            salt = salt,
-            password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
-            email = self.params.email,
-            verified = false,
-            isadmin = false
-        })
+            local salt = secure_salt()
+            Users:create({
+                created = db.format_date(),
+                username = self.params.username,
+                salt = salt,
+                password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
+                email = self.params.email,
+                verified = false,
+                isadmin = false
+            })
 
-        -- Create a verify_user-type token and send an email to the user asking to
-        -- verify the account.
-        -- We check these on login.
-        create_token(self, 'verify_user', self.params.username, self.params.email)
-        return okResponse(
+            -- Create a verify_user-type token and send an email to the user asking to
+            -- verify the account.
+            -- We check these on login.
+            create_token(self, 'verify_user', self.params.username, self.params.email)
+            return okResponse(
             'User ' .. self.params.username ..
             ' created.\nPlease check your email and validate your\naccount within the next 3 days.')
+        end
     end)
 
 }))
@@ -178,7 +193,8 @@ app:match('user', '/users/:username', respond_to({
 
 app:match('newpassword', '/users/:username/newpassword', respond_to({
     -- Methods:     POST
-    -- Description: Sets a new password for a user.
+    -- Description: Sets a new password for a user. All passwords should travel pre-hashed
+    --              with SHA512.
     -- Parameters:  oldpassword, password_repeat, newpassword
 
     OPTIONS = cors_options,
@@ -206,7 +222,7 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
 
 app:match('resendverification', '/users/:username/resendverification', respond_to({
     -- Methods:     GET
-    -- Description: Resends user verification email
+    -- Description: Resends user verification email.
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
@@ -321,7 +337,7 @@ app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
     -- Description: Verifies a user's email by means of a token, or removes
     --              that token if it has expired.
     --              If requesting user is an admin, verifies the user and removes
-    --              the token. Token is irrelevant for admin users.
+    --              the token. Token should equal '0' for admins.
     --              Returns a success message if the user is already verified.
     --              The route name should match the database token purpose.
     -- @see validation.create_token
@@ -340,8 +356,8 @@ app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
             return user_page(user)
         end
 
-        if not users_match(self) then assert_admin(self)
-            -- admins can verify people without the need of a token
+        -- admins can verify people without the need of a token
+        if self.params.token == '0' then assert_admin(self)
             local token = Tokens:select('where username = ? and purpose = ?', user.username, 'verify_user')
             if (token and token[1]) then token[1]:delete() end
             user:update({ verified = true })
@@ -523,6 +539,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
+        --[[
         local id = project.id
 
         -- Check out whether this project was a remix of some other project, then delete the remix
@@ -536,6 +553,15 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             yield_error('Could not delete project ' .. self.params.projectname)
         else
             delete_directory(id)
+            return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
+        end
+        ]]--
+
+        -- Do not actually delete the project; flag it as deleted.
+
+        if not (project:update({ deleted = db.format_date() })) then
+            yield_error('Could not delete project ' .. self.params.projectname)
+        else
             return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
         end
     end),
@@ -725,7 +751,7 @@ app:match('project_versions', '/projects/:username/:projectname/versions', respo
 
 app:match('project_remixes', '/projects/:username/:projectname/remixes', respond_to({
     -- Methods:     GET
-    -- Description: Get a list of all published remixes from a project
+    -- Description: Get a list of all published remixes from a project.
     -- Parameters:  page, pagesize
     -- Body:
 

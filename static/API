@@ -19,13 +19,15 @@ Body:
 
 /users/:username
 Methods:     GET, DELETE, POST
-Description: Get info about a user, or delete/add a user. All passwords should travel pre-hashed with SHA512.
+Description: Get info about a user, or delete/update/add a user. All passwords should
+             travel pre-hashed with SHA512.
 Parameters:  password, password_repeat, email
 Body:
 
 /users/:username/newpassword
 Methods:     POST
-Description: Sets a new password for a user. All passwords should travel pre-hashed with SHA512.
+Description: Sets a new password for a user. All passwords should travel pre-hashed
+             with SHA512.
 Parameters:  password, password_repeat
 Body:
 
@@ -40,7 +42,7 @@ Methods:     GET
 Description: Verifies a user's email by means of a token, or removes
              that token if it has expired.
              If requesting user is an admin, verifies the user and removes
-             the token. Token is irrelevant for admin users.
+             the token. Token should equal '0' for admins.
              Returns a success message if the user is already verified.
              The route name should match the database token purpose.
 Parameters:
@@ -100,7 +102,7 @@ Body:        versions
 
 /projects/:username/:projectname/remixes
 Methods:     GET
-Description: Get a list of all published remixes from a project
+Description: Get a list of all published remixes from a project.
 Parameters:  page, pagesize
 Body:
 
