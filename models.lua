@@ -17,7 +17,7 @@ package.loaded.Remixes = package.loaded.Model:extend('remixes', {
 })
 
 package.loaded.Collections = package.loaded.Model:extend('collections', {
-    primary_key = 'id',
+    primary_key = { 'creator_id', 'slug' },
     timestamp = true,
     relations = {
         -- TODO "projects", fetch() - get projects through memberships
@@ -28,6 +28,6 @@ package.loaded.Collections = package.loaded.Model:extend('collections', {
 
 package.loaded.CollectionMemberships = package.loaded.Model:extend(
     'collection_memberships', {
-    primary_key = 'id',
+    primary_key = { 'collection_id', 'project_id' },
     timestamp = true
 })
