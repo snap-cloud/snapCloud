@@ -63,6 +63,7 @@ package.loaded.capture_errors = function(fn)
     })
 end
 
+require 'models'
 require 'responses'
 
 -- Make cookies persistent
@@ -71,24 +72,6 @@ app.cookie_attributes = function(self)
     local expires = date(true):adddays(365):fmt("${http}")
     return "Expires=" .. expires .. "; Path=/; HttpOnly;"
 end
-
--- Database abstractions
-
-package.loaded.Users = package.loaded.Model:extend('users', {
-    primary_key = { 'username' }
-})
-
-package.loaded.Projects = package.loaded.Model:extend('projects', {
-    primary_key = { 'username', 'projectname' }
-})
-
-package.loaded.Tokens = package.loaded.Model:extend('tokens', {
-    primary_key = { 'value' }
-})
-
-package.loaded.Remixes = package.loaded.Model:extend('remixes', {
-    primary_key = { 'original_project_id', 'remixed_project_id' }
-})
 
 -- Remove the protocol and port from a URL
 function domain_name(url)

@@ -35,6 +35,15 @@ local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 
+-- a simple helper for conditionally setting the timestamp fields
+-- TODO: move to a more useful location.
+local current_time_or_nil = function(option)
+    if option == 'true' then
+        return db.raw('now()')
+    end
+    return nil
+end
+
 app:match('collections_list', '/collections', respond_to({
     -- Methods:     GET
     -- Description: If requesting user is an admin, get a paginated list of all
@@ -45,57 +54,75 @@ app:match('collections_list', '/collections', respond_to({
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         -- TODO
-    end
+    end)
 )}))
 
 app:match('user_collections', '/users/:username/collections', respond_to({
-    -- Methods:     GET
+    -- Methods:     GET, POST
     -- Description: Get a paginated list of all a particular user's collections
     --              with name matching matchtext, if provided.
     --              Returns only public collections, if another user.
-    -- Parameters:  matchtext, page, pagesize
+    -- Parameters:  GET: username, matchtext, page, pagesize
+    --              POST: username, collection_name, description, published,
+    --                    shared, thumbnail_id
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         -- TODO
-    end
+    end),
+    POST = capture_errors(function (self)
+        -- assert_all({ assert_logged_in, assert_users_match }, self)
+        local request_user = assert_user_exists(self)
+        err, collection assert(Collections:create({
+            name = self.params.name,
+            slug = util.slugify(self.params.name),
+            creator_id = request_user.id,
+            description = self.params.description,
+            published = self.params.published,
+            published_at = current_time_or_nil(self.params.published),
+            shared = self.params.shared,
+            shared_at = current_time_or_nil(self.params.shared),
+            thumbnail_id = self.params.thumbnail_id
+        }))
+        return to_json(collection)
+    end)
 )}))
 
 app:match('collections',
-          '/users/:username/collections/:collection_name', respond_to({
+          '/users/:username/collections/:collection_slug', respond_to({
     -- Methods:     GET, POST, DELETE
     -- Description: Get the info about a collection.
     --              Create and a delete a collection.
-    -- Parameters:  username, collection_name
+    -- Parameters:  username, collection_name, ...
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         -- TODO return info about this collection
-    end,
+    end),
     POST = capture_errors(function (self)
-        -- TODO create a new collection
-    end,
+        -- TODO: update collection info
+    end),
     DELETE = capture_errors(function (self)
-        -- TODO create a new collection
-    end
+        -- delete the collection, remove all project links
+    end)
 )}))
 
 app:match('collection_memberships',
-          '/users/:username/collections/:collection_name/items', respond_to({
-    -- Methods:     GET, POST, DELETE
+          '/users/:username/collections/:collection_slug/items(/:item_id)', respond_to({
+    -- Methods:     GET, DELETE
     -- Description: Get a paginated list of all items in a collection.
     --              Add or remove items from the collection.
-    -- Parameters:  name, project_id
+    -- Parameters:  username, collection_slug
 
     OPTIONS = cors_options,
     GET = capture_errors(function (self)
         -- TODO list the items in this collection
         -- Perhaps this eventually supports filtering
-    end,
+    end),
     POST = capture_errors(function (self)
-        -- TODO add item to collection memberships
-    end,
+        -- TODO add a project to the collection
+    end),
     DELETE = capture_errors(function (self)
         -- TODO remove item from collection memberships
-    end
+    end)
 )}))

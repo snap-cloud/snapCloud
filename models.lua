@@ -2,7 +2,10 @@
 
 package.loaded.Users = package.loaded.Model:extend('users', {
     primary_key = { 'username' }
-})
+    relations = {
+        { 'collections', has_many = 'Collections', key = 'creator_id' }
+    }
+}, key = 'creator_id')
 
 package.loaded.Projects = package.loaded.Model:extend('projects', {
     primary_key = { 'username', 'projectname' }
@@ -23,6 +26,14 @@ package.loaded.Collections = package.loaded.Model:extend('collections', {
         -- TODO "projects", fetch() - get projects through memberships
         -- creates Collection:get_creator()
         { 'creator', belongs_to = 'Users', key = 'creator_id'}
+    }
+    constraints = {
+        -- Ensure slugs are unique.
+        slug = function(self, value, column, collection)
+            if Collections:find({ slug = value }) ~= nil then
+                return 'This name is already in use.'
+            end
+        end
     }
 })
 
