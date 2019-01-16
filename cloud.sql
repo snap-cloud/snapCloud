@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.5.12
--- Dumped by pg_dump version 10.3 (Ubuntu 10.3-1.pgdg16.04+1)
+-- Dumped from database version 10.5 (Ubuntu 10.5-1.pgdg16.04+1)
+-- Dumped by pg_dump version 10.5 (Ubuntu 10.5-1.pgdg16.04+1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -73,11 +73,33 @@ CREATE TABLE public.projects (
     lastshared timestamp with time zone,
     username public.dom_username NOT NULL,
     firstpublished timestamp with time zone,
-    remixes integer[]
+    deleted timestamp with time zone
 );
 
 
 ALTER TABLE public.projects OWNER TO cloud;
+
+--
+-- Name: active_projects; Type: VIEW; Schema: public; Owner: cloud
+--
+
+CREATE VIEW public.active_projects AS
+ SELECT projects.id,
+    projects.projectname,
+    projects.ispublic,
+    projects.ispublished,
+    projects.notes,
+    projects.created,
+    projects.lastupdated,
+    projects.lastshared,
+    projects.username,
+    projects.firstpublished,
+    projects.deleted
+   FROM public.projects
+  WHERE (projects.deleted IS NULL);
+
+
+ALTER TABLE public.active_projects OWNER TO cloud;
 
 --
 -- Name: count_recent_projects; Type: VIEW; Schema: public; Owner: cloud
@@ -123,6 +145,19 @@ CREATE VIEW public.recent_projects_2_days AS
 
 
 ALTER TABLE public.recent_projects_2_days OWNER TO cloud;
+
+--
+-- Name: remixes; Type: TABLE; Schema: public; Owner: cloud
+--
+
+CREATE TABLE public.remixes (
+    original_project_id integer,
+    remixed_project_id integer NOT NULL,
+    created timestamp with time zone
+);
+
+
+ALTER TABLE public.remixes OWNER TO cloud;
 
 --
 -- Name: tokens; Type: TABLE; Schema: public; Owner: cloud
@@ -202,6 +237,14 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: projects unique_id; Type: CONSTRAINT; Schema: public; Owner: cloud
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT unique_id UNIQUE (id);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
 --
 
@@ -233,6 +276,22 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: remixes remixes_original_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cloud
+--
+
+ALTER TABLE ONLY public.remixes
+    ADD CONSTRAINT remixes_original_project_id_fkey FOREIGN KEY (original_project_id) REFERENCES public.projects(id);
+
+
+--
+-- Name: remixes remixes_remixed_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cloud
+--
+
+ALTER TABLE ONLY public.remixes
+    ADD CONSTRAINT remixes_remixed_project_id_fkey FOREIGN KEY (remixed_project_id) REFERENCES public.projects(id);
+
+
+--
 -- Name: tokens users_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cloud
 --
 
@@ -241,23 +300,9 @@ ALTER TABLE ONLY public.tokens
 
 
 --
--- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
---
-
-REVOKE ALL ON SCHEMA public FROM PUBLIC;
-REVOKE ALL ON SCHEMA public FROM postgres;
-GRANT ALL ON SCHEMA public TO postgres;
-GRANT ALL ON SCHEMA public TO PUBLIC;
-
-
---
 -- Name: FUNCTION expire_token(); Type: ACL; Schema: public; Owner: cloud
 --
 
-REVOKE ALL ON FUNCTION public.expire_token() FROM PUBLIC;
-REVOKE ALL ON FUNCTION public.expire_token() FROM cloud;
-GRANT ALL ON FUNCTION public.expire_token() TO cloud;
-GRANT ALL ON FUNCTION public.expire_token() TO PUBLIC;
 GRANT ALL ON FUNCTION public.expire_token() TO snapanalytics;
 
 
@@ -265,9 +310,6 @@ GRANT ALL ON FUNCTION public.expire_token() TO snapanalytics;
 -- Name: TABLE projects; Type: ACL; Schema: public; Owner: cloud
 --
 
-REVOKE ALL ON TABLE public.projects FROM PUBLIC;
-REVOKE ALL ON TABLE public.projects FROM cloud;
-GRANT ALL ON TABLE public.projects TO cloud;
 GRANT SELECT ON TABLE public.projects TO snapanalytics;
 
 
@@ -275,9 +317,6 @@ GRANT SELECT ON TABLE public.projects TO snapanalytics;
 -- Name: TABLE count_recent_projects; Type: ACL; Schema: public; Owner: cloud
 --
 
-REVOKE ALL ON TABLE public.count_recent_projects FROM PUBLIC;
-REVOKE ALL ON TABLE public.count_recent_projects FROM cloud;
-GRANT ALL ON TABLE public.count_recent_projects TO cloud;
 GRANT SELECT ON TABLE public.count_recent_projects TO snapanalytics;
 
 
@@ -285,9 +324,6 @@ GRANT SELECT ON TABLE public.count_recent_projects TO snapanalytics;
 -- Name: TABLE recent_projects_2_days; Type: ACL; Schema: public; Owner: cloud
 --
 
-REVOKE ALL ON TABLE public.recent_projects_2_days FROM PUBLIC;
-REVOKE ALL ON TABLE public.recent_projects_2_days FROM cloud;
-GRANT ALL ON TABLE public.recent_projects_2_days TO cloud;
 GRANT SELECT ON TABLE public.recent_projects_2_days TO snapanalytics;
 
 
@@ -295,9 +331,6 @@ GRANT SELECT ON TABLE public.recent_projects_2_days TO snapanalytics;
 -- Name: TABLE tokens; Type: ACL; Schema: public; Owner: cloud
 --
 
-REVOKE ALL ON TABLE public.tokens FROM PUBLIC;
-REVOKE ALL ON TABLE public.tokens FROM cloud;
-GRANT ALL ON TABLE public.tokens TO cloud;
 GRANT SELECT ON TABLE public.tokens TO snapanalytics;
 
 
@@ -305,10 +338,14 @@ GRANT SELECT ON TABLE public.tokens TO snapanalytics;
 -- Name: TABLE users; Type: ACL; Schema: public; Owner: cloud
 --
 
-REVOKE ALL ON TABLE public.users FROM PUBLIC;
-REVOKE ALL ON TABLE public.users FROM cloud;
-GRANT ALL ON TABLE public.users TO cloud;
 GRANT SELECT ON TABLE public.users TO snapanalytics;
+
+
+--
+-- Name: COLUMN users.email; Type: ACL; Schema: public; Owner: cloud
+--
+
+GRANT UPDATE(email) ON TABLE public.users TO snapanalytics;
 
 
 --
