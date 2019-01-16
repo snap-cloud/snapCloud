@@ -44,34 +44,38 @@ require 'responses'
 require 'validation'
 require 'passwords'
 
+function wrap_capture_errors(tbl)
+    if tbl.GET then tbl.GET = capture_errors(tbl.GET) end
+    if tbl.POST then tbl.POST = capture_errors(tbl.POST) end
+    if tbl.DELETE then tbl.DELETE = capture_errors(tbl.DELETE) end
+    -- if tbl.PUT then tbl.PUT = capture_errors(tbl.PUT) end
+end
+
 -- API Endpoints
 -- =============
--- Wrap all API requests in the same prefix.
--- TODO: Make /api/v1 be required by removing ().
--- Do this after Snap! is updated.
-local function api_route(name, path, fn)
-   return name, '(/api/v1)' .. path, fn
+-- Wraps all API endpoints in standard behavior.
+local function api_route(name, path, tbl)
+    tbl.OPTIONS = cors_options
+    wrap_capture_errors(tbl)
+    return name, '(/api/v1)' .. path, respond_to(tbl)
 end
 
 
-app:match(api_route('init', '/init', respond_to({
-    OPTIONS = cors_options,
+app:match(api_route('init', '/init', {
     POST = function (self)
         if not self.session.username or
             (self.session.username and self.cookies.persist_session == 'false') then
             self.session.username = ''
         end
     end
-})))
+}))
 
 
-app:match(api_route('current_user', '/users/c', respond_to({
+app:match(api_route('current_user', '/users/c', {
     -- Methods:     GET
     -- Description: Get the currently logged user's username and credentials.
 
-    OPTIONS = cors_options,
     GET = function (self)
-
         if self.current_user then
             self.session.verified = self.current_user.verified
         elseif self.session.username == '' then
@@ -85,17 +89,16 @@ app:match(api_route('current_user', '/users/c', respond_to({
             verified = self.session.verified
         })
     end
-})))
+}))
 
 
-app:match('userlist', '/users', respond_to({
+app:match(api_route('userlist', '/users', {
     -- Methods:     GET
     -- Description: If requesting user is an admin, get a paginated list of all users
     --              with username or email matching matchtext, if provided.
     -- Parameters:  matchtext, page, pagesize
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
+    GET = function (self)
         assert_admin(self)
         local paginator = Users:paginated(
             self.params.matchtext and
@@ -115,10 +118,10 @@ app:match('userlist', '/users', respond_to({
             users = users
         })
     end
-)}))
+}))
 
 
-app:match('user', '/users/:username', respond_to({
+app:match(api_route('user', '/users/:username', {
     -- Methods:     GET, DELETE, POST
     -- Description: Get info about a user, or delete/add/update a user. All passwords should
     --              travel pre-hashed with SHA512.
@@ -191,10 +194,10 @@ app:match('user', '/users/:username', respond_to({
         end
     end)
 
-})))
+}))
 
 
-app:match(api_route('newpassword', '/users/:username/newpassword', respond_to({
+app:match(api_route('newpassword', '/users/:username/newpassword', {
     -- Methods:     POST
     -- Description: Sets a new password for a user. All passwords should travel pre-hashed
     --              with SHA512.
@@ -219,9 +222,9 @@ app:match(api_route('newpassword', '/users/:username/newpassword', respond_to({
 
         return okResponse('Password updated')
     end)
-})))
+}))
 
-app:match(api_route('resendverification', '/users/:username/resendverification', respond_to({
+app:match(api_route('resendverification', '/users/:username/resendverification', {
     -- Methods:     GET
     -- Description: Resends user verification email.
 
@@ -237,9 +240,9 @@ app:match(api_route('resendverification', '/users/:username/resendverification',
             ' sent.\nPlease check your email and validate your\n' ..
             'account within the next 3 days.')
     end)
-})))
+}))
 
-app:match(api_route('password_reset', '/users/:username/password_reset(/:token)', respond_to({
+app:match(api_route('password_reset', '/users/:username/password_reset(/:token)', {
     -- Methods:     GET, POST
     -- Description: Handles password reset requests.
     --              The route name should match the database token purpose.
@@ -271,10 +274,10 @@ app:match(api_route('password_reset', '/users/:username/password_reset(/:token)'
         create_token(self, 'password_reset', self.params.username, self.queried_user.email)
         return okResponse('Password reset request sent.\nPlease check your email.')
     end)
-})))
+}))
 
 
-app:match(api_route('login', '/users/:username/login', respond_to({
+app:match(api_route('login', '/users/:username/login', {
     -- Methods:     POST
     -- Description: Logs a user into the system.
     -- Body:        password
@@ -326,10 +329,10 @@ app:match(api_route('login', '/users/:username/login', respond_to({
             return okResponse('User ' .. previous_username .. ' now logged in as ' .. self.queried_user.username)
         end
     end)
-})))
+}))
 
 
-app:match(api_route('verify_user', '/users/:username/verify_user/:token',
+app:match('verify_user', '/users/:username/verify_user/:token',
     respond_to({
     -- Methods:     GET
     -- Description: Verifies a user's email by means of a token, or removes
@@ -373,10 +376,10 @@ app:match(api_route('verify_user', '/users/:username/verify_user/:token',
             end
         )
     end)
-})))
+}))
 
 
-app:match(api_route('logout', '/logout', respond_to({
+app:match(api_route('logout', '/logout', {
     -- Methods:     POST
     -- Description: Logs out the current user from the system.
 
@@ -386,12 +389,12 @@ app:match(api_route('logout', '/logout', respond_to({
         self.cookies.persist_session = 'false'
         return okResponse('logged out')
     end)
-})))
+}))
 
 
 -- TODO refactor the following two, as they share most of the code
 
-app:match(api_route('projects', '/projects', respond_to({
+app:match(api_route('projects', '/projects', {
     -- Methods:     GET
     -- Description: Get a list of published projects.
     -- Parameters:  page, pagesize, matchtext, withthumbnail
@@ -430,10 +433,10 @@ app:match(api_route('projects', '/projects', respond_to({
             })
         end
     })
-})))
+}))
 
 
-app:match(api_route('user_projects', '/projects/:username', respond_to({
+app:match(api_route('user_projects', '/projects/:username', {
     -- Methods:     GET
     -- Description: Get metadata for a project list by a user.
     --              Response will depend on parameters and query issuer permissions.
@@ -500,10 +503,10 @@ app:match(api_route('user_projects', '/projects/:username', respond_to({
             projects = projects,
         })
     end
-})))
+}))
 
 
-app:match(api_route('project', '/projects/:username/:projectname', respond_to({
+app:match(api_route('project', '/projects/:username/:projectname', {
     -- Methods:     GET, DELETE, POST
     -- Description: Get/delete/add/update a particular project.
     --              Response will depend on query issuer permissions.
@@ -642,10 +645,10 @@ app:match(api_route('project', '/projects/:username/:projectname', respond_to({
         end
 
     end)
-})))
+}))
 
 
-app:match(api_route('project_meta', '/projects/:username/:projectname/metadata', respond_to({
+app:match(api_route('project_meta', '/projects/:username/:projectname/metadata', {
     -- Methods:     GET, DELETE, POST
     -- Description: Get/add/update a project metadata.
     -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
@@ -709,7 +712,7 @@ app:match(api_route('project_meta', '/projects/:username/:projectname/metadata',
 
         return okResponse('project ' .. self.params.projectname .. ' updated')
     end)
-})))
+}))
 
 app:match('project_versions', '/projects/:username/:projectname/versions', respond_to({
     -- Methods:     GET
