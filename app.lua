@@ -107,10 +107,14 @@ app:before_filter(function (self)
 
     if self.params.username then
         self.params.username = self.params.username:lower()
+        self.queried_user = package.loaded.Users:find(self.params.username)
     end
 
-    if not self.session.username then
+    if self.session.username then
+        self.current_user = package.loaded.Users:find(self.session.username)
+    else
         self.session.username = ''
+        self.current_user = nil
     end
 
     -- Set Access Control header
@@ -143,7 +147,7 @@ function app:handle_error(err, trace)
     return errorResponse(err, 500)
 end
 
--- Enable the ability to have a maintenace mode
+-- Enable the ability to have a maintenance mode
 -- No routes are served, and a generic error is returned.
 if config.maintenance_mode == 'true' then
     local msg = 'The Snap!Cloud is currently down for maintenance.'
