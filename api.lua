@@ -128,17 +128,16 @@ app:match(api_route('user', '/users/:username', {
 
     -- Parameters:  username, password, password_repeat, email
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
+    GET = function (self)
         if not users_match(self) then assert_admin(self) end
         return jsonResponse(
             Users:select(
                 'where username = ? limit 1',
                 self.params.username,
                 { fields = 'username, created, isadmin, email' })[1])
-    end),
+    end,
 
-    DELETE = capture_errors(function (self)
+    DELETE = function (self)
         assert_user_exists(self)
 
         if not users_match(self) then assert_admin(self) end
@@ -148,9 +147,9 @@ app:match(api_route('user', '/users/:username', {
         else
             return okResponse('User ' .. self.params.username .. ' has been removed.')
         end
-    end),
+    end,
 
-    POST = capture_errors(function (self)
+    POST = function (self)
         if (self.current_user) then
             if not users_match(self) then assert_admin(self) end
             -- user is updating profile, or an admin is updating somebody else's profile
@@ -192,7 +191,7 @@ app:match(api_route('user', '/users/:username', {
             'User ' .. self.params.username ..
             ' created.\nPlease check your email and validate your\naccount within the next 3 days.')
         end
-    end)
+    end
 
 }))
 
@@ -203,8 +202,7 @@ app:match(api_route('newpassword', '/users/:username/newpassword', {
     --              with SHA512.
     -- Parameters:  oldpassword, password_repeat, newpassword
 
-    OPTIONS = cors_options,
-    POST = capture_errors(function (self)
+    POST = function (self)
         assert_all({'user_exists', 'users_match'}, self)
 
         if self.queried_user.password ~= hash_password(self.params.oldpassword, self.queried_user.salt) then
@@ -221,15 +219,14 @@ app:match(api_route('newpassword', '/users/:username/newpassword', {
         })
 
         return okResponse('Password updated')
-    end)
+    end
 }))
 
 app:match(api_route('resendverification', '/users/:username/resendverification', {
-    -- Methods:     GET
+    -- Methods:     POST
     -- Description: Resends user verification email.
 
-    OPTIONS = cors_options,
-    POST = capture_errors(function (self)
+    POST = function (self)
         assert_user_exists(self)
         if self.queried_user.verified then
             return okResponse('User ' .. self.queried_user.username .. ' is already verified.\nThere is no need for you to do anything.\n')
@@ -239,7 +236,7 @@ app:match(api_route('resendverification', '/users/:username/resendverification',
             'Verification email for ' .. self.queried_user.username ..
             ' sent.\nPlease check your email and validate your\n' ..
             'account within the next 3 days.')
-    end)
+    end
 }))
 
 app:match(api_route('password_reset', '/users/:username/password_reset(/:token)', {
@@ -248,8 +245,7 @@ app:match(api_route('password_reset', '/users/:username/password_reset(/:token)'
     --              The route name should match the database token purpose.
     -- @see validation.create_token
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
+    GET = function (self)
         return check_token(
             self.params.token,
             'password_reset',
@@ -268,12 +264,12 @@ app:match(api_route('password_reset', '/users/:username/password_reset(/:token)'
                 )
             end
         )
-    end),
-    POST = capture_errors(function (self)
+    end,
+    POST = function (self)
         assert_user_exists(self)
         create_token(self, 'password_reset', self.params.username, self.queried_user.email)
         return okResponse('Password reset request sent.\nPlease check your email.')
-    end)
+    end
 }))
 
 
@@ -282,7 +278,6 @@ app:match(api_route('login', '/users/:username/login', {
     -- Description: Logs a user into the system.
     -- Body:        password
 
-    OPTIONS = cors_options,
     POST = function (self)
         assert_user_exists(self)
 
@@ -332,8 +327,7 @@ app:match(api_route('login', '/users/:username/login', {
 }))
 
 
-app:match('verify_user', '/users/:username/verify_user/:token',
-    respond_to({
+app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
     -- Methods:     GET
     -- Description: Verifies a user's email by means of a token, or removes
     --              that token if it has expired.
@@ -383,12 +377,11 @@ app:match(api_route('logout', '/logout', {
     -- Methods:     POST
     -- Description: Logs out the current user from the system.
 
-    OPTIONS = cors_options,
-    POST = capture_errors(function (self)
+    POST = function (self)
         self.session.username = ''
         self.cookies.persist_session = 'false'
         return okResponse('logged out')
-    end)
+    end
 }))
 
 
@@ -399,7 +392,6 @@ app:match(api_route('projects', '/projects', {
     -- Description: Get a list of published projects.
     -- Parameters:  page, pagesize, matchtext, withthumbnail
 
-    OPTIONS = cors_options,
     GET = cached({
         exptime = 30, -- cache expires after 30 seconds
         function (self)
@@ -442,7 +434,6 @@ app:match(api_route('user_projects', '/projects/:username', {
     --              Response will depend on parameters and query issuer permissions.
     -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
 
-    OPTIONS = cors_options,
     GET = function (self)
         local order = 'lastshared'
 
@@ -513,8 +504,7 @@ app:match(api_route('project', '/projects/:username/:projectname', {
     -- Parameters:  delta, ispublic, ispublished
     -- Body:        xml, notes, thumbnail
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
+    GET = function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
@@ -532,8 +522,8 @@ app:match(api_route('project', '/projects/:username/:projectname', {
             (retrieve_from_disk(project.id, 'media.xml', self.params.delta) or '<media></media>') ..
             '</snapdata>'
         )
-    end),
-    DELETE = capture_errors(function (self)
+    end,
+    DELETE = function (self)
         assert_all({'project_exists', 'user_exists'}, self)
         if not users_match(self) then assert_admin(self) end
 
@@ -563,8 +553,8 @@ app:match(api_route('project', '/projects/:username/:projectname', {
         else
             return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
         end
-    end),
-    POST = capture_errors(function (self)
+    end,
+    POST = function (self)
         validate.assert_valid(self.params, {
             { 'projectname', exists = true },
             { 'username', exists = true }
@@ -643,8 +633,7 @@ app:match(api_route('project', '/projects/:username/:projectname', {
         else
             return okResponse('project ' .. self.params.projectname .. ' saved')
         end
-
-    end)
+    end
 }))
 
 
@@ -654,8 +643,7 @@ app:match(api_route('project_meta', '/projects/:username/:projectname/metadata',
     -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
     -- Body:        notes, projectname
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
+    GET = function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
@@ -679,8 +667,8 @@ app:match(api_route('project_meta', '/projects/:username/:projectname/metadata',
         end
 
         return jsonResponse(project)
-    end),
-    POST = capture_errors(function (self)
+    end,
+    POST = function (self)
         if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
@@ -711,17 +699,16 @@ app:match(api_route('project_meta', '/projects/:username/:projectname/metadata',
         })
 
         return okResponse('project ' .. self.params.projectname .. ' updated')
-    end)
+    end
 }))
 
-app:match('project_versions', '/projects/:username/:projectname/versions', respond_to({
+app:match(api_route('project_versions', '/projects/:username/:projectname/versions', {
     -- Methods:     GET
     -- Description: Get info about backed up project versions.
     -- Parameters:
     -- Body:        versions
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
+    GET = function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
@@ -741,18 +728,18 @@ app:match('project_versions', '/projects/:username/:projectname/versions', respo
             version_metadata(project.id, -1),
             version_metadata(project.id, -2)
         })
-    end)
+    end
 }))
 
 
-app:match('project_remixes', '/projects/:username/:projectname/remixes', respond_to({
+app:match(api_route('project_remixes',
+                    '/projects/:username/:projectname/remixes', {
     -- Methods:     GET
     -- Description: Get a list of all published remixes from a project.
     -- Parameters:  page, pagesize
     -- Body:
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
+    GET = function (self)
         local project = Projects:find(self.params.username, self.params.projectname)
 
         if not project then yield_error(err.nonexistent_project) end
@@ -783,17 +770,16 @@ app:match('project_remixes', '/projects/:username/:projectname/remixes', respond
             pages = self.params.page and paginator:num_pages() or nil,
             projects = remixes
         })
-    end)
+    end
 }))
 
 
-app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond_to({
+app:match(api_route('project_thumb',
+                    '/projects/:username/:projectname/thumbnail', {
     -- Methods:     GET
     -- Description: Get a project thumbnail.
 
-    OPTIONS = cors_options,
-    GET = capture_errors(
-    cached({
+    GET = cached({
         exptime = 30, -- cache expires after 30 seconds
         function (self)
             local project = Projects:find(self.params.username, self.params.projectname)
@@ -809,5 +795,5 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
                 retrieve_from_disk(project.id, 'thumbnail') or
                     generate_thumbnail(project.id))
         end
-    }))
+    })
 }))
