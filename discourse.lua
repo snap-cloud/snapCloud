@@ -8,9 +8,9 @@
 -- https://meta.discourse.org/t/official-single-sign-on-for-discourse-sso/13045
 --
 --
--- Written by Michael Ball
+-- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2018 by Michael Ball
+-- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --

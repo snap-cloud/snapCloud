@@ -1,9 +1,9 @@
 -- Validation and errors
 -- =====================
 --
--- Written by Bernat Romagosa
+-- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2018 by Bernat Romagosa
+-- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --
@@ -58,7 +58,7 @@ assert_logged_in = function (self, message)
 end
 
 assert_admin = function (self, message)
-    if not self.current_user.isadmin then
+    if not (self.current_user and self.current_user.isadmin) then
         yield_error(message or err.auth)
     end
 end
