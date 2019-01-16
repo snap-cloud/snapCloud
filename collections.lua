@@ -3,9 +3,9 @@
 --
 -- See static/API for API description
 --
--- Written by Bernat Romagosa, Michael Ball
+-- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2019 by Bernat Romagosa, Michael
+-- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --

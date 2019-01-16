@@ -2,9 +2,10 @@
 -- ==========
 --
 -- A cloud backend for Snap!
--- Written by Bernat Romagosa
+-- 
+-- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2018 by Bernat Romagosa
+-- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --
