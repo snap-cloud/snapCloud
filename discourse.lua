@@ -67,7 +67,7 @@ app:get('/discourse-sso', capture_errors(function(self)
     local request_payload = extract_payload(payload)
     local user = Users:select('where username = ? limit 1',
             self.session.username,
-            { fields = 'id, username, verified, isadmin, email' })[1]
+            { fields = 'id, username, verified, role, email' })[1]
     local response_payload = build_payload(user, request_payload.nonce)
     local final_url = create_redirect_url(request_payload.return_sso_url,
                                           response_payload)
@@ -95,7 +95,7 @@ function build_payload(user, nonce)
         username = user.username,
         email = user.email,
         require_activation = not user.verified,
-        admin = user.isadmin,
+        admin = user:isadmin(),
         nonce = nonce
     }
     return encoding.encode_base64(util.encode_query_string(params))

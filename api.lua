@@ -44,7 +44,6 @@ require 'disk'
 require 'responses'
 require 'validation'
 require 'passwords'
-require 'users'
 
 -- API Endpoints
 -- =============
@@ -69,13 +68,13 @@ app:match('current_user', '/users/c', respond_to({
         if self.current_user then
             self.session.verified = self.current_user.verified
         elseif self.session.username == '' then
-            self.session.isadmin = false
+            self.session.role = nil
             self.session.verified = false
         end
 
         return jsonResponse({
             username = self.session.username,
-            isadmin = self.session.isadmin,
+            role = self.session.role,
             verified = self.session.verified
         })
     end
@@ -102,7 +101,7 @@ app:match('userlist', '/users', respond_to({
                 or 'order by verified, created',
             {
                 per_page = self.params.pagesize or 16,
-                fields = 'username, id, created, email, verified, isadmin'
+                fields = 'username, id, created, email, verified, role'
             })
         local users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
         return jsonResponse({
@@ -127,7 +126,7 @@ app:match('user', '/users/:username', respond_to({
             Users:select(
                 'where username = ? limit 1',
                 self.params.username,
-                { fields = 'username, created, isadmin, email' })[1])
+                { fields = 'username, created, role, email' })[1])
     end),
 
     DELETE = capture_errors(function (self)
@@ -173,7 +172,7 @@ app:match('user', '/users/:username', respond_to({
                 password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
                 email = self.params.email,
                 verified = false,
-                isadmin = false
+                role = 'standard'
             })
 
             -- Create a verify_user-type token and send an email to the user asking to
@@ -302,7 +301,7 @@ app:match('login', '/users/:username/login', respond_to({
                 end
             end
             self.session.username = self.queried_user.username
-            self.session.isadmin = self.queried_user.isadmin
+            self.session.role = self.queried_user.role
             self.session.verified = self.queried_user.verified
             self.cookies.persist_session = self.params.persist
             if self.queried_user.verified then
@@ -315,7 +314,7 @@ app:match('login', '/users/:username/login', respond_to({
             assert_admin(self, 'wrong password')
             local previous_username = self.current_user.username
             self.session.username = self.queried_user.username
-            self.session.isadmin = self.queried_user.isadmin
+            self.session.role = self.queried_user.role
             self.session.verified = self.queried_user.verified
             self.cookies.persist_session = 'false'
             return okResponse('User ' .. previous_username .. ' now logged in as ' .. self.queried_user.username)
@@ -438,7 +437,7 @@ app:match('user_projects', '/projects/:username', respond_to({
         local order = 'lastshared'
 
         if not (users_match(self)) then
-            if not self.current_user or not self.current_user.isadmin then
+            if not self.current_user or not self.current_user:isadmin() then
                 self.params.ispublished = 'true'
                 order = 'firstpublished'
             end
