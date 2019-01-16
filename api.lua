@@ -43,6 +43,7 @@ require 'disk'
 require 'responses'
 require 'validation'
 require 'passwords'
+require 'users'
 
 -- API Endpoints
 -- =============
@@ -64,7 +65,6 @@ app:match('current_user', '/users/c', respond_to({
 
     OPTIONS = cors_options,
     GET = function (self)
-
         if (self.session.username ~= nil and self.session.username ~= '' and not self.session.verified) then
             self.session.verified = (Users:find(self.session.username)).verified
         elseif self.session.username == '' then
@@ -79,6 +79,7 @@ app:match('current_user', '/users/c', respond_to({
         })
     end
 }))
+
 
 
 app:match('userlist', '/users', respond_to({
