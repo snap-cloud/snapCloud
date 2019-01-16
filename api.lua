@@ -339,6 +339,7 @@ app:match(api_route('verify_user', '/users/:username/verify_user/:token',
     --              Returns a success message if the user is already verified.
     --              The route name should match the database token purpose.
     -- @see validation.create_token
+
     GET = capture_errors(function (self)
         local user_page = function (user)
             return htmlPage(
@@ -738,7 +739,7 @@ app:match('project_versions', '/projects/:username/:projectname/versions', respo
             version_metadata(project.id, -2)
         })
     end)
-})))
+}))
 
 
 app:match('project_remixes', '/projects/:username/:projectname/remixes', respond_to({
@@ -806,4 +807,4 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
                     generate_thumbnail(project.id))
         end
     }))
-})))
+}))
