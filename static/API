@@ -10,15 +10,24 @@ Description: Get the currently logged user's username and credentials.
 Parameters:
 Body:
 
+/users
+Methods:     GET
+Description: If requesting user is an admin, get a paginated list of all users
+             with username or email matching matchtext, if provided.
+Parameters:  matchtext, page, pagesize
+Body:
+
 /users/:username
 Methods:     GET, DELETE, POST
-Description: Get info about a user, or delete/add a user. All passwords should travel pre-hashed with SHA512.
+Description: Get info about a user, or delete/update/add a user. All passwords should
+             travel pre-hashed with SHA512.
 Parameters:  password, password_repeat, email
 Body:
 
 /users/:username/newpassword
 Methods:     POST
-Description: Sets a new password for a user. All passwords should travel pre-hashed with SHA512.
+Description: Sets a new password for a user. All passwords should travel pre-hashed
+             with SHA512.
 Parameters:  password, password_repeat
 Body:
 
@@ -29,9 +38,13 @@ Parameters:
 Body:
 
 /users/:username/verify_user/:token
-Methods:     GET, POST
-Description: Verifies a user's email by means of a token, or removes that token if
-             it has expired.
+Methods:     GET
+Description: Verifies a user's email by means of a token, or removes
+             that token if it has expired.
+             If requesting user is an admin, verifies the user and removes
+             the token. Token should equal '0' for admins.
+             Returns a success message if the user is already verified.
+             The route name should match the database token purpose.
 Parameters:
 Body:
 
@@ -45,7 +58,7 @@ Body:
 Methods:     POST
 Description: Logs a user into the system. Password should travel pre-hashed with SHA512.
 Parameters:
-Body:        password.
+Body:        password
 
 /logout
 Methods:     POST
@@ -56,7 +69,7 @@ Body:
 /projects
 Methods:     GET
 Description: Get a list of published projects.
-Parameters:  page, pagesize, matchtext, withthumbnail.
+Parameters:  page, pagesize, matchtext, withthumbnail
 Body:
 
 /projects/:username
@@ -65,7 +78,7 @@ Description: Get metadata for a project list by a user.
              Response will depend on parameters and query issuer permissions.
              The updatingnotes parameter checks for empty values in the notes column
              of the database and fills them with the notes in the project XML.
-Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes.
+Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
 Body:
 
 /projects/:username/:projectname
@@ -78,7 +91,7 @@ Body:        xml, notes, thumbnail
 /projects/:username/:projectname/metadata
 Methods:     GET, DELETE, POST
 Description: Get/add/update a project metadata.
-Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
+Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
 Body:        notes, projectname
 
 /projects/:username/:projectname/versions
@@ -89,7 +102,7 @@ Body:        versions
 
 /projects/:username/:projectname/remixes
 Methods:     GET
-Description: Get a list of all published remixes from a project
+Description: Get a list of all published remixes from a project.
 Parameters:  page, pagesize
 Body:
 

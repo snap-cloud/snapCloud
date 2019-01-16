@@ -86,13 +86,13 @@ function parse_notes(id, delta)
                 notes = xml.find(project, 'notes')[1]
             end) then
             project_file:close()
-            return notes
+            return notes or ''
         else
             project_file:close()
-            return nil
+            return ''
         end
     else
-        return nil
+        return ''
     end
 end
 

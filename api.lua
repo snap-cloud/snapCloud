@@ -37,6 +37,8 @@ local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 local Remixes = package.loaded.Remixes
 
+local cjson = require('cjson')
+
 require 'disk'
 require 'responses'
 require 'validation'
@@ -79,9 +81,41 @@ app:match('current_user', '/users/c', respond_to({
 }))
 
 
+app:match('userlist', '/users', respond_to({
+    -- Methods:     GET
+    -- Description: If requesting user is an admin, get a paginated list of all users
+    --              with username or email matching matchtext, if provided.
+    -- Parameters:  matchtext, page, pagesize
+
+    OPTIONS = cors_options,
+    GET = capture_errors(function (self)
+        assert_admin(self)
+        local paginator = Users:paginated(
+            self.params.matchtext and
+                db.interpolate_query(
+                    'where username ~* ? or email ~* ?',
+                    self.params.matchtext,
+                    self.params.matchtext
+                )
+                or 'order by verified, created',
+            {
+                per_page = self.params.pagesize or 16,
+                fields = 'username, id, created, email, verified, isadmin'
+            })
+        local users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+        return jsonResponse({
+            pages = self.params.page and paginator:num_pages() or nil,
+            users = users
+        })
+    end
+)}))
+
+
 app:match('user', '/users/:username', respond_to({
     -- Methods:     GET, DELETE, POST
-    -- Description: Get info about a user, or delete/add a user.
+    -- Description: Get info about a user, or delete/add/update a user. All passwords should
+    --              travel pre-hashed with SHA512.
+
     -- Parameters:  username, password, password_repeat, email
 
     OPTIONS = cors_options,
@@ -91,13 +125,15 @@ app:match('user', '/users/:username', respond_to({
             Users:select(
                 'where username = ? limit 1',
                 self.params.username,
-                { fields = 'username, location, about, created, isadmin, email' })[1])
+                { fields = 'username, created, isadmin, email' })[1])
     end),
 
     DELETE = capture_errors(function (self)
-        assert_all({'user_exists', 'admin'}, self)
+        assert_user_exists(self)
 
-        if not (self.user:delete()) then
+        if not users_match(self) then assert_admin(self) end
+
+        if not (self.queried_user:delete()) then
             yield_error('Could not delete user ' .. self.params.username)
         else
             return okResponse('User ' .. self.params.username .. ' has been removed.')
@@ -105,35 +141,47 @@ app:match('user', '/users/:username', respond_to({
     end),
 
     POST = capture_errors(function (self)
-        validate.assert_valid(self.params, {
-            { 'username', exists = true, min_length = 4, max_length = 200 },
-            { 'password', exists = true, min_length = 6 },
-            { 'password_repeat', equals = self.params.password, 'passwords do not match' },
-            { 'email', exists = true, min_length = 5 },
-        })
+        if (self.current_user.username == self.queried_user.username
+            or self.session.isadmin) then
+            -- user is updating profile, or an admin is updating somebody else's profile
+            self.queried_user:update({
+                -- we only support changing a user's email at the moment, but we could use
+                -- this method to update their permissions in the future too
+                email = self.params.email or self.queried_user.email
+            })
+            return okResponse('Profile for user ' .. self.queried_user.username .. ' updated')
+        else
+            -- new user
+            validate.assert_valid(self.params, {
+                { 'username', exists = true, min_length = 4, max_length = 200 },
+                { 'password', exists = true, min_length = 6 },
+                { 'password_repeat', equals = self.params.password, 'passwords do not match' },
+                { 'email', exists = true, min_length = 5 },
+            })
 
-        if self.user then
-            yield_error('User ' .. self.params.username .. ' already exists');
-        end
+            if self.queried_user then
+                yield_error('User ' .. self.queried_user.username .. ' already exists');
+            end
 
-        local salt = secure_salt()
-        Users:create({
-            created = db.format_date(),
-            username = self.params.username,
-            salt = salt,
-            password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
-            email = self.params.email,
-            verified = false,
-            isadmin = false
-        })
+            local salt = secure_salt()
+            Users:create({
+                created = db.format_date(),
+                username = self.params.username,
+                salt = salt,
+                password = hash_password(self.params.password, salt), -- see validation.lua >> hash_password
+                email = self.params.email,
+                verified = false,
+                isadmin = false
+            })
 
-        -- Create a verify_user-type token and send an email to the user asking to
-        -- verify the account.
-        -- We check these on login.
-        create_token(self, 'verify_user', self.params.username, self.params.email)
-        return okResponse(
+            -- Create a verify_user-type token and send an email to the user asking to
+            -- verify the account.
+            -- We check these on login.
+            create_token(self, 'verify_user', self.params.username, self.params.email)
+            return okResponse(
             'User ' .. self.params.username ..
             ' created.\nPlease check your email and validate your\naccount within the next 3 days.')
+        end
     end)
 
 }))
@@ -141,14 +189,15 @@ app:match('user', '/users/:username', respond_to({
 
 app:match('newpassword', '/users/:username/newpassword', respond_to({
     -- Methods:     POST
-    -- Description: Sets a new password for a user.
+    -- Description: Sets a new password for a user. All passwords should travel pre-hashed
+    --              with SHA512.
     -- Parameters:  oldpassword, password_repeat, newpassword
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
         assert_all({'user_exists', 'users_match'}, self)
 
-        if self.user.password ~= hash_password(self.params.oldpassword, self.user.salt) then
+        if self.queried_user.password ~= hash_password(self.params.oldpassword, self.queried_user.salt) then
             yield_error('wrong password')
         end
 
@@ -157,8 +206,8 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
             { 'newpassword', exists = true, min_length = 6 }
         })
 
-        self.user:update({
-            password = hash_password(self.params.newpassword, self.user.salt)
+        self.queried_user:update({
+            password = hash_password(self.params.newpassword, self.queried_user.salt)
         })
 
         return okResponse('Password updated')
@@ -167,17 +216,17 @@ app:match('newpassword', '/users/:username/newpassword', respond_to({
 
 app:match('resendverification', '/users/:username/resendverification', respond_to({
     -- Methods:     GET
-    -- Description: Resends user verification email
+    -- Description: Resends user verification email.
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
         assert_user_exists(self)
-        if self.user.verified then
-            return okResponse('User ' .. self.user.username .. ' is already verified.\nThere is no need for you to do anything.\n')
+        if self.queried_user.verified then
+            return okResponse('User ' .. self.queried_user.username .. ' is already verified.\nThere is no need for you to do anything.\n')
         end
-        create_token(self, 'verify_user', self.user.username, self.user.email)
+        create_token(self, 'verify_user', self.queried_user.username, self.queried_user.email)
         return okResponse(
-            'Verification email for ' .. self.user.username ..
+            'Verification email for ' .. self.queried_user.username ..
             ' sent.\nPlease check your email and validate your\n' ..
             'account within the next 3 days.')
     end)
@@ -212,7 +261,7 @@ app:match('password_reset', '/users/:username/password_reset(/:token)', respond_
     end),
     POST = capture_errors(function (self)
         assert_user_exists(self)
-        create_token(self, 'password_reset', self.params.username, self.user.email)
+        create_token(self, 'password_reset', self.params.username, self.queried_user.email)
         return okResponse('Password reset request sent.\nPlease check your email.')
     end)
 }))
@@ -221,7 +270,7 @@ app:match('password_reset', '/users/:username/password_reset(/:token)', respond_
 app:match('login', '/users/:username/login', respond_to({
     -- Methods:     POST
     -- Description: Logs a user into the system.
-    -- Body:        password.
+    -- Body:        password
 
     OPTIONS = cors_options,
     POST = capture_errors(function (self)
@@ -230,12 +279,12 @@ app:match('login', '/users/:username/login', respond_to({
         ngx.req.read_body()
         local password = ngx.req.get_body_data()
 
-        if (hash_password(password, self.user.salt) == self.user.password) then
-            if not self.user.verified then
+        if (hash_password(password, self.queried_user.salt) == self.queried_user.password) then
+            if not self.queried_user.verified then
                 -- Check whether verification token is still unused and valid
                 local token =
                     Tokens:find({
-                        username = self.user.username,
+                        username = self.queried_user.username,
                         purpose = 'verify_user'
                     })
                 if token then
@@ -244,23 +293,30 @@ app:match('login', '/users/:username/login', respond_to({
                         token:delete()
                         yield_error(err.nonvalidated_user)
                     else
-                        self.user.days_left = 3 - query.date_part
+                        self.queried_user.days_left = 3 - query.date_part
                     end
                 else
                     yield_error(err.nonvalidated_user)
                 end
             end
-            self.session.username = self.user.username
-            self.session.isadmin = self.user.isadmin
-            self.session.verified = self.user.verified
+            self.session.username = self.queried_user.username
+            self.session.isadmin = self.queried_user.isadmin
+            self.session.verified = self.queried_user.verified
             self.cookies.persist_session = self.params.persist
-            if self.user.verified then
-                return okResponse('User ' .. self.user.username .. ' logged in')
+            if self.queried_user.verified then
+                return okResponse('User ' .. self.queried_user.username .. ' logged in')
             else
-                return jsonResponse({ days_left = self.user.days_left })
+                return jsonResponse({ days_left = self.queried_user.days_left })
             end
         else
-            yield_error('wrong password')
+            -- Admins can log in as other people
+            assert_admin(self, 'wrong password')
+            local previous_username = self.current_user.username
+            self.session.username = self.queried_user.username
+            self.session.isadmin = self.queried_user.isadmin
+            self.session.verified = self.queried_user.verified
+            self.cookies.persist_session = 'false'
+            return okResponse('User ' .. previous_username .. ' now logged in as ' .. self.queried_user.username)
         end
     end)
 }))
@@ -269,7 +325,9 @@ app:match('login', '/users/:username/login', respond_to({
 app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
     -- Methods:     GET
     -- Description: Verifies a user's email by means of a token, or removes
-    --              that token if it has expired
+    --              that token if it has expired.
+    --              If requesting user is an admin, verifies the user and removes
+    --              the token. Token should equal '0' for admins.
     --              Returns a success message if the user is already verified.
     --              The route name should match the database token purpose.
     -- @see validation.create_token
@@ -283,9 +341,17 @@ app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
                 '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
             )
         end
-        local user = assert_user_exists(self)
-        if user.verified then
-            return user_page(user)
+        assert_user_exists(self)
+        if self.queried_user.verified then
+            return user_page(self.queried_user)
+        end
+
+        -- admins can verify people without the need of a token
+        if self.params.token == '0' then assert_admin(self)
+            local token = Tokens:select('where username = ? and purpose = ?', self.queried_user.username, 'verify_user')
+            if (token and token[1]) then token[1]:delete() end
+            self.queried_user:update({ verified = true })
+            return okResponse('User ' .. self.queried_user.username .. ' has been verified')
         end
 
         return check_token(
@@ -320,7 +386,7 @@ app:match('logout', '/logout', respond_to({
 app:match('projects', '/projects', respond_to({
     -- Methods:     GET
     -- Description: Get a list of published projects.
-    -- Parameters:  page, pagesize, matchtext, withthumbnail.
+    -- Parameters:  page, pagesize, matchtext, withthumbnail
 
     OPTIONS = cors_options,
     GET = cached({
@@ -363,22 +429,20 @@ app:match('user_projects', '/projects/:username', respond_to({
     -- Methods:     GET
     -- Description: Get metadata for a project list by a user.
     --              Response will depend on parameters and query issuer permissions.
-    -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes.
+    -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
 
     OPTIONS = cors_options,
     GET = function (self)
         local order = 'lastshared'
 
-        -- TODO use users_match
-        if self.session.username ~= self.params.username then
-            local visitor = self.current_user
-            if not visitor or not visitor.isadmin then
+        if not (users_match(self)) then
+            if not self.current_user or not self.current_user.isadmin then
                 self.params.ispublished = 'true'
                 order = 'firstpublished'
             end
         end
 
-        local query = db.interpolate_query('where username = ?', self.params.username)
+        local query = db.interpolate_query('where username = ?', self.queried_user.username)
 
         -- Apply where clauses
         if self.params.ispublished ~= nil then
@@ -404,7 +468,7 @@ app:match('user_projects', '/projects/:username', respond_to({
 	-- Lazy Notes generation
         if self.params.updatingnotes == 'true' then
             for _, project in pairs(projects) do
-                if (project.notes == nil or project.notes == '') then
+                if (project.notes == nil) then
                     local notes = parse_notes(project.id)
                     if notes then
                         project:update({ notes = notes })
@@ -463,6 +527,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         if not users_match(self) then assert_admin(self) end
 
         local project = Projects:find(self.params.username, self.params.projectname)
+        --[[
         local id = project.id
 
         -- Check out whether this project was a remix of some other project, then delete the remix
@@ -476,6 +541,15 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             yield_error('Could not delete project ' .. self.params.projectname)
         else
             delete_directory(id)
+            return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
+        end
+        ]]--
+
+        -- Do not actually delete the project; flag it as deleted.
+
+        if not (project:update({ deleted = db.format_date() })) then
+            yield_error('Could not delete project ' .. self.params.projectname)
+        else
             return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
         end
     end),
@@ -519,9 +593,8 @@ app:match('project', '/projects/:username/:projectname', respond_to({
         else
             -- Users are automatically verified the first time
             -- they save a project
-            local user = Users:find(self.params.username)
-            if (not user.verified) then
-                user:update({ verified = true })
+            if (not self.queried_user.verified) then
+                self.queried_user:update({ verified = true })
                 self.session.verified = true
             end
 
@@ -538,7 +611,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
             })
             project = Projects:find(self.params.username, self.params.projectname)
 
-            if body.remixID then
+            if (body.remixID and body.remixID ~= cjson.null) then
                 -- user is remixing a project
                 Remixes:create({
                     original_project_id = body.remixID,
@@ -567,7 +640,7 @@ app:match('project', '/projects/:username/:projectname', respond_to({
 app:match('project_meta', '/projects/:username/:projectname/metadata', respond_to({
     -- Methods:     GET, DELETE, POST
     -- Description: Get/add/update a project metadata.
-    -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared.
+    -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
     -- Body:        notes, projectname
 
     OPTIONS = cors_options,
@@ -664,7 +737,7 @@ app:match('project_versions', '/projects/:username/:projectname/versions', respo
 
 app:match('project_remixes', '/projects/:username/:projectname/remixes', respond_to({
     -- Methods:     GET
-    -- Description: Get a list of all published remixes from a project
+    -- Description: Get a list of all published remixes from a project.
     -- Parameters:  page, pagesize
     -- Body:
 
@@ -716,7 +789,7 @@ app:match('project_thumb', '/projects/:username/:projectname/thumbnail', respond
             local project = Projects:find(self.params.username, self.params.projectname)
             if not project then yield_error(err.nonexistent_project) end
 
-            if self.params.username ~= self.session.username
+            if not users_match(self)
                 and not project.ispublic then
                 yield_error(err.auth)
             end
