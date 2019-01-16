@@ -283,7 +283,7 @@ app:match(api_route('login', '/users/:username/login', {
     -- Body:        password
 
     OPTIONS = cors_options,
-    POST = capture_errors(function (self)
+    POST = function (self)
         assert_user_exists(self)
 
         ngx.req.read_body()
@@ -328,7 +328,7 @@ app:match(api_route('login', '/users/:username/login', {
             self.cookies.persist_session = 'false'
             return okResponse('User ' .. previous_username .. ' now logged in as ' .. self.queried_user.username)
         end
-    end)
+    end
 }))
 
 
