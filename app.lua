@@ -107,11 +107,11 @@ app:before_filter(function (self)
 
     if self.params.username then
         self.params.username = self.params.username:lower()
-        self.queried_user = Users:find(self.params.username)
+        self.queried_user = package.loaded.Users:find(self.params.username)
     end
 
     if self.session.username then
-        self.current_user = Users:find(self.session.username)
+        self.current_user = package.loaded.Users:find(self.session.username)
     else
         self.session.username = ''
         self.current_user = nil
