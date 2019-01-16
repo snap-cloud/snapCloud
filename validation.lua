@@ -71,13 +71,11 @@ end
 
 -- define all functions for isadmin, isbanned, etc.
 
-for _, role in pairs({'standard', 'reviewer', 'moderator', 'admin', 'banned'}) do
-    Users.__base['is' .. role] = function ()
-        return self.role == role
-    end
+function Users.__base:isadmin ()
+    return self.role == 'admin'
 end
 
-Users.__base:has_one_of_roles = function (roles)
+function Users.__base:has_one_of_roles (roles)
     for _, role in pairs(roles) do
         if self.role == role then
             return true
