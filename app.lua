@@ -82,6 +82,10 @@ package.loaded.Projects = package.loaded.Model:extend('active_projects', {
     primary_key = { 'username', 'projectname' }
 })
 
+package.loaded.DeletedProjects = package.loaded.Model:extend('deleted_projects', {
+    primary_key = { 'username', 'projectname' }
+})
+
 package.loaded.Tokens = package.loaded.Model:extend('tokens', {
     primary_key = { 'value' }
 })

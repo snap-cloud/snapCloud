@@ -34,6 +34,7 @@ local json_params = package.loaded.json_params
 local cached = package.loaded.cached
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
+local DeletedProjects = package.loaded.DeletedProjects
 local Tokens = package.loaded.Tokens
 local Remixes = package.loaded.Remixes
 
@@ -597,6 +598,11 @@ app:match('project', '/projects/:username/:projectname', respond_to({
                 self.queried_user:update({ verified = true })
                 self.session.verified = true
             end
+
+            -- A project flagged as "deleted" with the same name may exist in the DB.
+            -- We need to check for that and delete it for real this time
+            local deleted_project = DeletedProjects:find(self.params.username, self.params.projectname)
+            if deleted_project then deleted_project:delete() end
 
             Projects:create({
                 projectname = self.params.projectname,
