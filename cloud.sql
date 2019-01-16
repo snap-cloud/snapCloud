@@ -39,6 +39,21 @@ CREATE DOMAIN public.dom_username AS text;
 ALTER DOMAIN public.dom_username OWNER TO cloud;
 
 --
+-- Name: snap_user_role; Type: TYPE; Schema: public; Owner: cloud
+--
+
+CREATE TYPE public.snap_user_role AS ENUM (
+    'standard',
+    'reviewer',
+    'moderator',
+    'admin',
+    'banned'
+);
+
+
+ALTER TYPE public.snap_user_role OWNER TO cloud;
+
+--
 -- Name: expire_token(); Type: FUNCTION; Schema: public; Owner: cloud
 --
 
@@ -114,6 +129,28 @@ CREATE VIEW public.count_recent_projects AS
 ALTER TABLE public.count_recent_projects OWNER TO cloud;
 
 --
+-- Name: deleted_projects; Type: VIEW; Schema: public; Owner: cloud
+--
+
+CREATE VIEW public.deleted_projects AS
+ SELECT projects.id,
+    projects.projectname,
+    projects.ispublic,
+    projects.ispublished,
+    projects.notes,
+    projects.created,
+    projects.lastupdated,
+    projects.lastshared,
+    projects.username,
+    projects.firstpublished,
+    projects.deleted
+   FROM public.projects
+  WHERE (projects.deleted IS NOT NULL);
+
+
+ALTER TABLE public.deleted_projects OWNER TO cloud;
+
+--
 -- Name: projects_id_seq; Type: SEQUENCE; Schema: public; Owner: cloud
 --
 
@@ -187,7 +224,8 @@ CREATE TABLE public.users (
     about text,
     location text,
     isadmin boolean,
-    verified boolean
+    verified boolean,
+    role public.snap_user_role DEFAULT 'standard'::public.snap_user_role
 );
 
 

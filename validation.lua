@@ -1,9 +1,9 @@
 -- Validation and errors
 -- =====================
 --
--- Written by Bernat Romagosa
+-- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2018 by Bernat Romagosa
+-- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --
@@ -20,6 +20,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local db = package.loaded.db
 local Users = package.loaded.Users
@@ -42,7 +43,7 @@ err = {
 }
 
 assert_all = function (assertions, self)
-    for k, assertion in pairs(assertions) do
+    for _, assertion in pairs(assertions) do
         if (type(assertion) == 'string') then
             _G['assert_' .. assertion](self)
         else
@@ -51,16 +52,56 @@ assert_all = function (assertions, self)
     end
 end
 
+-- User permissions and roles
+
 assert_logged_in = function (self, message)
     if not self.session.username then
         yield_error(message or err.not_logged_in)
     end
 end
 
-assert_admin = function (self, message)
-    if not (self.current_user and self.current_user.isadmin) then
+-- User roles:
+-- standard:  Can view published and shared projects, can do anything to own projects,
+--            can see basic user profile data. Can delete oneself.
+-- reviewer:  Same as standard, plus: Can unpublish projects.
+-- moderator: Same as reviewer, plus: Can delete published and shared projects.
+--            Can block users. Can delete users. Can verify users.
+-- admin:     Can do everything.
+-- banned:    Same as a standard user, but can't modify or add anything.
+
+-- define all functions for isadmin, isbanned, etc.
+
+function Users.__base:isadmin ()
+    return self.role == 'admin'
+end
+
+function Users.__base:has_one_of_roles (roles)
+    for _, role in pairs(roles) do
+        if self.role == role then
+            return true
+        end
+    end
+    return false
+end
+
+assert_role = function (self, role, message)
+    if not (self.current_user and self.current_user.role == role) then
         yield_error(message or err.auth)
     end
+end
+
+assert_has_one_of_roles = function (self, roles)
+    if not self.current_user:has_one_of_roles(roles) then
+        yield_error(err.auth)
+    end
+end
+
+assert_admin = function (self, message)
+    assert_role(self, 'admin', message)
+end
+
+users_match = function (self)
+    return (self.session.username == self.params.username)
 end
 
 assert_users_match = function (self, message)
@@ -70,10 +111,6 @@ assert_users_match = function (self, message)
     end
 end
 
-users_match = function (self)
-    return (self.session.username == self.params.username)
-end
-
 assert_user_exists = function (self, message)
     if not self.queried_user then
         yield_error(message or err.nonexistent_user)
@@ -81,11 +118,15 @@ assert_user_exists = function (self, message)
     return self.queried_user
 end
 
+-- Projects
+
 assert_project_exists = function (self, message)
     if not (Projects:find(self.params.username, self.params.projectname)) then
         yield_error(message or err.nonexistent_project)
     end
 end
+
+-- Tokens
 
 check_token = function (token_value, purpose, on_success)
     local token = Tokens:find(token_value)
