@@ -141,8 +141,8 @@ app:match('user', '/users/:username', respond_to({
     end),
 
     POST = capture_errors(function (self)
-        if (self.current_user.username == self.queried_user.username
-            or self.session.isadmin) then
+        if (self.current_user) then
+            if not users_match(self) then assert_admin(self) end
             -- user is updating profile, or an admin is updating somebody else's profile
             self.queried_user:update({
                 -- we only support changing a user's email at the moment, but we could use
