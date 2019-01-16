@@ -58,7 +58,7 @@ assert_logged_in = function (self, message)
 end
 
 assert_admin = function (self, message)
-    if not self.current_user.isadmin then
+    if not (self.current_user and self.current_user.isadmin) then
         yield_error(message or err.auth)
     end
 end
