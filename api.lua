@@ -26,8 +26,6 @@ local api_version = 'v1'
 
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
-
-local Model = package.loaded.Model
 local respond_to = package.loaded.respond_to
 
 require 'controllers.user'
@@ -94,7 +92,7 @@ app:match(api_route('logout', '/logout', UserController, { 'POST' }))
 -- ========
 app:match(api_route('projects', '/projects', ProjectController, { 'GET' }))
 app:match(api_route('user_projects', '/projects/:username', ProjectController, { 'GET' }))
-app:match(api_route('project', '/projects/:username/:projectname', { 'GET', 'POST', 'DELETE' }))
+app:match(api_route('project', '/projects/:username/:projectname', ProjectController, { 'GET', 'POST', 'DELETE' }))
 app:match(api_route('project_meta', '/projects/:username/:projectname/metadata', ProjectController, { 'GET', 'POST' }))
 app:match(api_route('project_versions', '/projects/:username/:projectname/versions', ProjectController, { 'GET' }))
 app:match(api_route('project_remixes', '/projects/:username/:projectname/remixes', ProjectController, { 'GET' }))
