@@ -39,7 +39,7 @@ Description: Resends user verification email.
 Route:       POST /users/:username/password_reset(/:token)
 Description: Generate a token to reset a user's password.
 
-/users/:username/login
+Route:       POST /users/:username/login
 Description: Logs a user into the system.
 Body:        password
 

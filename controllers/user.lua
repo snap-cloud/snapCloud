@@ -251,7 +251,7 @@ UserController = {
         end,
 
         login = function (self)
-            -- /users/:username/login
+            -- POST /users/:username/login
             -- Description: Logs a user into the system.
             -- Body:        password
             assert_user_exists(self)
