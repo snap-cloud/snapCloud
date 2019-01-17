@@ -35,6 +35,8 @@ require 'passwords'
 UserController = {
     GET = {
         current_user = function (self)
+            -- GET /users/c
+            -- Description: Get the currently logged user's username and credentials.
             if self.current_user then
                 self.session.verified = self.current_user.verified
             elseif self.session.username == '' then
@@ -50,6 +52,11 @@ UserController = {
         end,
 
         user_list = function (self)
+            -- GET /users
+            -- Description: If requesting user is an admin, get a paginated list of all users
+            --              with username or email matching matchtext, if provided.
+            -- Parameters:  matchtext, page, pagesize
+
             assert_admin(self)
             local paginator = Users:paginated(
                 self.params.matchtext and
@@ -71,6 +78,8 @@ UserController = {
         end,
 
         user = function (self)
+            -- GET /users/:username
+            -- Description: Get info about a user
             if not users_match(self) then assert_admin(self) end
             return jsonResponse(
                 Users:select(
@@ -80,6 +89,9 @@ UserController = {
         end,
 
         password_reset = function (self)
+            -- GET /users/:username/password_reset(/:token)
+            -- Description: Check whether a reset password token is correct, and reset
+            --              a user's password if so.
             return check_token(
                 self.params.token,
                 'password_reset',
@@ -101,6 +113,13 @@ UserController = {
         end,
 
         verify_user = function (self)
+            -- GET /users/:username/verify_user/:token
+            -- Description: Verifies a user's email by means of a token, or removes
+            --              that token if it has expired.
+            --              If requesting user is an admin, verifies the user and removes
+            --              the token. Token should equal '0' for admins.
+            --              Returns a success message if the user is already verified.
+            --              The route name should match the database token purpose.
             local user_page = function (user)
                 return htmlPage(
                     'User verified | Welcome to Snap<em>!</em>',
@@ -137,6 +156,9 @@ UserController = {
 
     POST = {
         user = function (self)
+            -- POST /users/:username
+            -- Description: Add or update a user. All passwords should travel pre-hashed with SHA512.
+            -- Parameters:  username, password, password_repeat, email
             if (self.current_user) then
                 if not users_match(self) then assert_admin(self) end
                 -- user is updating profile, or an admin is updating somebody else's profile
@@ -181,6 +203,10 @@ UserController = {
         end,
 
         new_password = function (self)
+            -- POST /users/:username/newpassword
+            -- Description: Sets a new password for a user. All passwords should travel pre-hashed
+            --              with SHA512.
+            -- Parameters:  oldpassword, password_repeat, newpassword
             assert_all({'user_exists', 'users_match'}, self)
 
             if self.queried_user.password ~= hash_password(self.params.oldpassword, self.queried_user.salt) then
@@ -200,6 +226,8 @@ UserController = {
         end,
 
         resend_verification = function (self)
+            -- POST /users/:username/resendverification
+            -- Description: Resends user verification email.
             assert_user_exists(self)
             if self.queried_user.verified then
                 return okResponse(
@@ -214,12 +242,18 @@ UserController = {
         end,
 
         password_reset = function (self)
+            -- POST /users/:username/password_reset(/:token)
+            -- Description: Generate a token to reset a user's password.
+            -- @see validation.create_token
             assert_user_exists(self)
             create_token(self, 'password_reset', self.params.username, self.queried_user.email)
             return okResponse('Password reset request sent.\nPlease check your email.')
         end,
 
         login = function (self)
+            -- /users/:username/login
+            -- Description: Logs a user into the system.
+            -- Body:        password
             assert_user_exists(self)
 
             ngx.req.read_body()
@@ -267,6 +301,8 @@ UserController = {
         end,
 
         logout = function (self)
+            -- POST /logout
+            -- Description: Logs out the current user from the system.
             self.session.username = ''
             self.cookies.persist_session = 'false'
             return okResponse('logged out')
@@ -275,6 +311,8 @@ UserController = {
 
     DELETE = {
         user = function (self)
+            -- DELETE /users/:username
+            -- Description: Delete a user.
             assert_user_exists(self)
 
             if not users_match(self) then assert_admin(self) end

@@ -38,6 +38,9 @@ require 'validation'
 ProjectController = {
     GET = {
         projects = cached({
+            -- GET /projects
+            -- Description: Get a list of published projects.
+            -- Parameters:  page, pagesize, matchtext, withthumbnail
             exptime = 30, -- cache expires after 30 seconds
             function (self)
                 local query = 'where ispublished'
@@ -70,6 +73,10 @@ ProjectController = {
         }),
 
         user_projects = function (self)
+            -- GET /projects/:username
+            -- Description: Get metadata for a project list by a user.
+            --              Response will depend on parameters and query issuer permissions.
+            -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
             local order = 'lastshared'
 
             if not (users_match(self)) then
@@ -112,6 +119,10 @@ ProjectController = {
         end,
 
         project = function (self)
+            -- GET /projects/:username/:projectname
+            -- Description: Get a particular project.
+            --              Response will depend on query issuer permissions.
+            -- Parameters:  delta, ispublic, ispublished
             local project = Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
@@ -132,6 +143,9 @@ ProjectController = {
         end,
 
         project_meta = function (self)
+            -- GET /projects/:username/:projectname/metadata
+            -- Description: Get a project metadata.
+            -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
             local project = Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
@@ -158,6 +172,9 @@ ProjectController = {
         end,
 
         project_versions = function (self)
+            -- GET /projects/:username/:projectname/versions
+            -- Description: Get info about backed up project versions.
+            -- Body:        versions
             local project = Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
@@ -180,6 +197,9 @@ ProjectController = {
         end,
 
         project_remixes = function (self)
+            -- GET /projects/:username/:projectname/remixes
+            -- Description: Get a list of all published remixes from a project.
+            -- Parameters:  page, pagesize
             local project = Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
@@ -213,6 +233,8 @@ ProjectController = {
         end,
 
         project_thumbnail = cached({
+            -- GET /projects/:username/:projectname/thumbnail
+            -- Description: Get a project thumbnail.
             exptime = 30, -- cache expires after 30 seconds
             function (self)
                 local project = Projects:find(self.params.username, self.params.projectname)
@@ -233,6 +255,10 @@ ProjectController = {
 
     POST = {
         project = function (self)
+            -- POST /projects/:username/:projectname
+            -- Description: Add/update a particular project.
+            --              Response will depend on query issuer permissions.
+            -- Body:        xml, notes, thumbnail
             validate.assert_valid(self.params, {
                 { 'projectname', exists = true },
                 { 'username', exists = true }
@@ -319,6 +345,10 @@ ProjectController = {
         end,
 
         project_meta = function (self)
+            -- POST /projects/:username/:projectname/metadata
+            -- Description: Get/add/update a project metadata.
+            -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
+            -- Body:        notes, projectname
             if not users_match(self) then assert_admin(self) end
 
             local project = Projects:find(self.params.username, self.params.projectname)
@@ -354,10 +384,14 @@ ProjectController = {
 
     DELETE = {
         project = function (self)
+            -- DELETE /projects/:username/:projectname
+            -- Description: Delete a particular project.
+            --              Response will depend on query issuer permissions.
             assert_all({'project_exists', 'user_exists'}, self)
             if not users_match(self) then assert_admin(self) end
 
             local project = Projects:find(self.params.username, self.params.projectname)
+
             --[[
             local id = project.id
 
@@ -386,6 +420,8 @@ ProjectController = {
         end
     }
 }
+
+-- Utility functions
 
 function processNotes (self, projects)
     -- Lazy Notes generation

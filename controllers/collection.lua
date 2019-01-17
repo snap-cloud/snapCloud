@@ -45,16 +45,36 @@ CollectionController = {
     GET = {
         -- TODO
         collections_list = function (self)
+            -- GET /collections
+            -- Description: If requesting user is an admin, get a paginated list of all
+            --              collections with name matching matchtext, if provided.
+            --              Returns public collections
+            -- Parameters:  matchtext, page, pagesize
         end,
         user_collections = function (self)
+            -- GET /users/:username/collections
+            -- Description: Get a paginated list of all a particular user's collections
+            --              with name matching matchtext, if provided.
+            --              Returns only public collections, if another user.
+            -- Parameters:  GET: username, matchtext, page, pagesize
         end,
         collection = function (self)
+            -- GET /users/:username/collections/:collection_slug
+            -- Description: Get info about a collection.
+            -- Parameters:  username, collection_name, ...
         end,
         collection_memberships = function (self)
+            -- GET /users/:username/collections/:collection_slug/items(/:item_id)
+            -- Description: Get a paginated list of all items in a collection.
+            -- Parameters:  username, collection_slug
         end
     },
     POST = {
         collection = function (self)
+            -- POST /users/:username/collections/:collection_slug
+            -- Description: Create a collection.
+            -- Parameters:  username, collection_name, ...
+
             -- TODO (temp off): assert_all({ assert_logged_in, assert_users_match }, self)
             -- Must assert name before generating a slug.
             validate.assert_valid(self.params, { { 'name', exists = true } })
@@ -72,12 +92,20 @@ CollectionController = {
             })))
         end,
         collection_memberships = function (self)
+            -- POST /users/:username/collections/:collection_slug/items(/:item_id)
+            -- Description: Add an item to a collection.
+            -- Parameters:  username, collection_slug, item_id
         end
     },
     DELETE = {
         collection = function (self)
+            -- DELETE /users/:username/collections/:collection_slug
+            -- Description: Delete a particular collection.
         end,
         collection_memberships = function (self)
+            -- DELETE /users/:username/collections/:collection_slug/items(/:item_id)
+            -- Description: Remove an item from a collection.
+            -- Parameters:  username, collection_slug
         end
     }
 }
