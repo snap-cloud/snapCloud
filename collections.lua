@@ -38,14 +38,7 @@ local Collections = package.loaded.Collections
 local app_helpers = require("lapis.application")
 local assert_error = app_helpers.assert_error
 
--- a simple helper for conditionally setting the timestamp fields
--- TODO: move to a more useful location.
-local current_time_or_nil = function(option)
-    if option == 'true' then
-        return db.raw('now()')
-    end
-    return nil
-end
+local CollectionsController = require('controllers.CollectionsController')
 
 app:match('collections_list', '/collections', respond_to({
     -- Methods:     GET
@@ -73,25 +66,7 @@ app:match('user_collections', '/users/:username/collections', respond_to({
     GET = capture_errors(function (self)
         -- TODO
     end),
-    POST = capture_errors(json_params(function (self)
-        -- TODO (temp off): assert_all({ assert_logged_in, assert_users_match }, self)
-        local request_user = assert_user_exists(self)
-
-        -- Must assert name before generating a slug.
-        validate.assert_valid(self.params, { { 'name', exists = true } })
-
-        return jsonResponse(assert_error(Collections:create({
-            name = self.params.name,
-            slug = util.slugify(self.params.name),
-            creator_id = request_user.id,
-            description = self.params.description,
-            published = self.params.published,
-            published_at = current_time_or_nil(self.params.published),
-            shared = self.params.shared,
-            shared_at = current_time_or_nil(self.params.shared),
-            thumbnail_id = self.params.thumbnail_id
-        })))
-    end))
+    POST = CollectionsController.Create
 }))
 
 app:match('collections',
