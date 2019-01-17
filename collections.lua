@@ -40,7 +40,7 @@ local assert_error = app_helpers.assert_error
 
 local CollectionsController = require('controllers.CollectionsController')
 
-app:match('collections_list', '/collections', respond_to({
+app:match(api_route('collections_list', '/collections', {
     -- Methods:     GET
     -- Description: If requesting user is an admin, get a paginated list of all
     --              collections with name matching matchtext, if provided.
@@ -50,7 +50,7 @@ app:match('collections_list', '/collections', respond_to({
     GET = CollectionsController.Index
 }))
 
-app:match('user_collections', '/users/:username/collections', respond_to({
+app:match(api_route('user_collections', '/users/:username/collections', {
     -- Methods:     GET, POST
     -- Description: Get a paginated list of all a particular user's collections
     --              with name matching matchtext, if provided.
@@ -63,41 +63,26 @@ app:match('user_collections', '/users/:username/collections', respond_to({
     POST = CollectionsController.Create
 }))
 
-app:match('collections',
-          '/users/:username/collections/:collection_slug', respond_to({
+app:match(api_route('collections',
+          '/users/:username/collections/:collection_slug', {
     -- Methods:     GET, POST, DELETE
     -- Description: Get the info about a collection.
     --              Create and a delete a collection.
     -- Parameters:  username, collection_name, ...
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
-        -- TODO return info about this collection
-    end),
-    POST = capture_errors(function (self)
-        -- TODO: update collection info
-    end),
-    DELETE = capture_errors(function (self)
-        -- delete the collection, remove all project links
-    end)
+    GET = CollectionsController.Show,
+    POST = CollectionsController.Update,
+    DELETE = CollectionsController.Delete
 }))
 
-app:match('collection_memberships',
-          '/users/:username/collections/:collection_slug/items(/:item_id)', respond_to({
-    -- Methods:     GET, DELETE
+app:match(api_route('collection_memberships',
+          '/users/:username/collections/:collection_slug/items(/:item_id)', {
+    -- Methods:     GET, POST, DELETE
     -- Description: Get a paginated list of all items in a collection.
     --              Add or remove items from the collection.
     -- Parameters:  username, collection_slug
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
-        -- TODO list the items in this collection
-        -- Perhaps this eventually supports filtering
-    end),
-    POST = capture_errors(function (self)
-        -- TODO add a project to the collection
-    end),
-    DELETE = capture_errors(function (self)
-        -- TODO remove item from collection memberships
-    end)
+    GET = CollectionsController.ShowMembers,
+    POST = CollectionsController.AddMember,
+    DELETE = CollectionsController.DeleteMember
 }))
