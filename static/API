@@ -1,113 +1,136 @@
-/init
-Methods:     POST
-Description: Clears the session username in case the persist_session cookie is false.
-Parameters:
-Body:
+Users
+=====
 
-/users/c
-Methods:     GET
+Route:       GET /users/c
 Description: Get the currently logged user's username and credentials.
-Parameters:
-Body:
 
-/users
-Methods:     GET
+Route:       GET /users
 Description: If requesting user is an admin, get a paginated list of all users
              with username or email matching matchtext, if provided.
 Parameters:  matchtext, page, pagesize
-Body:
 
-/users/:username
-Methods:     GET, DELETE, POST
-Description: Get info about a user, or delete/update/add a user. All passwords should
-             travel pre-hashed with SHA512.
-Parameters:  password, password_repeat, email
-Body:
+Route:       GET /users/:username
+Description: Get info about a user
 
-/users/:username/newpassword
-Methods:     POST
-Description: Sets a new password for a user. All passwords should travel pre-hashed
-             with SHA512.
-Parameters:  password, password_repeat
-Body:
+Route:       GET /users/:username/password_reset(/:token)
+Description: Check whether a reset password token is correct, and reset
+             a user's password if so.
 
-/users/:username/password_reset(/:token)
-Methods:     GET, POST
-Description: Handles password reset requests.
-Parameters:
-Body:
-
-/users/:username/verify_user/:token
-Methods:     GET
+Route:       GET /users/:username/verify_user/:token
 Description: Verifies a user's email by means of a token, or removes
              that token if it has expired.
              If requesting user is an admin, verifies the user and removes
              the token. Token should equal '0' for admins.
              Returns a success message if the user is already verified.
              The route name should match the database token purpose.
-Parameters:
-Body:
 
-/users/:username/resendverification
-Methods:     GET
+Route:       POST /users/:username
+Description: Add or update a user. All passwords should travel pre-hashed with SHA512.
+Parameters:  username, password, password_repeat, email
+
+Route:       POST /users/:username/newpassword
+Description: Sets a new password for a user. All passwords should travel pre-hashed
+             with SHA512.
+Parameters:  oldpassword, password_repeat, newpassword
+
+Route:       POST /users/:username/resendverification
 Description: Resends user verification email.
-Parameters:
-Body:
+
+Route:       POST /users/:username/password_reset(/:token)
+Description: Generate a token to reset a user's password.
 
 /users/:username/login
-Methods:     POST
-Description: Logs a user into the system. Password should travel pre-hashed with SHA512.
-Parameters:
+Description: Logs a user into the system.
 Body:        password
 
-/logout
-Methods:     POST
+Route:       POST /logout
 Description: Logs out the current user from the system.
-Parameters:
-Body:
 
-/projects
-Methods:     GET
+Route:       DELETE /users/:username
+Description: Delete a user.
+
+
+Projects
+========
+
+Route:       GET /projects
 Description: Get a list of published projects.
 Parameters:  page, pagesize, matchtext, withthumbnail
-Body:
 
-/projects/:username
-Methods:     GET
+Route:       GET /projects/:username
 Description: Get metadata for a project list by a user.
              Response will depend on parameters and query issuer permissions.
-             The updatingnotes parameter checks for empty values in the notes column
-             of the database and fills them with the notes in the project XML.
 Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
-Body:
 
-/projects/:username/:projectname
-Methods:     GET, DELETE, POST
-Description: Get/delete/add/update a particular project.
+Route:       GET /projects/:username/:projectname
+Description: Get a particular project.
              Response will depend on query issuer permissions.
-Parameters:  ispublic, ispublished
+Parameters:  delta, ispublic, ispublished
+
+Route:       GET /projects/:username/:projectname/metadata
+Description: Get a project metadata.
+Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
+
+Route:       GET /projects/:username/:projectname/versions
+Description: Get info about backed up project versions.
+Body:        versions
+
+Route:       GET /projects/:username/:projectname/remixes
+Description: Get a list of all published remixes from a project.
+Parameters:  page, pagesize
+
+Route:       GET /projects/:username/:projectname/thumbnail
+Description: Get a project thumbnail.
+
+Route:       POST /projects/:username/:projectname
+Description: Add/update a particular project.
+             Response will depend on query issuer permissions.
 Body:        xml, notes, thumbnail
 
-/projects/:username/:projectname/metadata
-Methods:     GET, DELETE, POST
+Route:       POST /projects/:username/:projectname/metadata
 Description: Get/add/update a project metadata.
 Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
 Body:        notes, projectname
 
-/projects/:username/:projectname/versions
-Methods:     GET
-Description: Get info about backed up project versions.
-Parameters:
-Body:        versions
+Route:       DELETE /projects/:username/:projectname
+Description: Delete a particular project.
+             Response will depend on query issuer permissions.
 
-/projects/:username/:projectname/remixes
-Methods:     GET
-Description: Get a list of all published remixes from a project.
-Parameters:  page, pagesize
-Body:
 
-/projects/:username/:projectname/thumbnail
-Methods:     GET
-Description: Get a project thumbnail.
-Parameters:
-Body:
+Collections
+===========
+
+Route:       GET /collections
+Description: If requesting user is an admin, get a paginated list of all
+             collections with name matching matchtext, if provided.
+             Returns public collections
+Parameters:  matchtext, page, pagesize
+
+Route:       GET /users/:username/collections
+Description: Get a paginated list of all a particular user's collections
+             with name matching matchtext, if provided.
+             Returns only public collections, if another user.
+Parameters:  Route:       GET: username, matchtext, page, pagesize
+
+Route:       GET /users/:username/collections/:collection_slug
+Description: Get info about a collection.
+Parameters:  username, collection_name, ...
+
+Route:       GET /users/:username/collections/:collection_slug/items(/:item_id)
+Description: Get a paginated list of all items in a collection.
+Parameters:  username, collection_slug
+
+Route:       POST /users/:username/collections/:collection_slug
+Description: Create a collection.
+Parameters:  username, collection_name, ...
+
+Route:       POST /users/:username/collections/:collection_slug/items(/:item_id)
+Description: Add an item to a collection.
+Parameters:  username, collection_slug, item_id
+
+Route:       DELETE /users/:username/collections/:collection_slug
+Description: Delete a particular collection.
+
+Route:       DELETE /users/:username/collections/:collection_slug/items(/:item_id)
+Description: Remove an item from a collection.
+Parameters:  username, collection_slug
