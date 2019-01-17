@@ -40,6 +40,8 @@ local Remixes = package.loaded.Remixes
 
 local cjson = require('cjson')
 
+local CollectionsController = require('controllers.CollectionsController')
+
 require 'disk'
 require 'responses'
 require 'validation'
@@ -802,4 +804,51 @@ app:match(api_route('project_thumb',
                     generate_thumbnail(project.id))
         end
     })
+}))
+
+app:match(api_route('collections_list', '/collections', {
+    -- Methods:     GET
+    -- Description: If requesting user is an admin, get a paginated list of all
+    --              collections with name matching matchtext, if provided.
+    --              Returns public collections
+    -- Parameters:  matchtext, page, pagesize
+
+    GET = CollectionsController.Index
+}))
+
+app:match(api_route('user_collections', '/users/:username/collections', {
+    -- Methods:     GET, POST
+    -- Description: Get a paginated list of all a particular user's collections
+    --              with name matching matchtext, if provided.
+    --              Returns only public collections, if another user.
+    -- Parameters:  GET: username, matchtext, page, pagesize
+    --              POST: username, collection_name, description, published,
+    --                    shared, thumbnail_id
+
+    GET = CollectionsController.UserIndex,
+    POST = CollectionsController.Create
+}))
+
+app:match(api_route('collections',
+          '/users/:username/collections/:collection_slug', {
+    -- Methods:     GET, POST, DELETE
+    -- Description: Get the info about a collection.
+    --              Create and a delete a collection.
+    -- Parameters:  username, collection_name, ...
+
+    GET = CollectionsController.Show,
+    POST = CollectionsController.Update,
+    DELETE = CollectionsController.Delete
+}))
+
+app:match(api_route('collection_memberships',
+          '/users/:username/collections/:collection_slug/items(/:item_id)', {
+    -- Methods:     GET, POST, DELETE
+    -- Description: Get a paginated list of all items in a collection.
+    --              Add or remove items from the collection.
+    -- Parameters:  username, collection_slug
+
+    GET = CollectionsController.ShowMembers,
+    POST = CollectionsController.AddMember,
+    DELETE = CollectionsController.DeleteMember
 }))

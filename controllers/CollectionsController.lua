@@ -21,6 +21,7 @@
 --
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 local app = package.loaded.app
 local db = package.loaded.db
 local capture_errors = package.loaded.capture_errors
@@ -88,7 +89,7 @@ end
 CollectionsController.AddMember = function (self)
 end
 
-CollectionsController.DeleteMember = function (self)
+CollectionsController.DeleteMember\"\" = function (self)
 end
 
 return CollectionsController
