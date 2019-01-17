@@ -32,24 +32,15 @@ require 'controllers.user'
 require 'controllers.project'
 require 'controllers.collection'
 
-function wrap_capture_errors(tbl)
-    if tbl.GET then tbl.GET = capture_errors(tbl.GET) end
-    if tbl.POST then tbl.POST = capture_errors(tbl.POST) end
-    if tbl.DELETE then tbl.DELETE = capture_errors(tbl.DELETE) end
-    -- if tbl.PUT then tbl.PUT = capture_errors(tbl.PUT) end
-end
-
 -- Wraps all API endpoints in standard behavior.
-
 local function api_route(name, path, controller, methods)
     tbl = { OPTIONS = cors_options }
     -- methods is a table describing which REST methods this endpoint accepts
     for _, method in pairs(methods) do
-        -- ex: tbl['GET'] = UserController['GET']['current_user']
-        -- equivalent to (...) GET = UserController.GET.current_user
-        tbl[method] = controller[method][name]
+        -- ex: tbl['GET'] = capture_errors(UserController['GET']['current_user'])
+        -- equivalent to (...) GET = capture_errors(UserController.GET.current_user)
+        tbl[method] = capture_errors(controller[method][name])
     end
-    wrap_capture_errors(tbl)
     return name, '(/api/' .. api_version .. ')' .. path, respond_to(tbl)
 end
 
