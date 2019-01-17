@@ -158,14 +158,16 @@ UserController = {
         user = function (self)
             -- POST /users/:username
             -- Description: Add or update a user. All passwords should travel pre-hashed with SHA512.
-            -- Parameters:  username, password, password_repeat, email
+            -- Parameters:  username, password, password_repeat, email, role
             if (self.current_user) then
                 if not users_match(self) then assert_admin(self) end
                 -- user is updating profile, or an admin is updating somebody else's profile
+                if self.params.role then
+                    assert_can_set_role(self, self.params.role)
+                end
                 self.queried_user:update({
-                    -- we only support changing a user's email at the moment, but we could use
-                    -- this method to update their permissions in the future too
-                    email = self.params.email or self.queried_user.email
+                    email = self.params.email or self.queried_user.email,
+                    role = self.params.role or self.queried_user.role
                 })
                 return okResponse('Profile for user ' .. self.queried_user.username .. ' updated')
             else

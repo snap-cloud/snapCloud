@@ -39,7 +39,8 @@ err = {
     not_public_project = {msg = 'This project is not public', status = 403},
     expired_token = {msg = 'This token has expired', status = 401},
     invalid_token = {msg = 'This token is either invalid or has expired', status = 401},
-    nonvalidated_user = {msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401}
+    nonvalidated_user = {msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401},
+    invalid_role = {msg = 'This user role is not valid', status = 401},
 }
 
 assert_all = function (assertions, self)
@@ -69,8 +70,6 @@ end
 -- admin:     Can do everything.
 -- banned:    Same as a standard user, but can't modify or add anything.
 
--- define all functions for isadmin, isbanned, etc.
-
 function Users.__base:isadmin ()
     return self.role == 'admin'
 end
@@ -98,6 +97,48 @@ end
 
 assert_admin = function (self, message)
     assert_role(self, 'admin', message)
+end
+
+assert_can_set_role = function (self, role)
+    -- admins can do anything
+    if self.current_user:isadmin() then return true end
+
+    -- nobody but admins can revoke roles from admins
+    if self.queried_user:isadmin() then yield_error(err.auth) end
+
+    -- now for the rest of the cases
+    if role == 'banned' then
+        -- moderators can ban anyone but admins (already taken care of) or moderators
+        if self.queried_user.role ~= 'moderator' then
+            assert_role(self, 'moderator')
+        else
+            yield_error(err.auth)
+        end
+    else if role == 'admin' then
+        -- only admins can grant admin roles to others
+        yield_error(err.auth)
+    else if role == 'moderator' then
+        -- only admins and moderators can grant moderator roles to others.
+        -- moderators can't turn admins into moderators as per second check at the top of this function.
+        assert_role(self, 'moderator')
+    else if role == 'reviewer' then
+        -- admins (already taken care of), moderators, and reviewers can grant reviewer roles to others.
+        -- nobody can turn admins into reviewers as per second check at the top of this function, but
+        -- we need to make sure that reviewers can't downgrade moderators.
+        if self.queried_user.role == 'moderator' then
+            assert_role(self, 'moderator')
+        else
+            assert_has_one_of_roles(self, { 'moderator', 'reviewer' })
+        end
+    else if role == 'standard' then
+        -- admins can downgrade moderators or reviewers to standard users (taken care of)
+        -- moderators can downgrade reviewers to standard users
+        if self.queried_user.role = 'reviewer' then
+            assert_role(self, 'moderator')
+        end
+    else
+        yield_error(err.invalid_role)
+    end
 end
 
 users_match = function (self)
