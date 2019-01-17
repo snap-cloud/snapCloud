@@ -44,6 +44,9 @@ require 'disk'
 require 'responses'
 require 'validation'
 require 'passwords'
+require 'controllers.user'
+require 'controllers.project'
+require 'controllers.collection'
 
 function wrap_capture_errors(tbl)
     if tbl.GET then tbl.GET = capture_errors(tbl.GET) end
@@ -52,15 +55,17 @@ function wrap_capture_errors(tbl)
     -- if tbl.PUT then tbl.PUT = capture_errors(tbl.PUT) end
 end
 
--- API Endpoints
--- =============
 -- Wraps all API endpoints in standard behavior.
+
 local function api_route(name, path, tbl)
     tbl.OPTIONS = cors_options
     wrap_capture_errors(tbl)
     return name, '(/api/v1)' .. path, respond_to(tbl)
 end
 
+
+-- API Endpoints
+-- =============
 
 app:match(api_route('init', '/init', {
     POST = function (self)
@@ -72,55 +77,23 @@ app:match(api_route('init', '/init', {
 }))
 
 
+-- Users
+-- =====
+
 app:match(api_route('current_user', '/users/c', {
     -- Methods:     GET
     -- Description: Get the currently logged user's username and credentials.
-
-    GET = function (self)
-        if self.current_user then
-            self.session.verified = self.current_user.verified
-        elseif self.session.username == '' then
-            self.session.role = nil
-            self.session.verified = false
-        end
-
-        return jsonResponse({
-            username = self.session.username,
-            role = self.session.role,
-            verified = self.session.verified
-        })
-    end
+    GET = UserController.GET.current_user
 }))
 
-
-app:match(api_route('userlist', '/users', {
+app:match(api_route('user_list', '/users', {
     -- Methods:     GET
     -- Description: If requesting user is an admin, get a paginated list of all users
     --              with username or email matching matchtext, if provided.
     -- Parameters:  matchtext, page, pagesize
 
-    GET = function (self)
-        assert_admin(self)
-        local paginator = Users:paginated(
-            self.params.matchtext and
-                db.interpolate_query(
-                    'where username ~* ? or email ~* ?',
-                    self.params.matchtext,
-                    self.params.matchtext
-                )
-                or 'order by verified, created',
-            {
-                per_page = self.params.pagesize or 16,
-                fields = 'username, id, created, email, verified, role'
-            })
-        local users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
-        return jsonResponse({
-            pages = self.params.page and paginator:num_pages() or nil,
-            users = users
-        })
-    end
+    GET = UserController.GET.user_list
 }))
-
 
 app:match(api_route('user', '/users/:username', {
     -- Methods:     GET, DELETE, POST
@@ -129,14 +102,7 @@ app:match(api_route('user', '/users/:username', {
 
     -- Parameters:  username, password, password_repeat, email
 
-    GET = function (self)
-        if not users_match(self) then assert_admin(self) end
-        return jsonResponse(
-            Users:select(
-                'where username = ? limit 1',
-                self.params.username,
-                { fields = 'username, created, role, email' })[1])
-    end,
+    GET = UserController.GET.user,
 
     DELETE = function (self)
         assert_user_exists(self)
@@ -196,8 +162,7 @@ app:match(api_route('user', '/users/:username', {
 
 }))
 
-
-app:match(api_route('newpassword', '/users/:username/newpassword', {
+app:match(api_route('new_password', '/users/:username/newpassword', {
     -- Methods:     POST
     -- Description: Sets a new password for a user. All passwords should travel pre-hashed
     --              with SHA512.
@@ -223,7 +188,7 @@ app:match(api_route('newpassword', '/users/:username/newpassword', {
     end
 }))
 
-app:match(api_route('resendverification', '/users/:username/resendverification', {
+app:match(api_route('resend_verification', '/users/:username/resendverification', {
     -- Methods:     POST
     -- Description: Resends user verification email.
 
@@ -246,33 +211,14 @@ app:match(api_route('password_reset', '/users/:username/password_reset(/:token)'
     --              The route name should match the database token purpose.
     -- @see validation.create_token
 
-    GET = function (self)
-        return check_token(
-            self.params.token,
-            'password_reset',
-            function (user)
-                local password, prehash = random_password()
-                user:update({ password = hash_password(prehash, user.salt) })
-                send_mail(
-                    user.email,
-                    mail_subjects.new_password .. user.username,
-                    mail_bodies.new_password .. '<p><h2>' .. password .. '</h2></p>')
+    GET = UserController.GET.password_reset,
 
-                return htmlPage(
-                    'Password reset',
-                    '<p>A new random password has been generated for your account <strong>' .. user.username .. '</strong> and sent to your email address. Please check your inbox.</p>' ..
-                    '<p>After logging in, please proceed to <strong>change your password</strong> as soon as possible.</p>'
-                )
-            end
-        )
-    end,
     POST = function (self)
         assert_user_exists(self)
         create_token(self, 'password_reset', self.params.username, self.queried_user.email)
         return okResponse('Password reset request sent.\nPlease check your email.')
     end
 }))
-
 
 app:match(api_route('login', '/users/:username/login', {
     -- Methods:     POST
@@ -327,8 +273,7 @@ app:match(api_route('login', '/users/:username/login', {
     end
 }))
 
-
-app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
+app:match(api_route('verify_user', '/users/:username/verify_user/:token', {
     -- Methods:     GET
     -- Description: Verifies a user's email by means of a token, or removes
     --              that token if it has expired.
@@ -338,41 +283,8 @@ app:match('verify_user', '/users/:username/verify_user/:token', respond_to({
     --              The route name should match the database token purpose.
     -- @see validation.create_token
 
-    GET = capture_errors(function (self)
-        local user_page = function (user)
-            return htmlPage(
-                'User verified | Welcome to Snap<em>!</em>',
-                '<p>Your account <strong>' .. user.username .. '</strong> has been verified.</p>' ..
-                '<p>Thank you!</p>' ..
-                '<p><a href="https://snap.berkeley.edu/run">Take me to Snap<i>!</i></a></p>'
-            )
-        end
-        assert_user_exists(self)
-        if self.queried_user.verified then
-            return user_page(self.queried_user)
-        end
-
-        -- admins can verify people without the need of a token
-        if self.params.token == '0' then assert_admin(self)
-            local token = Tokens:select('where username = ? and purpose = ?', self.queried_user.username, 'verify_user')
-            if (token and token[1]) then token[1]:delete() end
-            self.queried_user:update({ verified = true })
-            return okResponse('User ' .. self.queried_user.username .. ' has been verified')
-        end
-
-        return check_token(
-            self.params.token,
-            'verify_user',
-            function (user)
-                -- success callback
-                user:update({ verified = true })
-                self.session.verified = true
-                return user_page(user)
-            end
-        )
-    end)
+    GET = UserController.GET.verify_user
 }))
-
 
 app:match(api_route('logout', '/logout', {
     -- Methods:     POST
@@ -386,48 +298,16 @@ app:match(api_route('logout', '/logout', {
 }))
 
 
--- TODO refactor the following two, as they share most of the code
+-- Projects
+-- ========
 
 app:match(api_route('projects', '/projects', {
     -- Methods:     GET
     -- Description: Get a list of published projects.
     -- Parameters:  page, pagesize, matchtext, withthumbnail
 
-    GET = cached({
-        exptime = 30, -- cache expires after 30 seconds
-        function (self)
-            local query = 'where ispublished'
-
-            -- Apply where clauses
-            if self.params.matchtext then
-                query = query ..
-                    db.interpolate_query(
-                        ' and (projectname ~* ? or notes ~* ?)',
-                        self.params.matchtext,
-                        self.params.matchtext
-                    )
-            end
-
-            local paginator = Projects:paginated(query .. ' order by firstpublished desc', { per_page = self.params.pagesize or 16 })
-            local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
-
-            if self.params.withthumbnail == 'true' then
-                for _, project in pairs(projects) do
-                    -- Lazy Thumbnail generation
-                    project.thumbnail =
-                        retrieve_from_disk(project.id, 'thumbnail') or
-                            generate_thumbnail(project.id)
-                end
-            end
-
-            return jsonResponse({
-                pages = self.params.page and paginator:num_pages() or nil,
-                projects = projects
-            })
-        end
-    })
+    GET = ProjectController.GET.projects
 }))
-
 
 app:match(api_route('user_projects', '/projects/:username', {
     -- Methods:     GET
@@ -435,68 +315,8 @@ app:match(api_route('user_projects', '/projects/:username', {
     --              Response will depend on parameters and query issuer permissions.
     -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
 
-    GET = function (self)
-        local order = 'lastshared'
-
-        if not (users_match(self)) then
-            if not self.current_user or not self.current_user:isadmin() then
-                self.params.ispublished = 'true'
-                order = 'firstpublished'
-            end
-        end
-
-        local query = db.interpolate_query('where username = ?', self.queried_user.username)
-
-        -- Apply where clauses
-        if self.params.ispublished ~= nil then
-            query = query ..
-                db.interpolate_query(
-                    ' and ispublished = ?',
-                    self.params.ispublished == 'true'
-                )
-        end
-
-        if self.params.matchtext then
-            query = query ..
-                db.interpolate_query(
-                    ' and (projectname ~* ? or notes ~* ?)',
-                    self.params.matchtext,
-                    self.params.matchtext
-                )
-        end
-
-        local paginator = Projects:paginated(query .. ' order by ' .. order .. ' desc', { per_page = self.params.pagesize or 16 })
-        local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
-
-	-- Lazy Notes generation
-        if self.params.updatingnotes == 'true' then
-            for _, project in pairs(projects) do
-                if (project.notes == nil) then
-                    local notes = parse_notes(project.id)
-                    if notes then
-                        project:update({ notes = notes })
-                        project.notes = notes
-                    end
-                end
-            end
-        end
-
-        if self.params.withthumbnail == 'true' then
-            for _, project in pairs(projects) do
-                -- Lazy Thumbnail generation
-                project.thumbnail =
-                    retrieve_from_disk(project.id, 'thumbnail') or
-                        generate_thumbnail(project.id)
-            end
-        end
-
-        return jsonResponse({
-            pages = self.params.page and paginator:num_pages() or nil,
-            projects = projects,
-        })
-    end
+    GET = ProjectController.GET.user_projects
 }))
-
 
 app:match(api_route('project', '/projects/:username/:projectname', {
     -- Methods:     GET, DELETE, POST
@@ -505,25 +325,7 @@ app:match(api_route('project', '/projects/:username/:projectname', {
     -- Parameters:  delta, ispublic, ispublished
     -- Body:        xml, notes, thumbnail
 
-    GET = function (self)
-        local project = Projects:find(self.params.username, self.params.projectname)
-
-        if not project then yield_error(err.nonexistent_project) end
-        if not (project.ispublic or users_match(self)) then assert_admin(self, err.not_public_project) end
-
-        -- self.params.delta is a version indicator
-        -- delta = null will fetch the current version
-        -- delta = -1 will fetch the previous saved version
-        -- delta = -2 will fetch the last version before today
-
-        return rawResponse(
-            -- if users don't match, this project is being remixed and we need to attach its ID
-            '<snapdata' .. (users_match(self) and '>' or ' remixID="' .. project.id .. '">') ..
-            (retrieve_from_disk(project.id, 'project.xml', self.params.delta) or '<project></project>') ..
-            (retrieve_from_disk(project.id, 'media.xml', self.params.delta) or '<media></media>') ..
-            '</snapdata>'
-        )
-    end,
+    GET = ProjectController.GET.user,
     DELETE = function (self)
         assert_all({'project_exists', 'user_exists'}, self)
         if not users_match(self) then assert_admin(self) end
@@ -642,38 +444,13 @@ app:match(api_route('project', '/projects/:username/:projectname', {
     end
 }))
 
-
 app:match(api_route('project_meta', '/projects/:username/:projectname/metadata', {
     -- Methods:     GET, DELETE, POST
     -- Description: Get/add/update a project metadata.
     -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
     -- Body:        notes, projectname
 
-    GET = function (self)
-        local project = Projects:find(self.params.username, self.params.projectname)
-
-        if not project then yield_error(err.nonexistent_project) end
-        if not project.ispublic then assert_users_match(self, err.not_public_project) end
-
-        local remixed_from = Remixes:select('where remixed_project_id = ?', project.id)[1]
-
-        if remixed_from then
-            if remixed_from.original_project_id then
-                local original_project = Projects:select('where id = ?', remixed_from.original_project_id)[1]
-                project.remixedfrom = {
-                    username = original_project.username,
-                    projectname = original_project.projectname
-                }
-            else
-                project.remixedfrom = {
-                    username = nil,
-                    projectname = nil
-                }
-            end
-        end
-
-        return jsonResponse(project)
-    end,
+    GET = ProjectController.GET.project_meta,
     POST = function (self)
         if not users_match(self) then assert_admin(self) end
 
@@ -714,29 +491,8 @@ app:match(api_route('project_versions', '/projects/:username/:projectname/versio
     -- Parameters:
     -- Body:        versions
 
-    GET = function (self)
-        local project = Projects:find(self.params.username, self.params.projectname)
-
-        if not project then yield_error(err.nonexistent_project) end
-        if not project.ispublic then assert_users_match(self, err.not_public_project) end
-
-        -- seconds since last modification
-        local query = db.select('extract(epoch from age(now(), ?::timestamp))', project.lastupdated)[1]
-
-        return jsonResponse({
-            {
-                lastupdated = query.date_part,
-                thumbnail = retrieve_from_disk(project.id, 'thumbnail') or
-                    generate_thumbnail(project.id),
-                notes = parse_notes(project.id),
-                delta = 0
-            },
-            version_metadata(project.id, -1),
-            version_metadata(project.id, -2)
-        })
-    end
+    GET = ProjectController.GET.project_versions
 }))
-
 
 app:match(api_route('project_remixes',
                     '/projects/:username/:projectname/remixes', {
@@ -745,61 +501,61 @@ app:match(api_route('project_remixes',
     -- Parameters:  page, pagesize
     -- Body:
 
-    GET = function (self)
-        local project = Projects:find(self.params.username, self.params.projectname)
-
-        if not project then yield_error(err.nonexistent_project) end
-        if not project.ispublic then assert_users_match(self, err.not_public_project) end
-
-        local paginator =
-            Remixes:paginated(
-                'where original_project_id = ?',
-                project.id,
-                { per_page = self.params.pagesize or 16 }
-            )
-
-        local remixes_metadata = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
-        local remixes = {}
-
-        for i, remix in pairs(remixes_metadata) do
-            remixed_project = Projects:select('where id = ? and ispublished', remix.remixed_project_id)[1];
-            if (remixed_project) then
-                -- Lazy Thumbnail generation
-                remixed_project.thumbnail =
-                    retrieve_from_disk(remix.remixed_project_id, 'thumbnail') or
-                        generate_thumbnail(remix.remixed_project_id)
-                table.insert(remixes, remixed_project)
-            end
-        end
-
-        return jsonResponse({
-            pages = self.params.page and paginator:num_pages() or nil,
-            projects = remixes
-        })
-    end
+    GET = ProjectController.GET.project_remixes
 }))
 
-
-app:match(api_route('project_thumb',
+app:match(api_route('project_thumbnail',
                     '/projects/:username/:projectname/thumbnail', {
     -- Methods:     GET
     -- Description: Get a project thumbnail.
 
-    GET = cached({
-        exptime = 30, -- cache expires after 30 seconds
-        function (self)
-            local project = Projects:find(self.params.username, self.params.projectname)
-            if not project then yield_error(err.nonexistent_project) end
+    GET = ProjectController.GET.project_thumbnail
+}))
 
-            if not users_match(self)
-                and not project.ispublic then
-                yield_error(err.auth)
-            end
 
-            -- Lazy Thumbnail generation
-            return rawResponse(
-                retrieve_from_disk(project.id, 'thumbnail') or
-                    generate_thumbnail(project.id))
-        end
-    })
+-- Collections
+-- ===========
+
+app:match(api_route('collections_list', '/collections', {
+    -- Methods:     GET
+    -- Description: If requesting user is an admin, get a paginated list of all
+    --              collections with name matching matchtext, if provided.
+    --              Returns public collections
+    -- Parameters:  matchtext, page, pagesize
+
+    GET = CollectionController.GET.collections_list
+}))
+
+app:match(api_route('user_collections', '/users/:username/collections', {
+    -- Methods:     GET
+    -- Description: Get a paginated list of all a particular user's collections
+    --              with name matching matchtext, if provided.
+    --              Returns only public collections, if another user.
+    -- Parameters:  GET: username, matchtext, page, pagesize
+
+    GET = CollectionController.GET.user_collections
+}))
+
+app:match(api_route('collection',
+          '/users/:username/collections/:collection_slug', {
+    -- Methods:     GET, POST, DELETE
+    -- Description: Get the info about a collection.
+    --              Create and a delete a collection.
+    -- Parameters:  username, collection_name, ...
+
+    GET = CollectionController.GET.collection,
+    POST = CollectionController.POST.collection,
+    DELETE = CollectionController.DELETE.collection
+}))
+
+app:match(api_route('collection_memberships',
+          '/users/:username/collections/:collection_slug/items(/:item_id)', {
+    -- Methods:     GET, DELETE
+    -- Description: Get a paginated list of all items in a collection.
+    --              Add or remove items from the collection.
+    -- Parameters:  username, collection_slug
+
+    GET = CollectionController.GET.collection_memberships,
+    POST = CollectionController.POST.collection_memberships,
+    DELETE = CollectionController.DELETE.collection_memberships,
 }))
