@@ -47,10 +47,7 @@ app:match('collections_list', '/collections', respond_to({
     --              Returns public collections
     -- Parameters:  matchtext, page, pagesize
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
-        -- TODO
-    end)
+    GET = CollectionsController.Index
 }))
 
 app:match('user_collections', '/users/:username/collections', respond_to({
@@ -62,10 +59,7 @@ app:match('user_collections', '/users/:username/collections', respond_to({
     --              POST: username, collection_name, description, published,
     --                    shared, thumbnail_id
 
-    OPTIONS = cors_options,
-    GET = capture_errors(function (self)
-        -- TODO
-    end),
+    GET = CollectionsController.UserIndex,
     POST = CollectionsController.Create
 }))
 

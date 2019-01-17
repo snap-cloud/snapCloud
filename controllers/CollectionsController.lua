@@ -45,10 +45,15 @@ local current_time_or_nil = function(option)
     return nil
 end
 
-
 local CollectionsController = {}
 
-Create = json_params(function (self)
+CollectionsController.Index = function (self)
+end
+
+CollectionsController.UserIndex =  function (self)
+end
+
+CollectionsController.Create = json_params(function (self)
     -- TODO (temp off): assert_all({ assert_logged_in, assert_users_match }, self)
     local request_user = assert_user_exists(self)
 
@@ -67,5 +72,23 @@ Create = json_params(function (self)
         thumbnail_id = self.params.thumbnail_id
     })))
 end)
+
+CollectionsController.Show = function (self)
+end
+
+CollectionsController.Update = function (self)
+end
+
+CollectionsController.Delete = function (self)
+end
+
+CollectionsController.ShowMembers = function (self)
+end
+
+CollectionsController.AddMember = function (self)
+end
+
+CollectionsController.DeleteMember = function (self)
+end
 
 return CollectionsController
