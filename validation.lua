@@ -133,7 +133,7 @@ assert_can_set_role = function (self, role)
     else if role == 'standard' then
         -- admins can downgrade moderators or reviewers to standard users (taken care of)
         -- moderators can downgrade reviewers to standard users
-        if self.queried_user.role = 'reviewer' then
+        if self.queried_user.role == 'reviewer' then
             assert_role(self, 'moderator')
         end
     else
