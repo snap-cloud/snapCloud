@@ -89,7 +89,7 @@ end
 CollectionsController.AddMember = function (self)
 end
 
-CollectionsController.DeleteMember\"\" = function (self)
+CollectionsController.DeleteMember = function (self)
 end
 
 return CollectionsController
