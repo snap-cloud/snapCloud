@@ -65,6 +65,7 @@ APIController = {
 
 -- API Endpoints
 -- =============
+app:match(api_route('version', '/version', APIController, { 'GET' }))
 app:match(api_route('init', '/init', APIController, { 'POST' }))
 
 -- Users
