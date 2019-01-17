@@ -20,11 +20,14 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local validate = package.loaded.validate
+local db = package.loaded.db
 local cached = package.loaded.cached
+local yield_error = package.loaded.yield_error
+
 local Users = package.loaded.Users
 local Tokens = package.loaded.Tokens
 
-require 'disk'
 require 'responses'
 require 'validation'
 require 'passwords'

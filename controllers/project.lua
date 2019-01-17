@@ -20,8 +20,13 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local util = package.loaded.util
+local validate = package.loaded.validate
 local db = package.loaded.db
 local cached = package.loaded.cached
+local yield_error = package.loaded.yield_error
+local cjson = require('cjson')
+
 local Projects = package.loaded.Projects
 local DeletedProjects = package.loaded.DeletedProjects
 local Remixes = package.loaded.Remixes

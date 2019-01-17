@@ -23,27 +23,11 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local app = package.loaded.app
-local db = package.loaded.db
 local capture_errors = package.loaded.capture_errors
-local yield_error = package.loaded.yield_error
-local validate = package.loaded.validate
+
 local Model = package.loaded.Model
-local util = package.loaded.util
 local respond_to = package.loaded.respond_to
-local json_params = package.loaded.json_params
-local cached = package.loaded.cached
-local Users = package.loaded.Users
-local Projects = package.loaded.Projects
-local DeletedProjects = package.loaded.DeletedProjects
-local Tokens = package.loaded.Tokens
-local Remixes = package.loaded.Remixes
 
-local cjson = require('cjson')
-
-require 'disk'
-require 'responses'
-require 'validation'
-require 'passwords'
 require 'controllers.user'
 require 'controllers.project'
 require 'controllers.collection'
