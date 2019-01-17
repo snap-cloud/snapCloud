@@ -24,10 +24,8 @@
 
 local app = package.loaded.app
 local db = package.loaded.db
-local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local validate = package.loaded.validate
-local Model = package.loaded.Model
 local util = package.loaded.util
 local json_params = package.loaded.json_params
 local Users = package.loaded.Users
