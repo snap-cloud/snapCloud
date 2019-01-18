@@ -100,46 +100,29 @@ assert_admin = function (self, message)
 end
 
 assert_can_set_role = function (self, role)
-    -- admins can do anything
-    if self.current_user:isadmin() then return true end
-
-    -- nobody but admins can revoke roles from admins
-    if self.queried_user:isadmin() then yield_error(err.auth) end
-
-    -- now for the rest of the cases
-    if role == 'banned' then
-        -- moderators can ban anyone but admins (already taken care of) or moderators
-        if self.queried_user.role ~= 'moderator' then
-            assert_role(self, 'moderator')
-        else
-            yield_error(err.auth)
-        end
-    elseif role == 'admin' then
-        -- only admins can grant admin roles to others
+    can_set = {
+        admin = {
+            admin = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
+            moderator = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
+            reviewer = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
+            standard = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
+            banned = { admin = true, moderator = true, reviewer = true, standard = true, banned = true }
+        },
+        moderator = {
+            admin = {}, moderator = {},
+            reviewer = { moderator = true, reviewer = true, standard = true, banned = true },
+            standard = { moderator = true, reviewer = true, standard = true, banned = true },
+            banned = { moderator = true, reviewer = true, standard = true, banned = true }
+        },
+        reviewer = {
+            admin = {}, moderator = {}, reviewer = {}, banned = {},
+            standard = { reviewer = true, standard = true }
+        },
+        standard = { admin = {}, moderator = {}, reviewer = {}, standard = {}, banned = {} },
+        banned = { admin = {}, moderator = {}, reviewer = {}, standard = {}, banned = {} }
+    }
+    if not can_set[self.current_user.role][self.queried_user.role][role] then
         yield_error(err.auth)
-    elseif role == 'moderator' then
-        -- only admins and moderators can grant moderator roles to others.
-        -- moderators can't turn admins into moderators as per second check at the top of this function.
-        assert_role(self, 'moderator')
-    elseif role == 'reviewer' then
-        -- admins (already taken care of), moderators, and reviewers can grant reviewer roles to standard users.
-        -- nobody can turn admins into reviewers as per second check at the top of this function, but we need to make
-        -- sure that reviewers can't downgrade moderators.
-        if self.queried_user.role == 'standard' then
-            assert_has_one_of_roles(self, { 'moderator', 'reviewer' })
-        else
-            yield_error(err.auth)
-        end
-    elseif role == 'standard' then
-        -- admins can downgrade moderators or reviewers to standard users (taken care of)
-        -- moderators can downgrade reviewers to standard users
-        if self.queried_user.role == 'reviewer' then
-            assert_role(self, 'moderator')
-        else
-            yield_error(err.auth)
-        end
-    else
-        yield_error(err.invalid_role)
     end
 end
 
