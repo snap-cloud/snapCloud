@@ -26,13 +26,13 @@ package.loaded.Users = package.loaded.Model:extend('users', {
     relations = {
         { 'collections', has_many = 'Collections', key = 'creator_id' }
     },
-    isadmin = function ()
+    isadmin = function (self)
         return self.role == 'admin'
     end,
-    isbanned = function ()
+    isbanned = function (self)
         return self.role == 'banned'
     end,
-    has_one_of_roles = function (roles)
+    has_one_of_roles = function (self, roles)
         for _, role in pairs(roles) do
             if self.role == role then
                 return true
