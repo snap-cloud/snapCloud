@@ -160,10 +160,13 @@ UserController = {
             -- Description: Add or update a user. All passwords should travel pre-hashed with SHA512.
             -- Parameters:  username, password, password_repeat, email, role
             if (self.current_user) then
-                if not users_match(self) then assert_admin(self) end
                 -- user is updating profile, or an admin is updating somebody else's profile
-                if self.params.role then
-                    assert_can_set_role(self, self.params.role)
+                if not users_match(self) then 
+                    if self.params.role then
+                        assert_can_set_role(self, self.params.role)
+                    else
+                        assert_admin(self)
+                    end
                 end
                 self.queried_user:update({
                     email = self.params.email or self.queried_user.email,
