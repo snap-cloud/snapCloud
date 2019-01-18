@@ -351,7 +351,7 @@ ProjectController = {
             -- Body:        notes, projectname
             if not users_match(self) then assert_admin(self) end
 
-            if current_user.isbanned() and self.params.ispublished then
+            if self.current_user.isbanned() and self.params.ispublished then
                 yield_error(err.banned)
             end
 
