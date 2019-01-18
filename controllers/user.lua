@@ -57,7 +57,7 @@ UserController = {
             --              with username or email matching matchtext, if provided.
             -- Parameters:  matchtext, page, pagesize
 
-            assert_admin(self)
+            assert_has_one_of_roles(self, { 'admin', 'moderator' })
             local paginator = Users:paginated(
                 self.params.matchtext and
                     db.interpolate_query(

@@ -122,19 +122,21 @@ assert_can_set_role = function (self, role)
         -- moderators can't turn admins into moderators as per second check at the top of this function.
         assert_role(self, 'moderator')
     elseif role == 'reviewer' then
-        -- admins (already taken care of), moderators, and reviewers can grant reviewer roles to others.
-        -- nobody can turn admins into reviewers as per second check at the top of this function, but
-        -- we need to make sure that reviewers can't downgrade moderators.
-        if self.queried_user.role == 'moderator' then
-            assert_role(self, 'moderator')
-        else
+        -- admins (already taken care of), moderators, and reviewers can grant reviewer roles to standard users.
+        -- nobody can turn admins into reviewers as per second check at the top of this function, but we need to make
+        -- sure that reviewers can't downgrade moderators.
+        if self.queried_user.role == 'standard' then
             assert_has_one_of_roles(self, { 'moderator', 'reviewer' })
+        else
+            yield_error(err.auth)
         end
     elseif role == 'standard' then
         -- admins can downgrade moderators or reviewers to standard users (taken care of)
         -- moderators can downgrade reviewers to standard users
         if self.queried_user.role == 'reviewer' then
             assert_role(self, 'moderator')
+        else
+            yield_error(err.auth)
         end
     else
         yield_error(err.invalid_role)
