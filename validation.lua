@@ -32,15 +32,16 @@ require 'responses'
 require 'email'
 
 err = {
-    not_logged_in = {msg = 'You are not logged in', status = 401},
-    auth = {msg = 'You do not have permission to perform this action', status = 403},
-    nonexistent_user = {msg = 'No user with this username exists', status = 404},
-    nonexistent_project = {msg = 'This project does not exist', status = 404},
-    not_public_project = {msg = 'This project is not public', status = 403},
-    expired_token = {msg = 'This token has expired', status = 401},
-    invalid_token = {msg = 'This token is either invalid or has expired', status = 401},
-    nonvalidated_user = {msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401},
-    invalid_role = {msg = 'This user role is not valid', status = 401},
+    not_logged_in = { msg = 'You are not logged in', status = 401 },
+    auth = { msg = 'You do not have permission to perform this action', status = 403 },
+    nonexistent_user = { msg = 'No user with this username exists', status = 404 },
+    nonexistent_project = { msg = 'This project does not exist', status = 404 },
+    not_public_project = { msg = 'This project is not public', status = 403 },
+    expired_token = { msg = 'This token has expired', status = 401 },
+    invalid_token = { msg = 'This token is either invalid or has expired', status = 401 },
+    nonvalidated_user = { msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401 },
+    invalid_role = { msg = 'This user role is not valid', status = 401 },
+    banned = { msg = 'Your user has been banned', status = 403 }
 }
 
 assert_all = function (assertions, self)
@@ -70,19 +71,6 @@ end
 -- admin:     Can do everything.
 -- banned:    Same as a standard user, but can't modify or add anything.
 
-function Users.__base:isadmin ()
-    return self.role == 'admin'
-end
-
-function Users.__base:has_one_of_roles (roles)
-    for _, role in pairs(roles) do
-        if self.role == role then
-            return true
-        end
-    end
-    return false
-end
-
 assert_role = function (self, role, message)
     if not (self.current_user and self.current_user.role == role) then
         yield_error(message or err.auth)
@@ -90,7 +78,7 @@ assert_role = function (self, role, message)
 end
 
 assert_has_one_of_roles = function (self, roles)
-    if not self.current_user:has_one_of_roles(roles) then
+    if not self.current_user or not self.current_user:has_one_of_roles(roles) then
         yield_error(err.auth)
     end
 end
@@ -100,7 +88,7 @@ assert_admin = function (self, message)
 end
 
 assert_can_set_role = function (self, role)
-    can_set = {
+    local can_set = {
         admin = {
             admin = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
             moderator = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },

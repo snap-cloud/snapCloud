@@ -25,7 +25,21 @@ package.loaded.Users = package.loaded.Model:extend('users', {
     primary_key = { 'username' },
     relations = {
         { 'collections', has_many = 'Collections', key = 'creator_id' }
-    }
+    },
+    isadmin = function ()
+        return self.role == 'admin'
+    end,
+    isbanned = function ()
+        return self.role == 'banned'
+    end,
+    has_one_of_roles = function (roles)
+        for _, role in pairs(roles) do
+            if self.role == role then
+                return true
+            end
+        end
+        return false
+    end
 })
 
 package.loaded.Projects = package.loaded.Model:extend('active_projects', {

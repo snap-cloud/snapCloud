@@ -26,6 +26,7 @@ local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
 
 local Users = package.loaded.Users
+local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 
 require 'responses'
@@ -172,6 +173,10 @@ UserController = {
                     email = self.params.email or self.queried_user.email,
                     role = self.params.role or self.queried_user.role
                 })
+                if (role == 'banned') then
+                    -- We need to unlist all projects by this user
+                    db.update('projects', { ispublished = false }, { username = self.queried_user.username})
+                end
                 return okResponse('Profile for user ' .. self.queried_user.username .. ' updated')
             else
                 -- new user

@@ -351,6 +351,10 @@ ProjectController = {
             -- Body:        notes, projectname
             if not users_match(self) then assert_admin(self) end
 
+            if current_user.isbanned() and self.params.ispublished then
+                yield_error(err.banned)
+            end
+
             local project = Projects:find(self.params.username, self.params.projectname)
             if not project then yield_error(err.nonexistent_project) end
 
