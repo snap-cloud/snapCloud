@@ -113,7 +113,6 @@ function update_xml(id, update_function)
     local dir = directory_for_id(id)
     local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
-        backup_project(id)
         if pcall(
             function ()
                 local project = xml.load(project_file:read('*all'))

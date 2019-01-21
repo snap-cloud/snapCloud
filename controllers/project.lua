@@ -284,11 +284,6 @@ ProjectController = {
 
                 backup_project(project.id)
 
-                if body.notes then
-                    -- save new notes into the project XML
-                    update_notes(project.id, body.notes)
-                end
-
                 project:update({
                     lastupdated = db.format_date(),
                     lastshared = shouldUpdateSharedDate and db.format_date() or nil,
@@ -373,6 +368,10 @@ ProjectController = {
             local body = body_data and util.from_json(body_data) or nil
             local new_name = body and body.projectname or nil
             local new_notes = body and body.notes or nil
+            
+            -- save new notes and project name into the project XML
+            if new_notes then update_notes(project.id, new_notes) end
+            if new_name then update_name(project.id, new_name) end
 
             project:update({
                 projectname = new_name or project.projectname,
