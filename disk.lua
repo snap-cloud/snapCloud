@@ -96,6 +96,27 @@ function parse_notes(id, delta)
     end
 end
 
+function update_notes(id, notes)
+    local dir = directory_for_id(id)
+    local project_file = io.open(dir .. '/project.xml', 'r')
+    if (project_file) then
+        backup_project(id)
+        if pcall(
+            function ()
+                local project = xml.load(project_file:read('*all'))
+                project_file:close()
+                local old_notes = xml.find(project, 'notes')
+                old_notes[1] = notes
+                project_file = io.open(dir .. '/project.xml', 'w+')
+                project_file:write(xml.dump(project))
+                project_file:close()
+            end) then
+        else
+            project_file:close()
+        end
+    end
+end
+
 function version_metadata(id, delta)
     local dir = directory_for_id(id) .. '/d' .. delta
     local project_file = io.open(dir .. '/project.xml', 'r')

@@ -284,6 +284,11 @@ ProjectController = {
 
                 backup_project(project.id)
 
+                if body.notes then
+                    -- save new notes into the project XML
+                    update_notes(project.id, body.notes)
+                end
+
                 project:update({
                     lastupdated = db.format_date(),
                     lastshared = shouldUpdateSharedDate and db.format_date() or nil,
