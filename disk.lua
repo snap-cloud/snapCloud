@@ -97,6 +97,19 @@ function parse_notes(id, delta)
 end
 
 function update_notes(id, notes)
+    update_xml(id, function (project)
+        local old_notes = xml.find(project, 'notes')
+        old_notes[1] = notes
+    end)
+end
+
+function update_name(id, name)
+    update_xml(id, function (project)
+        project.name = name
+    end)
+end
+
+function update_xml(id, update_function)
     local dir = directory_for_id(id)
     local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
@@ -105,15 +118,17 @@ function update_notes(id, notes)
             function ()
                 local project = xml.load(project_file:read('*all'))
                 project_file:close()
-                local old_notes = xml.find(project, 'notes')
-                old_notes[1] = notes
+                update_function(project)
                 project_file = io.open(dir .. '/project.xml', 'w+')
                 project_file:write(xml.dump(project))
                 project_file:close()
             end) then
         else
             project_file:close()
+            yield_error(err.unparseable_xml)
         end
+    else
+        yield_error(err.file_not_found)
     end
 end
 

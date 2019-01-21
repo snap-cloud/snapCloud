@@ -41,7 +41,9 @@ err = {
     invalid_token = { msg = 'This token is either invalid or has expired', status = 401 },
     nonvalidated_user = { msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401 },
     invalid_role = { msg = 'This user role is not valid', status = 401 },
-    banned = { msg = 'Your user has been banned', status = 403 }
+    banned = { msg = 'Your user has been banned', status = 403 },
+    unparseable_xml = { msg = 'Project file could not be parsed', status = 500 },
+    file_not_found = { msg = 'Project file not found', status = 404 }
 }
 
 assert_all = function (assertions, self)
