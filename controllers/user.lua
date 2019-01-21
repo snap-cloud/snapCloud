@@ -86,7 +86,7 @@ UserController = {
                 Users:select(
                     'where username = ? limit 1',
                     self.params.username,
-                    { fields = 'username, created, role, email' })[1])
+                    { fields = 'username, created, role, email, verified, id' })[1])
         end,
 
         password_reset = function (self)
