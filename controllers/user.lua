@@ -338,6 +338,7 @@ UserController = {
                     body.subject or mail_subjects.generic,
                     body.contents
                 )
+                return okResponse('Message sent to user ' .. self.queried_user.username)
             else
                 yield_error(err.mail_body_empty)
             end
