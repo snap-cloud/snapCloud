@@ -346,8 +346,10 @@ ProjectController = {
 
         project_meta = function (self)
             -- POST /projects/:username/:projectname/metadata
-            -- Description: Get/add/update a project metadata.
-            -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
+            -- Description: Add/update a project metadata. When admins and moderators unpublish
+            --              somebody else's project, they also provide a reason that will be
+            --              emailed to the project owner.
+            -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared, reason
             -- Body:        notes, projectname
             if not users_match(self) then assert_admin(self) end
 
@@ -357,6 +359,13 @@ ProjectController = {
 
             local project = Projects:find(self.params.username, self.params.projectname)
             if not project then yield_error(err.nonexistent_project) end
+
+            if self.params.ispublished == false and self.params.reason then
+                send_mail(
+                    user.email,
+                    mail_subjects.project_unpublished .. project.projectname,
+                    mail_bodies.project_unpublished .. self.current_user.role .. '.</p><p>' .. self.params.reason .. '</p>')
+            end
 
             local shouldUpdateSharedDate =
                 ((not project.lastshared and self.params.ispublic)
@@ -393,33 +402,23 @@ ProjectController = {
     DELETE = {
         project = function (self)
             -- DELETE /projects/:username/:projectname
-            -- Description: Delete a particular project.
+            -- Description: Delete a particular project. When admins and moderators delete somebody else's
+            --              project, they also provide a reason that will be emailed to the project owner.
             --              Response will depend on query issuer permissions.
+            -- Parameters:  reason
             assert_all({'project_exists', 'user_exists'}, self)
-            if not users_match(self) then assert_admin(self) end
+            if not users_match(self) then assert_has_one_of_roles(self, { 'admin', 'moderator' }) end
 
             local project = Projects:find(self.params.username, self.params.projectname)
 
-            --[[
-            local id = project.id
-
-            -- Check out whether this project was a remix of some other project, then delete the remix
-            local remix = Remixes:select('where remixed_project_id = ?', id)[1]
-            if remix then remix:delete() end
-
-            -- Check out whether this project has been remixed by other projects, then orphan these remixes
-            local query = db.query('update remixes set original_project_id = null where original_project_id = ?', id);
-
-            if not (project:delete()) then
-                yield_error('Could not delete project ' .. self.params.projectname)
-            else
-                delete_directory(id)
-                return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
+            if self.params.reason then
+                send_mail(
+                    user.email,
+                    mail_subjects.project_deleted .. project.projectname,
+                    mail_bodies.project_deleted .. self.current_user.role .. '.</p><p>' .. self.params.reason .. '</p>')
             end
-            ]]--
 
             -- Do not actually delete the project; flag it as deleted.
-
             if not (project:update({ deleted = db.format_date() })) then
                 yield_error('Could not delete project ' .. self.params.projectname)
             else
