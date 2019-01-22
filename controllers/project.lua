@@ -360,9 +360,9 @@ ProjectController = {
             local project = Projects:find(self.params.username, self.params.projectname)
             if not project then yield_error(err.nonexistent_project) end
 
-            if self.params.ispublished == false and self.params.reason then
+            if self.params.ispublished == 'false' and self.params.reason then
                 send_mail(
-                    user.email,
+                    self.queried_user.email,
                     mail_subjects.project_unpublished .. project.projectname,
                     mail_bodies.project_unpublished .. self.current_user.role .. '.</p><p>' .. self.params.reason .. '</p>')
             end
