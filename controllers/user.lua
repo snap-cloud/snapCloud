@@ -20,6 +20,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local util = package.loaded.util
 local validate = package.loaded.validate
 local db = package.loaded.db
 local cached = package.loaded.cached
@@ -316,6 +317,30 @@ UserController = {
             self.session.username = ''
             self.cookies.persist_session = 'false'
             return okResponse('logged out')
+        end,
+
+        send_message = function (self)
+            -- POST /users/:username/message
+            -- Description: If requesting user has permissions to do so, send an email
+            --              to queried user.
+            -- Body:        subject, contents
+
+            assert_admin(self)
+
+            -- Read request body and parse it into JSON
+            ngx.req.read_body()
+            local body_data = ngx.req.get_body_data()
+            local body = body_data and util.from_json(body_data) or nil
+
+            if body and body.contents then
+                send_mail(
+                    self.queried_user.email,
+                    body.subject or mail_subjects.generic,
+                    body.contents
+                )
+            else
+                yield_error(err.mail_body_empty)
+            end
         end
     },
 
