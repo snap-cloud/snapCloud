@@ -413,7 +413,7 @@ ProjectController = {
 
             if self.params.reason then
                 send_mail(
-                    user.email,
+                    self.queried_user.email,
                     mail_subjects.project_deleted .. project.projectname,
                     mail_bodies.project_deleted .. self.current_user.role .. '.</p><p>' .. self.params.reason .. '</p>')
             end
