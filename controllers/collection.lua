@@ -90,8 +90,12 @@ CollectionController.GET.user_collections = function (self)
     --              Returns only public collections, if another user.
     -- Parameters:  GET: username, matchtext, page, pagesize
 
-    local collections = self.queried_user:get_collections()
-    return jsonResponse(collections)
+    assert_user_exists(self)
+    if users_match(self) then
+        return jsonResponse(self.queried_user:get_collections())
+    else
+        return jsonResponse(self.queried_user:get_public_collections())
+    end
 end
 
 CollectionController.POST. collection = function (self)

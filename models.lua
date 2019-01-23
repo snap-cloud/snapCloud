@@ -26,10 +26,18 @@ local Model = package.loaded.Model
 package.loaded.Users = Model:extend('users', {
     primary_key = { 'username' },
     relations = {
+        -- TODO: figure out why this does not work.
         -- { 'collections', has_many = 'Collections', key = 'creator_id' }
         { 'collections',
         fetch = function(self)
             return package.loaded.Collections:select('WHERE creator_id = ?', self.id)
+        end
+        },
+        { 'public_collections',
+        fetch = function(self)
+            return package.loaded.Collections:select(
+                'WHERE creator_id = ? AND published = true', self.id
+            )
         end
         }
     },
