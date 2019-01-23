@@ -62,13 +62,6 @@ CollectionController = {
             -- Parameters:  username, collection_slug
         end
     },
-    POST = {
-        collection_memberships = function (self)
-            -- POST /users/:username/collections/:collection_slug/items(/:item_id)
-            -- Description: Add an item to a collection.
-            -- Parameters:  username, collection_slug, item_id
-        end
-    },
     DELETE = {
         collection = function (self)
             -- DELETE /users/:username/collections/:collection_slug
@@ -118,4 +111,10 @@ CollectionController.POST. collection = function (self)
         shared_at = current_time_or_nil(self.params.shared),
         thumbnail_id = self.params.thumbnail_id
     })))
+end
+
+CollectionController.POST.collection_memberships = function (self)
+    -- POST /users/:username/collections/:collection_slug/items(/:item_id)
+    -- Description: Add an item to a collection.
+    -- Parameters:  username, collection_slug, item_id
 end
