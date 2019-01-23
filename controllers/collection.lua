@@ -51,11 +51,6 @@ CollectionController = {
             --              Returns public collections
             -- Parameters:  matchtext, page, pagesize
         end,
-        collection = function (self)
-            -- GET /users/:username/collections/:collection_slug
-            -- Description: Get info about a collection.
-            -- Parameters:  username, collection_slug, ...
-        end,
         collection_memberships = function (self)
             -- GET /users/:username/collections/:collection_slug/projects(/:project_id)
             -- Description: Get a paginated list of all projects in a collection.
@@ -91,7 +86,7 @@ CollectionController.GET.user_collections = function (self)
     end
 end
 
-CollectionController.POST. collection = function (self)
+CollectionController.POST.collection = function (self)
     -- POST /users/:username/collections/:collection_slug
     -- Description: Create a collection.
     -- Parameters:  username, collection_name, ...
