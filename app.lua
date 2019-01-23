@@ -2,7 +2,7 @@
 -- ==========
 --
 -- A cloud backend for Snap!
--- 
+--
 -- Written by Bernat Romagosa and Michael Ball
 --
 -- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
@@ -40,12 +40,19 @@ package.loaded.resty_sha512 = require "resty.sha512"
 package.loaded.resty_string = require "resty.string"
 package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
+package.loaded.rollbar = require('resty.rollbar')
 
 local app = package.loaded.app
 local config = package.loaded.config
 
+local rollbar = package.loaded.rollbar
+rollbar.set_token(config.rollbar_token)
+rollbar.set_environment(config._name)
+
 -- Store whitelisted domains
 local domain_allowed = require('cors')
+-- Utility functions
+local helpers = require('helpers')
 
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})
@@ -126,8 +133,17 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    if self.current_user then
+        user_params = { id = self.current_user.id,
+                        username = self.current_user.username }
+    else
+        user_params = {}
+    end
     print(err)
     print(trace)
+    rollbar.set_person(user_params)
+    rollbar.set_custom_trace(trace)
+    rollbar.report(rollbar.ERR, helpers.normalize_error(err))
     return errorResponse(err, 500)
 end
 

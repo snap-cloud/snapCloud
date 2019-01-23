@@ -9,6 +9,10 @@ config({'development', 'staging', 'production', 'test'}, {
     },
     session_name = 'snapsession',
 
+    -- Exception monitoring service.
+    -- Leave empty to avoid forwarding errors.
+    rollbar_token = os.getenv('ROLLBAR_TOKEN') or '',
+
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have
     -- read & write permissions to that path.
@@ -35,7 +39,7 @@ config({'development', 'test'}, {
     site_name = 'dev | Snap Cloud',
     port = os.getenv('PORT') or 8080,
     mail_smtp_port = os.getenv('MAIL_SMTP_PORT') or 1025,
-    dns_resolver = 'localhost',
+    dns_resolver = '8.8.8.8',
     code_cache = 'off',
     num_workers = 1,
     log_directive = 'stderr notice',

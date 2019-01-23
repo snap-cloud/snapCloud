@@ -18,7 +18,8 @@ dependencies = {
    "luaossl",
    "xml",
    "lua-resty-mail",
-   "luasocket"
+   "luasocket",
+   "lua-resty-rollbar"
 }
 build = {
     type = "builtin",

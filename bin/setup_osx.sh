@@ -35,7 +35,7 @@ ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx
 
 # now install lua.
 LUA_CMD="lua-5.1"
-LUAROCKS_CMD="luarocks-5.1"
+LUAROCKS_CMD="luarocks"
 
 # Needed for lapis
 OPENSSL_BREW='/usr/local/opt/openssl/'
