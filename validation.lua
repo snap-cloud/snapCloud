@@ -23,6 +23,7 @@
 local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local db = package.loaded.db
+local Collections = package.loaded.Collections
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
@@ -36,6 +37,8 @@ err = {
     auth = { msg = 'You do not have permission to perform this action', status = 403 },
     nonexistent_user = { msg = 'No user with this username exists', status = 404 },
     nonexistent_project = { msg = 'This project does not exist', status = 404 },
+    nonexistent_collection = { msg = 'This collection does not exist',
+                              status = 404 }
     not_public_project = { msg = 'This project is not public', status = 403 },
     expired_token = { msg = 'This token has expired', status = 401 },
     invalid_token = { msg = 'This token is either invalid or has expired', status = 401 },
@@ -143,6 +146,21 @@ assert_project_exists = function (self, message)
     end
 end
 
+-- Users can add their own projects and published projects to any collection
+-- Admins can add any project to a collection.
+-- Users can't add shared projects to a collection.
+assert_user_can_add_project_to_collection = function (self, project)
+    if self.current_user:isadmin() or project.ispublished or
+        or project.username == self.current_user.username then
+        return
+    end
+
+    if project.isshared == true then
+        yield_error(err.auth)
+    end
+    yield_error(err.nonexistent_project)
+end
+
 -- Tokens
 
 check_token = function (token_value, purpose, on_success)
@@ -193,4 +211,17 @@ create_token = function (self, purpose, username, email)
             }
         ))
     )
+end
+
+-- Collections
+assert_collection_exists = function (self)
+    local collection = Collections.find(self.params.username,
+                                       self.params.collection_slug)
+
+    if not collection or
+        (collection.published == false and not users_match(self)) then
+        yield_error(err.nonexistent_collection)
+    end
+
+    return collection
 end
