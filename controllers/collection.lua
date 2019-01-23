@@ -86,6 +86,18 @@ CollectionController.GET.user_collections = function (self)
     end
 end
 
+CollectionController.GET.collection = function (self)
+    -- GET /users/:username/collections/:collection_slug
+    -- Description: Get info about a collection.
+    -- Parameters:  username, collection_slug, ...
+
+    return -- TODO
+    local collection = assert_collection_exists(self)
+    local project_count = collection:count_projects
+    collection.projects_count = project_count
+    return jsonResponse(collection)
+end
+
 CollectionController.POST.collection = function (self)
     -- POST /users/:username/collections/:collection_slug
     -- Description: Create a collection.
