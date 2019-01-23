@@ -54,11 +54,11 @@ CollectionController = {
         collection = function (self)
             -- GET /users/:username/collections/:collection_slug
             -- Description: Get info about a collection.
-            -- Parameters:  username, collection_name, ...
+            -- Parameters:  username, collection_slug, ...
         end,
         collection_memberships = function (self)
-            -- GET /users/:username/collections/:collection_slug/items(/:item_id)
-            -- Description: Get a paginated list of all items in a collection.
+            -- GET /users/:username/collections/:collection_slug/projects(/:project_id)
+            -- Description: Get a paginated list of all projects in a collection.
             -- Parameters:  username, collection_slug
         end
     },
@@ -68,8 +68,8 @@ CollectionController = {
             -- Description: Delete a particular collection.
         end,
         collection_memberships = function (self)
-            -- DELETE /users/:username/collections/:collection_slug/items(/:item_id)
-            -- Description: Remove an item from a collection.
+            -- DELETE /users/:username/collections/:collection_slug/projects(/:project_id)
+            -- Description: Remove a project from a collection.
             -- Parameters:  username, collection_slug
         end
     }
@@ -114,7 +114,18 @@ CollectionController.POST. collection = function (self)
 end
 
 CollectionController.POST.collection_memberships = function (self)
-    -- POST /users/:username/collections/:collection_slug/items(/:item_id)
-    -- Description: Add an item to a collection.
-    -- Parameters:  username, collection_slug, item_id
+    -- POST /users/:username/collections/:collection_slug/projects(/:project_id)
+    -- Description: Add a project to a collection.
+    -- Parameters:  username, collection_slug, project_id
+
+    -- TODO (temp off): assert_all({ assert_logged_in, assert_users_match }, self)
+    local collection = assert_collection_exists(self)
+    local project = Project:find({ id = self.params.project_id })
+
+    assert_user_can_view_project(project)
+
+    return jsonResponse(CollectionMemberships:create({
+        collection_id = collection.id,
+        project_id = project.id
+    }))
 end
