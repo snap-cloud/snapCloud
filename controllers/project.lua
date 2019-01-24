@@ -77,7 +77,7 @@ ProjectController = {
             -- Description: Get metadata for a project list by a user.
             --              Response will depend on parameters and query issuer permissions.
             -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
-            local order = 'lastshared'
+            local order = 'lastupdated'
 
             if not (users_match(self)) then
                 if not self.current_user or not self.current_user:isadmin() then
