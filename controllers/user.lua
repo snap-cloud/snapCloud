@@ -20,12 +20,14 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local util = package.loaded.util
 local validate = package.loaded.validate
 local db = package.loaded.db
 local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
 
 local Users = package.loaded.Users
+local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 
 require 'responses'
@@ -57,7 +59,7 @@ UserController = {
             --              with username or email matching matchtext, if provided.
             -- Parameters:  matchtext, page, pagesize
 
-            assert_admin(self)
+            assert_has_one_of_roles(self, { 'admin', 'moderator' })
             local paginator = Users:paginated(
                 self.params.matchtext and
                     db.interpolate_query(
@@ -85,7 +87,7 @@ UserController = {
                 Users:select(
                     'where username = ? limit 1',
                     self.params.username,
-                    { fields = 'username, created, role, email' })[1])
+                    { fields = 'username, created, role, email, verified, id' })[1])
         end,
 
         password_reset = function (self)
@@ -160,15 +162,22 @@ UserController = {
             -- Description: Add or update a user. All passwords should travel pre-hashed with SHA512.
             -- Parameters:  username, password, password_repeat, email, role
             if (self.current_user) then
-                if not users_match(self) then assert_admin(self) end
                 -- user is updating profile, or an admin is updating somebody else's profile
-                if self.params.role then
-                    assert_can_set_role(self, self.params.role)
+                if not users_match(self) then 
+                    if self.params.role then
+                        assert_can_set_role(self, self.params.role)
+                    else
+                        assert_admin(self)
+                    end
                 end
                 self.queried_user:update({
                     email = self.params.email or self.queried_user.email,
                     role = self.params.role or self.queried_user.role
                 })
+                if (self.params.role == 'banned') then
+                    -- We need to unlist all projects by this user
+                    db.update('projects', { ispublished = false }, { username = self.queried_user.username })
+                end
                 return okResponse('Profile for user ' .. self.queried_user.username .. ' updated')
             else
                 -- new user
@@ -308,6 +317,31 @@ UserController = {
             self.session.username = ''
             self.cookies.persist_session = 'false'
             return okResponse('logged out')
+        end,
+
+        send_message = function (self)
+            -- POST /users/:username/message
+            -- Description: If requesting user has permissions to do so, send an email
+            --              to queried user.
+            -- Body:        subject, contents
+
+            assert_admin(self)
+
+            -- Read request body and parse it into JSON
+            ngx.req.read_body()
+            local body_data = ngx.req.get_body_data()
+            local body = body_data and util.from_json(body_data) or nil
+
+            if body and body.contents then
+                send_mail(
+                    self.queried_user.email,
+                    body.subject or mail_subjects.generic,
+                    body.contents
+                )
+                return okResponse('Message sent to user ' .. self.queried_user.username)
+            else
+                yield_error(err.mail_body_empty)
+            end
         end
     },
 

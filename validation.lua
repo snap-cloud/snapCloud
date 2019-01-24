@@ -23,6 +23,7 @@
 local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local db = package.loaded.db
+local Collections = package.loaded.Collections
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
@@ -32,15 +33,21 @@ require 'responses'
 require 'email'
 
 err = {
-    not_logged_in = {msg = 'You are not logged in', status = 401},
-    auth = {msg = 'You do not have permission to perform this action', status = 403},
-    nonexistent_user = {msg = 'No user with this username exists', status = 404},
-    nonexistent_project = {msg = 'This project does not exist', status = 404},
-    not_public_project = {msg = 'This project is not public', status = 403},
-    expired_token = {msg = 'This token has expired', status = 401},
-    invalid_token = {msg = 'This token is either invalid or has expired', status = 401},
-    nonvalidated_user = {msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401},
-    invalid_role = {msg = 'This user role is not valid', status = 401},
+    not_logged_in = { msg = 'You are not logged in', status = 401 },
+    auth = { msg = 'You do not have permission to perform this action', status = 403 },
+    nonexistent_user = { msg = 'No user with this username exists', status = 404 },
+    nonexistent_project = { msg = 'This project does not exist', status = 404 },
+    nonexistent_collection = { msg = 'This collection does not exist',
+                              status = 404 },
+    not_public_project = { msg = 'This project is not public', status = 403 },
+    expired_token = { msg = 'This token has expired', status = 401 },
+    invalid_token = { msg = 'This token is either invalid or has expired', status = 401 },
+    nonvalidated_user = { msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401 },
+    invalid_role = { msg = 'This user role is not valid', status = 401 },
+    banned = { msg = 'Your user has been banned', status = 403 },
+    unparseable_xml = { msg = 'Project file could not be parsed', status = 500 },
+    file_not_found = { msg = 'Project file not found', status = 404 },
+    mail_body_empty = { msg = 'Missing email body contents', status = 400 }
 }
 
 assert_all = function (assertions, self)
@@ -70,19 +77,6 @@ end
 -- admin:     Can do everything.
 -- banned:    Same as a standard user, but can't modify or add anything.
 
-function Users.__base:isadmin ()
-    return self.role == 'admin'
-end
-
-function Users.__base:has_one_of_roles (roles)
-    for _, role in pairs(roles) do
-        if self.role == role then
-            return true
-        end
-    end
-    return false
-end
-
 assert_role = function (self, role, message)
     if not (self.current_user and self.current_user.role == role) then
         yield_error(message or err.auth)
@@ -90,7 +84,7 @@ assert_role = function (self, role, message)
 end
 
 assert_has_one_of_roles = function (self, roles)
-    if not self.current_user:has_one_of_roles(roles) then
+    if not self.current_user or not self.current_user:has_one_of_roles(roles) then
         yield_error(err.auth)
     end
 end
@@ -100,44 +94,29 @@ assert_admin = function (self, message)
 end
 
 assert_can_set_role = function (self, role)
-    -- admins can do anything
-    if self.current_user:isadmin() then return true end
-
-    -- nobody but admins can revoke roles from admins
-    if self.queried_user:isadmin() then yield_error(err.auth) end
-
-    -- now for the rest of the cases
-    if role == 'banned' then
-        -- moderators can ban anyone but admins (already taken care of) or moderators
-        if self.queried_user.role ~= 'moderator' then
-            assert_role(self, 'moderator')
-        else
-            yield_error(err.auth)
-        end
-    elseif role == 'admin' then
-        -- only admins can grant admin roles to others
+    local can_set = {
+        admin = {
+            admin = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
+            moderator = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
+            reviewer = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
+            standard = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
+            banned = { admin = true, moderator = true, reviewer = true, standard = true, banned = true }
+        },
+        moderator = {
+            admin = {}, moderator = {},
+            reviewer = { moderator = true, reviewer = true, standard = true, banned = true },
+            standard = { moderator = true, reviewer = true, standard = true, banned = true },
+            banned = { moderator = true, reviewer = true, standard = true, banned = true }
+        },
+        reviewer = {
+            admin = {}, moderator = {}, reviewer = {}, banned = {},
+            standard = { reviewer = true, standard = true }
+        },
+        standard = { admin = {}, moderator = {}, reviewer = {}, standard = {}, banned = {} },
+        banned = { admin = {}, moderator = {}, reviewer = {}, standard = {}, banned = {} }
+    }
+    if not can_set[self.current_user.role][self.queried_user.role][role] then
         yield_error(err.auth)
-    elseif role == 'moderator' then
-        -- only admins and moderators can grant moderator roles to others.
-        -- moderators can't turn admins into moderators as per second check at the top of this function.
-        assert_role(self, 'moderator')
-    elseif role == 'reviewer' then
-        -- admins (already taken care of), moderators, and reviewers can grant reviewer roles to others.
-        -- nobody can turn admins into reviewers as per second check at the top of this function, but
-        -- we need to make sure that reviewers can't downgrade moderators.
-        if self.queried_user.role == 'moderator' then
-            assert_role(self, 'moderator')
-        else
-            assert_has_one_of_roles(self, { 'moderator', 'reviewer' })
-        end
-    elseif role == 'standard' then
-        -- admins can downgrade moderators or reviewers to standard users (taken care of)
-        -- moderators can downgrade reviewers to standard users
-        if self.queried_user.role == 'reviewer' then
-            assert_role(self, 'moderator')
-        end
-    else
-        yield_error(err.invalid_role)
     end
 end
 
@@ -165,6 +144,21 @@ assert_project_exists = function (self, message)
     if not (Projects:find(self.params.username, self.params.projectname)) then
         yield_error(message or err.nonexistent_project)
     end
+end
+
+-- Users can add their own projects and published projects to any collection
+-- Admins can add any project to a collection.
+-- Users can't add shared projects to a collection.
+assert_user_can_add_project_to_collection = function (self, project)
+    if (self.current_user:isadmin() or project.ispublished
+        or project.username == self.current_user.username) then
+        return
+    end
+
+    if project.isshared == true then
+        yield_error(err.auth)
+    end
+    yield_error(err.nonexistent_project)
 end
 
 -- Tokens
@@ -217,4 +211,17 @@ create_token = function (self, purpose, username, email)
             }
         ))
     )
+end
+
+-- Collections
+assert_collection_exists = function (self)
+    local collection = Collections.find(self.params.username,
+                                       self.params.collection_slug)
+
+    if not collection or
+        (collection.published == false and not users_match(self)) then
+        yield_error(err.nonexistent_collection)
+    end
+
+    return collection
 end

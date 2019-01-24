@@ -42,13 +42,19 @@ mail_bodies = {
     new_password = '<h1>Your new password</h1>' ..
                    '<p>A new random password has been generated for your account.</p>' ..
                    '<p><strong>Please change it immediately</strong> after logging in.</p><br/>' ..
-                   '<p>Your new password is:</p>'
+                   '<p>Your new password is:</p>',
+    project_unpublished = '<h1>Your project has been unpublished</h1>' ..
+                          '<p>One of your projects has been unpublished from the Snap<em>!</em> community website by a system ',
+    project_deleted = '<h1>Your project has been deleted</h1>' ..
+                      '<p>One of your projects has been deleted from the Snap<em>!</em> community website by a system '
 }
 
 mail_subjects = {
     verify_user = 'Verify user ',
     password_reset = 'Reset password for ',
-    new_password = 'New password for '
+    new_password = 'New password for ',
+    project_unpublished = 'Project unpublished: ',
+    project_deleted = 'Project deleted: '
 }
 
 send_mail = function (address, subject, html, url)

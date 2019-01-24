@@ -88,12 +88,16 @@ Description: Add/update a particular project.
 Body:        xml, notes, thumbnail
 
 Route:       POST /projects/:username/:projectname/metadata
-Description: Get/add/update a project metadata.
-Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
+             Description: Add/update a project metadata. When admins and moderators unpublish
+             somebody else's project, they also provide a reason that will be
+             emailed to the project owner.
+Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared, reason
 Body:        notes, projectname
 
 Route:       DELETE /projects/:username/:projectname
-Description: Delete a particular project.
+Description: Delete a particular project. When admins and moderators delete somebody else's
+             project, they also provide a reason that will be emailed to the project owner.
+Parameters:  reason
              Response will depend on query issuer permissions.
 
 
