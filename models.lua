@@ -21,10 +21,25 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
-package.loaded.Users = package.loaded.Model:extend('users', {
+local Model = package.loaded.Model
+
+package.loaded.Users = Model:extend('users', {
     primary_key = { 'username' },
     relations = {
-        { 'collections', has_many = 'Collections', key = 'creator_id' }
+        -- TODO: figure out why this does not work.
+        -- { 'collections', has_many = 'Collections', key = 'creator_id' }
+        { 'collections',
+        fetch = function(self)
+            return package.loaded.Collections:select('WHERE creator_id = ?', self.id)
+        end
+        },
+        { 'public_collections',
+        fetch = function(self)
+            return package.loaded.Collections:select(
+                'WHERE creator_id = ? AND published = true', self.id
+            )
+        end
+        }
     },
     isadmin = function (self)
         return self.role == 'admin'
@@ -42,23 +57,23 @@ package.loaded.Users = package.loaded.Model:extend('users', {
     end
 })
 
-package.loaded.Projects = package.loaded.Model:extend('active_projects', {
+package.loaded.Projects = Model:extend('active_projects', {
     primary_key = { 'username', 'projectname' }
 })
 
-package.loaded.DeletedProjects = package.loaded.Model:extend('deleted_projects', {
+package.loaded.DeletedProjects = Model:extend('deleted_projects', {
     primary_key = { 'username', 'projectname' }
 })
 
-package.loaded.Tokens = package.loaded.Model:extend('tokens', {
+package.loaded.Tokens = Model:extend('tokens', {
     primary_key = { 'value' }
 })
 
-package.loaded.Remixes = package.loaded.Model:extend('remixes', {
+package.loaded.Remixes = Model:extend('remixes', {
     primary_key = { 'original_project_id', 'remixed_project_id' }
 })
 
-package.loaded.Collections = package.loaded.Model:extend('collections', {
+package.loaded.Collections = Model:extend('collections', {
     primary_key = { 'creator_id', 'slug' },
     timestamp = true,
     relations = {
@@ -81,7 +96,7 @@ package.loaded.Collections = package.loaded.Model:extend('collections', {
     }
 })
 
-package.loaded.CollectionMemberships = package.loaded.Model:extend(
+package.loaded.CollectionMemberships = Model:extend(
     'collection_memberships', {
     primary_key = { 'collection_id', 'project_id' },
     timestamp = true
