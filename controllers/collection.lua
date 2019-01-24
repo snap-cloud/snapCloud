@@ -57,6 +57,7 @@ CollectionController = {
             -- Parameters:  username, collection_slug
         end
     },
+    POST = {},
     DELETE = {
         collection = function (self)
             -- DELETE /users/:username/collections/:collection_slug
@@ -92,10 +93,10 @@ CollectionController.GET.collection = function (self)
     -- Parameters:  username, collection_slug, ...
 
     return -- TODO
-    local collection = assert_collection_exists(self)
-    local project_count = collection:count_projects
-    collection.projects_count = project_count
-    return jsonResponse(collection)
+    -- local collection = assert_collection_exists(self)
+    -- local project_count = collection:count_projects
+    -- collection.projects_count = project_count
+    -- return jsonResponse(collection)
 end
 
 CollectionController.POST.collection = function (self)
