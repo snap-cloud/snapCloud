@@ -69,7 +69,7 @@ local function send_request(_, level, title, stacktrace, request)
       environment = environment,
       body = {
         message = {
-          body = custom_stacktrace or stacktrace,
+          body = custom_trace or stacktrace,
         },
       },
       person = person_params,
@@ -130,16 +130,13 @@ end
 
 -- Set a user to appear in rollbar.
 function _M.set_person(user)
-  print('SET PERSON')
-  print('USERNAME')
-  print(user.username)
   if not user then
-    person_params = {}
+    person_params = nil
   else
     person_params = {
-      id = user.id or 'unknown',
-      username = user.username or 'unknown',
-      email = user.email or 'unknown'
+      id = user.id,
+      username = user.username,
+      email = user.email
     }
   end
 end
