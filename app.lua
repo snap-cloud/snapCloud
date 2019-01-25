@@ -141,8 +141,7 @@ function app:handle_error(err, trace)
     else
         user_params = {}
     end
-    print(err)
-    print(trace)
+
     rollbar.set_person(user_params)
     rollbar.set_custom_trace(err .. "\n\n" .. trace)
     rollbar.report(rollbar.ERR, helpers.normalize_error(err))
