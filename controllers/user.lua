@@ -69,7 +69,7 @@ UserController = {
                 paginator = Users:paginated(
                     self.params.matchtext and
                         db.interpolate_query(
-                            'where username ~* ? or email ~* ?',
+                            'where username ILIKE ? or email ILIKE ?',
                             self.params.matchtext,
                             self.params.matchtext
                         )
@@ -81,7 +81,7 @@ UserController = {
                 )
             else
                 paginator = Users:paginated(
-                    db.interpolate_query('where username ~* ?', self.params.matchtext),
+                    db.interpolate_query('where username ILIKE ?', self.params.matchtext),
                     {
                         per_page = self.params.pagesize or 16,
                         fields = 'username'
@@ -179,7 +179,7 @@ UserController = {
             -- Parameters:  username, password, password_repeat, email, role
             if (self.current_user) then
                 -- user is updating profile, or an admin is updating somebody else's profile
-                if not users_match(self) then 
+                if not users_match(self) then
                     if self.params.role then
                         assert_can_set_role(self, self.params.role)
                     else
