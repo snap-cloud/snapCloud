@@ -8,7 +8,7 @@ git submodule update --recursive --remote
 
 # Create a release on GitHub
 source .env
-deploy_sha=$(git show --pretty=%H)
+deploy_sha=$(git rev-parse HEAD)
 # A modified ISO8601 format. GitHub does not support tags
 current_time=$(date -u +"%Y-%m-%dT%H-%M-%S")
 repo='https://api.github.com/repos/bromagosa/snapCloud/releases'
