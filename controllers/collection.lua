@@ -42,34 +42,16 @@ local current_time_or_nil = function(option)
 end
 
 CollectionController = {
-    GET = {
-        -- TODO
-        collections_list = function (self)
-            -- GET /collections
-            -- Description: If requesting user is an admin, get a paginated list of all
-            --              collections with name matching matchtext, if provided.
-            --              Returns public collections
-            -- Parameters:  matchtext, page, pagesize
-        end,
-        collection_memberships = function (self)
-            -- GET /users/:username/collections/:collection_slug/projects(/:project_id)
-            -- Description: Get a paginated list of all projects in a collection.
-            -- Parameters:  username, collection_slug
-        end
-    },
-    POST = {},
-    DELETE = {
-        collection = function (self)
-            -- DELETE /users/:username/collections/:collection_slug
-            -- Description: Delete a particular collection.
-        end,
-        collection_memberships = function (self)
-            -- DELETE /users/:username/collections/:collection_slug/projects(/:project_id)
-            -- Description: Remove a project from a collection.
-            -- Parameters:  username, collection_slug
-        end
-    }
+    GET = {}, POST = {}, DELETE = {}
 }
+
+CollectionController.GET.collections_list = function (self)
+    -- GET /collections
+    -- Description: If requesting user is an admin, get a paginated list of all
+    --              collections with name matching matchtext, if provided.
+    --              Returns public collections
+    -- Parameters:  matchtext, page, pagesize
+end
 
 CollectionController.GET.user_collections = function (self)
     -- TODO: add filtering
@@ -87,19 +69,19 @@ CollectionController.GET.user_collections = function (self)
     end
 end
 
-CollectionController.GET.collection = function (self)
+CollectionController.GET.collections = function (self)
     -- GET /users/:username/collections/:collection_slug
     -- Description: Get info about a collection.
     -- Parameters:  username, collection_slug, ...
 
-    return -- TODO
-    -- local collection = assert_collection_exists(self)
-    -- local project_count = collection:count_projects
-    -- collection.projects_count = project_count
-    -- return jsonResponse(collection)
+    -- return -- TODO
+    local collection = assert_collection_exists(self)
+    local project_count = collection:count_projects()
+    collection.projects_count = project_count
+    return jsonResponse(collection)
 end
 
-CollectionController.POST.collection = function (self)
+CollectionController.POST.collections = function (self)
     -- POST /users/:username/collections/:collection_slug
     -- Description: Create a collection.
     -- Parameters:  username, collection_name, ...
@@ -121,6 +103,17 @@ CollectionController.POST.collection = function (self)
     })))
 end
 
+CollectionController.DELETE.collections = function (self)
+    -- DELETE /users/:username/collections/:collection_slug
+    -- Description: Delete a particular collection.
+end
+
+CollectionController.GET.collection_memberships = function (self)
+    -- GET /users/:username/collections/:collection_slug/projects(/:project_id)
+    -- Description: Get a paginated list of all projects in a collection.
+    -- Parameters:  username, collection_slug
+end
+
 CollectionController.POST.collection_memberships = function (self)
     -- POST /users/:username/collections/:collection_slug/projects(/:project_id)
     -- Description: Add a project to a collection.
@@ -136,4 +129,10 @@ CollectionController.POST.collection_memberships = function (self)
         collection_id = collection.id,
         project_id = project.id
     }))
+end
+
+CollectionController.DELETE.collection_memberships = function (self)
+    -- DELETE /users/:username/collections/:collection_slug/projects(/:project_id)
+    -- Description: Remove a project from a collection.
+    -- Parameters:  username, collection_slug
 end
