@@ -65,7 +65,7 @@ UserController = {
 
             local paginator
 
-            if self.current_user.has_one_of_roles({ 'admin', 'moderator' }) then
+            if self.current_user:has_one_of_roles({ 'admin', 'moderator' }) then
                 paginator = Users:paginated(
                     self.params.matchtext and
                         db.interpolate_query(
