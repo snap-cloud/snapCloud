@@ -5,8 +5,9 @@ Route:       GET /users/c
 Description: Get the currently logged user's username and credentials.
 
 Route:       GET /users
-Description: If requesting user is an admin, get a paginated list of all users
-             with username or email matching matchtext, if provided.
+Description: Get a paginated list of all users with username or email matching
+             matchtext, if provided. Returned parameters will depend on query
+             issuer permissions.
 Parameters:  matchtext, page, pagesize
 
 Route:       GET /users/:username
