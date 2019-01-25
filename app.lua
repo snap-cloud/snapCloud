@@ -45,6 +45,7 @@ package.loaded.rollbar = require('resty.rollbar')
 local app = package.loaded.app
 local config = package.loaded.config
 
+-- Track exceptions
 local rollbar = package.loaded.rollbar
 rollbar.set_token(config.rollbar_token)
 rollbar.set_environment(config._name)
@@ -133,9 +134,10 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
-    if self.current_user then
-        user_params = { id = self.current_user.id,
-                        username = self.current_user.username }
+    -- self.current_user is not available here.
+    local current_user = package.loaded.Users:find(self.session.username)
+    if current_user then
+        user_params = current_user:rollbar_params()
     else
         user_params = {}
     end

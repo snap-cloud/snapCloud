@@ -11,7 +11,7 @@ config({'development', 'staging', 'production', 'test'}, {
 
     -- Exception monitoring service.
     -- Leave empty to avoid forwarding errors.
-    rollbar_token = os.getenv('ROLLBAR_TOKEN') or '',
+    rollbar_token = os.getenv('ROLLBAR_TOKEN'),
 
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have

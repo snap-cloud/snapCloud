@@ -1,3 +1,6 @@
+-- A modifed version of:
+-- https://github.com/Scalingo/lua-resty-rollbar
+
 local http = require 'resty.http'
 local json = require 'cjson'
 
@@ -20,7 +23,7 @@ local token = nil
 local environment = 'development'
 -- 	Endpoint is the URL destination for all Rollbar item POST requests.
 local endpoint = 'https://api.rollbar.com/api/1/item/'
-local person_params = nil
+local person_params = {}
 local custom_trace = nil
 
 local rollbar_initted = nil
@@ -66,7 +69,7 @@ local function send_request(_, level, title, stacktrace, request)
       environment = environment,
       body = {
         message = {
-          body = custom_stacktrace or   stacktrace,
+          body = custom_stacktrace or stacktrace,
         },
       },
       person = person_params,
@@ -127,11 +130,18 @@ end
 
 -- Set a user to appear in rollbar.
 function _M.set_person(user)
-  person_params = {
-    id = user.id,
-    username = user.username,
-    email = user.email
-  }
+  print('SET PERSON')
+  print('USERNAME')
+  print(user.username)
+  if not user then
+    person_params = {}
+  else
+    person_params = {
+      id = user.id or 'unknown',
+      username = user.username or 'unknown',
+      email = user.email or 'unknown'
+    }
+  end
 end
 
 function _M.set_custom_trace(trace)

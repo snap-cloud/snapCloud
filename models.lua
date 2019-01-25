@@ -54,6 +54,10 @@ package.loaded.Users = Model:extend('users', {
             end
         end
         return false
+    end,
+    rollbar_params = function (self)
+        -- just the info necessary for error tracking
+        return { id = self.id, username = self.username }
     end
 })
 
