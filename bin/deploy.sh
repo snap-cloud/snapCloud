@@ -12,8 +12,8 @@ deploy_sha=$(git rev-parse HEAD)
 # A modified ISO8601 format. GitHub does not support tags
 current_time=$(date -u +"%Y-%m-%dT%H-%M-%S")
 repo='https://api.github.com/repos/bromagosa/snapCloud/releases'
-# tag staging releases as 'prerelase'
-prelease=$(if [ "$LAPIS_ENVIRONMENT" = 'production' ]; then echo 'true'; else echo 'false'; fi)
+# tag non-production releases as 'prerelase'
+prelease=$(if [ "$LAPIS_ENVIRONMENT" = 'production' ]; then echo 'false'; else echo 'true'; fi)
 curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $repo -d "{\"tag_name\": \"$current_time\", \"target_commitish\": \"$deploy_sha\", \"prerelease\": $prelease }"
 
 # Mark a deploy in Rollbar
