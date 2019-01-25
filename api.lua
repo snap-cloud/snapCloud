@@ -77,7 +77,7 @@ app:match(api_route('new_password', '/users/:username/newpassword', UserControll
 app:match(api_route('resend_verification', '/users/:username/resendverification', UserController, { 'POST' }))
 app:match(api_route('password_reset', '/users/:username/password_reset(/:token)', UserController, { 'GET', 'POST' }))
 app:match(api_route('login', '/users/:username/login', UserController, { 'POST' }))
-app:match(api_route('verify_user', '/users/:username/verify_user/:token', UserController, { 'GET' })) 
+app:match(api_route('verify_user', '/users/:username/verify_user/:token', UserController, { 'GET' }))
 app:match(api_route('logout', '/logout', UserController, { 'POST' }))
 app:match(api_route('send_message', '/users/:username/message', UserController, { 'POST' }))
 
