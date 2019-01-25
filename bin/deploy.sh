@@ -17,8 +17,8 @@ prelease=$(if [ "$LAPIS_ENVIRONMENT" = 'production' ]; then echo 'true'; else ec
 curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $repo -d "{\"tag_name\": \"$current_time\", \"target_commitish\": \"$deploy_sha\", \"prerelease\": \"$prelease\"}"
 
 # Mark a deploy in Rollbar
-curl -X --url https://api.rollbar.com/api/1/deploy/ \
-    --data "{\"access_token\":\"$ROLLBAR_TOKEN\",\"environment\":\"$LAPIS_ENVIRONMENT\",\"revision\":\"$deploy_sha\"}"
+curl -POST --url https://api.rollbar.com/api/1/deploy/ \
+    --data "{\"access_token\": \"$ROLLBAR_TOKEN\", \"environment\":\"$LAPIS_ENVIRONMENT\", \"revision\": \"$deploy_sha\"}"
 
 # The cloud user only has the ability to restart this service.
 sudo service snapcloud_daemon restart
