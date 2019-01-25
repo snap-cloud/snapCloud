@@ -55,27 +55,43 @@ UserController = {
 
         user_list = function (self)
             -- GET /users
-            -- Description: If requesting user is an admin, get a paginated list of all users
-            --              with username or email matching matchtext, if provided.
+            -- Description: Get a paginated list of all users with username or email matching
+            --              matchtext, if provided. Returned parameters will depend on query
+            --              issuer permissions.
             -- Parameters:  matchtext, page, pagesize
 
-            assert_has_one_of_roles(self, { 'admin', 'moderator' })
-            local paginator = Users:paginated(
-                self.params.matchtext and
-                    db.interpolate_query(
-                        'where username ~* ? or email ~* ?',
-                        self.params.matchtext,
-                        self.params.matchtext
-                    )
-                    or 'order by verified, created',
-                {
-                    per_page = self.params.pagesize or 16,
-                    fields = 'username, id, created, email, verified, role'
-                })
-            local users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+            assert_logged_in(self)
+            if not self.params.matchtext then assert_has_one_of_roles(self, { 'admin', 'moderator' }) end
+
+            local paginator
+
+            if self.current_user:has_one_of_roles({ 'admin', 'moderator' }) then
+                paginator = Users:paginated(
+                    self.params.matchtext and
+                        db.interpolate_query(
+                            'where username ~* ? or email ~* ?',
+                            self.params.matchtext,
+                            self.params.matchtext
+                        )
+                        or 'order by verified, created',
+                    {
+                        per_page = self.params.pagesize or 16,
+                        fields = 'username, id, created, email, verified, role'
+                    }
+                )
+            else
+                paginator = Users:paginated(
+                    db.interpolate_query('where username ~* ?', self.params.matchtext),
+                    {
+                        per_page = self.params.pagesize or 16,
+                        fields = 'username'
+                    }
+                )
+            end
+
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
-                users = users
+                users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
             })
         end,
 
