@@ -49,7 +49,7 @@ ProjectController = {
                 if self.params.matchtext then
                     query = query ..
                         db.interpolate_query(
-                            ' and (projectname ~* ? or notes ~* ?)',
+                            ' and (projectname ILIKE ? or notes ILIKE ?)',
                             self.params.matchtext,
                             self.params.matchtext
                         )
@@ -100,7 +100,7 @@ ProjectController = {
             if self.params.matchtext then
                 query = query ..
                     db.interpolate_query(
-                        ' and (projectname ~* ? or notes ~* ?)',
+                        ' and (projectname ILIKE ? or notes ILIKE ?)',
                         self.params.matchtext,
                         self.params.matchtext
                     )
@@ -377,7 +377,7 @@ ProjectController = {
             local body = body_data and util.from_json(body_data) or nil
             local new_name = body and body.projectname or nil
             local new_notes = body and body.notes or nil
-            
+
             -- save new notes and project name into the project XML
             if new_notes then update_notes(project.id, new_notes) end
             if new_name then update_name(project.id, new_name) end
