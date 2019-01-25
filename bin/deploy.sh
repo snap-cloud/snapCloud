@@ -14,7 +14,7 @@ current_time=$(date -u +"%Y-%m-%dT%H-%M-%S")
 repo='https://api.github.com/repos/bromagosa/snapCloud/releases'
 # tag staging releases as 'prerelase'
 prelease=$(if [ "$LAPIS_ENVIRONMENT" = 'production' ]; then echo 'true'; else echo 'false'; fi)
-curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $repo -d "{\"tag_name\": \"$current_time\", \"target_commitish\": \"$deploy_sha\", \"prerelease\": \"$prelease\"}"
+curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $repo -d "{\"tag_name\": \"$current_time\", \"target_commitish\": \"$deploy_sha\", \"prerelease\": $prelease }"
 
 # Mark a deploy in Rollbar
 curl -POST --url https://api.rollbar.com/api/1/deploy/ \
