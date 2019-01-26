@@ -94,26 +94,25 @@ assert_admin = function (self, message)
 end
 
 assert_can_set_role = function (self, role)
+    -- Admins can set any user to any role.
+    -- Banned and standard users have no ability to edit roles.
+    if self.current_user:isadmin() then
+        return
+    elseif self.current_user:has_one_of_roles({ 'banned', 'standard' }) then
+        yield_error(err.auth)
+    end
+
     local can_set = {
-        admin = {
-            admin = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
-            moderator = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
-            reviewer = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
-            standard = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
-            banned = { admin = true, moderator = true, reviewer = true, standard = true, banned = true }
-        },
         moderator = {
             admin = {}, moderator = {},
             reviewer = { moderator = true, reviewer = true, standard = true, banned = true },
-            standard = { moderator = true, reviewer = true, standard = true, banned = true },
-            banned = { moderator = true, reviewer = true, standard = true, banned = true }
+            standard = { moderator = false, reviewer = true, standard = true, banned = true },
+            banned = { moderator = false, reviewer = false, standard = true, banned = true }
         },
         reviewer = {
             admin = {}, moderator = {}, reviewer = {}, banned = {},
             standard = { reviewer = true, standard = true }
-        },
-        standard = { admin = {}, moderator = {}, reviewer = {}, standard = {}, banned = {} },
-        banned = { admin = {}, moderator = {}, reviewer = {}, standard = {}, banned = {} }
+        }
     }
     if not can_set[self.current_user.role][self.queried_user.role][role] then
         yield_error(err.auth)
