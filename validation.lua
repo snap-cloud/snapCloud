@@ -96,6 +96,8 @@ end
 assert_can_set_role = function (self, role)
     -- Admins can set any user to any role.
     -- Banned and standard users have no ability to edit roles.
+    -- Moderators and Reviews can edit the roles of users "lower" than
+    -- themselves.
     if self.current_user:isadmin() then
         return
     elseif self.current_user:has_one_of_roles({ 'banned', 'standard' }) then
