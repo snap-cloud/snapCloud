@@ -121,7 +121,7 @@ assert_can_set_role = function (self, role)
 end
 
 users_match = function (self)
-    return (self.session.username == self.params.username)
+    return (self.session.username == self.params.username) or (self.current_user and self.current_user:isadmin())
 end
 
 assert_users_match = function (self, message)
