@@ -89,7 +89,7 @@ CollectionController.POST.collections = function (self)
     -- Description: Create a collection.
     -- Parameters:  username, collection_name, ...
 
-    -- TODO (temp off): assert_all({ assert_logged_in, assert_users_match }, self)
+    -- assert_users_match(self)
     -- Must assert name before generating a slug.
     validate.assert_valid(self.params, { { 'name', exists = true } })
 
@@ -115,6 +115,22 @@ CollectionController.GET.collection_memberships = function (self)
     -- GET /users/:username/collections/:collection_slug/projects(/:project_id)
     -- Description: Get a paginated list of all projects in a collection.
     -- Parameters:  username, collection_slug
+    local collection = assert_collection_exists(self)
+    if self.params.project_id then
+        return jsonResponse(CollectionMemberships:find(collection.id,
+                                                       self.params.project_id))
+    end
+    local projects = CollectionMemberships:paginated(
+        "WHERE collection_id = ?", collection.id, {
+            per_page = self.params.page or 16,
+            prepare_results = function(posts)
+                Projects:include_in(posts, "project_id")
+                return posts
+            end
+        })
+    -- local memberships = collection:get_memberships()
+    -- a list of projects agumented with date_added
+    return projects:get_page(self.params.page or 1)
 end
 
 CollectionController.POST.collection_memberships = function (self)
