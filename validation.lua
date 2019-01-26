@@ -215,13 +215,13 @@ end
 
 -- Collections
 assert_collection_exists = function (self)
-    local collection = Collections.find(self.params.username,
+    local collection = Collections:find(self.queried_user.id,
                                        self.params.collection_slug)
 
-    if not collection or
-        (collection.published == false and not users_match(self)) then
-        yield_error(err.nonexistent_collection)
-    end
+    -- if not collection or
+    --     (collection.published == false and not users_match(self)) then
+    --     yield_error(err.nonexistent_collection)
+    -- end
 
     return collection
 end

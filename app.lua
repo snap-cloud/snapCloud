@@ -99,7 +99,7 @@ app:before_filter(function (self)
 
     if self.params.username then
         self.params.username = self.params.username:lower()
-        self.queried_user = package.loaded.Users:find(self.params.username)
+        self.queried_user = package.loaded.Users:find({ username = self.params.username})
     end
 
     if self.session.username then

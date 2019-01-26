@@ -51,6 +51,10 @@ CollectionController.GET.collections_list = function (self)
     --              collections with name matching matchtext, if provided.
     --              Returns public collections
     -- Parameters:  matchtext, page, pagesize
+    assert_admin(self)
+    local page_size = self.params.pagesize or 16
+    local paginator = Collections:paginated({ per_page = page_size })
+    return jsonResponse(paginator:get_page(self.params.page or 1))
 end
 
 CollectionController.GET.user_collections = function (self)
@@ -65,7 +69,7 @@ CollectionController.GET.user_collections = function (self)
     if users_match(self) then
         return jsonResponse(self.queried_user:get_collections())
     else
-        return jsonResponse(self.queried_user:get_collections())
+        return jsonResponse(self.queried_user:get_public_collections())
     end
 end
 
@@ -74,7 +78,6 @@ CollectionController.GET.collections = function (self)
     -- Description: Get info about a collection.
     -- Parameters:  username, collection_slug, ...
 
-    -- return -- TODO
     local collection = assert_collection_exists(self)
     local project_count = collection:count_projects()
     collection.projects_count = project_count
