@@ -65,7 +65,7 @@ CollectionController.GET.user_collections = function (self)
     if users_match(self) then
         return jsonResponse(self.queried_user:get_collections())
     else
-        return jsonResponse(self.queried_user:get_public_collections())
+        return jsonResponse(self.queried_user:get_collections())
     end
 end
 
