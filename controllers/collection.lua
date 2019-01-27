@@ -92,11 +92,29 @@ CollectionController.POST.collections = function (self)
     -- assert_users_match(self)
     -- Must assert name before generating a slug.
     validate.assert_valid(self.params, { { 'name', exists = true } })
-
+    local collection = Collections:find(self.queried_user, self.params.name)
+    if collection then
+        -- TODO: I think we can extract these into functions.
+        local published = if self.params.published ~= nil then self.params.published else collection.published
+        local published_at = if collection.published then collection.published_at else current_time_or_nil(published)
+        local shared = if self.params.shared ~= nil then self.params.shared else collection.shared
+        local shared_at = if collection.shared then collection.shared_at else current_time_or_nil(shared)
+        local slug =
+        return collection:update({
+            name = self.params.name or collection.name,
+            slug = util.slugify(self.params.name or collection.name),
+            description = self.params.description or collection.description,
+            published = self.params.published,
+            published_at = published_at,
+            shared = shared,
+            shared_at = shared_at,
+            thumbnail_id = self.params.thumbnail_id or collection.thumbnail_id
+        })
+    end
     return jsonResponse(assert_error(Collections:create({
         name = self.params.name,
         slug = util.slugify(self.params.name),
-        creator_id = self.request_user.id,
+        creator_id = self.queried_user.id,
         description = self.params.description,
         published = self.params.published,
         published_at = current_time_or_nil(self.params.published),
