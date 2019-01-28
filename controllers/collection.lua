@@ -24,6 +24,7 @@
 
 local util = package.loaded.util
 local validate = package.loaded.validate
+local json_params = package.loaded.app_helpers.json_params
 
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
@@ -81,48 +82,57 @@ CollectionController.GET.collections = function (self)
     local collection = assert_collection_exists(self)
     local project_count = collection:count_projects()
     collection.projects_count = project_count
+    -- TODO: figure out a better way around this.
+    collection.shared_at = tostring(collection.shared_at)
+    collection.published_at = tostring(collection.published_at)
     return jsonResponse(collection)
 end
 
-CollectionController.POST.collections = function (self)
+CollectionController.POST.collections = json_params(function (self)
     -- POST /users/:username/collections/:collection_slug
     -- Description: Create a collection.
     -- Parameters:  username, collection_name, ...
 
     -- assert_users_match(self)
     -- Must assert name before generating a slug.
-    validate.assert_valid(self.params, { { 'name', exists = true } })
-    local collection = Collections:find(self.queried_user, self.params.name)
+    for k,v in pairs(self.params) do
+        print('K: ' .. k .. '   v: ' .. tostring(v))
+    end
+    local collection = Collections:find(self.queried_user.id, self.params.collection_slug)
+
     if collection then
         -- TODO: I think we can extract these into functions.
-        local published = if self.params.published ~= nil then self.params.published else collection.published
-        local published_at = if collection.published then collection.published_at else current_time_or_nil(published)
-        local shared = if self.params.shared ~= nil then self.params.shared else collection.shared
-        local shared_at = if collection.shared then collection.shared_at else current_time_or_nil(shared)
-        local slug =
-        return collection:update({
+        local published = (self.params.published ~= nil and self.params.published == 'true' or collection.published)
+        local published_at = (collection.published and collection.published_at or current_time_or_nil(published))
+        local shared = (self.params.shared ~= nil and self.params.shared  == 'true' or collection.shared)
+        local shared_at = (collection.shared and collection.shared_at or current_time_or_nil(shared))
+        collection:update({
             name = self.params.name or collection.name,
             slug = util.slugify(self.params.name or collection.name),
             description = self.params.description or collection.description,
-            published = self.params.published,
+            published = published,
             published_at = published_at,
             shared = shared,
             shared_at = shared_at,
             thumbnail_id = self.params.thumbnail_id or collection.thumbnail_id
-        })
+        }, { timestamp = true })
+        return jsonResponse(collection)
     end
+
+    validate.assert_valid(self.params, { { 'name', exists = true } })
+
     return jsonResponse(assert_error(Collections:create({
         name = self.params.name,
         slug = util.slugify(self.params.name),
         creator_id = self.queried_user.id,
         description = self.params.description,
-        published = self.params.published,
+        published = self.params.published  == 'true',
         published_at = current_time_or_nil(self.params.published),
-        shared = self.params.shared,
+        shared = self.params.shared  == 'true',
         shared_at = current_time_or_nil(self.params.shared),
         thumbnail_id = self.params.thumbnail_id
     })))
-end
+end)
 
 CollectionController.DELETE.collections = function (self)
     -- DELETE /users/:username/collections/:collection_slug
