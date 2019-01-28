@@ -46,7 +46,25 @@ mail_bodies = {
     project_unpublished = '<h1>Your project has been unpublished</h1>' ..
                           '<p>One of your projects has been unpublished from the Snap<em>!</em> community website by a system ',
     project_deleted = '<h1>Your project has been deleted</h1>' ..
-                      '<p>One of your projects has been deleted from the Snap<em>!</em> community website by a system '
+                      '<p>One of your projects has been deleted from the Snap<em>!</em> community website by a system ',
+    set_role_banned = '<h1>Your user has been banned</h1>' ..
+                      '<p>You have been banned from the Snap<em>!</em> community website because of a violation of our code of conduct.</p>' ..
+                      '<p>You can no longer publish any projects, but you can still make use of all the other functionalities.</p>' ..
+                      '<p>All of your projects are still available to you and can be privately shared with other people.</p>',
+    set_role_standard = '<h1>You are now a standard user</h1>' ..
+                        '<p></p>',
+    set_role_reviewer = '<h1>You are now a reviewer</h1>' ..
+                        '<p>You have been appointed reviewer in the Snap<em>!</em> community website.</p>' ..
+                        '<p>As a reviewer, you can now unpublish projects that violate our code of conduct.</p>' ..
+                        '<p>Remember, do not abuse your newly acquired powers and use them responsibly.</p>',
+    set_role_moderator = '<h1>You are now a moderator</h1>' ..
+                         '<p>You have been appointed moderator in the Snap<em>!</em> community website.</p>' ..
+                         '<p>As a moderator, you can now verify users manually, upgrade other users to reviewers or moderators, unpublish and delete projects that violate our code of conduct, and ban or permanently delete re-offending users.</p>' ..
+                         '<p><strong>Banning a user should be your very last resort. Deleting a user should never be necessary.</strong></p>' ..
+                         '<p>Remember, do not abuse your newly acquired powers and use them responsibly.</p>' ,
+    set_role_admin = '<h1>You are now an administrator</h1>' ..
+                     '<p>You have been appointed an administrator in the Snap<em>!</em> community website.</p>' ..
+                     '<p>Remember, do not abuse your newly acquired superpowers and use them responsibly.</p>'
 }
 
 mail_subjects = {
@@ -54,7 +72,12 @@ mail_subjects = {
     password_reset = 'Reset password for ',
     new_password = 'New password for ',
     project_unpublished = 'Project unpublished: ',
-    project_deleted = 'Project deleted: '
+    project_deleted = 'Project deleted: ',
+    set_role_banned = 'User banned: ',
+    set_role_standard = 'You are now a standard user, ',
+    set_role_reviewer = 'You are now a reviewer, ',
+    set_role_moderator = 'You are now a moderator, ',
+    set_role_admin = 'You are now an administrator, ',
 }
 
 send_mail = function (address, subject, html, url)

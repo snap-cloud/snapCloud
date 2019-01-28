@@ -194,6 +194,12 @@ UserController = {
                     -- We need to unlist all projects by this user
                     db.update('projects', { ispublished = false }, { username = self.queried_user.username })
                 end
+                if self.params.role then
+                    send_mail(
+                        self.queried_user.email,
+                        mail_subjects['set_role_' .. self.params.role] .. self.queried_user.username,
+                        mail_bodies['set_role_' .. self.params.role])
+                end
                 return okResponse('Profile for user ' .. self.queried_user.username .. ' updated')
             else
                 -- new user
