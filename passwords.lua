@@ -25,7 +25,7 @@ local resty_string = package.loaded.resty_string
 local resty_random = package.loaded.resty_random
 
 hash_password = function (password, salt)
-    -- we're following the same policy as the old cloud in order to keep user 
+    -- we're following the same policy as the old cloud in order to keep user
     -- passwords unchanged
     -- "password" comes prehashed from the client
     local sha512 = resty_sha512:new()
