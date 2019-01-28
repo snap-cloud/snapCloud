@@ -39,7 +39,6 @@ err = {
     nonexistent_project = { msg = 'This project does not exist', status = 404 },
     nonexistent_collection = { msg = 'This collection does not exist',
                               status = 404 },
-    not_public_project = { msg = 'This project is not public', status = 403 },
     expired_token = { msg = 'This token has expired', status = 401 },
     invalid_token = { msg = 'This token is either invalid or has expired', status = 401 },
     nonvalidated_user = { msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401 },
