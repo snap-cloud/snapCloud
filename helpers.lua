@@ -25,6 +25,14 @@
 
 local helpers = {}
 
+-- Remove the protocol and port from a URL
+helpers.domain_name function(url)
+    if not url then
+        return
+    end
+    return url:gsub('https*://', ''):gsub(':%d+$', '')
+end
+
 -- This function is extracted from lapis-exceptions by @leafo
 -- https://github.com/leafo/lapis-exceptions/blob/master/lapis/exceptions/models/exception_types.lua#L6
 local grammar = nil

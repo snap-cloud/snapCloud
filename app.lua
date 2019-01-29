@@ -29,17 +29,15 @@ local lapis = require 'lapis'
 package.loaded.app = lapis.Application()
 package.loaded.db = require 'lapis.db'
 package.loaded.app_helpers = require 'lapis.application'
-package.loaded.json_params = package.loaded.app_helpers.json_params
 package.loaded.yield_error = package.loaded.app_helpers.yield_error
 package.loaded.validate = require 'lapis.validate'
 package.loaded.Model = require('lapis.db.model').Model
-package.loaded.util = require('lapis.util')
-package.loaded.respond_to = require('lapis.application').respond_to
+package.loaded.util = require 'lapis.util'
 package.loaded.cached = require('lapis.cache').cached
-package.loaded.resty_sha512 = require "resty.sha512"
-package.loaded.resty_string = require "resty.string"
-package.loaded.resty_random = require "resty.random"
-package.loaded.config = require("lapis.config").get()
+package.loaded.resty_sha512 = require 'resty.sha512'
+package.loaded.resty_string = require 'resty.string'
+package.loaded.resty_random = require 'resty.random'
+package.loaded.config = require('lapis.config').get()
 package.loaded.rollbar = require('resty.rollbar')
 
 local app = package.loaded.app
@@ -82,14 +80,6 @@ app.cookie_attributes = function(self)
     return "Expires=" .. expires .. "; Path=/; HttpOnly;"
 end
 
--- Remove the protocol and port from a URL
-function domain_name(url)
-    if not url then
-        return
-    end
-    return url:gsub('https*://', ''):gsub(':%d+$', '')
-end
-
 -- Before filter
 app:before_filter(function (self)
     -- unescape all parameters
@@ -110,11 +100,11 @@ app:before_filter(function (self)
     end
 
     if self.params.matchtext then
-        self.params.matchtext = self.params.matchtext .. '%'
+        self.params.matchtext = '%' .. self.params.matchtext .. '%'
     end
 
     -- Set Access Control header
-    local domain = domain_name(self.req.headers.origin)
+    local domain = helpers.domain_name(self.req.headers.origin)
     if self.req.headers.origin and domain_allowed[domain] then
         self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
         self.res.headers['Access-Control-Allow-Credentials'] = 'true'

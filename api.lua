@@ -26,7 +26,7 @@ local api_version = 'v1'
 
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
-local respond_to = package.loaded.respond_to
+local respond_to = package.loaded.app_helpers.respond_to
 
 require 'controllers.user'
 require 'controllers.project'
