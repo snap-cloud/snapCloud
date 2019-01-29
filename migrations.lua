@@ -63,6 +63,11 @@ return {
 
     -- Update CollectionMemberships to store a user
     [201901291] = function()
-
+        schema.add_column(
+            'collection_memberships', 'user_id', types.foreign_key
+        )
+        schema.create_index('collection_memberships',
+                            'collection_id', 'project_id', 'user_id',
+                            { unique = true })
     end
 }

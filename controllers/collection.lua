@@ -166,9 +166,11 @@ CollectionController.POST.collection_memberships = function (self)
 
     assert_user_can_view_project(project)
 
+    -- TODO: postgres will error if you do this twice. Do we need to catch that?
     return jsonResponse(assert_error(CollectionMemberships:create({
         collection_id = collection.id,
-        project_id = project.id
+        project_id = project.id,
+        user_id = self.queried_user.id
     })))
 end
 
