@@ -32,6 +32,7 @@ local yield_error = package.loaded.app_helpers.yield_error
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
+local CollectionMemberships = package.loaded.CollectionMemberships
 
 require 'responses'
 require 'validation'
@@ -92,24 +93,17 @@ CollectionController.POST.collections = json_params(function (self)
     -- Description: Create a collection.
     -- Parameters:  username, collection_name, ...
 
-    -- assert_users_match(self)
-    -- Must assert name before generating a slug.
-    -- for k,v in pairs(self.params) do
-    --     print('K: ' .. k .. '   v: ' .. tostring(v))
-    -- end
+    assert_users_match(self)
     local params = self.params
     local collection = Collections:find(self.queried_user.id,
                                         params.collection_slug)
 
     if collection then
-        print('FOUND COLLECTION')
-        print("THING 1")
         -- TODO: I think we can extract these into functions.
         local published = (params.published ~= nil and params.published == true)
         local published_at = (published and collection.published_at or current_time_or_nil(published))
         local shared = params.shared ~= nil and params.shared == true
         local shared_at = (shared and collection.shared_at) or current_time_or_nil(shared)
-        print("THING 2     ")
 
         collection:update({
             name = params.name or collection.name,
@@ -121,28 +115,22 @@ CollectionController.POST.collections = json_params(function (self)
             shared_at = shared_at,
             thumbnail_id = params.thumbnail_id or collection.thumbnail_id
         })
-        print("THING 3")
-        print('RESULT')
-        -- if err then
-        --     print('ERROR')
-        --     yield_error(err)
-        -- end
+
         return jsonResponse(collection)
     end
-    print('DID NOT FIND COLLECTION')
 
-    validate.assert_valid(self.params, { { 'name', exists = true } })
-
+    -- Must assert name before generating a slug.
+    validate.assert_valid(params, { { 'name', exists = true } })
     return jsonResponse(assert_error(Collections:create({
-        name = self.params.name,
-        slug = util.slugify(self.params.name),
-        creator_id = self.queried_user.id,
-        description = self.params.description,
-        published = self.params.published  == 'true',
-        published_at = current_time_or_nil(self.params.published),
-        shared = self.params.shared  == 'true',
-        shared_at = current_time_or_nil(self.params.shared),
-        thumbnail_id = self.params.thumbnail_id
+        name = params.name,
+        slug = util.slugify(params.name),
+        creator_id = queried_user.id,
+        description = params.description,
+        published = params.published  == true,
+        published_at = current_time_or_nil(params.published),
+        shared = params.shared  == true,
+        shared_at = current_time_or_nil(params.shared),
+        thumbnail_id = params.thumbnail_id
     })))
 end)
 
@@ -160,17 +148,11 @@ CollectionController.GET.collection_memberships = function (self)
         return jsonResponse(CollectionMemberships:find(collection.id,
                                                        self.params.project_id))
     end
-    local projects = CollectionMemberships:paginated(
-        "WHERE collection_id = ?", collection.id, {
-            per_page = self.params.page or 16,
-            prepare_results = function(posts)
-                Projects:include_in(posts, "project_id")
-                return posts
-            end
-        })
-    -- local memberships = collection:get_memberships()
-    -- a list of projects agumented with date_added
-    return projects:get_page(self.params.page or 1)
+
+    -- TODO: Not sure how to pass a pagesize to this. :/
+    -- Note: May need to re-write this as a method w/o using the `relations`
+    local projects = collection:get_projects()
+    return jsonResponse(projects:get_page(self.params.page or 1))
 end
 
 CollectionController.POST.collection_memberships = function (self)
@@ -178,7 +160,7 @@ CollectionController.POST.collection_memberships = function (self)
     -- Description: Add a project to a collection.
     -- Parameters:  username, collection_slug, project_id
 
-    -- TODO (temp off): assert_all({ assert_logged_in, assert_users_match }, self)
+    assert_users_match(self)
     local collection = assert_collection_exists(self)
     local project = Project:find({ id = self.params.project_id })
 

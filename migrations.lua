@@ -31,6 +31,7 @@ local types = schema.types
 return {
     -- TODO: We will eventually create migrations for the other tables.
 
+    -- Create Collections and CollectionMemberships
     [20190140] = function()
         schema.create_table("collections", {
             { 'id', types.serial({primary_key = true}) },
@@ -58,5 +59,10 @@ return {
         })
         schema.create_index('collection_memberships', 'collection_id')
         schema.create_index('collection_memberships', 'project_id')
+    end,
+
+    -- Update CollectionMemberships to store a user
+    [201901291] = function()
+
     end
 }

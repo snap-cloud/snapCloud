@@ -109,7 +109,7 @@ app:match(api_route(
 ))
 app:match(api_route(
     'collection_memberships',
-    '/users/:username/collections/:collection_slug/items(/:item_id)',
+    '/users/:username/collections/:collection_slug/projects(/:project_id)',
     CollectionController,
     { 'GET', 'POST', 'DELETE' }
 ))
