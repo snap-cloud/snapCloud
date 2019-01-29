@@ -22,7 +22,6 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
 local Model = package.loaded.Model
-local db = require('lapis.db')
 
 package.loaded.Users = Model:extend('users', {
     primary_key = { 'username' },
@@ -86,7 +85,7 @@ package.loaded.Collections = Model:extend('collections', {
         { 'creator', belongs_to = 'Users', key = 'creator_id'},
         { 'memberships', has_many = 'CollectionMemberships' },
         { 'projects',
-            fetch = function (self, arg1, arg2, arg2, arg4)
+            fetch = function (self)
                 return package.loaded.Projects:paginated(
                     [[ WHERE id IN (
                         SELECT project_id
