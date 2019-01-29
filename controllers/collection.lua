@@ -24,6 +24,7 @@
 
 local util = package.loaded.util
 local validate = package.loaded.validate
+local current_time_or_nil = package.loaded.helpers.current_time_or_nil
 
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
@@ -31,15 +32,6 @@ local Collections = package.loaded.Collections
 
 require 'responses'
 require 'validation'
-
--- a simple helper for conditionally setting the timestamp fields
--- TODO: move to a more useful location.
-local current_time_or_nil = function(option)
-    if option == 'true' then
-        return db.raw('now()')
-    end
-    return nil
-end
 
 CollectionController = {
     GET = {

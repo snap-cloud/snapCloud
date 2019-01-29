@@ -39,6 +39,8 @@ package.loaded.resty_string = require 'resty.string'
 package.loaded.resty_random = require 'resty.random'
 package.loaded.config = require('lapis.config').get()
 package.loaded.rollbar = require('resty.rollbar')
+-- Utility functions
+package.loaded.helpers = require 'helpers'
 
 require 'models'
 require 'responses'
@@ -46,17 +48,17 @@ require 'maintenance'
 
 local app = package.loaded.app
 local config = package.loaded.config
+local helpers = package.loaded.helpers
 local Users = package.loaded.Users
+local rollbar = package.loaded.rollbar
 
 -- Track exceptions
-local rollbar = package.loaded.rollbar
 rollbar.set_token(config.rollbar_token)
 rollbar.set_environment(config._name)
 
 -- Store whitelisted domains
 local domain_allowed = require 'cors'
--- Utility functions
-local helpers = require 'helpers'
+
 
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})

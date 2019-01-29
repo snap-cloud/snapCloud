@@ -33,6 +33,15 @@ helpers.domain_name = function(url)
     return url:gsub('https*://', ''):gsub(':%d+$', '')
 end
 
+-- a simple helper for conditionally setting timestamp fields
+helper.current_time_or_nil = function (option)
+    if option == true then
+        return db.raw('now()')
+    end
+    return nil
+end
+
+
 -- This function is extracted from lapis-exceptions by @leafo
 -- https://github.com/leafo/lapis-exceptions/blob/master/lapis/exceptions/models/exception_types.lua#L6
 local grammar = nil
