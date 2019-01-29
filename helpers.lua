@@ -34,7 +34,7 @@ helpers.domain_name = function(url)
 end
 
 -- a simple helper for conditionally setting timestamp fields
-helper.current_time_or_nil = function (option)
+helpers.current_time_or_nil = function (option)
     if option == true then
         return db.raw('now()')
     end

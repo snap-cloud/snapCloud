@@ -45,6 +45,9 @@ package.loaded.helpers = require 'helpers'
 require 'models'
 require 'responses'
 require 'maintenance'
+require 'overrides'
+require 'api'
+require 'discourse'
 
 local app = package.loaded.app
 local config = package.loaded.config
@@ -58,24 +61,6 @@ rollbar.set_environment(config._name)
 
 -- Store whitelisted domains
 local domain_allowed = require 'cors'
-
-
--- wrap the lapis capture errors to provide our own custom error handling
--- just do: yield_error({msg = 'oh no', status = 401})
-local lapis_capture_errors = package.loaded.app_helpers.capture_errors
-package.loaded.capture_errors = function(fn)
-    return lapis_capture_errors({
-        on_error = function(self)
-            local error = self.errors[1]
-            if type(error) == 'table' then
-                return errorResponse(error.msg, error.status)
-            else
-                return errorResponse(error, 400)
-            end
-        end,
-        fn
-    })
-end
 
 -- Make cookies persistent
 app.cookie_attributes = function(self)
@@ -116,7 +101,6 @@ app:before_filter(function (self)
     end
 end)
 
-
 -- This module only takes care of the index endpoint
 
 app:get('/', function(self)
@@ -133,16 +117,12 @@ end
 
 function app:handle_error(err, trace)
     local current_user = self.original_request.current_user
-    user_params = current_user and current_user:rollbar_params() or {}
+    local user_params = current_user and current_user:rollbar_params() or {}
 
     rollbar.set_person(user_params)
     rollbar.set_custom_trace(err .. "\n\n" .. trace)
     rollbar.report(rollbar.ERR, helpers.normalize_error(err))
     return errorResponse(err, 500)
 end
-
--- The API is implemented in the api.lua file
-require 'api'
-require 'discourse'
 
 return app

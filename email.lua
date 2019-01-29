@@ -1,5 +1,5 @@
 -- Email module
--- ==========
+-- ============
 --
 -- Written by Bernat Romagosa and Michael Ball
 --

@@ -1,5 +1,5 @@
 -- CORS module
--- ==========
+-- ===========
 --
 -- A list of whitelisted domains that we support.
 --
