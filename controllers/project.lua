@@ -126,7 +126,7 @@ ProjectController = {
             local project = Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
-            if not (project.ispublic or users_match(self)) then assert_admin(self, err.not_public_project) end
+            if not (project.ispublic or users_match(self)) then assert_admin(self, err.nonexistent_project) end
 
             -- self.params.delta is a version indicator
             -- delta = null will fetch the current version
@@ -149,7 +149,7 @@ ProjectController = {
             local project = Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then assert_users_match(self, err.not_public_project) end
+            if not project.ispublic then assert_users_match(self, err.nonexistent_project) end
 
             local remixed_from = Remixes:select('where remixed_project_id = ?', project.id)[1]
 
@@ -178,7 +178,7 @@ ProjectController = {
             local project = Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then assert_users_match(self, err.not_public_project) end
+            if not project.ispublic then assert_users_match(self, err.nonexistent_project) end
 
             -- seconds since last modification
             local query = db.select('extract(epoch from age(now(), ?::timestamp))', project.lastupdated)[1]
@@ -203,7 +203,7 @@ ProjectController = {
             local project = Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then assert_users_match(self, err.not_public_project) end
+            if not project.ispublic then assert_users_match(self, err.nonexistent_project) end
 
             local paginator =
                 Remixes:paginated(
@@ -242,7 +242,7 @@ ProjectController = {
 
                 if not users_match(self)
                     and not project.ispublic then
-                    yield_error(err.auth)
+                    yield_error(err.nonexistent_project)
                 end
 
                 -- Lazy Thumbnail generation

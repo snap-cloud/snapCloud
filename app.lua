@@ -109,6 +109,10 @@ app:before_filter(function (self)
         self.current_user = nil
     end
 
+    if self.params.matchtext then
+        self.params.matchtext = self.params.matchtext .. '%'
+    end
+
     -- Set Access Control header
     local domain = domain_name(self.req.headers.origin)
     if self.req.headers.origin and domain_allowed[domain] then
