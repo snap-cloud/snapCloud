@@ -100,10 +100,12 @@ CollectionController.POST.collections = json_params(function (self)
 
     if collection then
         -- TODO: I think we can extract these into functions.
-        local published = (params.published ~= nil and params.published == true)
-        local published_at = (published and collection.published_at or current_time_or_nil(published))
+        local published = params.published ~= nil and params.published == true
+        local published_at = (published and collection.published_at) or
+            current_time_or_nil(published)
         local shared = params.shared ~= nil and params.shared == true
-        local shared_at = (shared and collection.shared_at) or current_time_or_nil(shared)
+        local shared_at = (shared and collection.shared_at) or
+             current_time_or_nil(shared)
 
         collection:update({
             name = params.name or collection.name,
