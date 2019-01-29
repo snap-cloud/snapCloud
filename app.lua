@@ -40,8 +40,13 @@ package.loaded.resty_random = require 'resty.random'
 package.loaded.config = require('lapis.config').get()
 package.loaded.rollbar = require('resty.rollbar')
 
+require 'models'
+require 'responses'
+require 'maintenance'
+
 local app = package.loaded.app
 local config = package.loaded.config
+local Users = package.loaded.Users
 
 -- Track exceptions
 local rollbar = package.loaded.rollbar
@@ -49,9 +54,9 @@ rollbar.set_token(config.rollbar_token)
 rollbar.set_environment(config._name)
 
 -- Store whitelisted domains
-local domain_allowed = require('cors')
+local domain_allowed = require 'cors'
 -- Utility functions
-local helpers = require('helpers')
+local helpers = require 'helpers'
 
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})
@@ -70,9 +75,6 @@ package.loaded.capture_errors = function(fn)
     })
 end
 
-require 'models'
-require 'responses'
-
 -- Make cookies persistent
 app.cookie_attributes = function(self)
     local date = require("date")
@@ -89,11 +91,11 @@ app:before_filter(function (self)
 
     if self.params.username then
         self.params.username = self.params.username:lower()
-        self.queried_user = package.loaded.Users:find(self.params.username)
+        self.queried_user = Users:find(self.params.username)
     end
 
     if self.session.username then
-        self.current_user = package.loaded.Users:find(self.session.username)
+        self.current_user = Users:find(self.session.username)
     else
         self.session.username = ''
         self.current_user = nil
@@ -128,28 +130,13 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
-    -- self.current_user is not available here.
-    local current_user = package.loaded.Users:find(self.session.username)
-    if current_user then
-        user_params = current_user:rollbar_params()
-    else
-        user_params = {}
-    end
+    local current_user = self.original_request.current_user
+    user_params = current_user and current_user:rollbar_params() or {}
 
     rollbar.set_person(user_params)
     rollbar.set_custom_trace(err .. "\n\n" .. trace)
     rollbar.report(rollbar.ERR, helpers.normalize_error(err))
     return errorResponse(err, 500)
-end
-
--- Enable the ability to have a maintenance mode
--- No routes are served, and a generic error is returned.
-if config.maintenance_mode == 'true' then
-    local msg = 'The Snap!Cloud is currently down for maintenance.'
-    app:get('/*', function(self)
-        return errorResponse(msg, 500)
-    end)
-    return app
 end
 
 -- The API is implemented in the api.lua file

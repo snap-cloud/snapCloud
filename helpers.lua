@@ -26,7 +26,7 @@
 local helpers = {}
 
 -- Remove the protocol and port from a URL
-helpers.domain_name function(url)
+helpers.domain_name = function(url)
     if not url then
         return
     end
