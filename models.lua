@@ -98,7 +98,8 @@ package.loaded.Collections = Model:extend('collections', {
         end,
         -- Ensure slugs are unique.
         slug = function(self, value, column, collection)
-            if package.loaded.Collections:find({ slug = value }) ~= nil then
+            local found = package.loaded.Collections:find({ slug = value })
+            if found ~= nil and found.id ~= collection.id then
                 return 'The name "' .. collection.name .. '" is already in use.'
             end
         end

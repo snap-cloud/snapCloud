@@ -22,9 +22,12 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local db = package.loaded.db
 local util = package.loaded.util
 local validate = package.loaded.validate
 local json_params = package.loaded.app_helpers.json_params
+local yield_error = package.loaded.app_helpers.yield_error
+
 
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
@@ -36,7 +39,7 @@ require 'validation'
 -- a simple helper for conditionally setting the timestamp fields
 -- TODO: move to a more useful location.
 local current_time_or_nil = function(option)
-    if option == 'true' then
+    if option == true then
         return db.raw('now()')
     end
     return nil
@@ -80,11 +83,7 @@ CollectionController.GET.collections = function (self)
     -- Parameters:  username, collection_slug, ...
 
     local collection = assert_collection_exists(self)
-    local project_count = collection:count_projects()
-    collection.projects_count = project_count
-    -- TODO: figure out a better way around this.
-    collection.shared_at = tostring(collection.shared_at)
-    collection.published_at = tostring(collection.published_at)
+    collection.projects_count = collection:count_projects()
     return jsonResponse(collection)
 end
 
@@ -95,29 +94,42 @@ CollectionController.POST.collections = json_params(function (self)
 
     -- assert_users_match(self)
     -- Must assert name before generating a slug.
-    for k,v in pairs(self.params) do
-        print('K: ' .. k .. '   v: ' .. tostring(v))
-    end
-    local collection = Collections:find(self.queried_user.id, self.params.collection_slug)
+    -- for k,v in pairs(self.params) do
+    --     print('K: ' .. k .. '   v: ' .. tostring(v))
+    -- end
+    local params = self.params
+    local collection = Collections:find(self.queried_user.id,
+                                        params.collection_slug)
 
     if collection then
+        print('FOUND COLLECTION')
+        print("THING 1")
         -- TODO: I think we can extract these into functions.
-        local published = (self.params.published ~= nil and self.params.published == 'true' or collection.published)
-        local published_at = (collection.published and collection.published_at or current_time_or_nil(published))
-        local shared = (self.params.shared ~= nil and self.params.shared  == 'true' or collection.shared)
-        local shared_at = (collection.shared and collection.shared_at or current_time_or_nil(shared))
+        local published = (params.published ~= nil and params.published == true)
+        local published_at = (published and collection.published_at or current_time_or_nil(published))
+        local shared = params.shared ~= nil and params.shared == true
+        local shared_at = (shared and collection.shared_at) or current_time_or_nil(shared)
+        print("THING 2     ")
+
         collection:update({
-            name = self.params.name or collection.name,
-            slug = util.slugify(self.params.name or collection.name),
-            description = self.params.description or collection.description,
+            name = params.name or collection.name,
+            slug = params.name and util.slugify(params.name) or collection.slug,
+            description = params.description or collection.description,
             published = published,
             published_at = published_at,
             shared = shared,
             shared_at = shared_at,
-            thumbnail_id = self.params.thumbnail_id or collection.thumbnail_id
-        }, { timestamp = true })
+            thumbnail_id = params.thumbnail_id or collection.thumbnail_id
+        })
+        print("THING 3")
+        print('RESULT')
+        -- if err then
+        --     print('ERROR')
+        --     yield_error(err)
+        -- end
         return jsonResponse(collection)
     end
+    print('DID NOT FIND COLLECTION')
 
     validate.assert_valid(self.params, { { 'name', exists = true } })
 
@@ -172,10 +184,10 @@ CollectionController.POST.collection_memberships = function (self)
 
     assert_user_can_view_project(project)
 
-    return jsonResponse(CollectionMemberships:create({
+    return jsonResponse(assert_error(CollectionMemberships:create({
         collection_id = collection.id,
         project_id = project.id
-    }))
+    })))
 end
 
 CollectionController.DELETE.collection_memberships = function (self)
