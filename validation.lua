@@ -190,13 +190,27 @@ end
 -- @param username string
 -- @param email string
 create_token = function (self, purpose, username, email)
-    local token_value = secure_token()
-    Tokens:create({
-        username = username,
-        created = db.format_date(),
-        value = token_value,
-        purpose = purpose
-    })
+    local token_value
+
+    -- First check whether there's an existing token for the same user and purpose.
+    -- If we find it, we'll just reset its creation date and reuse it.
+    local existing_token = Tokens:select('where username = ? and purpose = ?', username, purpose)
+
+    if existing_token and existing_token[1] then
+        token_value = existing_token.value
+        existing_token[1]:update({
+            created = db.format_date()
+        })
+    else
+        token_value = secure_token()
+        Tokens:create({
+            username = username,
+            created = db.format_date(),
+            value = token_value,
+            purpose = purpose
+        })
+    end
+
     send_mail(
         email,
         mail_subjects[purpose] .. username,
