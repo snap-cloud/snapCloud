@@ -110,7 +110,7 @@ app:before_filter(function (self)
     end
 
     if self.params.matchtext then
-        self.params.matchtext = self.params.matchtext .. '%'
+        self.params.matchtext = '%' .. self.params.matchtext .. '%'
     end
 
     -- Set Access Control header
