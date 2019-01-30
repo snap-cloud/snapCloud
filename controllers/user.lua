@@ -318,6 +318,7 @@ UserController = {
                 self.session.username = self.queried_user.username
                 self.session.role = self.queried_user.role
                 self.session.verified = self.queried_user.verified
+                self.session.user_id = self.queried_user.id
                 self.cookies.persist_session = self.params.persist
                 if self.queried_user.verified then
                     return okResponse('User ' .. self.queried_user.username .. ' logged in')
@@ -331,6 +332,7 @@ UserController = {
                 self.session.username = self.queried_user.username
                 self.session.role = self.queried_user.role
                 self.session.verified = self.queried_user.verified
+                self.session.user_id = self.queried_user.id
                 self.cookies.persist_session = 'false'
                 return okResponse('User ' .. previous_username .. ' now logged in as ' .. self.queried_user.username)
             end
@@ -340,6 +342,7 @@ UserController = {
             -- POST /logout
             -- Description: Logs out the current user from the system.
             self.session.username = ''
+            self.session.user_id = nil
             self.cookies.persist_session = 'false'
             return okResponse('logged out')
         end,
