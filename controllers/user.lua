@@ -382,7 +382,8 @@ UserController = {
 
             if not users_match(self) then assert_admin(self) end
 
-            if not (self.queried_user:delete()) then
+            -- Do not actually delete the user; flag it as deleted.
+            if not (self.queried_user:update({ deleted = db.format_date() })) then
                 yield_error('Could not delete user ' .. self.params.username)
             else
                 return okResponse('User ' .. self.params.username .. ' has been removed.')
