@@ -41,15 +41,18 @@ UserController = {
             -- Description: Get the currently logged user's username and credentials.
             if self.current_user then
                 self.session.verified = self.current_user.verified
+                self.session.user_id = self.current_user.id
             elseif self.session.username == '' then
                 self.session.role = nil
                 self.session.verified = false
+                self.session.user_id = nil
             end
 
             return jsonResponse({
                 username = self.session.username,
                 role = self.session.role,
-                verified = self.session.verified
+                verified = self.session.verified,
+                id = self.session.user_id
             })
         end,
 
