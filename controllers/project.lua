@@ -273,9 +273,11 @@ ProjectController = {
             local body_data = ngx.req.get_body_data()
             local body = body_data and util.from_json(body_data) or nil
 
-            if (not body.xml) then
-                yield_error('Empty project contents')
-            end
+            validate.assert_valid(body, {
+                { 'xml', exists = true },
+                { 'thumbnail', exists = true },
+                { 'media', exists = true }
+            })
 
             local project = Projects:find(self.params.username, self.params.projectname)
 
