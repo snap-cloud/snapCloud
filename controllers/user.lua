@@ -41,15 +41,18 @@ UserController = {
             -- Description: Get the currently logged user's username and credentials.
             if self.current_user then
                 self.session.verified = self.current_user.verified
+                self.session.user_id = self.current_user.id
             elseif self.session.username == '' then
                 self.session.role = nil
                 self.session.verified = false
+                self.session.user_id = nil
             end
 
             return jsonResponse({
                 username = self.session.username,
                 role = self.session.role,
-                verified = self.session.verified
+                verified = self.session.verified,
+                id = self.session.user_id
             })
         end,
 
@@ -315,6 +318,7 @@ UserController = {
                 self.session.username = self.queried_user.username
                 self.session.role = self.queried_user.role
                 self.session.verified = self.queried_user.verified
+                self.session.user_id = self.queried_user.id
                 self.cookies.persist_session = self.params.persist
                 if self.queried_user.verified then
                     return okResponse('User ' .. self.queried_user.username .. ' logged in')
@@ -328,6 +332,7 @@ UserController = {
                 self.session.username = self.queried_user.username
                 self.session.role = self.queried_user.role
                 self.session.verified = self.queried_user.verified
+                self.session.user_id = self.queried_user.id
                 self.cookies.persist_session = 'false'
                 return okResponse('User ' .. previous_username .. ' now logged in as ' .. self.queried_user.username)
             end
@@ -337,6 +342,7 @@ UserController = {
             -- POST /logout
             -- Description: Logs out the current user from the system.
             self.session.username = ''
+            self.session.user_id = nil
             self.cookies.persist_session = 'false'
             return okResponse('logged out')
         end,
