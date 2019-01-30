@@ -86,6 +86,8 @@ ProjectController = {
                 end
             end
 
+            assert_user_exists(self)
+
             local query = db.interpolate_query('where username = ?', self.queried_user.username)
 
             -- Apply where clauses
