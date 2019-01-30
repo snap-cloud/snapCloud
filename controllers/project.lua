@@ -135,7 +135,7 @@ ProjectController = {
             -- delta = -1 will fetch the previous saved version
             -- delta = -2 will fetch the last version before today
 
-            return rawResponse(
+            return xmlResponse(
                 -- if users don't match, this project is being remixed and we need to attach its ID
                 '<snapdata' .. (users_match(self) and '>' or ' remixID="' .. project.id .. '">') ..
                 (retrieve_from_disk(project.id, 'project.xml', self.params.delta) or '<project></project>') ..
