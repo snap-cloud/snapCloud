@@ -27,6 +27,7 @@ local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
 
 local Users = package.loaded.Users
+local DeletedUsers = package.loaded.DeletedUsers
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 

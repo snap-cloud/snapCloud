@@ -23,7 +23,7 @@
 
 local Model = package.loaded.Model
 
-package.loaded.Users = Model:extend('users', {
+package.loaded.Users = Model:extend('active_users', {
     primary_key = { 'username' },
     relations = {
         -- TODO: figure out why this does not work.
@@ -59,6 +59,10 @@ package.loaded.Users = Model:extend('users', {
         -- just the info necessary for error tracking
         return { id = self.id, username = self.username }
     end
+})
+
+package.loaded.DeletedUsers = Model:extend('deleted_users', {
+    primary_key = { 'username' }
 })
 
 package.loaded.Projects = Model:extend('active_projects', {
