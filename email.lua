@@ -64,7 +64,9 @@ mail_bodies = {
                          '<p>Remember, do not abuse your newly acquired powers and use them responsibly.</p>' ,
     set_role_admin = '<h1>You are now an administrator</h1>' ..
                      '<p>You have been appointed an administrator in the Snap<em>!</em> community website.</p>' ..
-                     '<p>Remember, do not abuse your newly acquired superpowers and use them responsibly.</p>'
+                     '<p>Remember, do not abuse your newly acquired superpowers and use them responsibly.</p>',
+    users_for_email = '<h1>Users associated with to email account</h1>' ..
+                      '<p>This is the list of Snap<em>!</em> usernames associated to your email account:</p>'
 }
 
 mail_subjects = {
@@ -78,6 +80,7 @@ mail_subjects = {
     set_role_reviewer = 'You are now a reviewer, ',
     set_role_moderator = 'You are now a moderator, ',
     set_role_admin = 'You are now an administrator, ',
+    users_for_email = 'Users associated to your email account'
 }
 
 send_mail = function (address, subject, html, url)

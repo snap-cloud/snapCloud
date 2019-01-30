@@ -99,6 +99,24 @@ UserController = {
             })
         end,
 
+        with_email = function (self)
+            -- GET /users/email/:email
+            -- Description: Sends an email to :email with all users associated with said :email
+            local users = assert_users_have_email(self)
+            local body = '<ul>'
+
+            for _, user in pairs(users) do
+                body = body .. '<li>' .. user.username .. '</li>'
+            end
+
+            body = body .. '</ul>'
+
+            send_mail(
+                self.params.email,
+                mail_subjects.users_for_email,
+                mail_bodies.users_for_email .. body)
+        end,
+
         user = function (self)
             -- GET /users/:username
             -- Description: Get info about a user

@@ -36,6 +36,7 @@ err = {
     not_logged_in = { msg = 'You are not logged in', status = 401 },
     auth = { msg = 'You do not have permission to perform this action', status = 403 },
     nonexistent_user = { msg = 'No user with this username exists', status = 404 },
+    nonexistent_email = { msg = 'No users are associated to this email account', status = 404 },
     nonexistent_project = { msg = 'This project does not exist', status = 404 },
     nonexistent_collection = { msg = 'This collection does not exist', status = 404 },
     expired_token = { msg = 'This token has expired', status = 401 },
@@ -135,6 +136,16 @@ assert_user_exists = function (self, message)
     end
     return self.queried_user
 end
+
+assert_users_have_email = function (self, message)
+    local users = Users:select('where email = ? ', self.params.email or '', { fields = 'username' })
+    if users and users[1] then
+        return users
+    else
+        yield_error(message or err.nonexistent_email)
+    end
+end
+
 
 -- Projects
 
