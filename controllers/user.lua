@@ -214,7 +214,8 @@ UserController = {
                     { 'email', exists = true, min_length = 5 },
                 })
 
-                if self.queried_user then
+                local deleted_user = DeletedUsers:find(self.params.username)
+                if self.queried_user or deleted_user then
                     yield_error('User ' .. self.queried_user.username .. ' already exists');
                 end
 
