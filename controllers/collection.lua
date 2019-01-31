@@ -39,7 +39,7 @@ require 'validation'
 
 -- a simple helper for conditionally setting the timestamp fields
 -- TODO: move to a more useful location.
-local current_time_or_nil = function(option)
+local current_time_or_nil = function (option)
     if option == true then
         return db.raw('now()')
     end
@@ -126,7 +126,7 @@ CollectionController.POST.collections = json_params(function (self)
     return jsonResponse(assert_error(Collections:create({
         name = params.name,
         slug = util.slugify(params.name),
-        creator_id = queried_user.id,
+        creator_id = self.queried_user.id,
         description = params.description,
         published = params.published  == true,
         published_at = current_time_or_nil(params.published),
