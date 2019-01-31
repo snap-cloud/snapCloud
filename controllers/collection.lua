@@ -68,7 +68,7 @@ CollectionController.GET.user_collections = function (self)
     -- Description: Get a paginated list of all a particular user's collections
     --              with name matching matchtext, if provided.
     --              Returns only public collections, if another user.
-    -- Parameters:  GET: username, matchtext, page, pagesize
+    -- Parameters:  username, matchtext, page, pagesize
 
     assert_user_exists(self)
     if users_match(self) then
@@ -78,7 +78,7 @@ CollectionController.GET.user_collections = function (self)
     end
 end
 
-CollectionController.GET.collections = function (self)
+CollectionController.GET.collection = function (self)
     -- GET /users/:username/collections/:collection_slug
     -- Description: Get info about a collection.
     -- Parameters:  username, collection_slug, ...
@@ -88,7 +88,7 @@ CollectionController.GET.collections = function (self)
     return jsonResponse(collection)
 end
 
-CollectionController.POST.collections = json_params(function (self)
+CollectionController.POST.collection = json_params(function (self)
     -- POST /users/:username/collections/:collection_slug
     -- Description: Create a collection.
     -- Parameters:  username, collection_name, ...
@@ -136,29 +136,32 @@ CollectionController.POST.collections = json_params(function (self)
     })))
 end)
 
-CollectionController.DELETE.collections = function (self)
+CollectionController.DELETE.collection = function (self)
     -- DELETE /users/:username/collections/:collection_slug
     -- Description: Delete a particular collection.
 end
 
-CollectionController.GET.collection_memberships = function (self)
-    -- GET /users/:username/collections/:collection_slug/projects(/:project_id)
+CollectionController.GET.projects = function (self)
+    -- GET /users/:username/collections/:collection_slug/projects
     -- Description: Get a paginated list of all projects in a collection.
     -- Parameters:  username, collection_slug
-    local collection = assert_collection_exists(self)
-    if self.params.project_id then
-        return jsonResponse(CollectionMemberships:find(collection.id,
-                                                       self.params.project_id))
-    end
-
     -- TODO: Not sure how to pass a pagesize to this. :/
     -- Note: May need to re-write this as a method w/o using the `relations`
+    local collection = assert_collection_exists(self)
     local projects = collection:get_projects()
     return jsonResponse(projects:get_page(self.params.page or 1))
 end
 
-CollectionController.POST.collection_memberships = function (self)
-    -- POST /users/:username/collections/:collection_slug/projects(/:project_id)
+CollectionController.GET.project = function (self)
+    -- GET /users/:username/collections/:collection_slug/projects/:project_id
+    -- Description: Get a project belonging to a collection
+    -- Parameters:  username, collection_slug
+    local collection = assert_collection_exists(self)
+    return jsonResponse(CollectionMemberships:find(collection.id, self.params.project_id))
+end
+
+CollectionController.POST.project = function (self)
+    -- POST /users/:username/collections/:collection_slug/projects/:project_id
     -- Description: Add a project to a collection.
     -- Parameters:  username, collection_slug, project_id
 
@@ -176,8 +179,8 @@ CollectionController.POST.collection_memberships = function (self)
     })))
 end
 
-CollectionController.DELETE.collection_memberships = function (self)
-    -- DELETE /users/:username/collections/:collection_slug/projects(/:project_id)
+CollectionController.DELETE.project = function (self)
+    -- DELETE /users/:username/collections/:collection_slug/projects/:project_id
     -- Description: Remove a project from a collection.
     -- Parameters:  username, collection_slug
 end
