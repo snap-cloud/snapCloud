@@ -93,25 +93,8 @@ app:match(api_route('project_thumbnail', '/projects/:username/:projectname/thumb
 
 -- Collections
 -- ===========
-app:match(api_route(
-    'collections_list',
-    '/collections',
-    CollectionController,
-    { 'GET' }))
-app:match(api_route(
-    'user_collections',
-    '/users/:username/collections',
-    CollectionController,
-    { 'GET' }))
-app:match(api_route(
-    'collections',
-    '/users/:username/collections/:collection_slug',
-    CollectionController,
-    { 'GET', 'POST', 'DELETE' }
-))
-app:match(api_route(
-    'collection_memberships',
-    '/users/:username/collections/:collection_slug/projects(/:project_id)',
-    CollectionController,
-    { 'GET', 'POST', 'DELETE' }
-))
+app:match(api_route('collections_list', '/collections', CollectionController, { 'GET' }))
+app:match(api_route('user_collections', '/users/:username/collections', CollectionController, { 'GET' }))
+app:match(api_route('collection', '/users/:username/collections/:collection_slug', CollectionController, { 'GET', 'POST', 'DELETE' }))
+app:match(api_route('projects', '/users/:username/collections/:collection_slug/projects', CollectionController, { 'GET' }))
+app:match(api_route('project', '/users/:username/collections/:collection_slug/projects/:project_id', CollectionController, { 'GET', 'POST', 'DELETE' }))
