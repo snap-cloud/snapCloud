@@ -76,7 +76,9 @@ end
 -- banned:    Same as a standard user, but can't modify or add anything.
 
 assert_role = function (self, role, message)
-    if not (self.current_user and self.current_user.role == role) then
+    if not self.current_user then
+        yield_error(message or err.not_logged_in)
+    elseif not self.current_user.role == role then
         yield_error(message or err.auth)
     end
 end
@@ -227,8 +229,8 @@ end
 
 -- Collections
 assert_collection_exists = function (self)
-    local collection = Collections.find(self.params.username,
-                                       self.params.collection_slug)
+    local collection = Collections:find(self.queried_user.id,
+                                        self.params.collection_slug)
 
     if not collection or
         (collection.published == false and not users_match(self)) then

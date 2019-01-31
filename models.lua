@@ -26,19 +26,19 @@ local Model = package.loaded.Model
 package.loaded.Users = Model:extend('active_users', {
     primary_key = { 'username' },
     relations = {
-        -- TODO: figure out why this does not work.
-        -- { 'collections', has_many = 'Collections', key = 'creator_id' }
         { 'collections',
-        fetch = function(self)
-            return package.loaded.Collections:select('WHERE creator_id = ?', self.id)
-        end
+            fetch = function(self)
+                return package.loaded.Collections:select(
+                    'WHERE creator_id = ?', self.id
+                )
+            end
         },
         { 'public_collections',
-        fetch = function(self)
-            return package.loaded.Collections:select(
-                'WHERE creator_id = ? AND published = true', self.id
-            )
-        end
+            fetch = function(self)
+                return package.loaded.Collections:select(
+                    'WHERE creator_id = ? AND published = true', self.id
+                )
+            end
         }
     },
     isadmin = function (self)
@@ -85,9 +85,19 @@ package.loaded.Collections = Model:extend('collections', {
     primary_key = { 'creator_id', 'slug' },
     timestamp = true,
     relations = {
-        -- TODO "projects", fetch() - get projects through memberships
         -- creates Collection:get_creator()
-        { 'creator', belongs_to = 'Users', key = 'creator_id'}
+        { 'creator', belongs_to = 'Users', key = 'creator_id'},
+        { 'memberships', has_many = 'CollectionMemberships' },
+        { 'projects',
+            fetch = function (self)
+                return package.loaded.Projects:paginated(
+                    [[ WHERE id IN (
+                        SELECT project_id
+                        FROM collection_memberships
+                        WHERE collection_id = ?
+                    )]], self.id)
+            end
+        }
     },
     constraints = {
         name = function(self, value)
@@ -97,11 +107,17 @@ package.loaded.Collections = Model:extend('collections', {
         end,
         -- Ensure slugs are unique.
         slug = function(self, value, column, collection)
-            if package.loaded.Collections:find({ slug = value }) ~= nil then
+            local found = package.loaded.Collections:find({ slug = value })
+            if found ~= nil and found.id ~= collection.id then
                 return 'The name "' .. collection.name .. '" is already in use.'
             end
         end
-    }
+    },
+
+    count_projects = function (self)
+        return package.loaded.CollectionMemberships:count('collection_id = ?',
+                                                          self.id)
+    end
 })
 
 package.loaded.CollectionMemberships = Model:extend(
