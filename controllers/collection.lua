@@ -89,14 +89,13 @@ CollectionController.GET.collection = function (self)
 end
 
 CollectionController.POST.collection = json_params(function (self)
-    -- POST /users/:username/collections/:collection_slug
+    -- POST /users/:username/collections/:name
     -- Description: Create a collection.
-    -- Parameters:  username, collection_name, ...
+    -- Parameters:  username, ...
 
     assert_users_match(self)
     local params = self.params
-    local collection = Collections:find(self.queried_user.id,
-                                        params.collection_slug)
+    local collection = Collections:find(self.queried_user.id, util.slugify(params.name))
 
     if collection then
         -- TODO: I think we can extract these into functions.
@@ -121,8 +120,6 @@ CollectionController.POST.collection = json_params(function (self)
         return jsonResponse(collection)
     end
 
-    -- Must assert name before generating a slug.
-    validate.assert_valid(params, { { 'name', exists = true } })
     return jsonResponse(assert_error(Collections:create({
         name = params.name,
         slug = util.slugify(params.name),
