@@ -141,7 +141,7 @@ CollectionController.DELETE.collection = function (self)
     -- Description: Delete a particular collection.
 end
 
-CollectionController.GET.projects = function (self)
+CollectionController.GET.collection_projects = function (self)
     -- GET /users/:username/collections/:collection_slug/projects
     -- Description: Get a paginated list of all projects in a collection.
     -- Parameters:  username, collection_slug
@@ -152,7 +152,7 @@ CollectionController.GET.projects = function (self)
     return jsonResponse(projects:get_page(self.params.page or 1))
 end
 
-CollectionController.GET.project = function (self)
+CollectionController.GET.collection_project = function (self)
     -- GET /users/:username/collections/:collection_slug/projects/:project_id
     -- Description: Get a project belonging to a collection
     -- Parameters:  username, collection_slug
@@ -160,7 +160,7 @@ CollectionController.GET.project = function (self)
     return jsonResponse(CollectionMemberships:find(collection.id, self.params.project_id))
 end
 
-CollectionController.POST.project = function (self)
+CollectionController.POST.collection_project = function (self)
     -- POST /users/:username/collections/:collection_slug/projects/:project_id
     -- Description: Add a project to a collection.
     -- Parameters:  username, collection_slug, project_id
@@ -179,7 +179,7 @@ CollectionController.POST.project = function (self)
     })))
 end
 
-CollectionController.DELETE.project = function (self)
+CollectionController.DELETE.collection_project = function (self)
     -- DELETE /users/:username/collections/:collection_slug/projects/:project_id
     -- Description: Remove a project from a collection.
     -- Parameters:  username, collection_slug
