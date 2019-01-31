@@ -25,6 +25,9 @@ Description: Verifies a user's email by means of a token, or removes
              Returns a success message if the user is already verified.
              The route name should match the database token purpose.
 
+Route:       GET /users/email/:email
+Description: Sends an email to :email with all users associated with said :email
+
 Route:       POST /users/:username
 Description: Add or update a user. All passwords should travel pre-hashed with SHA512.
 Parameters:  username, password, password_repeat, email
