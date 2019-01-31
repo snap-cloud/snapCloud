@@ -116,7 +116,7 @@ UserController = {
                 mail_subjects.users_for_email,
                 mail_bodies.users_for_email .. body)
 
-            return okResponse('Email with username list sent to ' + self.params.email)
+            return okResponse('Email with username list sent to ' .. self.params.email)
         end,
 
         user = function (self)
