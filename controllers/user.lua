@@ -232,8 +232,9 @@ UserController = {
                     { 'email', exists = true, min_length = 5 },
                 })
 
-                if self.queried_user then
-                    yield_error('User ' .. self.queried_user.username .. ' already exists');
+                local deleted_user = DeletedUsers:find(self.params.username)
+                if self.queried_user or deleted_user then
+                    yield_error('User ' .. self.params.username .. ' already exists');
                 end
 
                 local salt = secure_salt()
