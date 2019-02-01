@@ -240,7 +240,7 @@ end
 
 -- Collections
 assert_collection_exists = function (self)
-    local collection = Collections:select('where collection_name = ?', self.params.collection_name)
+    local collection = Collections:select('where name = ?', self.params.name)
 
     if not collection or
         (collection.published == false and not users_match(self)) then

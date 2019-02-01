@@ -47,143 +47,149 @@ local current_time_or_nil = function (option)
 end
 
 CollectionController = {
-    GET = {}, POST = {}, DELETE = {}
+    GET = {
+        collections_list = function (self)
+            -- GET /collections
+            -- Description: If requesting user is an admin, get a paginated list of all
+            --              collections with name matching matchtext, if provided.
+            --              Returns public collections
+            -- Parameters:  matchtext, page, pagesize
+            assert_admin(self)
+            local page_size = self.params.pagesize or 16
+            local paginator = Collections:paginated({ per_page = page_size })
+            return jsonResponse(paginator:get_page(self.params.page or 1))
+        end,
+
+        user_collections = function (self)
+            -- TODO: add filtering
+            -- GET /users/:username/collections
+            -- Description: Get a paginated list of all a particular user's collections
+            --              with name matching matchtext, if provided.
+            --              Returns only public collections, if another user.
+            -- Parameters:  username, matchtext, page, pagesize
+
+            assert_user_exists(self)
+            if users_match(self) then
+                return jsonResponse(self.queried_user:get_collections())
+            else
+                return jsonResponse(self.queried_user:get_public_collections())
+            end
+        end,
+
+        collection = function (self)
+            -- GET /users/:username/collections/:collection_slug
+            -- Description: Get info about a collection.
+            -- Parameters:  username, collection_slug, ...
+
+            local collection = assert_collection_exists(self)
+            collection.projects_count = collection:count_projects()
+            return jsonResponse(collection)
+        end,
+
+        collection_projects = function (self)
+            -- GET /users/:username/collections/:collection_slug/projects
+            -- Description: Get a paginated list of all projects in a collection.
+            -- Parameters:  username, collection_slug
+            -- TODO: Not sure how to pass a pagesize to this. :/
+            -- Note: May need to re-write this as a method w/o using the `relations`
+            local collection = assert_collection_exists(self)
+            local projects = collection:get_projects()
+            return jsonResponse(projects:get_page(self.params.page or 1))
+        end,
+
+        collection_project = function (self)
+            -- GET /users/:username/collections/:collection_slug/projects/:project_id
+            -- Description: Get a project belonging to a collection
+            -- Parameters:  username, collection_slug
+            local collection = assert_collection_exists(self)
+            return jsonResponse(CollectionMemberships:find(collection.id, self.params.project_id))
+        end
+    },
+
+    POST = {
+        collection = json_params(function (self)
+            -- POST /users/:username/collections/:name
+            -- Description: Create a collection.
+            -- Parameters:  username, ...
+
+            assert_users_match(self)
+            local params = self.params
+            local collection = Collections:find(self.queried_user.id, params.name)
+
+            if collection then
+                -- TODO: I think we can extract these into functions.
+                local published = params.published ~= nil and params.published == true
+                local published_at = (published and collection.published_at) or
+                current_time_or_nil(published)
+                local shared = params.shared ~= nil and params.shared == true
+                local shared_at = (shared and collection.shared_at) or
+                current_time_or_nil(shared)
+
+                collection:update({
+                    name = params.name or collection.name,
+                    slug = params.name and util.slugify(params.name) or collection.slug,
+                    description = params.description or collection.description,
+                    published = published,
+                    published_at = published_at,
+                    shared = shared,
+                    shared_at = shared_at,
+                    thumbnail_id = params.thumbnail_id or collection.thumbnail_id
+                })
+
+                return jsonResponse(collection)
+            end
+
+            return jsonResponse(assert_error(Collections:create({
+                name = params.name,
+                slug = util.slugify(params.name),
+                creator_id = self.queried_user.id,
+                description = params.description,
+                published = params.published  == true,
+                published_at = current_time_or_nil(params.published),
+                shared = params.shared  == true,
+                shared_at = current_time_or_nil(params.shared),
+                thumbnail_id = params.thumbnail_id
+            })))
+        end),
+
+        collection_project = function (self)
+            -- POST /users/:username/collections/:collection_slug/projects/:project_id
+            -- Description: Add a project to a collection.
+            -- Parameters:  username, collection_slug, project_id
+
+            assert_users_match(self)
+            local collection = assert_collection_exists(self)
+            local project = Project:find({ id = self.params.project_id })
+
+            assert_user_can_view_project(project)
+
+            -- TODO: postgres will error if you do this twice. Do we need to catch that?
+            return jsonResponse(assert_error(CollectionMemberships:create({
+                collection_id = collection.id,
+                project_id = project.id,
+                user_id = self.queried_user.id
+            })))
+        end
+
+    },
+
+    DELETE = {
+
+        collection = function (self)
+            -- DELETE /users/:username/collections/:name
+            -- Description: Delete a particular collection.
+            local collection = assert_collection_exists(self)
+            if not users_match(self) then
+                assert_has_one_of_roles(self, { 'moderator', 'admin' })
+            end
+            collection:delete()
+            return okResponse('Collection deleted')
+        end,
+
+        collection_project = function (self)
+            -- DELETE /users/:username/collections/:collection_slug/projects/:project_id
+            -- Description: Remove a project from a collection.
+            -- Parameters:  username, collection_slug
+        end
+    }
 }
-
-CollectionController.GET.collections_list = function (self)
-    -- GET /collections
-    -- Description: If requesting user is an admin, get a paginated list of all
-    --              collections with name matching matchtext, if provided.
-    --              Returns public collections
-    -- Parameters:  matchtext, page, pagesize
-    assert_admin(self)
-    local page_size = self.params.pagesize or 16
-    local paginator = Collections:paginated({ per_page = page_size })
-    return jsonResponse(paginator:get_page(self.params.page or 1))
-end
-
-CollectionController.GET.user_collections = function (self)
-    -- TODO: add filtering
-    -- GET /users/:username/collections
-    -- Description: Get a paginated list of all a particular user's collections
-    --              with name matching matchtext, if provided.
-    --              Returns only public collections, if another user.
-    -- Parameters:  username, matchtext, page, pagesize
-
-    assert_user_exists(self)
-    if users_match(self) then
-        return jsonResponse(self.queried_user:get_collections())
-    else
-        return jsonResponse(self.queried_user:get_public_collections())
-    end
-end
-
-CollectionController.GET.collection = function (self)
-    -- GET /users/:username/collections/:collection_slug
-    -- Description: Get info about a collection.
-    -- Parameters:  username, collection_slug, ...
-
-    local collection = assert_collection_exists(self)
-    collection.projects_count = collection:count_projects()
-    return jsonResponse(collection)
-end
-
-CollectionController.POST.collection = json_params(function (self)
-    -- POST /users/:username/collections/:name
-    -- Description: Create a collection.
-    -- Parameters:  username, ...
-
-    assert_users_match(self)
-    local params = self.params
-    local collection = Collections:find(self.queried_user.id, util.slugify(params.name))
-
-    if collection then
-        -- TODO: I think we can extract these into functions.
-        local published = params.published ~= nil and params.published == true
-        local published_at = (published and collection.published_at) or
-            current_time_or_nil(published)
-        local shared = params.shared ~= nil and params.shared == true
-        local shared_at = (shared and collection.shared_at) or
-             current_time_or_nil(shared)
-
-        collection:update({
-            name = params.name or collection.name,
-            slug = params.name and util.slugify(params.name) or collection.slug,
-            description = params.description or collection.description,
-            published = published,
-            published_at = published_at,
-            shared = shared,
-            shared_at = shared_at,
-            thumbnail_id = params.thumbnail_id or collection.thumbnail_id
-        })
-
-        return jsonResponse(collection)
-    end
-
-    return jsonResponse(assert_error(Collections:create({
-        name = params.name,
-        slug = util.slugify(params.name),
-        creator_id = self.queried_user.id,
-        description = params.description,
-        published = params.published  == true,
-        published_at = current_time_or_nil(params.published),
-        shared = params.shared  == true,
-        shared_at = current_time_or_nil(params.shared),
-        thumbnail_id = params.thumbnail_id
-    })))
-end)
-
-CollectionController.DELETE.collection = function (self)
-    -- DELETE /users/:username/collections/:collection_name
-    -- Description: Delete a particular collection.
-    local collection = assert_collection_exists(self)
-    if not users_match(self) then
-        assert_has_one_of_roles(self, { 'moderator', 'admin' })
-    end
-    collection:delete()
-    return okResponse('Collection deleted')
-end
-
-CollectionController.GET.collection_projects = function (self)
-    -- GET /users/:username/collections/:collection_slug/projects
-    -- Description: Get a paginated list of all projects in a collection.
-    -- Parameters:  username, collection_slug
-    -- TODO: Not sure how to pass a pagesize to this. :/
-    -- Note: May need to re-write this as a method w/o using the `relations`
-    local collection = assert_collection_exists(self)
-    local projects = collection:get_projects()
-    return jsonResponse(projects:get_page(self.params.page or 1))
-end
-
-CollectionController.GET.collection_project = function (self)
-    -- GET /users/:username/collections/:collection_slug/projects/:project_id
-    -- Description: Get a project belonging to a collection
-    -- Parameters:  username, collection_slug
-    local collection = assert_collection_exists(self)
-    return jsonResponse(CollectionMemberships:find(collection.id, self.params.project_id))
-end
-
-CollectionController.POST.collection_project = function (self)
-    -- POST /users/:username/collections/:collection_slug/projects/:project_id
-    -- Description: Add a project to a collection.
-    -- Parameters:  username, collection_slug, project_id
-
-    assert_users_match(self)
-    local collection = assert_collection_exists(self)
-    local project = Project:find({ id = self.params.project_id })
-
-    assert_user_can_view_project(project)
-
-    -- TODO: postgres will error if you do this twice. Do we need to catch that?
-    return jsonResponse(assert_error(CollectionMemberships:create({
-        collection_id = collection.id,
-        project_id = project.id,
-        user_id = self.queried_user.id
-    })))
-end
-
-CollectionController.DELETE.collection_project = function (self)
-    -- DELETE /users/:username/collections/:collection_slug/projects/:project_id
-    -- Description: Remove a project from a collection.
-    -- Parameters:  username, collection_slug
-end
