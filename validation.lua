@@ -239,13 +239,18 @@ create_token = function (self, purpose, username, email)
 end
 
 -- Collections
-assert_collection_exists = function (self)
+assert_collection_exist = function (self)
     local collection = Collections:select('where name = ?', self.params.name)
 
-    if not collection or
-        (collection.published == false and not users_match(self)) then
+    if not collection then
         yield_error(err.nonexistent_collection)
     end
 
     return collection
+end
+
+assert_can_view_collection = function (self, collection)
+    if (collection.published == false and not users_match(self)) then
+        yield_error(err.nonexistent_collection)
+    end
 end

@@ -82,6 +82,7 @@ CollectionController = {
             -- Parameters:  username, name, ...
 
             local collection = assert_collection_exists(self)
+            assert_can_view_collection(self, collection)
             collection.projects_count = collection:count_projects()
             return jsonResponse(collection)
         end,
@@ -93,6 +94,7 @@ CollectionController = {
             -- TODO: Not sure how to pass a pagesize to this. :/
             -- Note: May need to re-write this as a method w/o using the `relations`
             local collection = assert_collection_exists(self)
+            assert_can_view_collection(self, collection)
             local projects = collection:get_projects()
             return jsonResponse(projects:get_page(self.params.page or 1))
         end,
@@ -142,9 +144,9 @@ CollectionController = {
                 name = params.name,
                 creator_id = self.queried_user.id,
                 description = params.description,
-                published = params.published  == true,
+                published = params.published == true,
                 published_at = current_time_or_nil(params.published),
-                shared = params.shared  == true,
+                shared = params.shared == true,
                 shared_at = current_time_or_nil(params.shared),
                 thumbnail_id = params.thumbnail_id
             })))
