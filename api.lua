@@ -98,4 +98,5 @@ app:match(api_route('collections_list', '/collections', CollectionController, { 
 app:match(api_route('user_collections', '/users/:username/collections', CollectionController, { 'GET' }))
 app:match(api_route('collection', '/users/:username/collections/:name', CollectionController, { 'GET', 'POST', 'DELETE' }))
 app:match(api_route('collection_projects', '/users/:username/collections/:name/projects', CollectionController, { 'GET' }))
+app:match(api_route('add_project', '/users/:username/collections/:name/projects/:project_id', CollectionController, { 'POST' }))
 app:match(api_route('collection_project', '/users/:username/collections/:name/projects/:project_id', CollectionController, { 'GET', 'POST', 'DELETE' }))

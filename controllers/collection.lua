@@ -150,14 +150,18 @@ CollectionController = {
             })))
         end),
 
-        collection_project = function (self)
-            -- POST /users/:username/collections/:name/projects/:project_id
+        add_project = function (self)
+            -- POST /users/:username/collections/:name/projects
             -- Description: Add a project to a collection.
-            -- Parameters:  username, name, project_id
-
+            -- Body: projectname, username (project author)
             assert_users_match(self)
+
+            ngx.req.read_body()
+            local body_data = ngx.req.get_body_data()
+            local body = body_data and util.from_json(body_data) or nil
+
             local collection = assert_collection_exists(self)
-            local project = Project:find({ id = self.params.project_id })
+            local project = Projects:find(body.username, body.projectname)
 
             assert_user_can_view_project(project)
 
