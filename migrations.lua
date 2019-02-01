@@ -31,11 +31,11 @@ local types = schema.types
 return {
     -- TODO: We will eventually create migrations for the other tables.
 
+    -- Create Collections and CollectionMemberships
     [20190140] = function()
         schema.create_table("collections", {
             { 'id', types.serial({primary_key = true}) },
             { 'name', types.text },
-            { 'slug', types.text },
             { 'creator_id', types.foreign_key },
             { 'created_at', types.time({timezone = true}) },
             { 'updated_at', types.time({timezone = true}) },
@@ -47,7 +47,6 @@ return {
             { 'thumbnail_id', types.foreign_key({null = true}) }
         })
         schema.create_index('collections', 'creator_id')
-        schema.create_index('collections', 'creator_id', 'slug')
 
         schema.create_table("collection_memberships", {
             { 'id', types.serial({primary_key = true}) },
@@ -58,5 +57,15 @@ return {
         })
         schema.create_index('collection_memberships', 'collection_id')
         schema.create_index('collection_memberships', 'project_id')
+    end,
+
+    -- Update CollectionMemberships to store a user
+    [201901291] = function()
+        schema.add_column(
+            'collection_memberships', 'user_id', types.foreign_key
+        )
+        schema.create_index('collection_memberships',
+                            'collection_id', 'project_id', 'user_id',
+                            { unique = true })
     end
 }

@@ -32,6 +32,16 @@ jsonResponse = function (json)
     }
 end
 
+xmlResponse = function (xml)
+    return {
+        layout = false,
+        status = 200,
+        readyState = 4,
+        content_type = "text/xml",
+        xml
+    }
+end
+
 okResponse = function (message)
     return jsonResponse({ message = message })
 end

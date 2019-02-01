@@ -86,6 +86,8 @@ ProjectController = {
                 end
             end
 
+            assert_user_exists(self)
+
             local query = db.interpolate_query('where username = ?', self.queried_user.username)
 
             -- Apply where clauses
@@ -114,7 +116,7 @@ ProjectController = {
 
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
-                projects = projects,
+                projects = projects
             })
         end,
 
@@ -133,7 +135,7 @@ ProjectController = {
             -- delta = -1 will fetch the previous saved version
             -- delta = -2 will fetch the last version before today
 
-            return rawResponse(
+            return xmlResponse(
                 -- if users don't match, this project is being remixed and we need to attach its ID
                 '<snapdata' .. (users_match(self) and '>' or ' remixID="' .. project.id .. '">') ..
                 (retrieve_from_disk(project.id, 'project.xml', self.params.delta) or '<project></project>') ..
@@ -271,9 +273,11 @@ ProjectController = {
             local body_data = ngx.req.get_body_data()
             local body = body_data and util.from_json(body_data) or nil
 
-            if (not body.xml) then
-                yield_error('Empty project contents')
-            end
+            validate.assert_valid(body, {
+                { 'xml', exists = true },
+                { 'thumbnail', exists = true },
+                { 'media', exists = true }
+            })
 
             local project = Projects:find(self.params.username, self.params.projectname)
 

@@ -13,7 +13,7 @@ Parameters:  matchtext, page, pagesize
 Route:       GET /users/:username
 Description: Get info about a user
 
-Route:       GET /users/:username/password_reset(/:token)
+Route:       GET /users/:username/password_reset/:token
 Description: Check whether a reset password token is correct, and reset
              a user's password if so.
 
@@ -24,6 +24,9 @@ Description: Verifies a user's email by means of a token, or removes
              the token. Token should equal '0' for admins.
              Returns a success message if the user is already verified.
              The route name should match the database token purpose.
+
+Route:       GET /users/email/:email
+Description: Sends an email to :email with all users associated with said :email
 
 Route:       POST /users/:username
 Description: Add or update a user. All passwords should travel pre-hashed with SHA512.
@@ -37,7 +40,7 @@ Parameters:  oldpassword, password_repeat, newpassword
 Route:       POST /users/:username/resendverification
 Description: Resends user verification email.
 
-Route:       POST /users/:username/password_reset(/:token)
+Route:       POST /users/:username/password_reset
 Description: Generate a token to reset a user's password.
 
 Route:       POST /users/:username/login

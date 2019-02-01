@@ -36,6 +36,7 @@ err = {
     not_logged_in = { msg = 'You are not logged in', status = 401 },
     auth = { msg = 'You do not have permission to perform this action', status = 403 },
     nonexistent_user = { msg = 'No user with this username exists', status = 404 },
+    nonexistent_email = { msg = 'No users are associated to this email account', status = 404 },
     nonexistent_project = { msg = 'This project does not exist', status = 404 },
     nonexistent_collection = { msg = 'This collection does not exist', status = 404 },
     expired_token = { msg = 'This token has expired', status = 401 },
@@ -76,7 +77,9 @@ end
 -- banned:    Same as a standard user, but can't modify or add anything.
 
 assert_role = function (self, role, message)
-    if not (self.current_user and self.current_user.role == role) then
+    if not self.current_user then
+        yield_error(message or err.not_logged_in)
+    elseif not self.current_user.role == role then
         yield_error(message or err.auth)
     end
 end
@@ -136,6 +139,16 @@ assert_user_exists = function (self, message)
     return self.queried_user
 end
 
+assert_users_have_email = function (self, message)
+    local users = Users:select('where email = ? ', self.params.email or '', { fields = 'username' })
+    if users and users[1] then
+        return users
+    else
+        yield_error(message or err.nonexistent_email)
+    end
+end
+
+
 -- Projects
 
 assert_project_exists = function (self, message)
@@ -167,7 +180,7 @@ check_token = function (token_value, purpose, on_success)
         local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
         if query.date_part < 4 and token.purpose == purpose then
             -- TODO: use self.queried_user and assert matches token.username
-            local user = Users:find(token.username)
+            local user = Users:find({ username = token.username })
             token:delete()
             return on_success(user)
         elseif token.purpose ~= purpose then
@@ -190,13 +203,27 @@ end
 -- @param username string
 -- @param email string
 create_token = function (self, purpose, username, email)
-    local token_value = secure_token()
-    Tokens:create({
-        username = username,
-        created = db.format_date(),
-        value = token_value,
-        purpose = purpose
-    })
+    local token_value
+
+    -- First check whether there's an existing token for the same user and purpose.
+    -- If we find it, we'll just reset its creation date and reuse it.
+    local existing_token = Tokens:select('where username = ? and purpose = ?', username, purpose)
+
+    if existing_token and existing_token[1] then
+        token_value = existing_token[1].value
+        existing_token[1]:update({
+            created = db.format_date()
+        })
+    else
+        token_value = secure_token()
+        Tokens:create({
+            username = username,
+            created = db.format_date(),
+            value = token_value,
+            purpose = purpose
+        })
+    end
+
     send_mail(
         email,
         mail_subjects[purpose] .. username,
@@ -212,14 +239,18 @@ create_token = function (self, purpose, username, email)
 end
 
 -- Collections
-assert_collection_exists = function (self)
-    local collection = Collections.find(self.params.username,
-                                       self.params.collection_slug)
+assert_collection_exist = function (self)
+    local collection = Collections:select('where name = ?', self.params.name)
 
-    if not collection or
-        (collection.published == false and not users_match(self)) then
+    if not collection then
         yield_error(err.nonexistent_collection)
     end
 
     return collection
+end
+
+assert_can_view_collection = function (self, collection)
+    if (collection.published == false and not users_match(self)) then
+        yield_error(err.nonexistent_collection)
+    end
 end

@@ -73,6 +73,7 @@ app:match(api_route('init', '/init', APIController, { 'POST' }))
 app:match(api_route('current_user', '/users/c', UserController, { 'GET' }))
 app:match(api_route('user_list', '/users', UserController, { 'GET' }))
 app:match(api_route('user', '/users/:username', UserController, { 'GET', 'POST', 'DELETE' }))
+app:match(api_route('with_email', '/users/email/:email', UserController, { 'GET' }))
 app:match(api_route('new_password', '/users/:username/newpassword', UserController, { 'POST' }))
 app:match(api_route('resend_verification', '/users/:username/resendverification', UserController, { 'POST' }))
 app:match(api_route('password_reset', '/users/:username/password_reset(/:token)', UserController, { 'GET', 'POST' }))
@@ -93,9 +94,9 @@ app:match(api_route('project_thumbnail', '/projects/:username/:projectname/thumb
 
 -- Collections
 -- ===========
-app:match(api_route('collections_list', '/collections', CollectionController, { 'GET' }))
+app:match(api_route('collections', '/collections', CollectionController, { 'GET' }))
 app:match(api_route('user_collections', '/users/:username/collections', CollectionController, { 'GET' }))
-app:match(api_route('collection', '/users/:username/collections/:collection_slug', CollectionController,
-                        { 'GET', 'POST', 'DELETE' }))
-app:match(api_route('collection_memberships', '/users/:username/collections/:collection_slug/items(/:item_id)',
-                        CollectionController, { 'GET', 'POST', 'DELETE' }))
+app:match(api_route('collection', '/users/:username/collections/:name', CollectionController, { 'GET', 'POST', 'DELETE' }))
+app:match(api_route('collection_projects', '/users/:username/collections/:name/projects', CollectionController, { 'GET' }))
+app:match(api_route('add_project', '/users/:username/collections/:name/projects/:project_id', CollectionController, { 'POST' }))
+app:match(api_route('collection_project', '/users/:username/collections/:name/projects/:project_id', CollectionController, { 'GET', 'POST', 'DELETE' }))

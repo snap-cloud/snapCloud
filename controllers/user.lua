@@ -27,6 +27,7 @@ local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
 
 local Users = package.loaded.Users
+local DeletedUsers = package.loaded.DeletedUsers
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 
@@ -41,15 +42,18 @@ UserController = {
             -- Description: Get the currently logged user's username and credentials.
             if self.current_user then
                 self.session.verified = self.current_user.verified
+                self.session.user_id = self.current_user.id
             elseif self.session.username == '' then
                 self.session.role = nil
                 self.session.verified = false
+                self.session.user_id = nil
             end
 
             return jsonResponse({
                 username = self.session.username,
                 role = self.session.role,
-                verified = self.session.verified
+                verified = self.session.verified,
+                id = self.session.user_id
             })
         end,
 
@@ -93,6 +97,26 @@ UserController = {
                 pages = self.params.page and paginator:num_pages() or nil,
                 users = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
             })
+        end,
+
+        with_email = function (self)
+            -- GET /users/email/:email
+            -- Description: Sends an email to :email with all users associated with said :email
+            local users = assert_users_have_email(self)
+            local body = '<ul>'
+
+            for _, user in pairs(users) do
+                body = body .. '<li>' .. user.username .. '</li>'
+            end
+
+            body = body .. '</ul>'
+
+            send_mail(
+                self.params.email,
+                mail_subjects.users_for_email,
+                mail_bodies.users_for_email .. body)
+
+            return okResponse('Email with username list sent to ' .. self.params.email)
         end,
 
         user = function (self)
@@ -210,8 +234,9 @@ UserController = {
                     { 'email', exists = true, min_length = 5 },
                 })
 
-                if self.queried_user then
-                    yield_error('User ' .. self.queried_user.username .. ' already exists');
+                local deleted_user = DeletedUsers:find({ username = self.params.username })
+                if self.queried_user or deleted_user then
+                    yield_error('User ' .. self.params.username .. ' already exists');
                 end
 
                 local salt = secure_salt()
@@ -315,6 +340,7 @@ UserController = {
                 self.session.username = self.queried_user.username
                 self.session.role = self.queried_user.role
                 self.session.verified = self.queried_user.verified
+                self.session.user_id = self.queried_user.id
                 self.cookies.persist_session = self.params.persist
                 if self.queried_user.verified then
                     return okResponse('User ' .. self.queried_user.username .. ' logged in')
@@ -328,6 +354,7 @@ UserController = {
                 self.session.username = self.queried_user.username
                 self.session.role = self.queried_user.role
                 self.session.verified = self.queried_user.verified
+                self.session.user_id = self.queried_user.id
                 self.cookies.persist_session = 'false'
                 return okResponse('User ' .. previous_username .. ' now logged in as ' .. self.queried_user.username)
             end
@@ -337,6 +364,7 @@ UserController = {
             -- POST /logout
             -- Description: Logs out the current user from the system.
             self.session.username = ''
+            self.session.user_id = nil
             self.cookies.persist_session = 'false'
             return okResponse('logged out')
         end,
@@ -375,7 +403,8 @@ UserController = {
 
             if not users_match(self) then assert_admin(self) end
 
-            if not (self.queried_user:delete()) then
+            -- Do not actually delete the user; flag it as deleted.
+            if not (self.queried_user:update({ deleted = db.format_date() })) then
                 yield_error('Could not delete user ' .. self.params.username)
             else
                 return okResponse('User ' .. self.params.username .. ' has been removed.')
