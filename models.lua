@@ -24,7 +24,6 @@
 local Model = package.loaded.Model
 
 package.loaded.Users = Model:extend('active_users', {
-    primary_key = { 'id' },
     relations = {
         { 'collections',
             fetch = function(self)
@@ -62,7 +61,6 @@ package.loaded.Users = Model:extend('active_users', {
 })
 
 package.loaded.DeletedUsers = Model:extend('deleted_users', {
-    primary_key = { 'username' }
 })
 
 package.loaded.Projects = Model:extend('active_projects', {
