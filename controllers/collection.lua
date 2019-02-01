@@ -136,6 +136,12 @@ end)
 CollectionController.DELETE.collection = function (self)
     -- DELETE /users/:username/collections/:collection_slug
     -- Description: Delete a particular collection.
+    local collection = assert_collection_exists(self)
+    if not users_match(self) then
+        assert_has_one_of_roles(self, { 'moderator', 'admin' })
+    end
+    collection:delete();
+    return okResponse('Collection deleted')
 end
 
 CollectionController.GET.collection_projects = function (self)
