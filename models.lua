@@ -24,6 +24,9 @@
 local Model = package.loaded.Model
 
 package.loaded.Users = Model:extend('active_users', {
+    relations = {
+        { 'collections', has_many = 'Collections' }
+    },
     isadmin = function (self)
         return self.role == 'admin'
     end,
