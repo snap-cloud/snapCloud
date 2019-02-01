@@ -36,7 +36,6 @@ return {
         schema.create_table("collections", {
             { 'id', types.serial({primary_key = true}) },
             { 'name', types.text },
-            { 'slug', types.text },
             { 'creator_id', types.foreign_key },
             { 'created_at', types.time({timezone = true}) },
             { 'updated_at', types.time({timezone = true}) },
@@ -48,7 +47,6 @@ return {
             { 'thumbnail_id', types.foreign_key({null = true}) }
         })
         schema.create_index('collections', 'creator_id')
-        schema.create_index('collections', 'creator_id', 'slug')
 
         schema.create_table("collection_memberships", {
             { 'id', types.serial({primary_key = true}) },

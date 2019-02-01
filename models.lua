@@ -82,7 +82,7 @@ package.loaded.Remixes = Model:extend('remixes', {
 })
 
 package.loaded.Collections = Model:extend('collections', {
-    primary_key = { 'creator_id', 'slug' },
+    primary_key = { 'creator_id', 'name' },
     timestamp = true,
     relations = {
         -- creates Collection:get_creator()
@@ -103,13 +103,6 @@ package.loaded.Collections = Model:extend('collections', {
         name = function(self, value)
             if not value then
                 return 'A name must be present'
-            end
-        end,
-        -- Ensure slugs are unique.
-        slug = function(self, value, column, collection)
-            local found = package.loaded.Collections:find({ slug = value })
-            if found ~= nil and found.id ~= collection.id then
-                return 'The name "' .. collection.name .. '" is already in use.'
             end
         end
     },

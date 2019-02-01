@@ -77,9 +77,9 @@ CollectionController = {
         end,
 
         collection = function (self)
-            -- GET /users/:username/collections/:collection_slug
+            -- GET /users/:username/collections/:name
             -- Description: Get info about a collection.
-            -- Parameters:  username, collection_slug, ...
+            -- Parameters:  username, name, ...
 
             local collection = assert_collection_exists(self)
             collection.projects_count = collection:count_projects()
@@ -87,9 +87,9 @@ CollectionController = {
         end,
 
         collection_projects = function (self)
-            -- GET /users/:username/collections/:collection_slug/projects
+            -- GET /users/:username/collections/:name/projects
             -- Description: Get a paginated list of all projects in a collection.
-            -- Parameters:  username, collection_slug
+            -- Parameters:  username, name
             -- TODO: Not sure how to pass a pagesize to this. :/
             -- Note: May need to re-write this as a method w/o using the `relations`
             local collection = assert_collection_exists(self)
@@ -98,9 +98,9 @@ CollectionController = {
         end,
 
         collection_project = function (self)
-            -- GET /users/:username/collections/:collection_slug/projects/:project_id
+            -- GET /users/:username/collections/:name/projects/:project_id
             -- Description: Get a project belonging to a collection
-            -- Parameters:  username, collection_slug
+            -- Parameters:  username, name
             local collection = assert_collection_exists(self)
             return jsonResponse(CollectionMemberships:find(collection.id, self.params.project_id))
         end
@@ -127,7 +127,6 @@ CollectionController = {
 
                 collection:update({
                     name = params.name or collection.name,
-                    slug = params.name and util.slugify(params.name) or collection.slug,
                     description = params.description or collection.description,
                     published = published,
                     published_at = published_at,
@@ -141,7 +140,6 @@ CollectionController = {
 
             return jsonResponse(assert_error(Collections:create({
                 name = params.name,
-                slug = util.slugify(params.name),
                 creator_id = self.queried_user.id,
                 description = params.description,
                 published = params.published  == true,
@@ -153,9 +151,9 @@ CollectionController = {
         end),
 
         collection_project = function (self)
-            -- POST /users/:username/collections/:collection_slug/projects/:project_id
+            -- POST /users/:username/collections/:name/projects/:project_id
             -- Description: Add a project to a collection.
-            -- Parameters:  username, collection_slug, project_id
+            -- Parameters:  username, name, project_id
 
             assert_users_match(self)
             local collection = assert_collection_exists(self)
@@ -187,9 +185,9 @@ CollectionController = {
         end,
 
         collection_project = function (self)
-            -- DELETE /users/:username/collections/:collection_slug/projects/:project_id
+            -- DELETE /users/:username/collections/:name/projects/:project_id
             -- Description: Remove a project from a collection.
-            -- Parameters:  username, collection_slug
+            -- Parameters:  username, name
         end
     }
 }
