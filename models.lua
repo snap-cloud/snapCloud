@@ -24,7 +24,7 @@
 local Model = package.loaded.Model
 
 package.loaded.Users = Model:extend('active_users', {
-    primary_key = { 'username' },
+    primary_key = { 'id' },
     relations = {
         { 'collections',
             fetch = function(self)

@@ -99,11 +99,11 @@ app:before_filter(function (self)
 
     if self.params.username then
         self.params.username = self.params.username:lower()
-        self.queried_user = package.loaded.Users:find(self.params.username)
+        self.queried_user = package.loaded.Users:find({ username = self.params.username })
     end
 
     if self.session.username then
-        self.current_user = package.loaded.Users:find(self.session.username)
+        self.current_user = package.loaded.Users:find({ username = self.session.username })
     else
         self.session.username = ''
         self.current_user = nil
@@ -139,7 +139,7 @@ end
 
 function app:handle_error(err, trace)
     -- self.current_user is not available here.
-    local current_user = package.loaded.Users:find(self.session.username)
+    local current_user = package.loaded.Users:find({ username = self.session.username })
     if current_user then
         user_params = current_user:rollbar_params()
     else

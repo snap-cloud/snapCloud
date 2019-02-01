@@ -180,7 +180,7 @@ check_token = function (token_value, purpose, on_success)
         local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
         if query.date_part < 4 and token.purpose == purpose then
             -- TODO: use self.queried_user and assert matches token.username
-            local user = Users:find(token.username)
+            local user = Users:find({ username = token.username })
             token:delete()
             return on_success(user)
         elseif token.purpose ~= purpose then
