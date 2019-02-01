@@ -69,7 +69,7 @@ CollectionController = {
             -- Parameters:  username, matchtext, page, pagesize
 
             assert_user_exists(self)
-            if users_match(self) then
+            if users_match(self) or self.current_user:isadmin() then
                 return jsonResponse(self.queried_user:get_collections())
             else
                 return jsonResponse(self.queried_user:get_public_collections())
