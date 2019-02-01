@@ -86,7 +86,7 @@ CollectionController = {
         user_collections = function (self)
             -- GET /users/:username/collections
             -- Description: Get a paginated list of all a particular user's collections
-            --              with name matching matchtext, if provided.
+            --              with name or description matching matchtext, if provided.
             --              Returns only public collections, if another user.
             -- Parameters:  username, matchtext, page, pagesize
 
@@ -123,7 +123,16 @@ CollectionController = {
                     )
             end
 
-            local paginator = Collections:paginated(query .. ' order by ' .. order .. ' desc', { per_page = self.params.pagesize or 16 })
+            local paginator = Collections:paginated(
+                query .. ' order by ' .. order .. ' desc',
+                {
+                    per_page = self.params.pagesize or 16,
+                    prepare_results = function (collections)
+                        Users:include_in(collections, 'username')
+                        return collections
+                    end
+                })
+
             local collections = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
 
             return jsonResponse({
