@@ -106,7 +106,6 @@ package.loaded.Collections = Model:extend('collections', {
             end
         end
     },
-
     count_projects = function (self)
         return package.loaded.CollectionMemberships:count('collection_id = ?',
                                                           self.id)

@@ -128,7 +128,7 @@ CollectionController = {
                 {
                     per_page = self.params.pagesize or 16,
                     prepare_results = function (collections)
-                        Users:include_in(collections, 'username')
+                        Users:include_in(collections, 'creator_id', { fields = 'username' });
                         return collections
                     end
                 })
