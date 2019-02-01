@@ -116,7 +116,7 @@ ProjectController = {
 
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
-                projects = projects,
+                projects = projects
             })
         end,
 

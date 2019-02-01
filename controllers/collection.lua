@@ -68,7 +68,7 @@ CollectionController = {
                 end
 
                 local paginator =
-                    Projects:paginated(
+                    Collections:paginated(
                         query .. ' order by published_at desc',
                         { per_page = self.params.pagesize or 16 }
                     )
@@ -83,7 +83,6 @@ CollectionController = {
         }),
 
         user_collections = function (self)
-            -- TODO: add filtering
             -- GET /users/:username/collections
             -- Description: Get a paginated list of all a particular user's collections
             --              with name matching matchtext, if provided.
@@ -91,11 +90,45 @@ CollectionController = {
             -- Parameters:  username, matchtext, page, pagesize
 
             assert_user_exists(self)
-            if users_match(self) or self.current_user:isadmin() then
-                return jsonResponse(self.queried_user:get_collections())
-            else
-                return jsonResponse(self.queried_user:get_public_collections())
+
+            local order = 'updated_at'
+
+            if not (users_match(self)) then
+                if not self.current_user or not self.current_user:isadmin() then
+                    self.params.published = 'true'
+                    order = 'published_at'
+                end
             end
+
+            assert_user_exists(self)
+
+            local query = db.interpolate_query('where creator_id = ?', self.queried_user.id)
+
+            -- Apply where clauses
+            if self.params.published ~= nil then
+                query = query ..
+                    db.interpolate_query(
+                        ' and published = ?',
+                        self.params.published == 'true'
+                    )
+            end
+
+            if self.params.matchtext then
+                query = query ..
+                    db.interpolate_query(
+                        ' and (name ILIKE ? or description ILIKE ?)',
+                        self.params.matchtext,
+                        self.params.matchtext
+                    )
+            end
+
+            local paginator = Collections:paginated(query .. ' order by ' .. order .. ' desc', { per_page = self.params.pagesize or 16 })
+            local collections = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+
+            return jsonResponse({
+                pages = self.params.page and paginator:num_pages() or nil,
+                collections = collections
+            })
         end,
 
         collection = function (self)
