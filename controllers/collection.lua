@@ -23,11 +23,11 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local db = package.loaded.db
+local cached = package.loaded.cached
 local util = package.loaded.util
 local validate = package.loaded.validate
 local json_params = package.loaded.app_helpers.json_params
 local yield_error = package.loaded.app_helpers.yield_error
-
 
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
