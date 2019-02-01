@@ -24,22 +24,6 @@
 local Model = package.loaded.Model
 
 package.loaded.Users = Model:extend('active_users', {
-    relations = {
-        { 'collections',
-            fetch = function(self)
-                return package.loaded.Collections:select(
-                    'WHERE creator_id = ?', self.id
-                )
-            end
-        },
-        { 'public_collections',
-            fetch = function(self)
-                return package.loaded.Collections:select(
-                    'WHERE creator_id = ? AND published = true', self.id
-                )
-            end
-        }
-    },
     isadmin = function (self)
         return self.role == 'admin'
     end,
@@ -60,8 +44,7 @@ package.loaded.Users = Model:extend('active_users', {
     end
 })
 
-package.loaded.DeletedUsers = Model:extend('deleted_users', {
-})
+package.loaded.DeletedUsers = Model:extend('deleted_users')
 
 package.loaded.Projects = Model:extend('active_projects', {
     primary_key = { 'username', 'projectname' }
