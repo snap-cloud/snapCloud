@@ -48,17 +48,39 @@ end
 
 CollectionController = {
     GET = {
-        collections_list = function (self)
+        collections = cached({
             -- GET /collections
-            -- Description: If requesting user is an admin, get a paginated list of all
-            --              collections with name matching matchtext, if provided.
-            --              Returns public collections
+            -- Description: Get a paginated list of all published collections with name
+            --              matching matchtext, if provided.
             -- Parameters:  matchtext, page, pagesize
-            assert_admin(self)
-            local page_size = self.params.pagesize or 16
-            local paginator = Collections:paginated({ per_page = page_size })
-            return jsonResponse(paginator:get_page(self.params.page or 1))
-        end,
+            exptime = 30, -- cache expires after 30 seconds
+            function (self)
+                local query = 'where published'
+
+                -- Apply where clauses
+                if self.params.matchtext then
+                    query = query ..
+                        db.interpolate_query(
+                            ' and (name ILIKE ? or description ILIKE ?)',
+                            self.params.matchtext,
+                            self.params.matchtext
+                        )
+                end
+
+                local paginator =
+                    Projects:paginated(
+                        query .. ' order by published_at desc',
+                        { per_page = self.params.pagesize or 16 }
+                    )
+
+                local collections = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+
+                return jsonResponse({
+                    pages = self.params.page and paginator:num_pages() or nil,
+                    collections = collections
+                })
+            end
+        }),
 
         user_collections = function (self)
             -- TODO: add filtering
@@ -178,7 +200,6 @@ CollectionController = {
     },
 
     DELETE = {
-
         collection = function (self)
             -- DELETE /users/:username/collections/:name
             -- Description: Delete a particular collection.
