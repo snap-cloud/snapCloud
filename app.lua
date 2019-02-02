@@ -42,6 +42,10 @@ package.loaded.rollbar = require('resty.rollbar')
 -- Utility functions
 package.loaded.helpers = require 'helpers'
 
+require 'models'
+require 'responses'
+require 'overrides'
+
 local app = package.loaded.app
 local config = package.loaded.config
 local helpers = package.loaded.helpers
@@ -50,10 +54,6 @@ local rollbar = package.loaded.rollbar
 -- Store whitelisted domains
 local domain_allowed = require 'cors'
 
-require 'models'
-require 'responses'
-require 'overrides'
-
 if config.maintenance_mode == 'true' then
     msg = 'The Snap!Cloud is currently down for maintenance.'
     app:match('/*', function(self)
@@ -61,7 +61,6 @@ if config.maintenance_mode == 'true' then
     end)
 else
     require 'api'
-    require 'discourse'
 end
 
 -- Track exceptions

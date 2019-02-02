@@ -31,6 +31,7 @@ local respond_to = package.loaded.app_helpers.respond_to
 require 'controllers.user'
 require 'controllers.project'
 require 'controllers.collection'
+require 'controllers.discourse'
 
 -- Wraps all API endpoints in standard behavior.
 local function api_route(name, path, controller, methods)
@@ -104,7 +105,7 @@ app:match(api_route('collection_project', '/users/:username/collections/:name/pr
 -- Discourse Forum
 -- ===============
 app:match(api_route(
-    'discourse_sign_on',
+    'signle_sign_on',
     '/discourse-sso',
     DiscourseController,
     { 'GET' }

@@ -36,7 +36,9 @@ local config = package.loaded.config
 local encoding = require("lapis.util.encoding")
 local resty_string = package.loaded.resty_string
 
-app:get('/discourse-sso', capture_errors(function(self)
+DiscourseController = { GET = {} }
+
+DiscourseController.GET.single_sign_on = function (self)
     if self.session.username == '' then
         local signin_url = '/site/login.html?redirect_to='
         local encoded_params = util.encode_query_string(self.params)
@@ -75,7 +77,7 @@ app:get('/discourse-sso', capture_errors(function(self)
     -- don't redirect in development so you don't mess up your forum account.
     if config._name == 'development' then return final_url end
     return { redirect_to = final_url }
-end))
+end
 
 function create_signature(payload)
     local secret = config.discourse_sso_secret
