@@ -100,3 +100,12 @@ app:match(api_route('collection', '/users/:username/collections/:name', Collecti
 app:match(api_route('collection_projects', '/users/:username/collections/:name/projects', CollectionController, { 'GET' }))
 app:match(api_route('add_project', '/users/:username/collections/:name/projects/:project_id', CollectionController, { 'POST' }))
 app:match(api_route('collection_project', '/users/:username/collections/:name/projects/:project_id', CollectionController, { 'GET', 'POST', 'DELETE' }))
+
+-- Discourse Forum
+-- ===============
+app:match(api_route(
+    'discourse_sign_on',
+    '/discourse-sso',
+    DiscourseController,
+    { 'GET' }
+))
