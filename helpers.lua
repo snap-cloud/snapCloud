@@ -41,7 +41,6 @@ helpers.current_time_or_nil = function (option)
     return nil
 end
 
-
 -- This function is extracted from lapis-exceptions by @leafo
 -- https://github.com/leafo/lapis-exceptions/blob/master/lapis/exceptions/models/exception_types.lua#L6
 local grammar = nil
