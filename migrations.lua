@@ -105,6 +105,4 @@ return {
             )
         ]])
     end
-
-    -- TODO: add indicies for deleted columns
 }
