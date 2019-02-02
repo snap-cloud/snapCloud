@@ -1,7 +1,7 @@
 -- Database migrations
 -- ===================
 --
--- Add a new migration with the key YYYYYMMDDX
+-- Add a new migration with the key 'YYYY-MM-DD:X'
 -- Where X is a value [0-9]
 -- NOTES:
 -- use _at for timestamps, and always add {timezone = true}
@@ -32,7 +32,7 @@ return {
     -- TODO: We will eventually create migrations for the other tables.
 
     -- Create Collections and CollectionMemberships
-    [20190140] = function()
+    ['2019-01-04:0'] = function()
         schema.create_table("collections", {
             { 'id', types.serial({primary_key = true}) },
             { 'name', types.text },
@@ -60,7 +60,7 @@ return {
     end,
 
     -- Update CollectionMemberships to store a user
-    [201901291] = function()
+    ['2019-01-29:0'] = function()
         schema.add_column(
             'collection_memberships', 'user_id', types.foreign_key
         )
