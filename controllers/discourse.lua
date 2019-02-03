@@ -39,11 +39,11 @@ local resty_string = package.loaded.resty_string
 DiscourseController = { GET = {} }
 
 DiscourseController.GET.single_sign_on = function (self)
-    if self.session.username == '' then
-        local signin_url = '/site/login.html?redirect_to='
+    if not self.current_user then
+        local login_url = '/site/login?redirect_to='
         local encoded_params = util.encode_query_string(self.params)
         local redirect_path = util.escape('/discourse-sso?' .. encoded_params)
-        return { redirect_to = signin_url .. redirect_path }
+        return { redirect_to = login_url .. redirect_path }
     end
 
     -- params are automatically unescaped.
@@ -67,9 +67,7 @@ DiscourseController.GET.single_sign_on = function (self)
     end
 
     local request_payload = extract_payload(payload)
-    local user = Users:select('where username = ? limit 1',
-            self.session.username,
-            { fields = 'id, username, verified, role, email' })[1]
+    local user = self.current_user
     local response_payload = build_payload(user, request_payload.nonce)
     local final_url = create_redirect_url(request_payload.return_sso_url,
                                           response_payload)

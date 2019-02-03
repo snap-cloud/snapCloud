@@ -104,9 +104,7 @@ app:match(api_route('collection_project', '/users/:username/collections/:name/pr
 
 -- Discourse Forum
 -- ===============
-app:match(api_route(
-    'signle_sign_on',
-    '/discourse-sso',
-    DiscourseController,
-    { 'GET' }
-))
+app:match(api_route('single_sign_on',
+                    '/discourse-sso',
+                    DiscourseController,
+                    { 'GET' }))
