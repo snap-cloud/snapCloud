@@ -166,8 +166,8 @@ CollectionController = {
 
         collection_project = function (self)
             -- GET /users/:username/collections/:name/projects/:project_id
-            -- Description: Get a project belonging to a collection
-            -- Parameters:  username, name
+            -- Description: Get membership info for a project in a collection
+            -- Parameters: username, name
             local collection = assert_collection_exists(self)
             return jsonResponse(CollectionMemberships:find(collection.id, self.params.project_id))
         end
