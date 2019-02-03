@@ -249,14 +249,24 @@ CollectionController = {
             if not users_match(self) then
                 assert_has_one_of_roles(self, { 'moderator', 'admin' })
             end
+            collection.delete_projects()
             collection:delete()
-            return okResponse('Collection deleted')
+            return okResponse('Collection "' .. collection.name .. '" deleted')
         end,
 
         collection_project = function (self)
             -- DELETE /users/:username/collections/:name/projects/:project_id
             -- Description: Remove a project from a collection.
             -- Parameters:  username, name
+            local collection_membership =
+                 assert_collection_membership_exists(self)
+
+             if not users_match(self) then
+                 assert_has_one_of_roles(self, { 'moderator', 'admin' })
+             end
+
+             collection_membership:delete()
+             return okResponse('Project removed from collection')
         end
     }
 }

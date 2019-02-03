@@ -90,6 +90,9 @@ package.loaded.Collections = Model:extend('collections', {
             end
         end
     },
+    delete_projects = function (self)
+        return db.delete('collection_memberships', 'collection_id = ?', self.id)
+    end,
     count_projects = function (self)
         return package.loaded.CollectionMemberships:count('collection_id = ?',
                                                           self.id)

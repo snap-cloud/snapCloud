@@ -39,6 +39,7 @@ err = {
     nonexistent_email = { msg = 'No users are associated to this email account', status = 404 },
     nonexistent_project = { msg = 'This project does not exist', status = 404 },
     nonexistent_collection = { msg = 'This collection does not exist', status = 404 },
+    nonexistent_membership = { msg = 'This project does not belong to this collection', status = 404 },
     expired_token = { msg = 'This token has expired', status = 401 },
     invalid_token = { msg = 'This token is either invalid or has expired', status = 401 },
     nonvalidated_user = { msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401 },
@@ -239,14 +240,26 @@ create_token = function (self, purpose, username, email)
 end
 
 -- Collections
-assert_collection_exist = function (self)
-    local collection = Collections:select('where name = ?', self.params.name)
+assert_collection_exists = function (self)
+    local collection = Collections:find(self.params.username, self.params.name)
 
     if not collection then
         yield_error(err.nonexistent_collection)
     end
 
     return collection
+end
+
+assert_collection_membership_exists = funtion (self)
+    local collection = assert_collection_exists(self)
+    local membership = CollectionMemberships:find(
+        collection.id, self.params.project_id)
+
+    if not membership then
+        yield_error(err.nonexistent_membership)
+    end
+
+    return membership
 end
 
 assert_can_view_collection = function (self, collection)
