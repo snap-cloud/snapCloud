@@ -175,6 +175,8 @@ CollectionController = {
 
     POST = {
         create_collection = json_params(function (self)
+            assert_users_match(self)
+
             return jsonResponse(assert_error(Collections:create({
                 name = params.name,
                 creator_id = self.queried_user.id,
@@ -187,36 +189,35 @@ CollectionController = {
             })))
         end),
 
-        update_collection = json_params(function (self)
+        collection = json_params(function (self)
             -- POST /users/:username/collections/:name
-            -- Description: Create a collection.
-            -- Parameters:  username, ...
+            -- Description: Update a collection.
+            -- Parameters:  username, name
+            -- Body: Collection attributes
 
             assert_users_match(self)
             local params = self.params
-            local collection = Collections:find(self.queried_user.id, params.name)
+            local collection = assert_collection_exists(self)
 
-            if collection then
-                -- TODO: I think we can extract these into functions.
-                local published = params.published ~= nil and params.published == true
-                local published_at = (published and collection.published_at) or
-                current_time_or_nil(published)
-                local shared = params.shared ~= nil and params.shared == true
-                local shared_at = (shared and collection.shared_at) or
-                current_time_or_nil(shared)
+            -- TODO: I think we can extract these into functions.
+            local published = params.published ~= nil and params.published == true
+            local published_at = (published and collection.published_at) or
+            current_time_or_nil(published)
+            local shared = params.shared ~= nil and params.shared == true
+            local shared_at = (shared and collection.shared_at) or
+            current_time_or_nil(shared)
 
-                collection:update({
-                    name = params.name or collection.name,
-                    description = params.description or collection.description,
-                    published = published,
-                    published_at = published_at,
-                    shared = shared,
-                    shared_at = shared_at,
-                    thumbnail_id = params.thumbnail_id or collection.thumbnail_id
-                })
+            collection:update({
+                name = params.name or collection.name,
+                description = params.description or collection.description,
+                published = published,
+                published_at = published_at,
+                shared = shared,
+                shared_at = shared_at,
+                thumbnail_id = params.thumbnail_id or collection.thumbnail_id
+            })
 
-                return jsonResponse(collection)
-            end
+            return jsonResponse(collection)
         end),
 
         add_project = function (self)
