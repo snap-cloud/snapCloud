@@ -220,18 +220,14 @@ CollectionController = {
             return jsonResponse(collection)
         end),
 
-        add_project = function (self)
+        add_project = json_params(function (self)
             -- POST /users/:username/collections/:name/projects
             -- Description: Add a project to a collection.
             -- Body: projectname, username (project author)
             assert_users_match(self)
 
-            ngx.req.read_body()
-            local body_data = ngx.req.get_body_data()
-            local body = body_data and util.from_json(body_data) or nil
-
             local collection = assert_collection_exists(self)
-            local project = Projects:find(body.username, body.projectname)
+            local project = assert_project_exists(self)
 
             assert_user_can_add_project_to_collection(project)
 
@@ -241,7 +237,7 @@ CollectionController = {
                 project_id = project.id,
                 user_id = self.queried_user.id
             })))
-        end
+        end)
 
     },
 
