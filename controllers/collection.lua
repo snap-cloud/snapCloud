@@ -174,7 +174,20 @@ CollectionController = {
     },
 
     POST = {
-        collection = json_params(function (self)
+        create_collection = json_params(function (self)
+            return jsonResponse(assert_error(Collections:create({
+                name = params.name,
+                creator_id = self.queried_user.id,
+                description = params.description,
+                published = params.published == true,
+                published_at = current_time_or_nil(params.published),
+                shared = params.shared == true,
+                shared_at = current_time_or_nil(params.shared),
+                thumbnail_id = params.thumbnail_id
+            })))
+        end),
+
+        update_collection = json_params(function (self)
             -- POST /users/:username/collections/:name
             -- Description: Create a collection.
             -- Parameters:  username, ...
@@ -204,17 +217,6 @@ CollectionController = {
 
                 return jsonResponse(collection)
             end
-
-            return jsonResponse(assert_error(Collections:create({
-                name = params.name,
-                creator_id = self.queried_user.id,
-                description = params.description,
-                published = params.published == true,
-                published_at = current_time_or_nil(params.published),
-                shared = params.shared == true,
-                shared_at = current_time_or_nil(params.shared),
-                thumbnail_id = params.thumbnail_id
-            })))
         end),
 
         add_project = function (self)
