@@ -175,6 +175,10 @@ CollectionController = {
 
     POST = {
         create_collection = json_params(function (self)
+            -- POST /users/:username/collections/
+            -- Description: Create a new collection.
+            -- Parameters: username
+            -- Body: Collection attributes
             assert_users_match(self)
 
             return jsonResponse(assert_error(Collections:create({
@@ -238,7 +242,6 @@ CollectionController = {
                 user_id = self.queried_user.id
             })))
         end)
-
     },
 
     DELETE = {
