@@ -240,13 +240,13 @@ end
 
 -- Collections
 assert_collection_exists = function (self)
-    local collection = Collections:select('where name = ?', self.params.name)
+    local collection = Collections:find({ name = self.params.name })
 
     if not collection then
         yield_error(err.nonexistent_collection)
     end
 
-    return collection[1]
+    return collection
 end
 
 assert_can_view_collection = function (self, collection)
