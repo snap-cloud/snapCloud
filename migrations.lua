@@ -1,7 +1,12 @@
 -- Database migrations
 -- ===================
 --
--- Add a new migration with the key YYYYYMMDDX
+-- Run migrations by running bin/migrations.sh
+--
+-- Do not modify a migration once it has been run or commited!
+-- To change what a migration does, create a new one.
+--
+-- Add a new migration with the key 'YYYY-MM-DD:X'
 -- Where X is a value [0-9]
 -- NOTES:
 -- use _at for timestamps, and always add {timezone = true}
@@ -25,6 +30,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local db = require("lapis.db")
 local schema = require("lapis.db.schema")
 local types = schema.types
 
@@ -32,7 +38,7 @@ return {
     -- TODO: We will eventually create migrations for the other tables.
 
     -- Create Collections and CollectionMemberships
-    [20190140] = function()
+    ['2019-01-04:0'] = function ()
         schema.create_table("collections", {
             { 'id', types.serial({primary_key = true}) },
             { 'name', types.text },
@@ -60,12 +66,43 @@ return {
     end,
 
     -- Update CollectionMemberships to store a user
-    [201901291] = function()
+    ['2019-01-29:0'] = function ()
         schema.add_column(
             'collection_memberships', 'user_id', types.foreign_key
         )
         schema.create_index('collection_memberships',
                             'collection_id', 'project_id', 'user_id',
                             { unique = true })
+    end,
+
+    -- Create and views for handling deleted items.
+    ['2019-02-01:0'] = function ()
+        schema.add_column('users',
+                          'deleted',
+                          types.time({ timezone = true, null = true }))
+        db.query([[
+            CREATE VIEW active_users AS (
+                SELECT * FROM users WHERE deleted is null
+            )
+        ]])
+        db.query([[
+            CREATE VIEW deleted_users AS (
+                SELECT * FROM users WHERE deleted is not null
+            )
+        ]])
+
+        schema.add_column('projects',
+                          'deleted',
+                          types.time({ timezone = true, null = true }))
+        db.query([[
+            CREATE VIEW active_projects AS (
+                SELECT * FROM projects WHERE deleted is null
+            )
+        ]])
+        db.query([[
+            CREATE VIEW deleted_projects AS (
+                SELECT * FROM projects WHERE deleted is not null
+            )
+        ]])
     end
 }
