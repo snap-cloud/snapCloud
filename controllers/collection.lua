@@ -160,8 +160,11 @@ CollectionController = {
             -- Note: May need to re-write this as a method w/o using the `relations`
             local collection = assert_collection_exists(self)
             assert_can_view_collection(self, collection)
-            local projects = collection:get_projects()
-            return jsonResponse(projects:get_page(self.params.page or 1))
+            local paginator = collection:get_projects()
+            return jsonResponse({
+                pages = self.params.page and paginator:num_pages() or nil,
+                projects = projects:get_page(self.params.page or 1)
+            })
         end,
 
         collection_project = function (self)
