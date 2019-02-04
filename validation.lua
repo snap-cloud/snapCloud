@@ -239,7 +239,7 @@ create_token = function (self, purpose, username, email)
 end
 
 -- Collections
-assert_collection_exist = function (self)
+assert_collection_exists = function (self)
     local collection = Collections:select('where name = ?', self.params.name)
 
     if not collection then
