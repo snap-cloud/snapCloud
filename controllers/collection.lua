@@ -220,7 +220,7 @@ CollectionController = {
             })))
         end),
 
-        add_project = function (self)
+        collection_projects = function (self)
             -- POST /users/:username/collections/:name/projects
             -- Description: Add a project to a collection.
             -- Body: projectname, username (project author)
