@@ -163,7 +163,7 @@ CollectionController = {
             local paginator = collection:get_projects()
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
-                projects = projects:get_page(self.params.page or 1)
+                projects = paginator:get_page(self.params.page or 1)
             })
         end,
 
