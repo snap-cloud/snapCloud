@@ -233,7 +233,7 @@ CollectionController = {
             local collection = assert_collection_exists(self)
             local project = Projects:find(body.username, body.projectname)
 
-            assert_user_can_add_project_to_collection(project)
+            assert_user_can_add_project_to_collection(self, project)
 
             -- TODO: postgres will error if you do this twice. Do we need to catch that?
             return jsonResponse(assert_error(CollectionMemberships:create({
