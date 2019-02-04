@@ -246,7 +246,7 @@ assert_collection_exists = function (self)
         yield_error(err.nonexistent_collection)
     end
 
-    return collection
+    return collection[1]
 end
 
 assert_can_view_collection = function (self, collection)
