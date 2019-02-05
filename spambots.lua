@@ -35,7 +35,7 @@ local capture_errors = package.loaded.capture_errors
 local respond_to = package.loaded.respond_to
 
 local suspicious_paths = {
-    '/manager*',
+    '/manager(/:*)',
     '*/xmlrpc.php',
     '/mysql*'
 }
@@ -57,18 +57,14 @@ for _, path in pairs(suspicious_paths) do
             })
         end
 
-        if (ip_entry.offense_count > 2) then
-            file = io.open('nginx.conf.d/blockips.conf', 'a+')
-            file:write('deny ' .. ip .. ';\n')
-            file:close()
-            -- We need to reload blockips.conf now
-            return errorResponse('Your IP has been banned from the system', 400)
-        else
+        if (ip_entry.offense_count < 3) then
             return errorResponse(
             'You are attempting to access a well known spam / exploit path. ' ..
             'Your IP will be banned from this system if this incident ' ..
             'happens ' .. tostring(3 - ip_entry.offense_count) .. ' more times',
             400)
+        else
+            return { redirect_to = self:build_url('/') }
         end
     end
     )
