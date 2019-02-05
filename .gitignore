@@ -16,6 +16,7 @@ uwsgi_temp
 # Certificates and keys
 certs/*
 !certs/README.md
+!certs/lets-encrypt*
 *.cert
 *.cer
 *.key
