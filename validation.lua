@@ -225,7 +225,8 @@ end
 
 -- Collections
 assert_collection_exists = function (self)
-    local collection = Collections:find({ name = self.params.name })
+    local creator = Users:find({ username = self.params.username })
+    local collection = Collections:find({ name = self.params.name, creator_id = creator.id })
 
     if not collection then
         yield_error(err.nonexistent_collection)
