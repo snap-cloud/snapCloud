@@ -6,6 +6,11 @@ git checkout master
 git pull origin master
 git submodule update --recursive --remote
 
+# Build community site
+cd site
+Snippets/build.sh
+cd ..
+
 # Create a release on GitHub
 source .env
 deploy_sha=$(git rev-parse HEAD)

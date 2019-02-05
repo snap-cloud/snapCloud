@@ -224,8 +224,6 @@ CollectionController = {
             -- POST /users/:username/collections/:name/projects
             -- Description: Add a project to a collection.
             -- Body: projectname, username (project author)
-            assert_users_match(self)
-
             ngx.req.read_body()
             local body_data = ngx.req.get_body_data()
             local body = body_data and util.from_json(body_data) or nil

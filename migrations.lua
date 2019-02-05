@@ -104,5 +104,12 @@ return {
                 SELECT * FROM projects WHERE deleted is not null
             )
         ]])
-    end
+    end,
+
+    -- Add an editor_id[] field to collections
+    ['2019-02-04:0'] = function ()
+        schema.add_column(
+            'collections', 'editor_ids', types.foreign_key({ array = true, null = true })
+        )
+    end,
 }
