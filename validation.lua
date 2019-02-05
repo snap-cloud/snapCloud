@@ -246,8 +246,6 @@ assert_can_view_collection = function (self, collection)
     end
 end
 
--- Users can't add shared projects to a collection.
-
 assert_user_can_add_project_to_collection = function (self, project, collection)
     -- Admins can add any project to any collection.
     if self.current_user:isadmin() then return end
@@ -271,4 +269,13 @@ assert_user_can_add_project_to_collection = function (self, project, collection)
     end
 
     yield_error(err.nonexistent_project)
+end
+
+assert_project_not_in_collection = function (self, project, collection)
+    -- We can't add a project twice to a collection, unless that collection
+    -- is the "Flagged" one
+    if CollectionMemberships:find(collection.id, project.id) and
+        collection.id ~= 0 then
+        yield_error(err.project_already_in_collection)
+    end
 end
