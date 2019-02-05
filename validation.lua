@@ -157,21 +157,6 @@ assert_project_exists = function (self, message)
     end
 end
 
--- Users can add their own projects and published projects to any collection
--- Admins can add any project to a collection.
--- Users can't add shared projects to a collection.
-assert_user_can_add_project_to_collection = function (self, project)
-    if (self.current_user:isadmin() or project.ispublished
-        or project.username == self.current_user.username) then
-        return
-    end
-
-    if project.isshared == true then
-        yield_error(err.auth)
-    end
-    yield_error(err.nonexistent_project)
-end
-
 -- Tokens
 
 check_token = function (token_value, purpose, on_success)
@@ -253,4 +238,31 @@ assert_can_view_collection = function (self, collection)
     if (collection.published == false and not users_match(self)) then
         yield_error(err.nonexistent_collection)
     end
+end
+
+-- Users can't add shared projects to a collection.
+
+assert_user_can_add_project_to_collection = function (self, project, collection)
+    -- Admins can add any project to any collection.
+    if self.current_user:isadmin() then return end
+
+    -- Anyone can add projects to the "Flagged" collection, with id == 0
+    if collection.id == 0 then return end
+
+    -- Users can edit their own collections
+    local can_edit = collection.creator_id == self.current_user.id
+
+    -- Find out whether user is in the editors array
+    for _, editor_id in collection.editor_ids do
+        if can_edit then return end
+        can_edit = can_edit or (editor_id == self.current_user.id)
+    end
+
+    -- Users can add their own projects and published projects to collections they can edit
+    if can_edit then
+        return project.username == self.current_user.username or
+            project.ispublished
+    end
+
+    yield_error(err.nonexistent_project)
 end
