@@ -225,7 +225,8 @@ end
 
 -- Collections
 assert_collection_exists = function (self)
-    local collection = Collections:find({ name = self.params.name })
+    local creator = Users:find({ username = self.params.username })
+    local collection = Collections:find({ name = self.params.name, creator_id = creator.id })
 
     if not collection then
         yield_error(err.nonexistent_collection)
@@ -236,6 +237,10 @@ end
 
 assert_can_view_collection = function (self, collection)
     if (collection.published == false and not users_match(self)) then
+        if collection.id == 0 then
+            -- Reviewers, moderators and admins can view the Flagged collection
+            assert_has_one_of_roles(self, { 'reviewer', 'moderator', 'admin' })
+        end
         yield_error(err.nonexistent_collection)
     end
 end
