@@ -92,6 +92,12 @@ end
 
 -- Before filter
 app:before_filter(function (self)
+    local ip_entry = package.loaded.BannedIPs:find(ngx.var.remote_addr)
+    if (ip_entry and ip_entry.offense_count > 2) then
+        self:write(errorResponse('Your IP has been banned from the system', 400))
+        return
+    end
+
     if ngx.req.get_method() ~= 'OPTIONS' then
         -- unescape all parameters
         for k, v in pairs(self.params) do
@@ -166,5 +172,8 @@ end
 -- The API is implemented in the api.lua file
 require 'api'
 require 'discourse'
+
+-- We don't keep spam/exploit paths in the API
+require 'spambots'
 
 return app
