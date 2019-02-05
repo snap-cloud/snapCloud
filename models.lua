@@ -25,7 +25,7 @@ local Model = package.loaded.Model
 
 package.loaded.Users = Model:extend('active_users', {
     relations = {
-        { 'collections', has_many = 'Collections' }
+        {'collections', has_many = 'Collections'}
     },
     isadmin = function (self)
         return self.role == 'admin'
@@ -43,36 +43,36 @@ package.loaded.Users = Model:extend('active_users', {
     end,
     rollbar_params = function (self)
         -- just the info necessary for error tracking
-        return { id = self.id, username = self.username }
+        return {id = self.id, username = self.username}
     end
 })
 
 package.loaded.DeletedUsers = Model:extend('deleted_users')
 
 package.loaded.Projects = Model:extend('active_projects', {
-    primary_key = { 'username', 'projectname' }
+    primary_key = {'username', 'projectname'}
 })
 
 package.loaded.DeletedProjects = Model:extend('deleted_projects', {
-    primary_key = { 'username', 'projectname' }
+    primary_key = {'username', 'projectname'}
 })
 
 package.loaded.Tokens = Model:extend('tokens', {
-    primary_key = { 'value' }
+    primary_key = {'value'}
 })
 
 package.loaded.Remixes = Model:extend('remixes', {
-    primary_key = { 'original_project_id', 'remixed_project_id' }
+    primary_key = {'original_project_id', 'remixed_project_id'}
 })
 
 package.loaded.Collections = Model:extend('collections', {
-    primary_key = { 'creator_id', 'name' },
+    primary_key = {'creator_id', 'name'},
     timestamp = true,
     relations = {
         -- creates Collection:get_creator()
-        { 'creator', belongs_to = 'Users', key = 'creator_id'},
-        { 'memberships', has_many = 'CollectionMemberships' },
-        { 'projects',
+        {'creator', belongs_to = 'Users', key = 'creator_id'},
+        {'memberships', has_many = 'CollectionMemberships'},
+        {'projects',
             fetch = function (self)
                 return package.loaded.Projects:paginated(
                     [[ WHERE id IN (
@@ -98,6 +98,14 @@ package.loaded.Collections = Model:extend('collections', {
 
 package.loaded.CollectionMemberships = Model:extend(
     'collection_memberships', {
-    primary_key = { 'collection_id', 'project_id' },
-    timestamp = true
-})
+        primary_key = {'collection_id', 'project_id'},
+        timestamp = true
+    }
+)
+
+package.loaded.BannedIPs = Model:extend(
+    'banned_ips', {
+        primary_key = 'ip',
+        timestamp = true
+    }
+)

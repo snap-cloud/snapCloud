@@ -9,7 +9,7 @@
 -- Add a new migration with the key 'YYYY-MM-DD:X'
 -- Where X is a value [0-9]
 -- NOTES:
--- use _at for timestamps, and always add {timezone = true}
+-- use _at for timestamps, and always add { timezone = true }
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
@@ -40,26 +40,26 @@ return {
     -- Create Collections and CollectionMemberships
     ['2019-01-04:0'] = function ()
         schema.create_table("collections", {
-            { 'id', types.serial({primary_key = true}) },
+            { 'id', types.serial({ primary_key = true }) },
             { 'name', types.text },
             { 'creator_id', types.foreign_key },
-            { 'created_at', types.time({timezone = true}) },
-            { 'updated_at', types.time({timezone = true}) },
-            { 'description', types.text({null = true}) },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) },
+            { 'description', types.text({ null = true }) },
             { 'published', types.boolean },
-            { 'published_at', types.time({timezone = true, null = true}) },
+            { 'published_at', types.time({ timezone = true, null = true }) },
             { 'shared', types.boolean },
-            { 'shared_at', types.time({timezone = true, null = true}) },
-            { 'thumbnail_id', types.foreign_key({null = true}) }
+            { 'shared_at', types.time({ timezone = true, null = true }) },
+            { 'thumbnail_id', types.foreign_key({ null = true }) }
         })
         schema.create_index('collections', 'creator_id')
 
         schema.create_table("collection_memberships", {
-            { 'id', types.serial({primary_key = true}) },
+            { 'id', types.serial({ primary_key = true }) },
             { 'collection_id', types.foreign_key },
             { 'project_id', types.foreign_key },
-            { 'created_at', types.time({timezone = true}) },
-            { 'updated_at', types.time({timezone = true}) }
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) }
         })
         schema.create_index('collection_memberships', 'collection_id')
         schema.create_index('collection_memberships', 'project_id')
@@ -109,7 +109,19 @@ return {
     -- Add an editor_id[] field to collections
     ['2019-02-04:0'] = function ()
         schema.add_column(
-            'collections', 'editor_ids', types.foreign_key({ array = true, null = true })
+            'collections',
+            'editor_ids',
+            types.foreign_key({ array = true, null = true })
         )
     end,
+
+    -- Add a table to store spambot IPs and ban them
+    ['2019-02-05:0'] = function ()
+        schema.create_table("banned_ips", {
+            { 'ip', types.text({ primary_key = true }) },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) },
+            { 'offense_count', types.integer, { default = 1 } }
+        })
+    end
 }

@@ -167,4 +167,7 @@ end
 require 'api'
 require 'discourse'
 
+-- We don't keep spam/exploit paths in the API
+require 'spambots'
+
 return app
