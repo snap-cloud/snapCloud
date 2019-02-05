@@ -24,6 +24,7 @@ local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local db = package.loaded.db
 local Collections = package.loaded.Collections
+local CollectionMemberships = package.loaded.CollectionMemberships
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
@@ -46,7 +47,8 @@ err = {
     banned = { msg = 'Your user has been banned', status = 403 },
     unparseable_xml = { msg = 'Project file could not be parsed', status = 500 },
     file_not_found = { msg = 'Project file not found', status = 404 },
-    mail_body_empty = { msg = 'Missing email body contents', status = 400 }
+    mail_body_empty = { msg = 'Missing email body contents', status = 400 },
+    project_already_in_collection = { msg = 'This project is already in that collection', status = 409 }
 }
 
 assert_all = function (assertions, self)
