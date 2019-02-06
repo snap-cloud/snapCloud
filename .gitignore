@@ -7,19 +7,18 @@ nginx.conf.compiled
 
 .htpasswd
 
-client_body_temp
-fastcgi_temp
-proxy_temp
-scgi_temp
-uwsgi_temp
-
 # Certificates and keys
 certs/*
 !certs/README.md
+!certs/lets-encrypt*
 *.cert
 *.cer
 *.key
 *.csr
+
+# Useful for serving temporary files
+# Location for LetsEncrypt challenge files.
+html/
 
 .*.swp
 .*.swo
