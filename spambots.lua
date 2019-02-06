@@ -36,8 +36,9 @@ local respond_to = package.loaded.respond_to
 
 local suspicious_paths = {
     '/manager(/:*)',
-    '*/xmlrpc.php',
-    '/mysql*'
+    '/(*).php',
+    '/(*).cfm',
+    '/mysql(*)'
 }
 
 for _, path in pairs(suspicious_paths) do
