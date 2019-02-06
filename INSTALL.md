@@ -203,6 +203,17 @@ You can now start and stop the Snap!Cloud by running:
 ```
 $ service snapcloud_daemon [start|stop]
 ```
+### Add sudo access for the `cloud` user
+
+This is done to make it so the cloud user can easily run maintenance scripts.
+
+Add the following line to `/etc/sudoers`
+
+```
+cloud        ALL=NOPASSWD: /usr/sbin/service snapcloud_daemon *
+```
+
+The `cloud` user may now run `sudo service snapcloud_daemon restart`
 
 ### Production Log Rotation
 
