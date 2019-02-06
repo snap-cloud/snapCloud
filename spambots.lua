@@ -38,7 +38,25 @@ local suspicious_paths = {
     '/manager(/:*)',
     '/(*).php',
     '/(*).cfm',
-    '/mysql(*)'
+    '/(*).asp',
+    '/(*).do',
+    '/(*).env',
+    '/(*).action',
+    '/(*).jsp',
+    '/mysql(*)',
+    '/.backup(*)',
+    '/.env(*)',
+    '/.git(*)',
+    '/.hidden(*)',
+    '/.svn(*)',
+    '/.vscode(*)',
+    '/Admin(*)',
+    '/admin(*)',
+    '/DB(*)',
+    '/MySQL(*)',
+    '/MySQL(*)',
+    '/cgi-bin(*)',
+    '/cf_scripts(*)'
 }
 
 for _, path in pairs(suspicious_paths) do
