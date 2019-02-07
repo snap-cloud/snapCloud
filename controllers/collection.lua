@@ -276,14 +276,14 @@ CollectionController = {
         collection_thumbnail = function (self)
             -- POST /users/:username/collections/:name/thumbnail
             -- Description: Sets the collection thumbnail
-            -- Parameters: thumbnail_id
+            -- Parameters: id
             local collection = assert_collection_exists(self)
-            local project = Projects:find({ id = self.params.thumbnail_id })
+            local project = Projects:find({ id = self.params.id})
 
             assert_user_can_add_project_to_collection(self, project, collection)
 
             collection:update({
-                thumbnail_id = self.params.thumbnail_id
+                thumbnail_id = self.params.id
             })
 
             return okResponse('Thumbnail set')
