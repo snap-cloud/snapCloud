@@ -29,6 +29,7 @@ local validate = package.loaded.validate
 local json_params = package.loaded.app_helpers.json_params
 local yield_error = package.loaded.app_helpers.yield_error
 local assert_error = package.loaded.app_helpers.assert_error
+local disk = package.loaded.disk
 
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
@@ -161,16 +162,22 @@ CollectionController = {
             -- GET /users/:username/collections/:name/projects
             -- Description: Get a paginated list of all projects in a
             --              collection.
-            -- Parameters:  username, name
+            -- Parameters:  username, name, withthumbnail
             -- TODO: Not sure how to pass a pagesize to this. :/
             -- Note: May need to re-write this as a method w/o using the
             --       `relations`
             local collection = assert_collection_exists(self)
             assert_can_view_collection(self, collection)
             local paginator = collection:get_projects()
+            local projects = paginator:get_page(self.params.page or 1)
+
+            if self.params.withthumbnail == 'true' then
+                disk:process_thumbnails(projects)
+            end
+
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
-                projects = paginator:get_page(self.params.page or 1)
+                projects = projects
             })
         end,
 
