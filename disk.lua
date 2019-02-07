@@ -57,6 +57,10 @@ function disk:retrieve (id, filename, delta)
     end
 end
 
+function disk:retrieve_thumbnail (id)
+    thumbnail = self:retrieve(id, 'thumbnail')
+end
+
 function disk:generate_thumbnail (id)
     local project_file = io.open(self:directory_for_id(id) .. '/project.xml')
     if (project_file) then
@@ -155,7 +159,8 @@ function disk:backup_project(id)
 
     -- We always save the current copy into the /d-1 folder
     os.execute('mkdir -p ' .. dir .. '/d-1')
-    os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' .. dir .. '/d-1')
+    os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
+        dir .. '/d-1')
 
     -- If the current project was modified more than 12 hours ago,
     -- we save it into the /d-2 folder
@@ -185,8 +190,8 @@ function disk:process_thumbnails (projects)
     -- Lazy Thumbnail generation
     for _, project in pairs(projects) do
         project.thumbnail =
-        self:retrieve(project.id, 'thumbnail') or
-        self:generate_thumbnail(project.id)
+            self:retrieve(project.id, 'thumbnail') or
+            self:generate_thumbnail(project.id)
     end
 end
 

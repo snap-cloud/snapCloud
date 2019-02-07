@@ -155,6 +155,11 @@ CollectionController = {
             local collection = assert_collection_exists(self)
             assert_can_view_collection(self, collection)
             collection.projects_count = collection:count_projects()
+            if collection.thumbnail_id then
+                collection.thumbnail =
+                    disk:retrieve_thumbnail(collection.thumbnail_id)
+            end
+
             return jsonResponse(collection)
         end,
 
@@ -252,6 +257,12 @@ CollectionController = {
             -- Should let us add a project twice into the "Flagged" collection
             assert_project_not_in_collection(self, project, collection)
             assert_user_can_add_project_to_collection(self, project, collection)
+
+            if not collection.thumbnail_id then
+                collection:update({
+                    thumbnail_id = project.id
+                })
+            end
 
             return jsonResponse(assert_error(CollectionMemberships:create({
                 collection_id = collection.id,
