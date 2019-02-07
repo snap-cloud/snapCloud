@@ -51,8 +51,8 @@ CollectionController = {
     GET = {
         collections = cached({
             -- GET /collections
-            -- Description: Get a paginated list of all published collections with name
-            --              matching matchtext, if provided.
+            -- Description: Get a paginated list of all published collections
+            --              with name matching matchtext, if provided.
             -- Parameters:  matchtext, page, pagesize
             exptime = 30, -- cache expires after 30 seconds
             function (self)
@@ -74,7 +74,8 @@ CollectionController = {
                         { per_page = self.params.pagesize or 16 }
                     )
 
-                local collections = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+                local collections = self.params.page and
+                    paginator:get_page(self.params.page) or paginator:get_all()
 
                 return jsonResponse({
                     pages = self.params.page and paginator:num_pages() or nil,
@@ -85,8 +86,9 @@ CollectionController = {
 
         user_collections = function (self)
             -- GET /users/:username/collections
-            -- Description: Get a paginated list of all a particular user's collections
-            --              with name or description matching matchtext, if provided.
+            -- Description: Get a paginated list of all a particular user's
+            --              collections with name or description matching
+            --              matchtext, if provided.
             --              Returns only public collections, if another user.
             -- Parameters:  username, matchtext, page, pagesize
 
@@ -103,7 +105,8 @@ CollectionController = {
 
             assert_user_exists(self)
 
-            local query = db.interpolate_query('where creator_id = ?', self.queried_user.id)
+            local query = db.interpolate_query('where creator_id = ?',
+                self.queried_user.id)
 
             -- Apply where clauses
             if self.params.published ~= nil then
@@ -128,12 +131,14 @@ CollectionController = {
                 {
                     per_page = self.params.pagesize or 16,
                     prepare_results = function (collections)
-                        Users:include_in(collections, 'creator_id', { fields = 'username, id' })
+                        Users:include_in(collections, 'creator_id',
+                            { fields = 'username, id' })
                         return collections
                     end
                 })
 
-            local collections = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+            local collections = self.params.page and
+                paginator:get_page(self.params.page) or paginator:get_all()
 
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
@@ -154,10 +159,12 @@ CollectionController = {
 
         collection_projects = function (self)
             -- GET /users/:username/collections/:name/projects
-            -- Description: Get a paginated list of all projects in a collection.
+            -- Description: Get a paginated list of all projects in a
+            --              collection.
             -- Parameters:  username, name
             -- TODO: Not sure how to pass a pagesize to this. :/
-            -- Note: May need to re-write this as a method w/o using the `relations`
+            -- Note: May need to re-write this as a method w/o using the
+            --       `relations`
             local collection = assert_collection_exists(self)
             assert_can_view_collection(self, collection)
             local paginator = collection:get_projects()
@@ -172,7 +179,8 @@ CollectionController = {
             -- Description: Get a project belonging to a collection
             -- Parameters:  username, name
             local collection = assert_collection_exists(self)
-            return jsonResponse(CollectionMemberships:find(collection.id, self.params.project_id))
+            return jsonResponse(CollectionMemberships:find(collection.id,
+                self.params.project_id))
         end
     },
 
@@ -184,16 +192,18 @@ CollectionController = {
 
             assert_users_match(self)
             local params = self.params
-            local collection = Collections:find(self.queried_user.id, params.name)
+            local collection =
+                Collections:find(self.queried_user.id, params.name)
 
             if collection then
                 -- TODO: I think we can extract these into functions.
-                local published = params.published ~= nil and params.published == true
+                local published = params.published ~= nil and
+                                    params.published == true
                 local published_at = (published and collection.published_at) or
-                current_time_or_nil(published)
+                    current_time_or_nil(published)
                 local shared = params.shared ~= nil and params.shared == true
                 local shared_at = (shared and collection.shared_at) or
-                current_time_or_nil(shared)
+                    current_time_or_nil(shared)
 
                 collection:update({
                     name = params.name or collection.name,
@@ -202,7 +212,8 @@ CollectionController = {
                     published_at = published_at,
                     shared = shared,
                     shared_at = shared_at,
-                    thumbnail_id = params.thumbnail_id or collection.thumbnail_id
+                    thumbnail_id = params.thumbnail_id or
+                        collection.thumbnail_id
                 })
 
                 return jsonResponse(collection)
@@ -231,10 +242,10 @@ CollectionController = {
             local collection = assert_collection_exists(self)
             local project = Projects:find(body.username, body.projectname)
 
+            -- Should let us add a project twice into the "Flagged" collection
             assert_project_not_in_collection(self, project, collection)
             assert_user_can_add_project_to_collection(self, project, collection)
 
-            -- TODO: postgres will error if you do this twice. Do we need to catch that?
             return jsonResponse(assert_error(CollectionMemberships:create({
                 collection_id = collection.id,
                 project_id = project.id,
