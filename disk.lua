@@ -26,12 +26,14 @@
 local xml = require("xml")
 local config = package.loaded.config
 
-function directory_for_id(id)
+local disk = {}
+
+function disk:directory_for_id (id)
     return config.store_path .. '/' .. math.floor(id / 1000) .. '/' .. id
 end
 
-function save_to_disk(id, filename, contents)
-    local dir = directory_for_id(id)
+function disk:save (id, filename, contents)
+    local dir = self:directory_for_id(id)
     os.execute('mkdir -p ' .. dir)
     local file = io.open(dir .. '/' .. filename, 'w+')
     if (file) then
@@ -40,8 +42,8 @@ function save_to_disk(id, filename, contents)
     end
 end
 
-function retrieve_from_disk(id, filename, delta)
-    local dir = directory_for_id(id)
+function disk:retrieve (id, filename, delta)
+    local dir = self:directory_for_id(id)
     -- if delta exists, we look for a previous version of the file
     -- under dir/d[delta]
     if (delta) then dir = dir .. '/d' .. delta end
@@ -55,25 +57,21 @@ function retrieve_from_disk(id, filename, delta)
     end
 end
 
-function delete_directory(id)
-    os.execute('rm -r ' .. directory_for_id(id))
-end
-
-function generate_thumbnail(id)
-    local project_file = io.open(directory_for_id(id) .. '/project.xml')
+function disk:generate_thumbnail (id)
+    local project_file = io.open(self:directory_for_id(id) .. '/project.xml')
     if (project_file) then
         local project = xml.load(project_file:read('*all'))
         local thumbnail = xml.find(project, 'thumbnail')[1]
         project_file:close()
-        save_to_disk(id, 'thumbnail', thumbnail)
+        self:save(id, 'thumbnail', thumbnail)
         return thumbnail
     else
         return false
     end
 end
 
-function parse_notes(id, delta)
-    local dir = directory_for_id(id)
+function disk:parse_notes (id, delta)
+    local dir = self:directory_for_id(id)
     -- if delta exists, we look for a previous version of the file
     -- under dir/d[delta]
     if (delta) then dir = dir .. '/d' .. delta end
@@ -96,28 +94,28 @@ function parse_notes(id, delta)
     end
 end
 
-function update_notes(id, notes)
-    update_xml(id, function (project)
+function disk:update_notes (id, notes)
+    self:update_xml(id, function (project)
         local old_notes = xml.find(project, 'notes')
         old_notes[1] = notes
     end)
 end
 
-function update_name(id, name)
-    update_xml(id, function (project)
+function disk:update_name(id, name)
+    self:update_xml(id, function (project)
         project.name = name
     end)
 end
 
-function update_xml(id, update_function)
-    local dir = directory_for_id(id)
+function disk:update_xml(id, update_function)
+    local dir = self:directory_for_id(id)
     local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
         if pcall(
             function ()
                 local project = xml.load(project_file:read('*all'))
                 project_file:close()
-                backup_project(id)
+                self:backup_project(id)
                 update_function(project)
                 project_file = io.open(dir .. '/project.xml', 'w+')
                 project_file:write(xml.dump(project))
@@ -132,16 +130,16 @@ function update_xml(id, update_function)
     end
 end
 
-function version_metadata(id, delta)
-    local dir = directory_for_id(id) .. '/d' .. delta
+function disk:get_version_metadata(id, delta)
+    local dir = self:directory_for_id(id) .. '/d' .. delta
     local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
         local command = io.popen('stat -c %Y ' .. dir .. '/project.xml')
         local last_modified = tonumber(command:read())
         command:close()
         return {
-            notes = parse_notes(id, delta),
-            thumbnail = retrieve_from_disk(id, 'thumbnail', delta),
+            notes = self:parse_notes(id, delta),
+            thumbnail = self:retrieve(id, 'thumbnail', delta),
             -- seconds since last modification
             lastupdated = os.time() - last_modified,
             delta = delta
@@ -151,9 +149,9 @@ function version_metadata(id, delta)
     end
 end
 
-function backup_project(id)
+function disk:backup_project(id)
     -- This function is called right before saving a project
-    local dir = directory_for_id(id)
+    local dir = self:directory_for_id(id)
 
     -- We always save the current copy into the /d-1 folder
     os.execute('mkdir -p ' .. dir .. '/d-1')

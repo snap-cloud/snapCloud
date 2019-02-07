@@ -149,10 +149,10 @@ ProjectController = {
                 -- need to attach its ID
                 '<snapdata' .. (users_match(self) and '>' or ' remixID="' ..
                     project.id .. '">') ..
-                    (retrieve_from_disk(
+                    (disk:retrieve(
                         project.id, 'project.xml', self.params.delta) or
                             '<project></project>') ..
-                    (retrieve_from_disk(
+                    (disk:retrieve(
                         project.id, 'media.xml', self.params.delta) or 
                             '<media></media>') ..
                     '</snapdata>'
@@ -214,13 +214,13 @@ ProjectController = {
             return jsonResponse({
                 {
                     lastupdated = query.date_part,
-                    thumbnail = retrieve_from_disk(project.id, 'thumbnail') or
-                        generate_thumbnail(project.id),
-                    notes = parse_notes(project.id),
+                    thumbnail = disk:retrieve(project.id, 'thumbnail') or
+                        disk:generate_thumbnail(project.id),
+                    notes = disk:parse_notes(project.id),
                     delta = 0
                 },
-                version_metadata(project.id, -1),
-                version_metadata(project.id, -2)
+                disk:get_version_metadata(project.id, -1),
+                disk:get_version_metadata(project.id, -2)
             })
         end,
 
@@ -255,10 +255,10 @@ ProjectController = {
                 if (remixed_project) then
                     -- Lazy Thumbnail generation
                     remixed_project.thumbnail =
-                        retrieve_from_disk(
+                        disk:retrieve(
                             remix.remixed_project_id,
                             'thumbnail') or
-                                generate_thumbnail(remix.remixed_project_id)
+                                disk:generate_thumbnail(remix.remixed_project_id)
                     table.insert(remixes, remixed_project)
                 end
             end
@@ -285,8 +285,8 @@ ProjectController = {
 
                 -- Lazy Thumbnail generation
                 return rawResponse(
-                    retrieve_from_disk(project.id, 'thumbnail') or
-                        generate_thumbnail(project.id))
+                    disk:retrieve(project.id, 'thumbnail') or
+                        disk:generate_thumbnail(project.id))
             end
         })
     },
@@ -323,7 +323,7 @@ ProjectController = {
                     ((not project.lastshared and self.params.ispublic)
                     or (self.params.ispublic and not project.ispublic))
 
-                backup_project(project.id)
+                disk:backup_project(project.id)
 
                 project:update({
                     lastupdated = db.format_date(),
@@ -378,13 +378,13 @@ ProjectController = {
                 end
             end
 
-            save_to_disk(project.id, 'project.xml', body.xml)
-            save_to_disk(project.id, 'thumbnail', body.thumbnail)
-            save_to_disk(project.id, 'media.xml', body.media)
+            disk:save(project.id, 'project.xml', body.xml)
+            disk:save(project.id, 'thumbnail', body.thumbnail)
+            disk:save(project.id, 'media.xml', body.media)
 
-            if not (retrieve_from_disk(project.id, 'project.xml')
-                and retrieve_from_disk(project.id, 'thumbnail')
-                and retrieve_from_disk(project.id, 'media.xml')) then
+            if not (disk:retrieve(project.id, 'project.xml')
+                and disk:retrieve(project.id, 'thumbnail')
+                and disk:retrieve(project.id, 'media.xml')) then
                 yield_error('Could not save project ' ..
                     self.params.projectname)
             else
@@ -431,8 +431,8 @@ ProjectController = {
             local new_notes = body and body.notes or nil
 
             -- save new notes and project name into the project XML
-            if new_notes then update_notes(project.id, new_notes) end
-            if new_name then update_name(project.id, new_name) end
+            if new_notes then disk:update_notes(project.id, new_notes) end
+            if new_name then disk:update_name(project.id, new_name) end
 
             project:update({
                 projectname = new_name or project.projectname,
@@ -495,7 +495,7 @@ function processNotes (self, projects)
     if self.params.updatingnotes == 'true' then
         for _, project in pairs(projects) do
             if (project.notes == nil) then
-                local notes = parse_notes(project.id)
+                local notes = disk:parse_notes(project.id)
                 if notes then
                     project:update({ notes = notes })
                     project.notes = notes
@@ -510,8 +510,8 @@ function processThumbnails (self, projects)
     if self.params.withthumbnail == 'true' then
         for _, project in pairs(projects) do
             project.thumbnail =
-                retrieve_from_disk(project.id, 'thumbnail') or
-                    generate_thumbnail(project.id)
+                disk:retrieve(project.id, 'thumbnail') or
+                    disk:generate_thumbnail(project.id)
         end
     end
 end
