@@ -66,7 +66,7 @@ ProjectController = {
                     paginator:get_page(self.params.page) or paginator:get_all()
 
                 if self.params.withthumbnail == 'true' then
-                    disk:process_thumbnails(self, projects)
+                    disk:process_thumbnails(projects)
                 end
 
                 return jsonResponse({
