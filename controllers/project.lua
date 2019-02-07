@@ -61,7 +61,8 @@ ProjectController = {
                         { per_page = self.params.pagesize or 16 }
                     )
 
-                local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+                local projects = self.params.page and
+                    paginator:get_page(self.params.page) or paginator:get_all()
 
                 processThumbnails(self, projects)
 
@@ -75,8 +76,10 @@ ProjectController = {
         user_projects = function (self)
             -- GET /projects/:username
             -- Description: Get metadata for a project list by a user.
-            --              Response will depend on parameters and query issuer permissions.
-            -- Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
+            --              Response will depend on parameters and query issuer
+            --              permissions.
+            -- Parameters:  ispublished, page, pagesize, matchtext,
+            --              withthumbnail, updatingnotes
             local order = 'lastupdated'
 
             if not (users_match(self)) then
@@ -88,7 +91,8 @@ ProjectController = {
 
             assert_user_exists(self)
 
-            local query = db.interpolate_query('where username = ?', self.queried_user.username)
+            local query = db.interpolate_query('where username = ?',
+                self.queried_user.username)
 
             -- Apply where clauses
             if self.params.ispublished ~= nil then
@@ -108,8 +112,10 @@ ProjectController = {
                     )
             end
 
-            local paginator = Projects:paginated(query .. ' order by ' .. order .. ' desc', { per_page = self.params.pagesize or 16 })
-            local projects = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+            local paginator = Projects:paginated(query .. ' order by ' ..
+                order .. ' desc', { per_page = self.params.pagesize or 16 })
+            local projects = self.params.page and
+                paginator:get_page(self.params.page) or paginator:get_all()
 
             processNotes(self, projects)
             processThumbnails(self, projects)
@@ -125,10 +131,13 @@ ProjectController = {
             -- Description: Get a particular project.
             --              Response will depend on query issuer permissions.
             -- Parameters:  delta, ispublic, ispublished
-            local project = Projects:find(self.params.username, self.params.projectname)
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
-            if not (project.ispublic or users_match(self)) then assert_admin(self, err.nonexistent_project) end
+            if not (project.ispublic or users_match(self)) then
+                assert_admin(self, err.nonexistent_project)
+            end
 
             -- self.params.delta is a version indicator
             -- delta = null will fetch the current version
@@ -136,28 +145,40 @@ ProjectController = {
             -- delta = -2 will fetch the last version before today
 
             return xmlResponse(
-                -- if users don't match, this project is being remixed and we need to attach its ID
-                '<snapdata' .. (users_match(self) and '>' or ' remixID="' .. project.id .. '">') ..
-                (retrieve_from_disk(project.id, 'project.xml', self.params.delta) or '<project></project>') ..
-                (retrieve_from_disk(project.id, 'media.xml', self.params.delta) or '<media></media>') ..
-                '</snapdata>'
+                -- if users don't match, this project is being remixed and we
+                -- need to attach its ID
+                '<snapdata' .. (users_match(self) and '>' or ' remixID="' ..
+                    project.id .. '">') ..
+                    (retrieve_from_disk(
+                        project.id, 'project.xml', self.params.delta) or
+                            '<project></project>') ..
+                    (retrieve_from_disk(
+                        project.id, 'media.xml', self.params.delta) or 
+                            '<media></media>') ..
+                    '</snapdata>'
             )
         end,
 
         project_meta = function (self)
             -- GET /projects/:username/:projectname/metadata
             -- Description: Get a project metadata.
-            -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
-            local project = Projects:find(self.params.username, self.params.projectname)
+            -- Parameters:  projectname, ispublic, ispublished, lastupdated,
+            --              lastshared
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then assert_users_match(self, err.nonexistent_project) end
+            if not project.ispublic then
+                assert_users_match(self, err.nonexistent_project)
+            end
 
-            local remixed_from = Remixes:select('where remixed_project_id = ?', project.id)[1]
+            local remixed_from =
+                Remixes:select('where remixed_project_id = ?', project.id)[1]
 
             if remixed_from then
                 if remixed_from.original_project_id then
-                    local original_project = Projects:select('where id = ?', remixed_from.original_project_id)[1]
+                    local original_project = Projects:select(
+                        'where id = ?', remixed_from.original_project_id)[1]
                     project.remixedfrom = {
                         username = original_project.username,
                         projectname = original_project.projectname
@@ -177,13 +198,18 @@ ProjectController = {
             -- GET /projects/:username/:projectname/versions
             -- Description: Get info about backed up project versions.
             -- Body:        versions
-            local project = Projects:find(self.params.username, self.params.projectname)
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then assert_users_match(self, err.nonexistent_project) end
+            if not project.ispublic then
+                assert_users_match(self, err.nonexistent_project)
+            end
 
             -- seconds since last modification
-            local query = db.select('extract(epoch from age(now(), ?::timestamp))', project.lastupdated)[1]
+            local query = db.select(
+                'extract(epoch from age(now(), ?::timestamp))',
+                project.lastupdated)[1]
 
             return jsonResponse({
                 {
@@ -202,10 +228,13 @@ ProjectController = {
             -- GET /projects/:username/:projectname/remixes
             -- Description: Get a list of all published remixes from a project.
             -- Parameters:  page, pagesize
-            local project = Projects:find(self.params.username, self.params.projectname)
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
 
             if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then assert_users_match(self, err.nonexistent_project) end
+            if not project.ispublic then
+                assert_users_match(self, err.nonexistent_project)
+            end
 
             local paginator =
                 Remixes:paginated(
@@ -214,16 +243,22 @@ ProjectController = {
                     { per_page = self.params.pagesize or 16 }
                 )
 
-            local remixes_metadata = self.params.page and paginator:get_page(self.params.page) or paginator:get_all()
+            local remixes_metadata = self.params.page and 
+                paginator:get_page(self.params.page) or
+                paginator:get_all()
             local remixes = {}
 
             for i, remix in pairs(remixes_metadata) do
-                remixed_project = Projects:select('where id = ? and ispublished', remix.remixed_project_id)[1];
+                remixed_project = Projects:select(
+                    'where id = ? and ispublished',
+                    remix.remixed_project_id)[1];
                 if (remixed_project) then
                     -- Lazy Thumbnail generation
                     remixed_project.thumbnail =
-                        retrieve_from_disk(remix.remixed_project_id, 'thumbnail') or
-                            generate_thumbnail(remix.remixed_project_id)
+                        retrieve_from_disk(
+                            remix.remixed_project_id,
+                            'thumbnail') or
+                                generate_thumbnail(remix.remixed_project_id)
                     table.insert(remixes, remixed_project)
                 end
             end
@@ -239,7 +274,8 @@ ProjectController = {
             -- Description: Get a project thumbnail.
             exptime = 30, -- cache expires after 30 seconds
             function (self)
-                local project = Projects:find(self.params.username, self.params.projectname)
+                local project =
+                    Projects:find(self.params.username, self.params.projectname)
                 if not project then yield_error(err.nonexistent_project) end
 
                 if not users_match(self)
@@ -279,7 +315,8 @@ ProjectController = {
                 { 'media', exists = true }
             })
 
-            local project = Projects:find(self.params.username, self.params.projectname)
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
 
             if (project) then
                 local shouldUpdateSharedDate =
@@ -290,7 +327,8 @@ ProjectController = {
 
                 project:update({
                     lastupdated = db.format_date(),
-                    lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+                    lastshared =
+                        shouldUpdateSharedDate and db.format_date() or nil,
                     firstpublished =
                         project.firstpublished or
                         (self.params.ispublished and db.format_date()) or
@@ -307,9 +345,11 @@ ProjectController = {
                     self.session.verified = true
                 end
 
-                -- A project flagged as "deleted" with the same name may exist in the DB.
+                -- A project flagged as "deleted" with the same name may exist
+                -- in the DB.
                 -- We need to check for that and delete it for real this time
-                local deleted_project = DeletedProjects:find(self.params.username, self.params.projectname)
+                local deleted_project = DeletedProjects:find(
+                    self.params.username, self.params.projectname)
                 if deleted_project then deleted_project:delete() end
 
                 Projects:create({
@@ -317,13 +357,16 @@ ProjectController = {
                     username = self.params.username,
                     created = db.format_date(),
                     lastupdated = db.format_date(),
-                    lastshared = self.params.ispublic and db.format_date() or nil,
-                    firstpublished = self.params.ispublished and db.format_date() or nil,
+                    lastshared = self.params.ispublic and
+                        db.format_date() or nil,
+                    firstpublished = self.params.ispublished
+                        and db.format_date() or nil,
                     notes = body.notes,
                     ispublic = self.params.ispublic or false,
                     ispublished = self.params.ispublished or false
                 })
-                project = Projects:find(self.params.username, self.params.projectname)
+                project =
+                    Projects:find(self.params.username, self.params.projectname)
 
                 if (body.remixID and body.remixID ~= cjson.null) then
                     -- user is remixing a project
@@ -342,18 +385,22 @@ ProjectController = {
             if not (retrieve_from_disk(project.id, 'project.xml')
                 and retrieve_from_disk(project.id, 'thumbnail')
                 and retrieve_from_disk(project.id, 'media.xml')) then
-                yield_error('Could not save project ' .. self.params.projectname)
+                yield_error('Could not save project ' ..
+                    self.params.projectname)
             else
-                return okResponse('project ' .. self.params.projectname .. ' saved')
+                return okResponse('project ' .. self.params.projectname ..
+                    ' saved')
             end
         end,
 
         project_meta = function (self)
             -- POST /projects/:username/:projectname/metadata
-            -- Description: Add/update a project metadata. When admins and moderators unpublish
-            --              somebody else's project, they also provide a reason that will be
-            --              emailed to the project owner.
-            -- Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared, reason
+            -- Description: Add/update a project metadata. When admins and
+            --              moderators unpublish somebody else's project, they
+            --              also provide a reason that will be emailed to the
+            --              project owner.
+            -- Parameters:  projectname, ispublic, ispublished, lastupdated,
+            --              lastshared, reason
             -- Body:        notes, projectname
             if not users_match(self) then assert_admin(self) end
 
@@ -361,7 +408,8 @@ ProjectController = {
                 yield_error(err.banned)
             end
 
-            local project = Projects:find(self.params.username, self.params.projectname)
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
             if not project then yield_error(err.nonexistent_project) end
 
             if self.params.ispublished == 'false' and self.params.reason then
@@ -406,27 +454,35 @@ ProjectController = {
     DELETE = {
         project = function (self)
             -- DELETE /projects/:username/:projectname
-            -- Description: Delete a particular project. When admins and moderators delete somebody else's
-            --              project, they also provide a reason that will be emailed to the project owner.
+            -- Description: Delete a particular project. When admins and
+            --              moderators delete somebody else's project, they
+            --              also provide a reason that will be emailed to the
+            --              project owner.
             --              Response will depend on query issuer permissions.
             -- Parameters:  reason
             assert_all({'project_exists', 'user_exists'}, self)
-            if not users_match(self) then assert_has_one_of_roles(self, { 'admin', 'moderator' }) end
+            if not users_match(self) then
+                assert_has_one_of_roles(self, { 'admin', 'moderator' })
+            end
 
-            local project = Projects:find(self.params.username, self.params.projectname)
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
 
             if self.params.reason then
                 send_mail(
                     self.queried_user.email,
                     mail_subjects.project_deleted .. project.projectname,
-                    mail_bodies.project_deleted .. self.current_user.role .. '.</p><p>' .. self.params.reason .. '</p>')
+                    mail_bodies.project_deleted .. self.current_user.role ..
+                        '.</p><p>' .. self.params.reason .. '</p>')
             end
 
             -- Do not actually delete the project; flag it as deleted.
             if not (project:update({ deleted = db.format_date() })) then
-                yield_error('Could not delete project ' .. self.params.projectname)
+                yield_error('Could not delete project ' ..
+                    self.params.projectname)
             else
-                return okResponse('Project ' .. self.params.projectname .. ' has been removed.')
+                return okResponse('Project ' .. self.params.projectname
+                    .. ' has been removed.')
             end
         end
     }

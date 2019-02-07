@@ -198,7 +198,7 @@ CollectionController = {
             if collection then
                 -- TODO: I think we can extract these into functions.
                 local published = params.published ~= nil and
-                                    params.published == true
+                    params.published == true
                 local published_at = (published and collection.published_at) or
                     current_time_or_nil(published)
                 local shared = params.shared ~= nil and params.shared == true
