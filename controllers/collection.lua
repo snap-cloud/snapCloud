@@ -141,6 +141,8 @@ CollectionController = {
             local collections = self.params.page and
                 paginator:get_page(self.params.page) or paginator:get_all()
 
+            disk:process_thumbnails(collections, 'thumbnail_id')
+
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
                 collections = collections
