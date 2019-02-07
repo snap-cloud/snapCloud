@@ -189,9 +189,11 @@ end
 function disk:process_thumbnails (items, id_selector)
     -- Lazy Thumbnail generation
     for _, item in pairs(items) do
-        item.thumbnail =
-            self:retrieve_thumbnail(item[id_selector or 'id']) or
-            self:generate_thumbnail(item[id_selector or 'id'])
+        if (item[id_selector]) then
+            item.thumbnail =
+                self:retrieve_thumbnail(item[id_selector or 'id']) or
+                self:generate_thumbnail(item[id_selector or 'id'])
+        end
     end
 end
 
