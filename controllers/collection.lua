@@ -271,8 +271,23 @@ CollectionController = {
                 project_id = project.id,
                 user_id = self.queried_user.id
             })))
-        end
+        end,
 
+        collection_thumbnail = function (self)
+            -- POST /users/:username/collections/:name/thumbnail
+            -- Description: Sets the collection thumbnail
+            -- Parameters: thumbnail_id
+            local collection = assert_collection_exists(self)
+            local project = Projects:find({ id = self.params.thumbnail_id })
+
+            assert_user_can_add_project_to_collection(self, project, collection)
+
+            collection:update({
+                thumbnail_id = self.params.thumbnail_id
+            })
+
+            return okResponse('Thumbnail set')
+        end
     },
 
     DELETE = {
