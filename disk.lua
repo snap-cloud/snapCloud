@@ -167,3 +167,5 @@ function disk:backup_project(id)
         os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' .. dir .. '/d-2')
     end
 end
+
+return disk

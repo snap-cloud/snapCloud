@@ -41,6 +41,7 @@ package.loaded.resty_string = require "resty.string"
 package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
 package.loaded.rollbar = require('resty.rollbar')
+package.loaded.disk = require('disk')
 
 local app = package.loaded.app
 local config = package.loaded.config

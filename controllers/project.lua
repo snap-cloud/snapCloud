@@ -31,7 +31,8 @@ local Projects = package.loaded.Projects
 local DeletedProjects = package.loaded.DeletedProjects
 local Remixes = package.loaded.Remixes
 
-require 'disk'
+local disk = package.loaded.disk
+
 require 'responses'
 require 'validation'
 
