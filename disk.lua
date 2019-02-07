@@ -168,4 +168,26 @@ function disk:backup_project(id)
     end
 end
 
+function disk:process_notes (projects)
+    -- Lazy Notes generation
+    for _, project in pairs(projects) do
+        if (project.notes == nil) then
+            local notes = disk:parse_notes(project.id)
+            if notes then
+                project:update({ notes = notes })
+                project.notes = notes
+            end
+        end
+    end
+end
+
+function disk:process_thumbnails (projects)
+    -- Lazy Thumbnail generation
+    for _, project in pairs(projects) do
+        project.thumbnail =
+        disk:retrieve(project.id, 'thumbnail') or
+        disk:generate_thumbnail(project.id)
+    end
+end
+
 return disk

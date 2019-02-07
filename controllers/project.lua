@@ -65,7 +65,9 @@ ProjectController = {
                 local projects = self.params.page and
                     paginator:get_page(self.params.page) or paginator:get_all()
 
-                processThumbnails(self, projects)
+                if self.params.withthumbnail == 'true' then
+                    disk:process_thumbnails(self, projects)
+                end
 
                 return jsonResponse({
                     pages = self.params.page and paginator:num_pages() or nil,
@@ -118,8 +120,12 @@ ProjectController = {
             local projects = self.params.page and
                 paginator:get_page(self.params.page) or paginator:get_all()
 
-            processNotes(self, projects)
-            processThumbnails(self, projects)
+            if self.params.updatingnotes == 'true' then
+                disk:process_notes(projects)
+            end
+            if self.params.withthumbnail == 'true' then
+                disk:process_thumbnails(projects)
+            end
 
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
@@ -491,28 +497,4 @@ ProjectController = {
 
 -- Utility functions
 
-function processNotes (self, projects)
-    -- Lazy Notes generation
-    if self.params.updatingnotes == 'true' then
-        for _, project in pairs(projects) do
-            if (project.notes == nil) then
-                local notes = disk:parse_notes(project.id)
-                if notes then
-                    project:update({ notes = notes })
-                    project.notes = notes
-                end
-            end
-        end
-    end
-end
 
-function processThumbnails (self, projects)
-    -- Lazy Thumbnail generation
-    if self.params.withthumbnail == 'true' then
-        for _, project in pairs(projects) do
-            project.thumbnail =
-                disk:retrieve(project.id, 'thumbnail') or
-                    disk:generate_thumbnail(project.id)
-        end
-    end
-end
