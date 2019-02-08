@@ -157,7 +157,7 @@ CollectionController = {
             assert_can_view_collection(self, collection)
             collection.projects_count = collection:count_projects()
             collection.creator =
-                Users:find(collection.creator_id, { fields: 'username, id'})
+                Users:find(collection.creator_id, { fields = 'username, id'})
             if collection.thumbnail_id then
                 collection.thumbnail =
                     disk:retrieve_thumbnail(collection.thumbnail_id)
