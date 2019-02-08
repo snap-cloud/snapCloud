@@ -58,7 +58,7 @@ function disk:retrieve (id, filename, delta)
 end
 
 function disk:retrieve_thumbnail (id)
-    thumbnail = self:retrieve(id, 'thumbnail')
+    return self:retrieve(id, 'thumbnail')
 end
 
 function disk:generate_thumbnail (id)
