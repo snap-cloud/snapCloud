@@ -35,20 +35,33 @@ require 'email'
 
 err = {
     not_logged_in = { msg = 'You are not logged in', status = 401 },
-    auth = { msg = 'You do not have permission to perform this action', status = 403 },
-    nonexistent_user = { msg = 'No user with this username exists', status = 404 },
-    nonexistent_email = { msg = 'No users are associated to this email account', status = 404 },
-    nonexistent_project = { msg = 'This project does not exist', status = 404 },
-    nonexistent_collection = { msg = 'This collection does not exist', status = 404 },
+    auth = {
+        msg = 'You do not have permission to perform this action',
+        status = 403 },
+    nonexistent_user =
+        { msg = 'No user with this username exists', status = 404 },
+    nonexistent_email =
+        { msg = 'No users are associated to this email account', status = 404 },
+    nonexistent_project =
+        { msg = 'This project does not exist', status = 404 },
+    nonexistent_collection =
+        { msg = 'This collection does not exist', status = 404 },
     expired_token = { msg = 'This token has expired', status = 401 },
-    invalid_token = { msg = 'This token is either invalid or has expired', status = 401 },
-    nonvalidated_user = { msg = 'This user has not been validated within the first 3 days after its creation.\nPlease use the cloud menu to ask for a new validation link.', status = 401 },
+    invalid_token =
+        { msg = 'This token is either invalid or has expired', status = 401 },
+    nonvalidated_user = {
+        msg = 'This user has not been validated within the first 3 days ' ..
+                'after its creation.\nPlease use the cloud menu to ask for ' ..
+                'a new validation link.',
+        status = 401 },
     invalid_role = { msg = 'This user role is not valid', status = 401 },
     banned = { msg = 'Your user has been banned', status = 403 },
-    unparseable_xml = { msg = 'Project file could not be parsed', status = 500 },
+    unparseable_xml =
+        { msg = 'Project file could not be parsed', status = 500 },
     file_not_found = { msg = 'Project file not found', status = 404 },
     mail_body_empty = { msg = 'Missing email body contents', status = 400 },
-    project_already_in_collection = { msg = 'This project is already in that collection', status = 409 }
+    project_already_in_collection =
+        { msg = 'This project is already in that collection', status = 409 }
 }
 
 assert_all = function (assertions, self)
@@ -70,8 +83,8 @@ assert_logged_in = function (self, message)
 end
 
 -- User roles:
--- standard:  Can view published and shared projects, can do anything to own projects,
---            can see basic user profile data. Can delete oneself.
+-- standard:  Can view published and shared projects, can do anything to own
+--            projects, can see basic user profile data. Can delete oneself.
 -- reviewer:  Same as standard, plus: Can unpublish projects.
 -- moderator: Same as reviewer, plus: Can delete published and shared projects.
 --            Can block users. Can delete users. Can verify users.
@@ -87,7 +100,8 @@ assert_role = function (self, role, message)
 end
 
 assert_has_one_of_roles = function (self, roles)
-    if not self.current_user or not self.current_user:has_one_of_roles(roles) then
+    if not self.current_user or
+        not self.current_user:has_one_of_roles(roles) then
         yield_error(err.auth)
     end
 end
@@ -99,24 +113,44 @@ end
 assert_can_set_role = function (self, role)
     local can_set = {
         admin = {
-            admin = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
-            moderator = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
-            reviewer = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
-            standard = { admin = true, moderator = true, reviewer = true, standard = true, banned = true },
-            banned = { admin = true, moderator = true, reviewer = true, standard = true, banned = true }
+            admin =
+                { admin = true, moderator = true, reviewer = true,
+                    standard = true, banned = true },
+            moderator =
+                { admin = true, moderator = true, reviewer = true,
+                    standard = true, banned = true },
+            reviewer =
+                { admin = true, moderator = true, reviewer = true,
+                    standard = true, banned = true },
+            standard =
+                { admin = true, moderator = true, reviewer = true,
+                    standard = true, banned = true },
+            banned =
+                { admin = true, moderator = true, reviewer = true,
+                    standard = true, banned = true }
         },
         moderator = {
             admin = {}, moderator = {},
-            reviewer = { moderator = true, reviewer = true, standard = true, banned = true },
-            standard = { moderator = true, reviewer = true, standard = true, banned = true },
-            banned = { moderator = true, reviewer = true, standard = true, banned = true }
+            reviewer =
+                { moderator = true, reviewer = true, standard = true,
+                    banned = true },
+            standard = 
+                { moderator = true, reviewer = true, standard = true,
+                    banned = true },
+            banned =
+                { moderator = true, reviewer = true, standard = true,
+                    banned = true }
         },
         reviewer = {
             admin = {}, moderator = {}, reviewer = {}, banned = {},
             standard = { reviewer = true, standard = true }
         },
-        standard = { admin = {}, moderator = {}, reviewer = {}, standard = {}, banned = {} },
-        banned = { admin = {}, moderator = {}, reviewer = {}, standard = {}, banned = {} }
+        standard =
+            { admin = {}, moderator = {}, reviewer = {}, standard = {},
+                banned = {} },
+        banned =
+            { admin = {}, moderator = {}, reviewer = {}, standard = {},
+                banned = {} }
     }
     if not can_set[self.current_user.role][self.queried_user.role][role] then
         yield_error(err.auth)
@@ -142,7 +176,8 @@ assert_user_exists = function (self, message)
 end
 
 assert_users_have_email = function (self, message)
-    local users = Users:select('where email = ? ', self.params.email or '', { fields = 'username' })
+    local users =
+        Users:find({ email = self.params.email or '' }, { fields = 'username' })
     if users and users[1] then
         return users
     else
@@ -164,7 +199,9 @@ end
 check_token = function (token_value, purpose, on_success)
     local token = Tokens:find(token_value)
     if token then
-        local query = db.select("date_part('day', now() - ?::timestamp)", token.created)[1]
+        local query =
+            db.select("date_part('day', now() - ?::timestamp)",
+                token.created)[1]
         if query.date_part < 4 and token.purpose == purpose then
             -- TODO: use self.queried_user and assert matches token.username
             local user = Users:find({ username = token.username })
@@ -172,15 +209,18 @@ check_token = function (token_value, purpose, on_success)
             return on_success(user)
         elseif token.purpose ~= purpose then
             -- We simply ignore tokens with different purposes
-            return htmlPage('Invalid token', '<p>' .. err.invalid_token.msg .. '</p>')
+            return htmlPage('Invalid token', '<p>' ..
+                err.invalid_token.msg .. '</p>')
         else
             -- We delete expired tokens with 'verify_user' purpose
             token:delete()
-            return htmlPage('Expired token', '<p>' .. err.expired_token.msg .. '</p>')
+            return htmlPage('Expired token', '<p>' ..
+                err.expired_token.msg .. '</p>')
         end
     else
-        -- This token does not exist anymore, or never existed in the first place
-        return htmlPage('Invalid token', '<p>' .. err.invalid_token.msg .. '</p>')
+        -- This token does not exist anymore, or never existed
+        return htmlPage('Invalid token', '<p>' ..
+            err.invalid_token.msg .. '</p>')
     end
 end
 
@@ -192,9 +232,10 @@ end
 create_token = function (self, purpose, username, email)
     local token_value
 
-    -- First check whether there's an existing token for the same user and purpose.
-    -- If we find it, we'll just reset its creation date and reuse it.
-    local existing_token = Tokens:select('where username = ? and purpose = ?', username, purpose)
+    -- First check whether there's an existing token for the same user and
+    -- purpose. If we find it, we'll just reset its creation date and reuse it.
+    local existing_token =
+        Tokens:find({ username = username, purpose = purpose })
 
     if existing_token and existing_token[1] then
         token_value = existing_token[1].value
@@ -264,13 +305,37 @@ assert_user_can_add_project_to_collection = function (self, project, collection)
         can_edit = can_edit or (editor_id == self.current_user.id)
     end
 
-    -- Users can add their own projects and published projects to collections they can edit
+    -- Users can add their own projects and published projects to collections
+    -- they can edit
     if can_edit then
         return project.username == self.current_user.username or
             project.ispublished
     end
 
     yield_error(err.nonexistent_project)
+end
+
+assert_user_can_remove_project_from_collection =
+    function (self, project, collection)
+        -- Admins can remove any project from any collection.
+        if self.current_user:isadmin() then return end
+
+        -- Moderators and reviewers can remove projects from the "Flagged"
+        -- collection, with id == 0
+        if collection.id == 0 then
+            assert_has_one_of_roles(self, { 'moderator', 'reviewer' })
+        end
+
+        -- Users can edit their own collections
+        local can_edit = collection.creator_id == self.current_user.id
+
+        -- Find out whether user is in the editors array
+        for _, editor_id in collection.editor_ids do
+            if can_edit then return end
+            can_edit = can_edit or (editor_id == self.current_user.id)
+        end
+
+        if not can_edit then yield_error(err.nonexistent_project) end
 end
 
 assert_project_not_in_collection = function (self, project, collection)
