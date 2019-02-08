@@ -278,7 +278,7 @@ CollectionController = {
             -- Description: Sets the collection thumbnail
             -- Parameters: id
             local collection = assert_collection_exists(self)
-            local project = Projects:find({ id = self.params.id})
+            local project = Projects:find({ id = self.params.id })
 
             assert_user_can_add_project_to_collection(self, project, collection)
 
@@ -306,6 +306,12 @@ CollectionController = {
             -- DELETE /users/:username/collections/:name/projects/:project_id
             -- Description: Remove a project from a collection.
             -- Parameters:  username, name
+            local collection = assert_collection_exists(self)
+            assert_user_can_remove_project_from_collection(self, collection)
+            return jsonResponse(
+                assert_error(
+                    CollectionMemberships:delete(
+                        collection.id, self.params.project_id))) 
         end
     }
 }
