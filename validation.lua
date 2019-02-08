@@ -237,9 +237,9 @@ create_token = function (self, purpose, username, email)
     local existing_token =
         Tokens:find({ username = username, purpose = purpose })
 
-    if existing_token and existing_token[1] then
-        token_value = existing_token[1].value
-        existing_token[1]:update({
+    if existing_token then
+        token_value = existing_token.value
+        existing_token:update({
             created = db.format_date()
         })
     else
