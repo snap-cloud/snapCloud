@@ -308,10 +308,8 @@ CollectionController = {
             -- Parameters:  username, name
             local collection = assert_collection_exists(self)
             assert_user_can_remove_project_from_collection(self, collection)
-            return jsonResponse(
-                assert_error(
-                    CollectionMemberships:delete(
-                        collection.id, self.params.project_id))) 
+            local membership = CollectionMemberships:find(collection.id, self.params.project_id)
+            return jsonResponse(assert_error(membership:delete()))
         end
     }
 }
