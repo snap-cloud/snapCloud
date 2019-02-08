@@ -250,7 +250,7 @@ CollectionController = {
             -- Parameters:  ispublic, ispublished
             -- Body:        description, name
             -- TODO
-        end
+        end,
 
         collection_projects = function (self)
             -- POST /users/:username/collections/:name/projects
