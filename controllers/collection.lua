@@ -149,11 +149,10 @@ CollectionController = {
             })
         end,
 
-        collection = function (self)
-            -- GET /users/:username/collections/:name
+        collection_meta = function (self)
+            -- GET /users/:username/collections/:name/metadata
             -- Description: Get info about a collection.
-            -- Parameters:  username, name, ...
-
+            -- Parameters:  username, name
             local collection = assert_collection_exists(self)
             assert_can_view_collection(self, collection)
             collection.projects_count = collection:count_projects()
@@ -245,6 +244,14 @@ CollectionController = {
             })))
         end),
 
+        collection_meta = function (self)
+            -- POST /users/:username/collections/:name/metadata
+            -- Description: Change metadata from a collection
+            -- Parameters:  ispublic, ispublished
+            -- Body:        description, name
+            -- TODO
+        end
+
         collection_projects = function (self)
             -- POST /users/:username/collections/:name/projects
             -- Description: Add a project to a collection.
@@ -298,8 +305,7 @@ CollectionController = {
             if not users_match(self) then
                 assert_has_one_of_roles(self, { 'moderator', 'admin' })
             end
-            collection:delete()
-            return okResponse('Collection deleted')
+            return jsonResponse(assert_error(collection:delete()))
         end,
 
         collection_project = function (self)
