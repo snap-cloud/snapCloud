@@ -265,7 +265,8 @@ ProjectController = {
                         disk:retrieve(
                             remix.remixed_project_id,
                             'thumbnail') or
-                                disk:generate_thumbnail(remix.remixed_project_id)
+                                disk:generate_thumbnail(
+                                    remix.remixed_project_id)
                     table.insert(remixes, remixed_project)
                 end
             end
@@ -423,7 +424,8 @@ ProjectController = {
                 send_mail(
                     self.queried_user.email,
                     mail_subjects.project_unpublished .. project.projectname,
-                    mail_bodies.project_unpublished .. self.current_user.role .. '.</p><p>' .. self.params.reason .. '</p>')
+                    mail_bodies.project_unpublished .. self.current_user.role ..
+                        '.</p><p>' .. self.params.reason .. '</p>')
             end
 
             local shouldUpdateSharedDate =
@@ -454,7 +456,8 @@ ProjectController = {
                 ispublished = self.params.ispublished or project.ispublished
             })
 
-            return okResponse('project ' .. self.params.projectname .. ' updated')
+            return okResponse('project ' .. self.params.projectname
+                .. ' updated')
         end
     },
 
@@ -494,7 +497,3 @@ ProjectController = {
         end
     }
 }
-
--- Utility functions
-
-
