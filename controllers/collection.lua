@@ -283,6 +283,27 @@ CollectionController = {
                 shared_at = shouldUpdateSharedDate and db.format_date() or nil
             })
 
+            return okResponse('collection ' .. self.params.name .. ' updated')
+        end
+    },
+
+    DELETE = {
+        project = function (self)
+            -- DELETE /projects/:username/:projectname
+            -- Description: Delete a particular project. When admins and
+            --              moderators delete somebody else's project, they
+            --              also provide a reason that will be emailed to the
+            --              project owner.
+            --              Response will depend on query issuer permissions.
+            -- Parameters:  reason
+            assert_all({'project_exists', 'user_exists'}, self)
+            if not users_match(self) then
+                assert_has_one_of_roles(self, { 'admin', 'moderator' })
+            end
+
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
+
         end,
 
         collection_projects = function (self)
