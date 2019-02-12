@@ -251,9 +251,38 @@ CollectionController = {
         collection_meta = function (self)
             -- POST /users/:username/collections/:name/metadata
             -- Description: Change metadata from a collection
-            -- Parameters:  ispublic, ispublished
+            -- Parameters:  shared, published
             -- Body:        description, name
-            -- TODO
+            if not users_match(self) then assert_admin(self) end
+
+            if self.current_user:isbanned() and self.params.published then
+                yield_error(err.banned)
+            end
+
+            ngx.req.read_body()
+            local body_data = ngx.req.get_body_data()
+            local body = body_data and util.from_json(body_data) or nil
+
+            local collection = assert_collection_exists(self)
+
+            local shouldUpdateSharedDate =
+                ((not collection.shared_at and self.params.shared)
+                or (self.params.shared and not collection.shared))
+
+            local new_name = body and body.name or nil
+            local new_description = body and body.description or nil
+
+            collection_projects:update({
+                name = new_name or collection.name,
+                description = new_description or collection.description,
+                published = self.params.published or collection.published,
+                shared = self.params.shared or collection.shared,
+                published_at = project.published_at or
+                    (self.params.published and db.format_date()) or
+                    nil,
+                shared_at = shouldUpdateSharedDate and db.format_date() or nil
+            })
+
         end,
 
         collection_projects = function (self)
@@ -269,7 +298,7 @@ CollectionController = {
 
             -- Should let us add a project twice into the "Flagged" collection
             assert_project_not_in_collection(self, project, collection)
-            assert_user_can_add_project_to_collection(self, project, collection)
+            assert_can_add_project_to_collection(self, project, collection)
 
             if not collection.thumbnail_id then
                 collection:update({
@@ -291,7 +320,7 @@ CollectionController = {
             local collection = assert_collection_exists(self)
             local project = Projects:find({ id = self.params.id })
 
-            assert_user_can_add_project_to_collection(self, project, collection)
+            assert_can_add_project_to_collection(self, project, collection)
 
             collection:update({
                 thumbnail_id = self.params.id
@@ -317,7 +346,7 @@ CollectionController = {
             -- Description: Remove a project from a collection.
             -- Parameters:  username, name
             local collection = assert_collection_exists(self)
-            assert_user_can_remove_project_from_collection(self, collection)
+            assert_can_remove_project_from_collection(self, collection)
             local membership = CollectionMemberships:find(collection.id, self.params.project_id)
             return jsonResponse(assert_error(membership:delete()))
         end
