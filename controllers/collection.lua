@@ -277,7 +277,7 @@ CollectionController = {
                 description = new_description or collection.description,
                 published = self.params.published or collection.published,
                 shared = self.params.shared or collection.shared,
-                published_at = project.published_at or
+                published_at = collection.published_at or
                     (self.params.published and db.format_date()) or
                     nil,
                 shared_at = shouldUpdateSharedDate and db.format_date() or nil
