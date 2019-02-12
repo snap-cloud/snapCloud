@@ -279,7 +279,8 @@ assert_collection_exists = function (self)
 end
 
 assert_can_view_collection = function (self, collection)
-    if (collection.published == false and not users_match(self)) then
+    if (not collection.shared and not collection.published
+            and not users_match(self)) then
         if collection.id == 0 then
             -- Reviewers, moderators and admins can view the Flagged collection
             assert_has_one_of_roles(self, { 'reviewer', 'moderator', 'admin' })
