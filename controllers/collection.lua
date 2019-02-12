@@ -283,8 +283,7 @@ CollectionController = {
                 shared_at = shouldUpdateSharedDate and db.format_date() or nil
             })
 
-            return okResponse('collection ' .. self.params.projectname
-                .. ' updated')
+            return okResponse('collection ' .. self.params.name .. ' updated')
         end,
 
         collection_projects = function (self)
