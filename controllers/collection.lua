@@ -272,7 +272,7 @@ CollectionController = {
             local new_name = body and body.name or nil
             local new_description = body and body.description or nil
 
-            collection_projects:update({
+            collection:update({
                 name = new_name or collection.name,
                 description = new_description or collection.description,
                 published = self.params.published or collection.published,
