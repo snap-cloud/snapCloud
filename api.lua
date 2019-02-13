@@ -104,4 +104,4 @@ app:match(api_route('collection_meta', '/users/:username/collections/:name/metad
 app:match(api_route('collection_projects', '/users/:username/collections/:name/projects', CollectionController, { 'GET', 'POST' }))
 app:match(api_route('collection_project', '/users/:username/collections/:name/projects/:project_id', CollectionController, { 'GET', 'POST', 'DELETE' }))
 app:match(api_route('collection_thumbnail', '/users/:username/collections/:name/thumbnail', CollectionController, { 'POST' }))
-app:match(api_route('collection_editors', '/users/:username/collections/:name/editors(/:username)', CollectionController, { 'POST', 'DELETE' }))
+app:match(api_route('collection_editors', '/users/:username/collections/:name/editors(/:editor_username)', CollectionController, { 'POST', 'DELETE' }))
