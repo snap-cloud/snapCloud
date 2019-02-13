@@ -297,22 +297,22 @@ CollectionController = {
             -- Body:        editor_username
             if not users_match(self) then assert_admin(self) end
 
-            local editor = Users:find(self.editor_username)
+            local editor = Users:find(
+                { username = self.params.editor_username })
             if not editor then yield_error(err.nonexistent_user) end
 
             local collection = assert_collection_exists(self)
 
             collection:update({
                 editor_ids =
-                    db.interpolate_query(
+                    db.raw(db.interpolate_query(
                         'array_append(editor_ids, ?)',
-                        editor.id)
+                        editor.id))
             })
 
             return okResponse('added ' .. self.params.editor_username ..
                 ' as an editor')
         end),
-
 
         collection_projects = function (self)
             -- POST /users/:username/collections/:name/projects
@@ -376,8 +376,34 @@ CollectionController = {
             -- Parameters:  username, name
             local collection = assert_collection_exists(self)
             assert_can_remove_project_from_collection(self, collection)
-            local membership = CollectionMemberships:find(collection.id, self.params.project_id)
+            local membership =
+                CollectionMemberships:find(
+                    collection.id,
+                    self.params.project_id)
             return jsonResponse(assert_error(membership:delete()))
-        end
+        end,
+
+        collection_editors = function (self)
+            -- DELETE /users/:username/collections/:name
+            --            /editors/:editor_username
+            -- Description: Remove an editor from a collection
+            if not users_match(self) then assert_admin(self) end
+
+            local editor = Users:find(
+                { username = self.params.editor_username })
+            if not editor then yield_error(err.nonexistent_user) end
+
+            local collection = assert_collection_exists(self)
+
+            collection:update({
+                editor_ids =
+                    db.raw(db.interpolate_query(
+                        'array_remove(editor_ids, ?)',
+                        editor.id))
+            })
+
+            return okResponse(self.params.editor_username ..
+                ' removed from collection editors')
+        end,
     }
 }
