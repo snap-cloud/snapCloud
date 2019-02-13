@@ -106,7 +106,9 @@ CollectionController = {
 
             assert_user_exists(self)
 
-            local query = db.interpolate_query('where creator_id = ?',
+            local query = db.interpolate_query(
+                'where creator_id = ? or editor_ids @> array[?]',
+                self.queried_user.id,
                 self.queried_user.id)
 
             -- Apply where clauses
