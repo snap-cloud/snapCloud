@@ -164,9 +164,11 @@ CollectionController = {
                 collection.thumbnail =
                     disk:retrieve_thumbnail(collection.thumbnail_id)
             end
-            collection.editors = Users:find_all(
-                collection.editor_ids,
-                { fields = 'username, id' })
+            if collection.editor_ids then
+                collection.editors = Users:find_all(
+                    collection.editor_ids,
+                    { fields = 'username, id' })
+            end
 
             return jsonResponse(collection)
         end,
@@ -289,27 +291,27 @@ CollectionController = {
             return okResponse('collection ' .. self.params.name .. ' updated')
         end,
 
-        collection_editors = function (self)
+        collection_editors = json_params(function (self)
             -- POST /users/:username/collections/:name/editors
             -- Description: Add an editor to a collection
-            -- Body:        username (of the new editor)
+            -- Body:        editor_username
             if not users_match(self) then assert_admin(self) end
 
-            ngx.req.read_body()
-            local body_data = ngx.req.get_body_data()
-            local body = body_data and util.from_json(body_data) or nil
-
-            local editor = Users:find(body.username)
+            local editor = Users:find(self.editor_username)
             if not editor then yield_error(err.nonexistent_user) end
 
             local collection = assert_collection_exists(self)
 
             collection:update({
-                editor_ids = collection.editor_ids
+                editor_ids =
+                    db.interpolate_query(
+                        'array_append(editor_ids, ?)',
+                        editor.id)
             })
 
-            return okResponse('collection ' .. self.params.name .. ' updated')
-        end,
+            return okResponse('added ' .. self.params.editor_username ..
+                ' as an editor')
+        end),
 
 
         collection_projects = function (self)

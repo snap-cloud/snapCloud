@@ -37,8 +37,10 @@ local function api_route(name, path, controller, methods)
     tbl = { OPTIONS = cors_options }
     -- methods is a table describing which REST methods this endpoint accepts
     for _, method in pairs(methods) do
-        -- ex: tbl['GET'] = capture_errors(UserController['GET']['current_user'])
-        -- equivalent to (...) GET = capture_errors(UserController.GET.current_user)
+        -- ex: tbl['GET'] =
+        --      capture_errors(UserController['GET']['current_user'])
+        -- equivalent to:
+        --      (...) GET = capture_errors(UserController.GET.current_user)
         tbl[method] = capture_errors(controller[method][name])
     end
     return name, '(/api/' .. api_version .. ')' .. path, respond_to(tbl)
@@ -56,7 +58,8 @@ APIController = {
     POST = {
         init = function (self)
             if not self.session.username or
-                (self.session.username and self.cookies.persist_session == 'false') then
+                (self.session.username and
+                    self.cookies.persist_session == 'false') then
                 self.session.username = ''
             end
         end
@@ -101,3 +104,4 @@ app:match(api_route('collection_meta', '/users/:username/collections/:name/metad
 app:match(api_route('collection_projects', '/users/:username/collections/:name/projects', CollectionController, { 'GET', 'POST' }))
 app:match(api_route('collection_project', '/users/:username/collections/:name/projects/:project_id', CollectionController, { 'GET', 'POST', 'DELETE' }))
 app:match(api_route('collection_thumbnail', '/users/:username/collections/:name/thumbnail', CollectionController, { 'POST' }))
+app:match(api_route('collection_editors', '/users/:username/collections/:name/editors', CollectionController, { 'POST', 'DELETE' }))
