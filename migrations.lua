@@ -106,7 +106,7 @@ return {
         ]])
     end,
 
-    -- Add an editor_id[] field to collections
+    -- Add an editor_ids[] field to collections
     ['2019-02-04:0'] = function ()
         schema.add_column(
             'collections',

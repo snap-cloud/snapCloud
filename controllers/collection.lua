@@ -164,6 +164,9 @@ CollectionController = {
                 collection.thumbnail =
                     disk:retrieve_thumbnail(collection.thumbnail_id)
             end
+            collection.editors = Users:find_all(
+                collection.editor_ids,
+                { fields = 'username, id' })
 
             return jsonResponse(collection)
         end,
@@ -285,6 +288,29 @@ CollectionController = {
 
             return okResponse('collection ' .. self.params.name .. ' updated')
         end,
+
+        collection_editors = function (self)
+            -- POST /users/:username/collections/:name/editors
+            -- Description: Add an editor to a collection
+            -- Body:        username (of the new editor)
+            if not users_match(self) then assert_admin(self) end
+
+            ngx.req.read_body()
+            local body_data = ngx.req.get_body_data()
+            local body = body_data and util.from_json(body_data) or nil
+
+            local editor = Users:find(body.username)
+            if not editor then yield_error(err.nonexistent_user) end
+
+            local collection = assert_collection_exists(self)
+
+            collection:update({
+                editor_ids = collection.editor_ids
+            })
+
+            return okResponse('collection ' .. self.params.name .. ' updated')
+        end,
+
 
         collection_projects = function (self)
             -- POST /users/:username/collections/:name/projects
