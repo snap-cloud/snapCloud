@@ -179,13 +179,11 @@ CollectionController = {
             -- GET /users/:username/collections/:name/projects
             -- Description: Get a paginated list of all projects in a
             --              collection.
-            -- Parameters:  username, name, withthumbnail
-            -- TODO: Not sure how to pass a pagesize to this. :/
-            -- Note: May need to re-write this as a method w/o using the
-            --       `relations`
+            -- Parameters:  username, name, withthumbnail, pagesize
             local collection = assert_collection_exists(self)
             assert_can_view_collection(self, collection)
             local paginator = collection:get_projects()
+            paginator.per_page = self.params.pagesize or 16
             local projects = paginator:get_page(self.params.page or 1)
 
             if self.params.withthumbnail == 'true' then
