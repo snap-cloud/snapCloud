@@ -72,11 +72,18 @@ CollectionController = {
                 local paginator =
                     Collections:paginated(
                         query .. ' order by published_at desc',
-                        { per_page = self.params.pagesize or 16 }
+                        { per_page = self.params.pagesize or 16 },
+                        prepare_results = function (collections)
+                            Users:include_in(collections, 'creator_id',
+                                { fields = 'username, id' })
+                            return collections
+                        end
                     )
 
                 local collections = self.params.page and
                     paginator:get_page(self.params.page) or paginator:get_all()
+
+                disk:process_thumbnails(collections, 'thumbnail_id')
 
                 return jsonResponse({
                     pages = self.params.page and paginator:num_pages() or nil,
