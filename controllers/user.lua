@@ -64,7 +64,6 @@ UserController = {
             --              issuer permissions.
             -- Parameters:  matchtext, page, pagesize
 
-            assert_logged_in(self)
             if not self.params.matchtext then assert_has_one_of_roles(self, { 'admin', 'moderator' }) end
 
             local paginator
