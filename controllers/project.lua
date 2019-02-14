@@ -306,7 +306,8 @@ ProjectController = {
                     query,
                     {
                         fields = 'collections.creator_id, collections.name, ' ..
-                            'collection_memberships.project_id',
+                            'collection_memberships.project_id, '..
+                            'collections.thumbnail_id',
                         per_page = self.params.pagesize or 16,
                         prepare_results = function (collections)
                             Users:include_in(collections, 'creator_id',
@@ -319,7 +320,7 @@ ProjectController = {
                     paginator:get_page(self.params.page) or
                     paginator:get_all()
 
-                disk:process_thumbnails(collections, 'project_id')
+                disk:process_thumbnails(collections, 'thumbnail_id')
 
                 return jsonResponse({
                     pages = self.params.page and paginator:num_pages() or nil,
