@@ -28,6 +28,7 @@ local yield_error = package.loaded.yield_error
 local cjson = require('cjson')
 
 local Projects = package.loaded.Projects
+local Users = package.loaded.Users
 local DeletedProjects = package.loaded.DeletedProjects
 local Remixes = package.loaded.Remixes
 local CollectionMemberships = package.loaded.CollectionMemberships
@@ -304,9 +305,14 @@ ProjectController = {
                 paginator = CollectionMemberships:paginated(
                     query,
                     {
-                        fields = 'users.username, collections.name, ' ..
+                        fields = 'collections.creator_id, collections.name, ' ..
                             'collection_memberships.project_id',
-                        per_page = self.params.pagesize or 16
+                        per_page = self.params.pagesize or 16,
+                        prepare_results = function (collections)
+                            Users:include_in(collections, 'creator_id',
+                                { fields = 'username, id' })
+                            return collections
+                        end
                     })
 
                 local collections = self.params.page and
