@@ -30,6 +30,7 @@ local cjson = require('cjson')
 local Projects = package.loaded.Projects
 local DeletedProjects = package.loaded.DeletedProjects
 local Remixes = package.loaded.Remixes
+local CollectionMemberships = package.loaded.CollectionMemberships
 
 local disk = package.loaded.disk
 
@@ -160,7 +161,7 @@ ProjectController = {
                         project.id, 'project.xml', self.params.delta) or
                             '<project></project>') ..
                     (disk:retrieve(
-                        project.id, 'media.xml', self.params.delta) or 
+                        project.id, 'media.xml', self.params.delta) or
                             '<media></media>') ..
                     '</snapdata>'
             )
@@ -250,7 +251,7 @@ ProjectController = {
                     { per_page = self.params.pagesize or 16 }
                 )
 
-            local remixes_metadata = self.params.page and 
+            local remixes_metadata = self.params.page and
                 paginator:get_page(self.params.page) or
                 paginator:get_all()
             local remixes = {}
@@ -276,6 +277,50 @@ ProjectController = {
                 projects = remixes
             })
         end,
+
+        project_collections = cached({
+            -- GET /projects/:username/:projectname/collections
+            -- Description: Get a list of all collections this project belongs
+            --              to
+            -- Parameters:  page, pagesize
+            exptime = 60, -- cache expires after 60 seconds
+            function (self)
+                local project =
+                    Projects:find(self.params.username, self.params.projectname)
+
+                if not project then yield_error(err.nonexistent_project) end
+                if not project.ispublic then
+                    assert_users_match(self, err.nonexistent_project)
+                end
+
+                local query = db.interpolate_query(
+                    'inner join collections on ' ..
+                    'collection_memberships.collection_id = collections.id ' ..
+                    'inner join users on collections.creator_id = users.id ' ..
+                    'where collection_memberships.project_id = ?',
+                    project.id
+                )
+
+                paginator = CollectionMemberships:paginated(
+                    query,
+                    {
+                        fields = 'users.username, collections.name, ' ..
+                            'collection_memberships.project_id',
+                        per_page = self.params.pagesize or 16
+                    })
+
+                local collections = self.params.page and
+                    paginator:get_page(self.params.page) or
+                    paginator:get_all()
+
+                disk:process_thumbnails(collections, 'project_id')
+
+                return jsonResponse({
+                    pages = self.params.page and paginator:num_pages() or nil,
+                    collections = collections
+                })
+            end
+        }),
 
         project_thumbnail = cached({
             -- GET /projects/:username/:projectname/thumbnail
