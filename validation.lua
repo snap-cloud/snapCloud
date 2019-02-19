@@ -301,7 +301,7 @@ assert_can_add_project_to_collection = function (self, project, collection)
     local can_edit = collection.creator_id == self.current_user.id
 
     -- Find out whether user is in the editors array
-    for _, editor_id in collection.editor_ids do
+    for _, editor_id in pairs(collection.editor_ids) do
         if can_edit then return end
         can_edit = can_edit or (editor_id == self.current_user.id)
     end

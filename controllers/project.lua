@@ -245,6 +245,8 @@ ProjectController = {
                 assert_users_match(self, err.nonexistent_project)
             end
 
+            --TODO fetch only remixes of non-deleted projects. Otherwise
+            --     page count includes deleted remixes!
             local paginator =
                 Remixes:paginated(
                     'where original_project_id = ?',
