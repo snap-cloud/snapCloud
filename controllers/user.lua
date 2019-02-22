@@ -79,11 +79,12 @@ UserController = {
                 paginator = Users:paginated(
                     self.params.matchtext and
                         db.interpolate_query(
-                            'where username ILIKE ? or email ILIKE ?',
+                            'where username ILIKE ? or email ILIKE ? ' ..
+                                'order by created',
                             self.params.matchtext,
                             self.params.matchtext
                         )
-                        or 'order by verified, created',
+                        or 'order by username',
                     {
                         per_page = self.params.pagesize or 16,
                         fields = 'username, id, created, email, verified, role'
@@ -91,7 +92,8 @@ UserController = {
                 )
             else
                 paginator = Users:paginated(
-                    db.interpolate_query('where username ILIKE ?',
+                    db.interpolate_query(
+                        'where username ILIKE ? order by username',
                         self.params.matchtext),
                     {
                         per_page = self.params.pagesize or 16,
