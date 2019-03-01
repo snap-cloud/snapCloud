@@ -6,8 +6,17 @@ This file documents notes about our SSL configuration.
 
 ## Let's Encrypt
 
-Start your Lapis server on the domain where you will need the cert. For Let'sEncrrypt to work, the server needs to be publicly accessible at the domain your are requesting at cert. (You will probably want disable SSL beforehand, or else nginx will likely complain about invalid certs.)
-Run:
+Let's Encrypt is a free certificate authority. This section describes our setup and the renewals process. We run everything as the `cloud` user to minimize the need for root access.
+
+Snap!Cloud runs on 2 servers right now, with 6 total domains. Those paths are "hard-coded" for simplicity, but should be easy to adapt.
+
+### High Level Setup
+
+* `~/lets-encrypt` This stores the LetsEncrypt config and certs.
+* A cron job checks daily if the certs need to be renewed
+* Renewed certs are copied in `snapCloud/certs/` and the server is restarted.
+* `bin/setup-lets-encrypt.sh` will do most of the setup.
+* `bin/renew-certs.sh` is the nightly script.
 
 ```
 certbot certonly --webroot -w /home/cloud/snapCloud/html/ -d snap-cloud.cs10.org
