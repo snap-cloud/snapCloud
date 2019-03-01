@@ -9,6 +9,8 @@ mkdir -p ~/lets-encrypt/renewal-hooks/deploy
 config="certs/lets-encrypt.$LAPIS_ENVIRONMENT"
 cp -r config/renewal lets-encrypt/
 cp config/1-deploy.sh ~/lets-encrypt/renewal-hooks/deploy/
-
 echo 'certbot configs in place.'
+
+(crontab -l 2>/dev/null; echo "00 02 * * * ~/snapCloud/bin/renew-certs.sh") | crontab -
+
 echo 'Please login to certbot.'

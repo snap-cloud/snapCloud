@@ -60,7 +60,7 @@ local suspicious_paths = {
 }
 
 for _, path in pairs(suspicious_paths) do
-    app:match(path, function (self) 
+    app:match(path, function (self)
         -- Check whether this IP is already in the black list.
         -- If it is, increment their offense_count.
         -- IPs with offense_count == 3 are permabanned.
@@ -81,7 +81,7 @@ for _, path in pairs(suspicious_paths) do
             'You are attempting to access a well known spam / exploit path. ' ..
             'Your IP will be banned from this system if this incident ' ..
             'happens ' .. tostring(3 - ip_entry.offense_count) .. ' more times',
-            400)
+            429)
         else
             return { redirect_to = self:build_url('/') }
         end
