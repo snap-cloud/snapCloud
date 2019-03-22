@@ -278,6 +278,14 @@ CollectionController = {
 
             local collection = assert_collection_exists(self)
 
+            if self.params.shared then
+                assert_can_share_collection(self, collection)
+            end
+
+            if self.params.published then
+                assert_can_publish_collection(self, collection)
+            end
+
             local shouldUpdateSharedDate =
                 ((not collection.shared_at and self.params.shared)
                 or (self.params.shared and not collection.shared))

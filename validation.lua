@@ -61,7 +61,15 @@ err = {
     file_not_found = { msg = 'Project file not found', status = 404 },
     mail_body_empty = { msg = 'Missing email body contents', status = 400 },
     project_already_in_collection =
-        { msg = 'This project is already in that collection', status = 409 }
+        { msg = 'This project is already in that collection', status = 409 },
+    collection_contains_unshared_projects = {
+        msg = 'This collection cannot be shared' ..
+            ' as it contains private projects',
+        status = 409 },
+    collection_contains_unpublished_projects = {
+        msg = 'This collection cannot be published' ..
+            ' as it contains unpublished projects',
+        status = 409 }
 }
 
 assert_all = function (assertions, self)
@@ -288,6 +296,26 @@ assert_can_view_collection = function (self, collection)
             yield_error(err.nonexistent_collection)
         end
     end
+end
+
+assert_can_share_collection = function (self, collection)
+    local projects = collection:get_projects()
+    for _, project in pairs(projects) do
+        if not project.ispublic then
+            yield_error(err.collection_contains_unshared_projects)
+        end
+    end
+    return true
+end
+
+assert_can_publish_collection = function (self, collection)
+    local projects = collection:get_projects()
+    for _, project in pairs(projects) do
+        if not project.ispublished then
+            yield_error(err.collection_contains_unpublished_projects)
+        end
+    end
+    return true
 end
 
 assert_can_add_project_to_collection = function (self, project, collection)
