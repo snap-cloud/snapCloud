@@ -278,11 +278,11 @@ CollectionController = {
 
             local collection = assert_collection_exists(self)
 
-            if self.params.shared then
+            if self.params.shared == 'true' then
                 assert_can_share_collection(self, collection)
             end
 
-            if self.params.published then
+            if self.params.published == 'true' then
                 assert_can_publish_collection(self, collection)
             end
 

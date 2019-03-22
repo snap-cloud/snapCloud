@@ -299,7 +299,8 @@ assert_can_view_collection = function (self, collection)
 end
 
 assert_can_share_collection = function (self, collection)
-    local projects = collection:get_projects()
+    local paginator = collection:get_projects()
+    local projects = paginator:get_all()
     for _, project in pairs(projects) do
         if not project.ispublic then
             yield_error(err.collection_contains_unshared_projects)
@@ -309,7 +310,8 @@ assert_can_share_collection = function (self, collection)
 end
 
 assert_can_publish_collection = function (self, collection)
-    local projects = collection:get_projects()
+    local paginator = collection:get_projects()
+    local projects = paginator:get_all()
     for _, project in pairs(projects) do
         if not project.ispublished then
             yield_error(err.collection_contains_unpublished_projects)
