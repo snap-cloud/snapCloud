@@ -64,43 +64,60 @@ UserController = {
             --              email matching matchtext, if provided. Returned
             --              parameters will depend on query issuer permissions.
             --              Non-admins can't search by email content.
-            -- Parameters:  matchtext, page, pagesize
+            -- Parameters:  matchtext, page, pagesize, role, verified
 
             if not self.params.matchtext then
                 assert_has_one_of_roles(self, { 'admin', 'moderator' })
             end
 
             local paginator
+            local fields
+            local query = 'where true '
+
+            if self.params.matchtext then
+                query = query .. db.interpolate_query(
+                    ' and username ILIKE ? ',
+                    self.params.matchtext
+                )
+            end
 
             if self.current_user and
                     self.current_user:has_one_of_roles(
                         { 'admin', 'moderator' }
                     ) then
-                paginator = Users:paginated(
-                    self.params.matchtext and
+                if self.params.matchtext then
+                    query = query ..
                         db.interpolate_query(
-                            'where username ILIKE ? or email ILIKE ? ' ..
-                                'order by created',
-                            self.params.matchtext,
+                            ' or email ILIKE ? ',
                             self.params.matchtext
                         )
-                        or 'order by username',
-                    {
-                        per_page = self.params.pagesize or 16,
-                        fields = 'username, id, created, email, verified, role'
-                    }
-                )
+                end
+                fields = {
+                    per_page = self.params.pagesize or 16,
+                    fields = 'username, id, created, email, verified, role'
+                }
             else
-                paginator = Users:paginated(
-                    db.interpolate_query(
-                        'where username ILIKE ? order by username',
-                        self.params.matchtext),
-                    {
+                    fields = {
                         per_page = self.params.pagesize or 16,
                         fields = 'username'
                     }
-                )
             end
+
+            if self.params.role then
+                query = query ..
+                    db.interpolate_query(' and role = ? ', self.params.role)
+            end
+
+            if self.params.verified then
+                query = query ..
+                    db.interpolate_query(
+                        ' and verified = ? ',
+                        self.params.verified)
+            end
+
+            query = query .. ' order by username'
+
+            paginator = Users:paginated(query, fields)
 
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
