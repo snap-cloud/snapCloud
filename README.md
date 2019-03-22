@@ -1,6 +1,6 @@
 # Snap!Cloud
 
-The Snap! Cloud is an API-only adaptation of the [Beetle Cloud](http://github.com/bromagosa/beetleCloud) for Snap<i>!</i> that stores only metadata in a database for reduced query response time, while storing actual contents in disk.
+The Snap! Cloud is a backend for Snap<i>!</i> that stores only metadata in a database for reduced query response time, while storing actual contents in disk.
 
 ## Third party stuff
 ### Frameworks and tools
