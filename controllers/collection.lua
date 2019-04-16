@@ -106,7 +106,7 @@ CollectionController = {
             local order = 'updated_at'
 
             if not (users_match(self)) then
-                if not self.current_user:isadmin() then
+                if not self.current_user or not self.current_user:isadmin() then
                     self.params.published = 'true'
                     order = 'published_at'
                 end
