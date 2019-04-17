@@ -185,7 +185,7 @@ ProjectController = {
                 Remixes:select('where remixed_project_id = ?', project.id)[1]
 
             if CollectionMemberships:find(0, project.id) then
-                project.flagged_by_current_user = true
+                project.flagged = true
             end
 
             if remixed_from then
