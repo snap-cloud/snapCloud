@@ -142,7 +142,7 @@ assert_can_set_role = function (self, role)
             reviewer =
                 { moderator = true, reviewer = true, standard = true,
                     banned = true },
-            standard = 
+            standard =
                 { moderator = true, reviewer = true, standard = true,
                     banned = true },
             banned =
@@ -275,6 +275,22 @@ create_token = function (self, purpose, username, email)
 end
 
 -- Collections
+
+can_edit_collection = function (self, collection)
+    -- Users can edit their own collections
+    local can_edit = collection.creator_id == self.current_user.id
+
+    -- Find out whether user is in the editors array
+    if collection.editor_ids then
+        for _, editor_id in pairs(collection.editor_ids) do
+            if can_edit then return end
+            can_edit = can_edit or (editor_id == self.current_user.id)
+        end
+    end
+
+    return can_edit
+end
+
 assert_collection_exists = function (self)
     local creator = Users:find({ username = self.params.username })
     local collection = Collections:find(creator.id, self.params.name)
@@ -288,7 +304,10 @@ end
 
 assert_can_view_collection = function (self, collection)
     if (not collection.shared and not collection.published
-            and not users_match(self)) then
+            and not (
+                users_match(self) or
+                can_edit_collection(self, collection))
+            ) then
         if collection.id == 0 then
             -- Reviewers, moderators and admins can view the Flagged collection
             assert_has_one_of_roles(self, { 'reviewer', 'moderator', 'admin' })
@@ -305,20 +324,9 @@ assert_can_add_project_to_collection = function (self, project, collection)
     -- Anyone can add projects to the "Flagged" collection, with id == 0
     if collection.id == 0 then return end
 
-    -- Users can edit their own collections
-    local can_edit = collection.creator_id == self.current_user.id
-
-    -- Find out whether user is in the editors array
-    if collection.editor_ids then
-        for _, editor_id in pairs(collection.editor_ids) do
-            if can_edit then return end
-            can_edit = can_edit or (editor_id == self.current_user.id)
-        end
-    end
-
     -- Users can add their own projects and published projects to collections
     -- they can edit
-    if can_edit then
+    if can_edit_collection(self, collection) then
         return project.username == self.current_user.username or
             project.ispublished
     end
@@ -338,16 +346,9 @@ assert_can_remove_project_from_collection =
             assert_has_one_of_roles(self, { 'moderator', 'reviewer' })
         end
 
-        -- Users can edit their own collections
-        local can_edit = collection.creator_id == self.current_user.id
-
-        -- Find out whether user is in the editors array
-        for _, editor_id in collection.editor_ids do
-            if can_edit then return end
-            can_edit = can_edit or (editor_id == self.current_user.id)
+        if not can_edit_collection(self, collection) then
+            yield_error(err.auth)
         end
-
-        if not can_edit then yield_error(err.auth) end
 end
 
 assert_project_not_in_collection = function (self, project, collection)

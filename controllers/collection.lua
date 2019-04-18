@@ -197,7 +197,8 @@ CollectionController = {
                 paginator = collection:get_projects()
             elseif collection.published then
                 paginator = collection:get_published_projects()
-            elseif collection.shared then
+            elseif collection.shared or 
+                    can_edit_collection(self, collection) then
                 paginator = collection:get_shared_and_published_projects()
             end
 
