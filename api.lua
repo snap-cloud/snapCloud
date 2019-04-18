@@ -84,6 +84,9 @@ app:match(api_route('login', '/users/:username/login', UserController, { 'POST' 
 app:match(api_route('verify_user', '/users/:username/verify_user/:token', UserController, { 'GET' }))
 app:match(api_route('logout', '/logout', UserController, { 'POST' }))
 app:match(api_route('send_message', '/users/:username/message', UserController, { 'POST' }))
+-- Zombie users
+app:match(api_route('zombies', '/zombies', UserController, { 'GET' }))
+app:match(api_route('zombie', '/zombies/:username', UserController, { 'DELETE' }))
 
 -- Projects
 -- ========

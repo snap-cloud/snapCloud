@@ -58,7 +58,7 @@ UserController = {
             })
         end,
 
-        user_list = function (self)
+        user_list = function (self, zombie)
             -- GET /users
             -- Description: Get a paginated list of all users with username or
             --              email matching matchtext, if provided. Returned
@@ -66,7 +66,18 @@ UserController = {
             --              Non-admins can't search by email content.
             -- Parameters:  matchtext, page, pagesize, role, verified
 
-            if not self.params.matchtext then
+            -- GET /zombies
+            -- Description: Get a paginated list of all deleted users with
+            --              username or email matching matchtext, if provided.
+            --              Only for admins.
+            -- Parameters:  matchtext, page, pagesize, role, verified
+
+            local table = Users
+
+            if zombie then
+                table = DeletedUsers
+                assert_admin(self)
+            elseif not self.params.matchtext then
                 assert_has_one_of_roles(self, { 'admin', 'moderator' })
             end
 
@@ -117,7 +128,7 @@ UserController = {
 
             query = query .. ' order by username'
 
-            paginator = Users:paginated(query, fields)
+            paginator = table:paginated(query, fields)
 
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
@@ -466,21 +477,46 @@ UserController = {
     },
 
     DELETE = {
-        user = function (self)
+        user = function (self, zombie)
             -- DELETE /users/:username
             -- Description: Delete a user.
-            assert_user_exists(self)
 
-            if not users_match(self) then assert_admin(self) end
+            -- DELETE /zombies/:username
+            -- Description: Delete a zombie user. Only for admins.
 
-            -- Do not actually delete the user; flag it as deleted.
-            if not (self.queried_user:update({ deleted = db.format_date() }))
-                    then
-                yield_error('Could not delete user ' .. self.params.username)
+            if zombie then
+                assert_admin(self)
+                local user = DeletedUsers:find(self.username)
+                if user then
+                    user:delete()
+                    return okResponse('Zombie user ' .. self.params.username ..
+                        ' has been removed for good.')
+                end
             else
-                return okResponse('User ' .. self.params.username ..
-                    ' has been removed.')
+                if not users_match(self) then assert_admin(self) end
+                assert_user_exists(self)
+                -- Do not actually delete the user; flag it as deleted.
+                if not (self.queried_user:update({
+                        deleted = db.format_date() }))
+                    then
+                        yield_error(
+                            'Could not delete user ' .. self.params.username)
+                    else
+                        return okResponse('User ' .. self.params.username ..
+                            ' has been removed.')
+                    end
             end
+
+
         end
     }
 }
+
+-- Zombies
+UserController.GET.zombies = function (self)
+    return UserController.GET.user_list(self, true)
+end
+
+UserController.DELETE.zombie = function (self)
+    return UserController.DELETE.user(self, true)
+end
