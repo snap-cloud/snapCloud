@@ -21,6 +21,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
+local db = package.loaded.db
 local Model = package.loaded.Model
 
 package.loaded.Users = Model:extend('active_users', {
@@ -74,12 +75,40 @@ package.loaded.Collections = Model:extend('collections', {
         {'memberships', has_many = 'CollectionMemberships'},
         {'projects',
             fetch = function (self)
-                return package.loaded.Projects:paginated(
+                local query = db.interpolate_query(
                     [[ WHERE id IN (
                         SELECT project_id
                         FROM collection_memberships
                         WHERE collection_id = ?
-                    )]], self.id)
+                    )]],
+                    self.id)
+                return package.loaded.Projects:paginated(query)
+            end
+        },
+        {'shared_and_published_projects',
+            fetch = function (self)
+                local query = db.interpolate_query(
+                    [[ WHERE id IN (
+                        SELECT project_id
+                        FROM collection_memberships
+                        WHERE collection_id = ?
+                    )
+                    AND (ispublished OR ispublic) ]],
+                    self.id)
+                return package.loaded.Projects:paginated(query)
+            end
+        },
+        {'published_projects',
+            fetch = function (self)
+                local query = db.interpolate_query(
+                    [[ WHERE id IN (
+                        SELECT project_id
+                        FROM collection_memberships
+                        WHERE collection_id = ?
+                    )
+                    AND ispublished ]],
+                    self.id)
+                return package.loaded.Projects:paginated(query)
             end
         }
     },

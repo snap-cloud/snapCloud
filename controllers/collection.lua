@@ -190,7 +190,17 @@ CollectionController = {
             -- Parameters:  username, name, withthumbnail, pagesize
             local collection = assert_collection_exists(self)
             assert_can_view_collection(self, collection)
-            local paginator = collection:get_projects()
+            local paginator
+
+            if self.current_user and
+                    self.current_user.id == collection.creator_id then
+                paginator = collection:get_projects()
+            elseif collection.shared then
+                paginator = collection:get_shared_and_published_projects()
+            elseif collection.published then
+                paginator = collection:get_published_projects()
+            end
+
             paginator.per_page = self.params.pagesize or 16
             local projects = paginator:get_page(self.params.page or 1)
 
