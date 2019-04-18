@@ -298,28 +298,6 @@ assert_can_view_collection = function (self, collection)
     end
 end
 
-assert_can_share_collection = function (self, collection)
-    local paginator = collection:get_projects()
-    local projects = paginator:get_all()
-    for _, project in pairs(projects) do
-        if not project.ispublic then
-            yield_error(err.collection_contains_unshared_projects)
-        end
-    end
-    return true
-end
-
-assert_can_publish_collection = function (self, collection)
-    local paginator = collection:get_projects()
-    local projects = paginator:get_all()
-    for _, project in pairs(projects) do
-        if not project.ispublished then
-            yield_error(err.collection_contains_unpublished_projects)
-        end
-    end
-    return true
-end
-
 assert_can_add_project_to_collection = function (self, project, collection)
     -- Admins can add any project to any collection.
     if self.current_user:isadmin() then return end
