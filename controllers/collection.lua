@@ -200,6 +200,9 @@ CollectionController = {
             elseif collection.shared or 
                     can_edit_collection(self, collection) then
                 paginator = collection:get_shared_and_published_projects()
+            elseif collection.id == 0 then
+                -- flagged collection can be seen by anyone
+                paginator = collection:get_projects()
             end
 
             paginator.per_page = self.params.pagesize or 16
