@@ -86,6 +86,7 @@ app:match(api_route('logout', '/logout', UserController, { 'POST' }))
 app:match(api_route('send_message', '/users/:username/message', UserController, { 'POST' }))
 -- Zombie users
 app:match(api_route('zombies', '/zombies', UserController, { 'GET' }))
+app:match(api_route('revive', '/zombies/:username/revive', UserController, { 'POST' }))
 app:match(api_route('zombie', '/zombies/:username', UserController, { 'DELETE' }))
 
 -- Projects
