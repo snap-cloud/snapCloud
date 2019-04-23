@@ -478,6 +478,26 @@ UserController = {
                 yield_error(err.mail_body_empty)
             end
         end
+
+        revive = function (self)
+            -- POST /zombies/:username/revive
+            -- Description: Brings a zombie user back to life.
+
+            assert_admin(self)
+
+            local zombie = DeletedUsers:find(
+                { username = self.params.username })
+
+            if user then
+                if user.update({ deleted = nil }) then
+                    return okResponse('User ' .. self.params.username ..
+                        ' has been revived.')
+                else
+                    yield_error('Could not revive user ' ..
+                        self.params.username)
+                end
+            end
+        end
     },
 
     DELETE = {
@@ -490,8 +510,8 @@ UserController = {
 
             if zombie then
                 assert_admin(self)
-                local user = DeletedUsers:find({
-                    username = self.params.username })
+                local user = DeletedUsers:find(
+                    { username = self.params.username })
                 if user then
                     user:delete()
                     return okResponse('Zombie user ' .. self.params.username ..
