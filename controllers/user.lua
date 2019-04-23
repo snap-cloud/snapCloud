@@ -489,13 +489,9 @@ UserController = {
                 { username = self.params.username })
 
             if zombie then
-                if zombie:update({ deleted = nil }) then
-                    return okResponse('User ' .. self.params.username ..
-                        ' has been revived.')
-                else
-                    yield_error('Could not revive user ' ..
-                        self.params.username)
-                end
+                zombie:update({ deleted = nil })
+                return okResponse('User ' .. self.params.username ..
+                    ' has been revived.')
             else
                 yield_error(err.nonexistent_user)
             end
