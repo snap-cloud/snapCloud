@@ -489,7 +489,7 @@ UserController = {
                 { username = self.params.username })
 
             if user then
-                if user.update({ deleted = nil }) then
+                if user:update({ deleted = nil }) then
                     return okResponse('User ' .. self.params.username ..
                         ' has been revived.')
                 else
