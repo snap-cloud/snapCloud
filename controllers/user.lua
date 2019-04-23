@@ -477,7 +477,7 @@ UserController = {
             else
                 yield_error(err.mail_body_empty)
             end
-        end
+        end,
 
         revive = function (self)
             -- POST /zombies/:username/revive
