@@ -496,6 +496,8 @@ UserController = {
                     yield_error('Could not revive user ' ..
                         self.params.username)
                 end
+            else
+                yield_error(err.nonexistent_user)
             end
         end
     },
@@ -516,6 +518,8 @@ UserController = {
                     user:delete()
                     return okResponse('Zombie user ' .. self.params.username ..
                         ' has been removed for good.')
+                else
+                    yield_error(err.nonexistent_user)
                 end
             else
                 if not users_match(self) then assert_admin(self) end
