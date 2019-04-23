@@ -486,7 +486,7 @@ UserController = {
 
             if zombie then
                 assert_admin(self)
-                local user = DeletedUsers:find(self.username)
+                local user = DeletedUsers:find(self.params.username)
                 if user then
                     user:delete()
                     return okResponse('Zombie user ' .. self.params.username ..
