@@ -82,7 +82,7 @@ UserController = {
             end
 
             local paginator
-            local fields
+            local options
             local query = 'where true '
 
             if self.params.matchtext then
@@ -103,15 +103,19 @@ UserController = {
                             self.params.matchtext
                         )
                 end
-                fields = {
+                options = {
                     per_page = self.params.pagesize or 16,
                     fields = 'username, id, created, email, verified, role'
                 }
             else
-                    fields = {
+                    options = {
                         per_page = self.params.pagesize or 16,
                         fields = 'username'
                     }
+            end
+
+            if zombie then
+                options.fields = options.fields .. ', deleted'
             end
 
             if self.params.role then
@@ -128,7 +132,7 @@ UserController = {
 
             query = query .. ' order by username'
 
-            paginator = table:paginated(query, fields)
+            paginator = table:paginated(query, options)
 
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
@@ -507,8 +511,6 @@ UserController = {
                             ' has been removed.')
                     end
             end
-
-
         end
     }
 }
