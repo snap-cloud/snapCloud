@@ -533,7 +533,9 @@ UserController = {
                     for _, collection in pairs(collections) do
                         if collection.editor_ids and
                                 collection.editor_ids[1] then
-                            collection:update({ creator_id = editor_ids[1] })
+                            collection:update({
+                                creator_id = collection.editor_ids[1]
+                            })
                         else
                             collection:delete()
                         end
