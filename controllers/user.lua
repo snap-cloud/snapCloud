@@ -538,6 +538,8 @@ UserController = {
                             collection:delete()
                         end
                     end
+                    -- Delete all their tokens
+                    Tokens:delete('where username = ?', user.username)
                     -- Finally, delete the user
                     user:delete()
                     return okResponse('Zombie user ' .. self.params.username ..
