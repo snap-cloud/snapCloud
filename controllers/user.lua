@@ -511,6 +511,33 @@ UserController = {
                 local user = DeletedUsers:find(
                     { username = self.params.username })
                 if user then
+                    -- Delete all their projects
+                    Projects:delete('where username = ?', user.username)
+                    -- Find all collections they're editors of and take them out
+                    local collections =
+                        Collections:select(
+                            'where editor_ids @> array[?]', user.username)
+                    for _, collection in pairs(collections) do
+                        collection:update({
+                            editor_ids =
+                                db.raw(db.interpolate_query(
+                                    'array_remove(editor_ids, ?)',
+                                    user.username))
+                        })
+                    end
+                    -- Find all their collections and delete them, but transfer
+                    -- ownership to a random editor if there are any
+                    collections = Collections:select(
+                        'where creator_id = ?', user.username)
+                    for _, collection in pairs(collections) do
+                        if collection.editor_ids and
+                                collection.editor_ids[1] then
+                            collection:update({ creator_id = editor_ids[1] })
+                        else
+                            collection:delete()
+                        end
+                    end
+                    -- Finally, delete the user
                     user:delete()
                     return okResponse('Zombie user ' .. self.params.username ..
                         ' has been removed for good.')
