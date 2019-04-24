@@ -283,7 +283,7 @@ can_edit_collection = function (self, collection)
     -- Find out whether user is in the editors array
     if collection.editor_ids then
         for _, editor_id in pairs(collection.editor_ids) do
-            if can_edit then return end
+            if can_edit then return true end
             can_edit = can_edit or (editor_id == self.current_user.id)
         end
     end

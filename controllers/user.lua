@@ -520,10 +520,8 @@ UserController = {
                             'where editor_ids @> array[?]', user.id)
                     for _, collection in pairs(collections) do
                         collection:update({
-                            editor_ids =
-                                db.raw(db.interpolate_query(
-                                    'array_remove(editor_ids, ?)',
-                                    user.id))
+                            editor_ids = db.raw(db.interpolate_query(
+                                'array_remove(editor_ids, ?)', user.id))
                         })
                     end
                     -- Find all their collections and delete them, but transfer
@@ -534,7 +532,10 @@ UserController = {
                         if collection.editor_ids and
                                 collection.editor_ids[1] then
                             collection:update({
-                                creator_id = collection.editor_ids[1]
+                                creator_id = collection.editor_ids[1],
+                                editor_ids = db.raw(db.interpolate_query(
+                                    'array_remove(editor_ids, ?)',
+                                    collection.editor_ids[1]))
                             })
                         else
                             collection:delete()
