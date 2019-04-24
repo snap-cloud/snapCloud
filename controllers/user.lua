@@ -29,6 +29,7 @@ local yield_error = package.loaded.yield_error
 local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
 local Projects = package.loaded.Projects
+local Collections = package.loaded.Collections
 local Tokens = package.loaded.Tokens
 
 require 'responses'
@@ -516,19 +517,19 @@ UserController = {
                     -- Find all collections they're editors of and take them out
                     local collections =
                         Collections:select(
-                            'where editor_ids @> array[?]', user.username)
+                            'where editor_ids @> array[?]', user.id)
                     for _, collection in pairs(collections) do
                         collection:update({
                             editor_ids =
                                 db.raw(db.interpolate_query(
                                     'array_remove(editor_ids, ?)',
-                                    user.username))
+                                    user.id))
                         })
                     end
                     -- Find all their collections and delete them, but transfer
                     -- ownership to a random editor if there are any
                     collections = Collections:select(
-                        'where creator_id = ?', user.username)
+                        'where creator_id = ?', user.id)
                     for _, collection in pairs(collections) do
                         if collection.editor_ids and
                                 collection.editor_ids[1] then
