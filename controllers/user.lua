@@ -513,7 +513,7 @@ UserController = {
                     { username = self.params.username })
                 if user then
                     -- Delete all their projects
-                    Projects:delete('where username = ?', user.username)
+                    db.delete('projects', { username = user.username })
                     -- Find all collections they're editors of and take them out
                     local collections =
                         Collections:select(
@@ -539,7 +539,7 @@ UserController = {
                         end
                     end
                     -- Delete all their tokens
-                    Tokens:delete('where username = ?', user.username)
+                    db.delete('tokens', { username = user.username })
                     -- Finally, delete the user
                     user:delete()
                     return okResponse('Zombie user ' .. self.params.username ..
