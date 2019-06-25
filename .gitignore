@@ -20,6 +20,9 @@ certs/*
 # Location for LetsEncrypt challenge files.
 html/
 
+# Temporary: The old static snap site:
+old_site
+
 .*.swp
 .*.swo
 .swp
