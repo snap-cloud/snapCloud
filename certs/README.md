@@ -19,7 +19,9 @@ Snap!Cloud runs on 2 servers right now, with 6 total domains. Those paths are "h
 * `bin/renew-certs.sh` is the nightly script.
 
 ```
+mkdir ~/lets-encrypt/
 certbot certonly --webroot -w /home/cloud/snapCloud/html/ -d snap-cloud.cs10.org
+--config-dir=lets-encrypt --logs-dir=lets-encrypt --work-dir=lets-encrypt
 ```
 
 After this, certbot will give you the name of the certs it generated. Copy them to the `certs/` folder and update the file paths as necessary.

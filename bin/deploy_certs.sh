@@ -18,4 +18,3 @@ cp -r -u --verbose -L ${sourceDir}${domain}.snap.berkeley.edu $destDir
 # restart for nginx to reload the certs.
 # TODO can we just "rebuild"?
 sudo service snapcloud_daemon restart
-
