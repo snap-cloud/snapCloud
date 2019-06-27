@@ -33,13 +33,4 @@ brew install denji/nginx/openresty
 # Need to link openresty to an nginx name for lapis
 ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx
 
-# now install lua.
-LUA_CMD="lua-5.1"
-LUA_DIR="/usr/local/opt/lua@5.1"
-
-# Needed for lapis
-OPENSSL_BREW='/usr/local/opt/openssl/'
-
-echo 'Installing lua dependencies'
-# For some reason luarocks needs both directories specified...
-lua install --lua-dir=$LUA_DIR snap-cloud-beta-0.rockspec OPENSSL_DIR=$OPENSSL_BREW CRYPTO_DIR=$OPENSSL_BREW
+./luarocks-install-macos.sh
