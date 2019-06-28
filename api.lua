@@ -43,7 +43,7 @@ local function api_route(name, path, controller, methods)
         --      (...) GET = capture_errors(UserController.GET.current_user)
         tbl[method] = capture_errors(controller[method][name])
     end
-    return name, '(/api/' .. api_version .. ')' .. path, respond_to(tbl)
+    return name, '/api/' .. api_version .. path, respond_to(tbl)
 end
 
 APIController = {
