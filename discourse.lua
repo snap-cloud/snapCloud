@@ -36,11 +36,11 @@ local config = package.loaded.config
 local encoding = require("lapis.util.encoding")
 local resty_string = package.loaded.resty_string
 
-app:get('/discourse-sso', capture_errors(function(self)
+app:get('/api/v1/discourse-sso', capture_errors(function(self)
     if self.session.username == '' then
-        local signin_url = '/site/login.html?redirect_to='
+        local signin_url = '/login?redirect_to='
         local encoded_params = util.encode_query_string(self.params)
-        local redirect_path = util.escape('/discourse-sso?' .. encoded_params)
+        local redirect_path = util.escape('/api/v1/discourse-sso?' .. encoded_params)
         return { redirect_to = signin_url .. redirect_path }
     end
 
