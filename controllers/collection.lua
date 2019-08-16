@@ -80,7 +80,7 @@ CollectionController = {
                                 Users:include_in(collections, 'creator_id',
                                     { fields = 'username, id' })
                                 return collections
-                            end--]]
+                            end]]--
                             fields = 
                                 'collections.id, creator_id, created_at, published, ' ..
                                 'published_at, shared, shared_at, updated_at, name, ' ..
@@ -121,7 +121,8 @@ CollectionController = {
             assert_user_exists(self)
 
             local query = db.interpolate_query(
-                'where (creator_id = ? or editor_ids @> array[?])',
+                'join active_users on (active_users.id = collections.creator_id) ' ..
+                    'where (creator_id = ? or editor_ids @> array[?])',
                 self.queried_user.id,
                 self.queried_user.id)
 
@@ -147,11 +148,15 @@ CollectionController = {
                 query .. ' order by ' .. order .. ' desc',
                 {
                     per_page = self.params.pagesize or 16,
-                    prepare_results = function (collections)
+                    --[[prepare_results = function (collections)
                         Users:include_in(collections, 'creator_id',
                             { fields = 'username, id' })
                         return collections
-                    end
+                    end]]--
+                    fields =
+                        'collections.id, creator_id, created_at, published, ' ..
+                        'published_at, shared, shared_at, updated_at, name, ' ..
+                        'description, thumbnail_id, username, editor_ids'
                 })
 
             local collections = self.params.page and
