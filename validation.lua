@@ -185,7 +185,10 @@ end
 
 assert_users_have_email = function (self, message)
     local users =
-        Users:find({ email = self.params.email or '' }, { fields = 'username' })
+        Users:select(
+            'where email = ?',
+            self.params.email or '',
+            { fields = 'username' })
     if users and users[1] then
         return users
     else

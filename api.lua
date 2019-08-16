@@ -33,6 +33,8 @@ require 'controllers.project'
 require 'controllers.collection'
 
 -- Wraps all API endpoints in standard behavior.
+-- All API routes are nested under /api/v1,
+-- which is currently an optional prefix.
 local function api_route(name, path, controller, methods)
     tbl = { OPTIONS = cors_options }
     -- methods is a table describing which REST methods this endpoint accepts
@@ -43,7 +45,7 @@ local function api_route(name, path, controller, methods)
         --      (...) GET = capture_errors(UserController.GET.current_user)
         tbl[method] = capture_errors(controller[method][name])
     end
-    return name, '/api/' .. api_version .. path, respond_to(tbl)
+    return name, '(/api/' .. api_version .. ')' .. path, respond_to(tbl)
 end
 
 APIController = {
