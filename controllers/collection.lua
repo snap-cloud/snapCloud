@@ -57,7 +57,9 @@ CollectionController = {
             -- Parameters:  matchtext, page, pagesize
             exptime = 30, -- cache expires after 30 seconds
             function (self)
-                local query = 'where published'
+                local query = 
+                    'join active_users on (active_users.id = collections.creator_id) ' ..
+                    'where published '
 
                 -- Apply where clauses
                 if self.params.matchtext then
@@ -74,11 +76,15 @@ CollectionController = {
                         query .. ' order by published_at desc',
                         {
                             per_page = self.params.pagesize or 16,
-                            prepare_results = function (collections)
+                            --[[prepare_results = function (collections)
                                 Users:include_in(collections, 'creator_id',
                                     { fields = 'username, id' })
                                 return collections
-                            end
+                            end--]]
+                            fields = 
+                                'collections.id, creator_id, created_at, published, ' ..
+                                'published_at, shared, shared_at, updated_at, name, ' ..
+                                'description, thumbnail_id, username, editor_ids'
                         })
 
                 local collections = self.params.page and
