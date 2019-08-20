@@ -76,11 +76,6 @@ CollectionController = {
                         query .. ' order by published_at desc',
                         {
                             per_page = self.params.pagesize or 16,
-                            --[[prepare_results = function (collections)
-                                Users:include_in(collections, 'creator_id',
-                                    { fields = 'username, id' })
-                                return collections
-                            end]]--
                             fields = 
                                 'collections.id, creator_id, created_at, published, ' ..
                                 'published_at, shared, shared_at, updated_at, name, ' ..
@@ -148,11 +143,6 @@ CollectionController = {
                 query .. ' order by ' .. order .. ' desc',
                 {
                     per_page = self.params.pagesize or 16,
-                    --[[prepare_results = function (collections)
-                        Users:include_in(collections, 'creator_id',
-                            { fields = 'username, id' })
-                        return collections
-                    end]]--
                     fields =
                         'collections.id, creator_id, created_at, published, ' ..
                         'published_at, shared, shared_at, updated_at, name, ' ..
@@ -177,10 +167,11 @@ CollectionController = {
             local collection = assert_collection_exists(self)
             assert_can_view_collection(self, collection)
             collection.projects_count = collection:count_projects()
-            collection.creator =
+            local creator =
                 Users:select(
                     'where id = ?', collection.creator_id,
                     { fields = 'username, id' })[1]
+            collection.username = creator.username
             if collection.thumbnail_id then
                 collection.thumbnail =
                     disk:retrieve_thumbnail(collection.thumbnail_id)
