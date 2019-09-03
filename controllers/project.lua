@@ -314,13 +314,8 @@ ProjectController = {
                         fields = 'collections.creator_id, collections.name, ' ..
                             'collection_memberships.project_id, '..
                             'collections.thumbnail_id, collections.shared, ' ..
-                            'collections.published',
-                        per_page = self.params.pagesize or 16,
-                        prepare_results = function (collections)
-                            Users:include_in(collections, 'creator_id',
-                                { fields = 'username, id' })
-                            return collections
-                        end
+                            'collections.published, users.username',
+                        per_page = self.params.pagesize or 16
                     })
 
                 local collections = self.params.page and
