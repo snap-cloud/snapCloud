@@ -300,12 +300,22 @@ ProjectController = {
                     assert_users_match(self, err.nonexistent_project)
                 end
 
+                -- This logic is extremely convoluted. It needs to be rethought.
                 local query = db.interpolate_query(
                     'inner join collections on ' ..
                     'collection_memberships.collection_id = collections.id ' ..
                     'inner join users on collections.creator_id = users.id ' ..
-                    'where collection_memberships.project_id = ?',
-                    project.id
+                    'where collection_memberships.project_id = ? ' ..
+                    'and (collections.published or ' ..
+                    '(collections.shared and ?) or ' ..
+                    '(not collections.shared and not ?) or ' ..
+                    '(collections.creator_id = ?) or ' ..
+                    '(collections.editor_ids @> array[?]))',
+                    project.id,
+                    project.ispublic,
+                    project.ispublic,
+                    self.current_user.id,
+                    self.current_user.id
                 )
 
                 paginator = CollectionMemberships:paginated(
