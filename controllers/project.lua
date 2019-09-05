@@ -308,14 +308,18 @@ ProjectController = {
                     'where collection_memberships.project_id = ? ' ..
                     'and (collections.published or ' ..
                     '(collections.shared and ?) or ' ..
-                    '(not collections.shared and not ?) or ' ..
-                    '(collections.creator_id = ?) or ' ..
-                    '(collections.editor_ids @> array[?]))',
+                    '(not collections.shared and not ?)' ..
+                        (self.current_user
+                            and 
+                                (' or (collections.creator_id = ?) or ' ..
+                                '(collections.editor_ids @> array[?]))')
+                            or
+                                ')'),
                     project.id,
                     project.ispublic,
                     project.ispublic,
-                    self.current_user.id,
-                    self.current_user.id
+                    self.current_user and self.current_user.id or nil,
+                    self.current_user and self.current_user.id or nil
                 )
 
                 paginator = CollectionMemberships:paginated(
