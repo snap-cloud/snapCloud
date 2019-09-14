@@ -102,7 +102,7 @@ end
 assert_role = function (self, role, message)
     if not self.current_user then
         yield_error(message or err.not_logged_in)
-    elseif not self.current_user.role == role then
+    elseif self.current_user.role ~= role then
         yield_error(message or err.auth)
     end
 end
