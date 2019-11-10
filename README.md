@@ -1,4 +1,6 @@
 # Snap!Cloud
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsnap-cloud%2FsnapCloud.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsnap-cloud%2FsnapCloud?ref=badge_shield)
+
 
 The Snap! Cloud is a backend for Snap<i>!</i> that stores only metadata in a database for reduced query response time, while storing actual contents in disk.
 
@@ -21,3 +23,7 @@ The Snap!Cloud backend is currently live at [https://cloud.snap.berkeley.edu](ht
 
 ### Contributing
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) before sending us any pull requests. Thank you!
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fsnap-cloud%2FsnapCloud.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fsnap-cloud%2FsnapCloud?ref=badge_large)
