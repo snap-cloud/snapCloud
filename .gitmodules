@@ -4,3 +4,6 @@
 [submodule "site"]
 	path = site
 	url = git://github.com/bromagosa/SnapSite.git
+[submodule "lib/raven-lua"]
+	path = lib/raven-lua
+	url = git://github.com/cloudflare/raven-lua.git
