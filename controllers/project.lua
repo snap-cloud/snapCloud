@@ -511,7 +511,7 @@ ProjectController = {
            local result, error = project:update({
                 projectname = new_name and body.projectname or project.projectname,
                 lastupdated = db.format_date(),
-                -- lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+                lastshared = shouldUpdateSharedDate and db.format_date() or nil,
                 firstpublished =
                     project.firstpublished or
                     (self.params.ispublished and db.format_date()) or
@@ -528,8 +528,7 @@ ProjectController = {
                 disk:update_metadata(project.id, project.name, project.notes)
             end
 
-            return okResponse('project ' .. self.params.projectname
-                .. ' updated')
+            return okResponse('project ' .. self.params.projectname .. ' updated')
         end
     },
 
