@@ -310,7 +310,7 @@ ProjectController = {
                     '(collections.shared and ?) or ' ..
                     '(not collections.shared and not ?)' ..
                         (self.current_user
-                            and 
+                            and
                                 (' or (collections.creator_id = ?) or ' ..
                                 '(collections.editor_ids @> array[?]))')
                             or
@@ -501,28 +501,32 @@ ProjectController = {
                 or (self.params.ispublic and not project.ispublic))
 
             -- Read request body and parse it into JSON
+            -- TODO: Replace this with json_params() after updating the projectname key.
             ngx.req.read_body()
             local body_data = ngx.req.get_body_data()
             local body = body_data and util.from_json(body_data) or nil
-            local new_name = body and body.projectname or nil
-            local new_notes = body and body.notes or nil
+            local new_name = body and body.projectname and body.projectname ~= project.projectname
+            local new_notes = body and body.notes and body.notes ~= project.notes
 
-            -- save new notes and project name into the project XML
-            if new_notes then disk:update_notes(project.id, new_notes) end
-            if new_name then disk:update_name(project.id, new_name) end
-
-            project:update({
-                projectname = new_name or project.projectname,
+           local result, error = project:update({
+                projectname = new_name and body.projectname or project.projectname,
                 lastupdated = db.format_date(),
-                lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+                -- lastshared = shouldUpdateSharedDate and db.format_date() or nil,
                 firstpublished =
                     project.firstpublished or
                     (self.params.ispublished and db.format_date()) or
                     nil,
-                notes = new_notes or project.notes,
+                notes = new_notes and body.notes or project.notes,
                 ispublic = self.params.ispublic or project.ispublic,
                 ispublished = self.params.ispublished or project.ispublished
             })
+
+            if error then yield_error(error) end
+
+            -- save new notes and project name into the project XML
+            if new_notes or new_name then
+                disk:update_metadata(project.id, project.name, project.notes)
+            end
 
             return okResponse('project ' .. self.params.projectname
                 .. ' updated')
