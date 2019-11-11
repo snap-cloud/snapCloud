@@ -521,7 +521,7 @@ ProjectController = {
                 ispublished = self.params.ispublished or project.ispublished
             })
 
-            if error then yield_error(error) end
+            if error then yield_error({ msg = error, status = 422 }) end
 
             -- save new notes and project name into the project XML
             if new_notes or new_name then
