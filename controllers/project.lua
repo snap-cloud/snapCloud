@@ -508,7 +508,7 @@ ProjectController = {
             local new_name = body and body.projectname and body.projectname ~= project.projectname
             local new_notes = body and body.notes and body.notes ~= project.notes
 
-           local result, error = project:update({
+            local result, error = project:update({
                 projectname = new_name and body.projectname or project.projectname,
                 lastupdated = db.format_date(),
                 lastshared = shouldUpdateSharedDate and db.format_date() or nil,
