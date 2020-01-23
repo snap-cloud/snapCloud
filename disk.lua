@@ -126,6 +126,8 @@ function disk:update_xml(id, update_function)
                 project_file:write(xml.dump(project))
                 project_file:close()
             end) then
+            project_file:close()
+            return notes or ''
         else
             project_file:close()
             yield_error(err.unparseable_xml)
