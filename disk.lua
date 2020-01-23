@@ -25,6 +25,7 @@
 
 local xml = require("xml")
 local config = package.loaded.config
+local yield_error = package.loaded.yield_error
 
 local disk = {}
 
