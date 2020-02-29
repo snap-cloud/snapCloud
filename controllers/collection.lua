@@ -57,9 +57,9 @@ CollectionController = {
             -- Parameters:  matchtext, page, pagesize
             exptime = 30, -- cache expires after 30 seconds
             function (self)
-                local query = 
-                    'join active_users on (active_users.id = collections.creator_id) ' ..
-                    'where published '
+                local query =
+                    'JOIN active_users on (active_users.id = collections.creator_id) ' ..
+                    'WHERE published '
 
                 -- Apply where clauses
                 if self.params.matchtext then
@@ -73,12 +73,12 @@ CollectionController = {
 
                 local paginator =
                     Collections:paginated(
-                        query .. ' order by published_at desc',
+                        query .. ' order by collections.published_at desc',
                         {
                             per_page = self.params.pagesize or 16,
-                            fields = 
-                                'collections.id, creator_id, created_at, published, ' ..
-                                'published_at, shared, shared_at, updated_at, name, ' ..
+                            fields =
+                                'collections.id, creator_id, collections.created_at, published, ' ..
+                                'collections.published_at, shared, collections.shared_at, ' .. 'collections.updated_at, name, ' ..
                                 'description, thumbnail_id, username, editor_ids'
                         })
 
@@ -144,8 +144,8 @@ CollectionController = {
                 {
                     per_page = self.params.pagesize or 16,
                     fields =
-                        'collections.id, creator_id, created_at, published, ' ..
-                        'published_at, shared, shared_at, updated_at, name, ' ..
+                        'collections.id, creator_id, collections.created_at, published, ' ..
+                        'collections.published_at, shared, shared_at, collections.updated_at, name, ' ..
                         'description, thumbnail_id, username, editor_ids'
                 })
 
@@ -199,7 +199,7 @@ CollectionController = {
                 paginator = collection:get_projects()
             elseif collection.published then
                 paginator = collection:get_published_projects()
-            elseif collection.shared or 
+            elseif collection.shared or
                     can_edit_collection(self, collection) then
                 paginator = collection:get_shared_and_published_projects()
             elseif collection.id == 0 then

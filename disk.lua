@@ -128,22 +128,20 @@ function disk:update_xml(id, update_function)
     local dir = self:directory_for_id(id)
     local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
-        local status, error = pcall(function ()
-            local project = xml.load(project_file:read('*all'))
-            project_file:close()
-            project_file = nil
-            self:backup_project(id)
-            update_function(project)
-            project_file = io.open(dir .. '/project.xml', 'w+')
-            project_file:write(xml.dump(project))
-            project_file:close()
-            project_file = nil
-        end)
-        if status then
-        else
+        local success, message = pcall(
+            function ()
+                local project = xml.load(project_file:read('*all'))
+                project_file:close()
+                self:backup_project(id)
+                update_function(project)
+                project_file = io.open(dir .. '/project.xml', 'w+')
+                project_file:write(xml.dump(project))
+                project_file:close()
+            end)
+        if not success then
             if project_file then project_file:close() end
             ngx.log(error)
-            yield_error(err.unparseable_xml)
+            yield_error(err.unparseable_xml .. tostring(message))
         end
     else
         yield_error(err.file_not_found)
