@@ -30,19 +30,26 @@ prelease=$(if [ "$LAPIS_ENVIRONMENT" = 'production' ]; then echo 'false'; else e
 curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $repo -d "{\"tag_name\": \"$current_time\", \"target_commitish\": \"$deploy_sha\", \"prerelease\": $prelease }"
 
 # Mark a deploy in Rollbar
+echo 'Tagging Deploy in Rollbar'
 curl -POST --url https://api.rollbar.com/api/1/deploy/ \
     --data "{\"access_token\": \"$ROLLBAR_TOKEN\", \"environment\":\"$LAPIS_ENVIRONMENT\", \"revision\": \"$deploy_sha\"}"
+echo
 
+echo 'Tagging Deploy in Sentry'
 # Tag a release in Sentry, too.
 curl https://sentry.cs10.org/api/hooks/release/builtin/2/aca228bdf5410118114d83644397592ba4c12bc165a9d34f0e7c08c2e2103bf4/ \
   -X POST \
   -H 'Content-Type: application/json' \
   -d "{\"version\": \"$current_time\"}"
+echo
 
 # Always update the letsencrypt script incase it changes.
 cp bin/deploy_certs.sh lets-encrypt/renewal-hooks/deploy/1-deploy.sh
 
 # The cloud user only has the ability to restart this service.
+echo 'Restarting snapcloud daemon'
 sudo service snapcloud_daemon restart
 
 popd
+
+echo 'Done!'
