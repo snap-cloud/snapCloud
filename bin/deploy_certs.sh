@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+ #! /usr/bin/env bash
 
 # MUST USE -L. LetsEncrypt uses symlinks
 sourceDir=/home/cloud/lets-encrypt/live/
