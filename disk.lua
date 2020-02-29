@@ -25,6 +25,7 @@
 
 local xml = require("xml")
 local config = package.loaded.config
+local yield_error = package.loaded.yield_error
 
 local disk = {}
 
@@ -115,7 +116,7 @@ function disk:update_xml(id, update_function)
     local dir = self:directory_for_id(id)
     local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
-        if pcall(
+        local success, message = pcall(
             function ()
                 local project = xml.load(project_file:read('*all'))
                 project_file:close()
@@ -124,10 +125,9 @@ function disk:update_xml(id, update_function)
                 project_file = io.open(dir .. '/project.xml', 'w+')
                 project_file:write(xml.dump(project))
                 project_file:close()
-            end) then
-        else
-            project_file:close()
-            yield_error(err.unparseable_xml)
+            end)
+        if not success then
+            yield_error(err.unparseable_xml .. tostring(message))
         end
     else
         yield_error(err.file_not_found)

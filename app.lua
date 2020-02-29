@@ -53,7 +53,9 @@ rollbar.set_environment(config._name)
 
 -- Store whitelisted domains
 local domain_allowed = require('cors')
+
 -- Utility functions
+local date = require("date")
 local helpers = require('helpers')
 
 -- wrap the lapis capture errors to provide our own custom error handling
@@ -78,9 +80,9 @@ require 'responses'
 
 -- Make cookies persistent
 app.cookie_attributes = function(self)
-    local date = require("date")
     local expires = date(true):adddays(365):fmt("${http}")
-    return "Expires=" .. expires .. "; Path=/; HttpOnly;"
+    local secure = config._name ~= 'development' and " Secure" or ""
+    return "Expires=" .. expires .. "; Path=/; HttpOnly; SameSite=None;" .. secure
 end
 
 -- Remove the protocol and port from a URL
