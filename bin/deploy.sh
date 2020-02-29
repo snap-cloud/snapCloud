@@ -1,9 +1,17 @@
 #! /usr/bin/env bash
 
+# ./deploy.sh [BRANCH]
+
+# Allow specifcying a branch or commit to deploy.
+branch=${$0-'master'}
+
+echo "Deploying branch: $branch"
+
 # Deploy a copy of snapCloud
 pushd ~/snapCloud/
-git checkout master
-git pull origin master
+
+git checkout $branch
+git pull origin $branch
 git submodule update --recursive --remote
 
 # Build community site
