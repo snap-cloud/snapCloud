@@ -50,6 +50,8 @@ domain_allowed['stemc.csc.ncsu.edu'] = true
 domain_allowed['snapapps.fi.ncsu.edu'] = true
 domain_allowed['lambda.cs10.org'] = true
 domain_allowed['ecraft2learn.github.io'] = true
+domain_allowed['bjc.techlit.org/'] = true
+domain_allowed['snap.techlit.org/'] = true
 -- All edX Sites, and test sites
 domain_allowed['courses.edge.edx.org'] = true
 domain_allowed['courses.edx.org'] = true
