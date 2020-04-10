@@ -24,11 +24,10 @@
 
 local domain_allowed = {}
 domain_allowed['snap.berkeley.edu'] = true
-domain_allowed['amazingrobots.net'] = true
-domain_allowed['snap4arduino.rocks'] = true
 -- This domain serves an HTTP only Snap! IDE
 domain_allowed['extensions.snap.berkeley.edu'] = true
--- Snap4Arduino for Chromebooks
+-- Snap4Arduino, and its Chromebook version
+domain_allowed['snap4arduino.rocks'] = true
 domain_allowed['chrome-extension://bdmapaboflkhdmcgdpfooeeeadejodia'] = true
 domain_allowed['chrome-extension://ghipaghphhpfncbokoobcjlapbnceipg'] = true
 -- App Server Domains
@@ -65,7 +64,10 @@ domain_allowed['edge.edx.org'] = true
 domain_allowed['soundscope-website-beta.s3.amazonaws.com/index.html'] = true
 domain_allowed['soundscope-website-beta.s3.amazonaws.com'] = true
 domain_allowed['soundscope-website.web.app'] = true
+-- Others
 domain_allowed['www.maketolearn.org'] = true
+domain_allowed['techlit.org'] = true
+domain_allowed['amazingrobots.net'] = true
 -- Development
 domain_allowed['localhost'] = true
 
