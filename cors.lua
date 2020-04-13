@@ -66,7 +66,8 @@ domain_allowed['soundscope-website-beta.s3.amazonaws.com'] = true
 domain_allowed['soundscope-website.web.app'] = true
 -- Others
 domain_allowed['www.maketolearn.org'] = true
-domain_allowed['techlit.org'] = true
+domain_allowed['snap.techlit.org'] = true
+domain_allowed['bjc.techlit.org'] = true
 domain_allowed['amazingrobots.net'] = true
 -- Development
 domain_allowed['localhost'] = true
