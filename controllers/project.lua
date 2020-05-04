@@ -525,7 +525,7 @@ ProjectController = {
 
             -- save new notes and project name into the project XML
             if new_notes or new_name then
-                disk:update_metadata(project.id, project.name, project.notes)
+                disk:update_metadata(project.id, project.projectname, project.notes)
             end
 
             return okResponse('project ' .. self.params.projectname .. ' updated')
