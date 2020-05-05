@@ -56,6 +56,8 @@ err = {
         status = 401 },
     invalid_role = { msg = 'This user role is not valid', status = 401 },
     banned = { msg = 'Your user has been banned', status = 403 },
+    update_project_fail =
+        { msg = 'Project could not be updated', status = 500 },
     unparseable_xml =
         { msg = 'Project file could not be parsed', status = 500 },
     file_not_found = { msg = 'Project file not found', status = 404 },
