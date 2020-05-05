@@ -140,7 +140,7 @@ function disk:update_xml(id, update_function)
             end)
         if not success then
             if project_file then project_file:close() end
-            ngx.log(error)
+            ngx.log(message)
             yield_error(err.unparseable_xml .. tostring(message))
         end
     else
