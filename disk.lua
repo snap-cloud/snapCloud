@@ -136,7 +136,6 @@ function disk:update_xml(id, update_function)
                 update_function(project)
                 project_file = io.open(dir .. '/project.xml', 'w+')
                 project_file:write(xml.dump(project))
-                project_file:close()
             end)
         if success then
             local contents = project_file:read('*all')
@@ -149,6 +148,8 @@ function disk:update_xml(id, update_function)
                 project_file:write(backup)
                 project_file:close()
                 yield_error(err.update_project_fail)
+            else
+                project_file:close()
             end
         else
             if project_file then project_file:close() end
