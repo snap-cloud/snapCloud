@@ -23,6 +23,9 @@ html/
 # Temporary: The old static snap site:
 old_site
 
+# Snap dev version, untracked
+dev
+
 .*.swp
 .*.swo
 .swp
