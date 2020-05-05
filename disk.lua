@@ -138,7 +138,19 @@ function disk:update_xml(id, update_function)
                 project_file:write(xml.dump(project))
                 project_file:close()
             end)
-        if not success then
+        if success then
+            local contents = project_file:read('*all')
+            if #contents == 0 then
+                -- File length is zero! File got corrupted somehow.
+                -- Let's recover the previous delta, which was backed up right
+                -- before attempting to update the XML.
+                project_file = io.open(dir .. '/project.xml', 'w+')
+                local backup = self:retrieve(id, 'project.xml', '-1')
+                project_file:write(backup)
+                project_file:close()
+                yield_error(err.update_project_fail)
+            end
+        else
             if project_file then project_file:close() end
             ngx.log(message)
             yield_error(err.unparseable_xml .. tostring(message))
