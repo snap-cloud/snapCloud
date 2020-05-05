@@ -136,8 +136,10 @@ function disk:update_xml(id, update_function)
                 update_function(project)
                 project_file = io.open(dir .. '/project.xml', 'w+')
                 project_file:write(xml.dump(project))
+                project_file:close()
             end)
         if success then
+            project_file = io.open(dir .. '/project.xml', 'r')
             local contents = project_file:read('*all')
             if #contents == 0 then
                 -- File length is zero! File got corrupted somehow.
