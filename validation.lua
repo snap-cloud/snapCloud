@@ -364,3 +364,29 @@ assert_project_not_in_collection = function (self, project, collection)
         yield_error(err.project_already_in_collection)
     end
 end
+
+-- Project name filter
+-- Matches project names that are typical in courses like BJC or Teals.
+course_name_filter = function ()
+    local expressions = {
+        '^[0-9]+\\.[0-9]+',
+        '^lab [0-9]*\\.[0-9]*',
+        'u[0-9]+l[0-9]+',
+        'm[0-9]+l[0-9]+a[0-9]+',
+        '^lab [0-9]+',
+        '^unit([0-9]+| )',
+        '^ap ',
+        '^create task',
+        '^coin *flip',
+        'week [0-9]+',
+        'lesson [0-9]+',
+        'task [0-9]+',
+        'do now'
+    }
+    local filter = ''
+    for _, expression in pairs(expressions) do
+        filter = filter .. ' and (projectname !~* ' .. "'" .. expression .. "')"
+    end
+    return filter
+end
+--]]

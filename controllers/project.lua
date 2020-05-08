@@ -43,7 +43,7 @@ ProjectController = {
         projects = cached({
             -- GET /projects
             -- Description: Get a list of published projects.
-            -- Parameters:  page, pagesize, matchtext, withthumbnail
+            -- Parameters:  page, pagesize, matchtext, withthumbnail, filtered
             exptime = 30, -- cache expires after 30 seconds
             function (self)
                 local query = 'where ispublished'
@@ -56,6 +56,12 @@ ProjectController = {
                             self.params.matchtext,
                             self.params.matchtext
                         )
+                end
+
+                -- Apply project name filter to hide projects with typical
+                -- BJC or Teals names.
+                if self.params.filtered then
+                    query = query .. db.interpolate_query(course_name_filter())
                 end
 
                 local paginator =
