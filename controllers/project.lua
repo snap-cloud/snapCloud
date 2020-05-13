@@ -511,28 +511,30 @@ ProjectController = {
             ngx.req.read_body()
             local body_data = ngx.req.get_body_data()
             local body = body_data and util.from_json(body_data) or nil
-            local new_name = body and body.projectname and body.projectname ~= project.projectname
-            local new_notes = body and body.notes and body.notes ~= project.notes
+            --local new_name = body and body.projectname and body.projectname ~= project.projectname
+            --local new_notes = body and body.notes and body.notes ~= project.notes
 
             local result, error = project:update({
-                projectname = new_name and body.projectname or project.projectname,
+                --projectname = new_name and body.projectname or project.projectname,
                 lastupdated = db.format_date(),
                 lastshared = shouldUpdateSharedDate and db.format_date() or nil,
                 firstpublished =
                     project.firstpublished or
                     (self.params.ispublished and db.format_date()) or
                     nil,
-                notes = new_notes and body.notes or project.notes,
+                --notes = new_notes and body.notes or project.notes,
                 ispublic = self.params.ispublic or project.ispublic,
                 ispublished = self.params.ispublished or project.ispublished
             })
 
             if error then yield_error({ msg = error, status = 422 }) end
 
+            --[[
             -- save new notes and project name into the project XML
             if new_notes or new_name then
                 disk:update_metadata(project.id, project.projectname, project.notes)
             end
+            --]]
 
             return okResponse('project ' .. self.params.projectname .. ' updated')
         end
