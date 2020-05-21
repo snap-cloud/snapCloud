@@ -370,17 +370,16 @@ end
 course_name_filter = function ()
     local expressions = {
         '^[0-9]+\\.[0-9]+',
-        '^lab [0-9]*\\.[0-9]*',
         'u[0-9]+l[0-9]+',
-        'm[0-9]+l[0-9]+a[0-9]+',
-        '^lab [0-9]+',
+        'm[0-9]+l[0-9]+',
+        '^lab *[0-9]+',
         '^unit([0-9]+| )',
         '^ap ',
-        '^create task',
+        'create *task',
         '^coin *flip',
-        'week [0-9]+',
-        'lesson [0-9]+',
-        'task [0-9]+',
+        'week *[0-9]+',
+        'lesson *[0-9]+',
+        'task *[0-9]+',
         'do now'
     }
     local filter = ''
