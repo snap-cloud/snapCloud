@@ -194,7 +194,7 @@ function _M.report(level, title)
   end
 
   -- create a light thread to send the HTTP request in background
-  ngx.timer.at(0, send_request, level, title,  debug.traceback(), request)
+  ngx.timer.at(0, send_request, level, title, debug.traceback(), request)
 end
 
 return _M
