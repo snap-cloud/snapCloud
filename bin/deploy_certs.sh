@@ -1,6 +1,7 @@
  #! /usr/bin/env bash
 
 # MUST USE -L. LetsEncrypt uses symlinks
+# TODO: Clean this up... use $RENEWED_DOMAINS?
 sourceDir=/home/cloud/lets-encrypt/live/
 destDir=/home/cloud/snapCloud/certs/
 domain=''
