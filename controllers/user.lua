@@ -167,7 +167,21 @@ UserController = {
         user = function (self)
             -- GET /users/:username
             -- Description: Get info about a user
+            bad_thing()
+            local id, err = package.loaded.rvn:captureMessage(
+    "This is an error message.",
+    {
+        tags = { abc = "def" },
+        user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
+    } -- optional
+)
+if not id then
+    print(err)
+else
+    print('posted...  '.. id)
+end
             if not users_match(self) then assert_admin(self) end
+
             return jsonResponse(
                 Users:select(
                     'where username = ? limit 1',

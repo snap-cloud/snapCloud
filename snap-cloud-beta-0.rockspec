@@ -20,7 +20,8 @@ dependencies = {
    "lua-resty-mail",
    "luasocket",
    "lua-resty-http",
-   "lua-cjson"
+   "lua-cjson",
+   "https://raw.githubusercontent.com/cloudflare/raven-lua/master/raven-lua-scm-1.rockspec
 }
 build = {
     type = "builtin",

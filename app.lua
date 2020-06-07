@@ -132,6 +132,36 @@ app:before_filter(function (self)
     end
 end)
 
+package.loaded['raven.util'] = require "lib/raven-lua/raven/util"
+package.loaded['raven.senders.luasocket'] = require "lib/raven-lua/raven/senders/luasocket"
+package.loaded['raven.senders.ngx'] = require "lib/raven-lua/raven/senders/ngx"
+
+local raven = require "lib/raven-lua/raven/init"
+
+local rvn = raven.new {
+    -- multiple senders are available for different networking backends,
+    -- doing a custom one is also very easy.
+    sender = require("raven.senders.luasocket").new {
+        dsn = "https://a643b06dd38f46aab9a32de8d5f435ed:ba5b31c4918742ceadfa59d31449f8b0@sentry.cs10.org/2",
+    },
+    environment = config._name,
+    release = '1234',
+    user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
+    tags = { foo = "bar" },
+}
+package.loaded.rvn = rvn
+
+-- Send a message to sentry
+local id, err = rvn:captureMessage(
+    "A NEW MESSAGE",
+    {
+        tags = { abc = "def" },
+        user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
+    } -- optional
+)
+if not id then
+    print(err)
+end
 
 -- This module only takes care of the index endpoint
 
@@ -144,17 +174,38 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    print('HANDLE ERROR')
     -- self.current_user is not available here.
+    local user_params = {}
     local current_user = package.loaded.Users:find({ username = self.session.username })
     if current_user then
         user_params = current_user:rollbar_params()
-    else
-        user_params = {}
     end
 
-    rollbar.set_person(user_params)
-    rollbar.set_custom_trace(err .. "\n\n" .. trace)
-    rollbar.report(rollbar.ERR, helpers.normalize_error(err))
+    rvn:captureMessage(
+    trace,
+    {
+        -- tags = { abc = "def" },
+        -- user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
+    } -- optional
+)
+rvn:captureException(
+    {
+      {
+          message = err,
+          value = err,
+          stacktrace = trace,
+      }
+    },
+    -- self.original_request.error
+    {
+--         tags = { abc = "def" },
+        user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
+    } -- optional
+)
+    -- rollbar.set_person(user_params)
+    -- rollbar.set_custom_trace(err .. "\n\n" .. trace)
+    -- rollbar.report(rollbar.ERR, helpers.normalize_error(err))
     return errorResponse(err, 500)
 end
 
