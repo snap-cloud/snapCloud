@@ -101,34 +101,37 @@ app:before_filter(function (self)
         return
     end
 
-    if ngx.req.get_method() ~= 'OPTIONS' then
-        -- unescape all parameters
-        for k, v in pairs(self.params) do
-            self.params[k] = package.loaded.util.unescape(v)
-        end
-
-        if self.params.username then
-            self.params.username = self.params.username:lower()
-            self.queried_user = package.loaded.Users:find({ username = self.params.username })
-        end
-
-        if self.session.username then
-            self.current_user = package.loaded.Users:find({ username = self.session.username })
-        else
-            self.session.username = ''
-            self.current_user = nil
-        end
-
-        if self.params.matchtext then
-            self.params.matchtext = '%' .. self.params.matchtext .. '%'
-        end
-    end
     -- Set Access Control header
     local domain = domain_name(self.req.headers.origin)
     if self.req.headers.origin and domain_allowed[domain] then
         self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
         self.res.headers['Access-Control-Allow-Credentials'] = 'true'
         self.res.headers['Vary'] = 'Origin'
+    end
+
+    if ngx.req.get_method() == 'OPTIONS' then
+        return -- avoid any unnecessary work for CORS pre-flight requests
+    end
+
+    -- unescape all parameters
+    for k, v in pairs(self.params) do
+        self.params[k] = package.loaded.util.unescape(v)
+    end
+
+    if self.params.username then
+        self.params.username = self.params.username:lower()
+        self.queried_user = package.loaded.Users:find({ username = self.params.username })
+    end
+
+    if self.session.username then
+        self.current_user = package.loaded.Users:find({ username = self.session.username })
+    else
+        self.session.username = ''
+        self.current_user = nil
+    end
+
+    if self.params.matchtext then
+        self.params.matchtext = '%' .. self.params.matchtext .. '%'
     end
 end)
 
