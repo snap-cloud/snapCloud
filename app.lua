@@ -115,7 +115,7 @@ app:before_filter(function (self)
 
     -- unescape all parameters
     for k, v in pairs(self.params) do
-        self.params[k] = package.loaded.util.unescape(v)
+        self.params[k] = package.loaded.util.unescape(v or '')
     end
 
     if self.params.username then
