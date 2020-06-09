@@ -118,7 +118,7 @@ app:before_filter(function (self)
         self.params[k] = package.loaded.util.unescape(v or '')
     end
 
-    if self.params.username then
+    if self.params.username and self.params.username ~= '' then
         self.params.username = self.params.username:lower()
         self.queried_user = package.loaded.Users:find({ username = self.params.username })
     end
