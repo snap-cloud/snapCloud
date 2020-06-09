@@ -148,11 +148,12 @@ end
 
 function app:handle_error(err, trace)
     -- self.current_user is not available here.
-    local current_user = package.loaded.Users:find({ username = self.session.username })
+    if self.session.username then
+        local current_user = package.loaded.Users:find({ username = self.session.username })
+    end
+    local user_params = {}
     if current_user then
         user_params = current_user:rollbar_params()
-    else
-        user_params = {}
     end
 
     rollbar.set_person(user_params)
