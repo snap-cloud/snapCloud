@@ -61,6 +61,14 @@ package.loaded.Projects = Model:extend('active_projects', {
             end
         end
     },
+    relations = {
+        {'collections', -- a project has many collections through collection memberships
+         many = true,
+         fetch = function(self)
+            return Collections:select('JOIN collection_memberships cm ON cm.collection_id = collections.id JOIN projects p ON p.id = cm.project_id WHERE p.id = ?', self.id)
+         end},
+         {'user', has_one = 'User', key = 'username'}
+    },
     user_can_view = function(self, user)
         -- Users can view their own projects, or public ("shared") projects.
         -- Users can also view projects that are private, but exist in collections they can view.
