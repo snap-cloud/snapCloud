@@ -24,6 +24,8 @@
 local db = package.loaded.db
 local Model = package.loaded.Model
 
+local contains = package.loaded.helpers.contains
+
 package.loaded.Users = Model:extend('active_users', {
     relations = {
         {'collections', has_many = 'Collections'}
@@ -59,13 +61,21 @@ package.loaded.Projects = Model:extend('active_projects', {
             end
         end
     },
-    relations = {
-        {'collections', -- a project has many collections through collection memberships
-         many = true,
-         fetch = function(self)
-            return Collections:select('JOIN collection_memberships cm ON cm.collection_id = collections.id JOIN projects p ON p.id = cm.project_id WHERE p.id = ?', self.id)
-         end}
-    }
+    user_can_view = function(self, user)
+        -- Users can view their own projects, or public ("shared") projects.
+        -- Users can also view projects that are private, but exist in collections they can view.
+        if self.username == user.username or self.ispublic then
+            return true
+        else
+            local collections = self:get_collections()
+            for _, collection in pairs(collections) do
+                if collection:user_can_view(user) then
+                    return true
+                end
+            end
+            return false
+        end
+    end
 })
 
 package.loaded.DeletedProjects = Model:extend('deleted_projects', {
@@ -136,6 +146,15 @@ package.loaded.Collections = Model:extend('collections', {
     count_projects = function (self)
         return package.loaded.CollectionMemberships:count('collection_id = ?',
                                                           self.id)
+    end,
+    user_can_view = function (self, user)
+        if collection.id == 0 then
+            -- Reviewers, moderators and admins can view the Flagged collection
+            assert_has_one_of_roles(self, { 'reviewer', 'moderator', 'admin' })
+        else
+            return self.shared or self.published or self.creator_id == user.id or
+                contains(self.editor_ids, user.id) or contains(self.reviewer_ids, user.id)
+        end
     end
 })
 

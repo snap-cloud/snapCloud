@@ -42,6 +42,7 @@ package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
 package.loaded.rollbar = require('resty.rollbar')
 package.loaded.disk = require('disk')
+package.loaded.helpers = require('helpers')
 
 local app = package.loaded.app
 local config = package.loaded.config
@@ -56,7 +57,7 @@ local domain_allowed = require('cors')
 
 -- Utility functions
 local date = require("date")
-local helpers = require('helpers')
+local helpers = package.loaded.helpers
 
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})

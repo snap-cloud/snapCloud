@@ -204,6 +204,7 @@ end
 assert_project = function (self, message)
     return assert_error(Projects:find(self.params.username, self.params.projectname),
                         message or err.nonexistent_project)
+<<<<<<< HEAD
 end
 
 can_view_project = function(self, project)
@@ -214,6 +215,8 @@ can_view_project = function(self, project)
         -- if can view collections return true
         assert_admin(self, err.nonexistent_project)
     end
+=======
+>>>>>>> 9d30d5a... Refactor: Move can_view functions to models
 end
 
 -- Tokens
@@ -317,6 +320,7 @@ assert_collection_exists = function (self)
 end
 
 assert_can_view_collection = function (self, collection)
+<<<<<<< HEAD
     if collection.shared or collection.published then
         return
     elseif users_match(self) or can_edit_collection(self, collection) then
@@ -330,6 +334,9 @@ assert_can_view_collection = function (self, collection)
         end
         yield_error(err.nonexistent_collection)
     end
+=======
+    return assert_error(collection:user_can_view(self.current_user), err.nonexistent_collection)
+>>>>>>> 9d30d5a... Refactor: Move can_view functions to models
 end
 
 assert_can_add_project_to_collection = function (self, project, collection)

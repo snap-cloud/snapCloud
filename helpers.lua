@@ -61,4 +61,13 @@ helpers.normalize_error = function(str)
     return grammar:match(first) or first
 end
 
+helpers.contains = function (tbl, search)
+  for _, value in ipairs(tbl) do
+      if value == search then
+          return true
+      end
+  end
+  return false
+end
+
 return helpers
