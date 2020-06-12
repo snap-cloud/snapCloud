@@ -155,6 +155,20 @@ package.loaded.Collections = Model:extend('collections', {
             return self.shared or self.published or self.creator_id == user.id or
                 contains(self.editor_ids, user.id) or contains(self.reviewer_ids, user.id)
         end
+    end,
+    user_can_edit = function (self, user)
+        return self.creator_id == user.id or contains(self.editor_ids, user.id) or user:isadmin()
+    end,
+    user_can_add_project = function (self, project, user)
+        -- Admins can add any project to any collection.
+        -- Anyone can add projects to the "Flagged" collection, with id == 0
+        if user:isadmin() or self.id == 0 then return true end
+
+        -- Users can add their own projects and published projects
+        -- to collections they can edit.
+        -- Users cannot add others' shared projects to a collection.
+        return self:user_can_edit(user) and
+            (project.username == self.current_user.username or project.ispublished)
     end
 })
 

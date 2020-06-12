@@ -347,7 +347,8 @@ assert_can_add_project_to_collection = function (self, project, collection)
     if collection.id == 0 then return end
 
     -- Users can add their own projects and published projects to collections
-    -- they can edit
+    -- they can edit.
+    -- Users cannot add others' shared projects to a collection.
     if can_edit_collection(self, collection) then
         return project.username == self.current_user.username or
             project.ispublished
