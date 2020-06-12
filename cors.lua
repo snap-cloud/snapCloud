@@ -1,7 +1,7 @@
 -- CORS module
 -- ==========
 --
--- A list of whitelisted domains that we support.
+-- A list of allowed domains that we support.
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
@@ -49,6 +49,7 @@ domain_allowed['stemc.csc.ncsu.edu'] = true
 domain_allowed['snapapps.fi.ncsu.edu'] = true
 domain_allowed['lambda.cs10.org'] = true
 domain_allowed['ecraft2learn.github.io'] = true
+domain_allowed['microworld.edc.org'] = true
 -- All edX Sites, and test sites
 domain_allowed['courses.edge.edx.org'] = true
 domain_allowed['courses.edx.org'] = true
