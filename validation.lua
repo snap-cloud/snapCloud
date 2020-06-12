@@ -204,19 +204,6 @@ end
 assert_project = function (self, message)
     return assert_error(Projects:find(self.params.username, self.params.projectname),
                         message or err.nonexistent_project)
-<<<<<<< HEAD
-end
-
-can_view_project = function(self, project)
-    if users_match(self) or project.ispublic then
-        return true
-    else
-        local collections = project:get_collections()
-        -- if can view collections return true
-        assert_admin(self, err.nonexistent_project)
-    end
-=======
->>>>>>> 9d30d5a... Refactor: Move can_view functions to models
 end
 
 -- Tokens
@@ -293,21 +280,6 @@ end
 
 -- Collections
 
-can_edit_collection = function (self, collection)
-    -- Users can edit their own collections
-    local can_edit = collection.creator_id == self.current_user.id
-
-    -- Find out whether user is in the editors array
-    if collection.editor_ids then
-        for _, editor_id in pairs(collection.editor_ids) do
-            if can_edit then return true end
-            can_edit = can_edit or (editor_id == self.current_user.id)
-        end
-    end
-
-    return can_edit
-end
-
 assert_collection_exists = function (self)
     local creator = Users:find({ username = self.params.username })
     local collection = Collections:find(creator.id, self.params.name)
@@ -320,42 +292,11 @@ assert_collection_exists = function (self)
 end
 
 assert_can_view_collection = function (self, collection)
-<<<<<<< HEAD
-    if collection.shared or collection.published then
-        return
-    elseif users_match(self) or can_edit_collection(self, collection) then
-        return
-    elseif collection.id == 0 then
-        -- Reviewers, moderators and admins can view the Flagged collection
-        assert_has_one_of_roles(self, { 'reviewer', 'moderator', 'admin' })
-    else
-        for _, viewer_id in pairs(collection.viewer_ids) do
-            if self.current_user.id == viewer_id then return end
-        end
-        yield_error(err.nonexistent_collection)
-    end
-=======
     return assert_error(collection:user_can_view(self.current_user), err.nonexistent_collection)
->>>>>>> 9d30d5a... Refactor: Move can_view functions to models
 end
 
 assert_can_add_project_to_collection = function (self, project, collection)
-    -- Admins can add any project to any collection.
-    if self.current_user:isadmin() then return end
-
-    -- Anyone can add projects to the "Flagged" collection, with id == 0
-    if collection.id == 0 then return end
-
-    -- Users can add their own projects and published projects to collections
-    -- they can edit.
-    -- Users cannot add others' shared projects to a collection.
-    if can_edit_collection(self, collection) then
-        return project.username == self.current_user.username or
-            project.ispublished
-    end
-
-    -- TODO: Can't Edit Collection Message?
-    yield_error(err.auth)
+    return assert_error(collection:user_can_add_project(project, self.current_user), err.auth)
 end
 
 assert_can_remove_project_from_collection =
@@ -370,9 +311,7 @@ assert_can_remove_project_from_collection =
             assert_has_one_of_roles(self, { 'moderator', 'reviewer' })
         end
 
-        if not can_edit_collection(self, collection) then
-            yield_error(err.auth)
-        end
+        assert_error(collection:user_can_edit(self.current_user), err.auth)
 end
 
 assert_project_not_in_collection = function (self, project, collection)
