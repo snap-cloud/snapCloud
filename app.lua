@@ -165,9 +165,9 @@ end
 
 -- Enable the ability to have a maintenance mode
 -- No routes are served, and a generic error is returned.
-if config.maintenance_mode == 'true' then
+if true or config.maintenance_mode == 'true' then
     local msg = 'The Snap!Cloud is currently down for maintenance.'
-    app:get('/*', function(self)
+    app:match('/*', function(self)
         return errorResponse(msg, 500)
     end)
     return app
