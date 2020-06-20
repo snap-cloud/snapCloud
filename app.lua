@@ -86,7 +86,7 @@ app.cookie_attributes = function(self)
 end
 
 -- Remove the protocol and port from a URL
-function domain_name(url)
+local function domain_name(url)
     if not url then
         return
     end
@@ -115,7 +115,7 @@ app:before_filter(function (self)
 
     -- unescape all parameters
     for k, v in pairs(self.params) do
-        self.params[k] = package.loaded.util.unescape(v or '')
+        self.params[k] = package.loaded.util.unescape(tostring(v))
     end
 
     if self.params.username and self.params.username ~= '' then
