@@ -166,22 +166,16 @@ CollectionController = {
             -- Parameters:  username, name
             local collection = assert_collection_exists(self)
             assert_can_view_collection(self, collection)
-            collection.projects_count = collection:count_projects()
-            local creator =
-                Users:select(
-                    'where id = ?', collection.creator_id,
-                    { fields = 'username, id' })[1]
-            collection.username = creator.username
+            local creator = collection:get_creator()
+
             if collection.thumbnail_id then
                 collection.thumbnail =
                     disk:retrieve_thumbnail(collection.thumbnail_id)
             end
-            if collection.editor_ids then
-                collection.editors = Users:find_all(
-                    collection.editor_ids,
-                    { fields = 'username, id' })
-            end
-
+            collection.projects_count = cWollection:count_projects()
+            collection.username = creator.username
+            collection.editors = collection:get_editors()
+            collection.viewers = collection:get_viewers()
             return jsonResponse(collection)
         end,
 

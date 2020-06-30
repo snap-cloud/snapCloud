@@ -124,10 +124,10 @@ app:before_filter(function (self)
         self.queried_user = package.loaded.Users:find({ username = self.params.username })
     end
 
-    if self.session.username then
+    if self.session.username and self.session.username ~= '' then
         self.current_user = package.loaded.Users:find({ username = self.session.username })
     else
-        self.session.username = ''
+        self.session.username = nil
         self.current_user = nil
     end
 
@@ -157,10 +157,12 @@ function app:handle_error(err, trace)
         user_params = current_user:rollbar_params()
     end
 
-    rollbar.set_person(user_params)
     err = helpers.normalize_error(err)
-    rollbar.set_custom_trace(err .. "\n\n" .. trace)
-    rollbar.report(rollbar.ERR, err)
+    if config._name ~= 'development' then
+        rollbar.set_person(user_params)
+        rollbar.set_custom_trace(err .. "\n\n" .. trace)
+        rollbar.report(rollbar.ERR, err)
+    end
     return errorResponse(err, 500)
 end
 

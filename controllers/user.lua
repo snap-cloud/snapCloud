@@ -448,7 +448,7 @@ UserController = {
         logout = function (self)
             -- POST /logout
             -- Description: Logs out the current user from the system.
-            self.session.username = ''
+            self.session.username = nil
             self.session.user_id = nil
             self.cookies.persist_session = 'false'
             return okResponse('logged out')

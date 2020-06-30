@@ -22,6 +22,7 @@
 
 local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
+local assert_error = package.loaded.app_helpers.assert_error
 local db = package.loaded.db
 local Collections = package.loaded.Collections
 local CollectionMemberships = package.loaded.CollectionMemberships
@@ -281,8 +282,7 @@ end
 -- Collections
 
 assert_collection_exists = function (self)
-    local creator = Users:find({ username = self.params.username })
-    local collection = Collections:find(creator.id, self.params.name)
+    local collection = Collections:find(self.queried_user.id, self.params.name)
 
     if not collection then
         yield_error(err.nonexistent_collection)
@@ -292,6 +292,9 @@ assert_collection_exists = function (self)
 end
 
 assert_can_view_collection = function (self, collection)
+    print('ASSERT CAN VIEW COLLECTION')
+    print('COLLECTION????   ' .. collection.id)
+    print('CURRENT USER???  ' .. self.current_user.username )
     return assert_error(collection:user_can_view(self.current_user), err.nonexistent_collection)
 end
 

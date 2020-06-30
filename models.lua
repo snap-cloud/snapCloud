@@ -50,6 +50,7 @@ package.loaded.Users = Model:extend('active_users', {
     end
 })
 
+local Users = package.loaded.Users
 package.loaded.DeletedUsers = Model:extend('deleted_users')
 
 package.loaded.Projects = Model:extend('active_projects', {
@@ -102,9 +103,25 @@ package.loaded.Collections = Model:extend('collections', {
     primary_key = {'creator_id', 'name'},
     timestamp = true,
     relations = {
-        -- creates Collection:get_creator()
-        {'creator', belongs_to = 'Users', key = 'creator_id'},
+        -- creates Collection:get_creator(), written this way to only select relevant fields.
+        {'creator', fetch = function (self)
+            return Users:select('WHERE id = ?', self.creator_id, {fields = 'username, id'})[1]
+        end},
         {'memberships', has_many = 'CollectionMemberships'},
+        {'editors', many = true, fetch = function (self)
+            if self.editor_ids then
+                return Users:find_all(self.editor_ids)
+            else
+                return {}
+            end
+        end},
+        {'viewers', many = true, fetch = function (self)
+            if self.viewer_ids then
+                return User:find_all(self.viewer_ids)
+            else
+                return {}
+            end
+        end},
         {'projects',
             fetch = function (self)
                 local query = db.interpolate_query(
@@ -156,9 +173,9 @@ package.loaded.Collections = Model:extend('collections', {
                                                           self.id)
     end,
     user_can_view = function (self, user)
-        if collection.id == 0 then
+        if self.id == 0 then
             -- Reviewers, moderators and admins can view the Flagged collection
-            assert_has_one_of_roles(self, { 'reviewer', 'moderator', 'admin' })
+            return user:has_one_of_roles({ 'reviewer', 'moderator', 'admin' })
         else
             return self.shared or self.published or self.creator_id == user.id or
                 contains(self.editor_ids, user.id) or contains(self.reviewer_ids, user.id)
@@ -179,6 +196,8 @@ package.loaded.Collections = Model:extend('collections', {
             (project.username == self.current_user.username or project.ispublished)
     end
 })
+
+local Collection = package.loaded.Collections
 
 package.loaded.CollectionMemberships = Model:extend(
     'collection_memberships', {
