@@ -105,19 +105,19 @@ package.loaded.Collections = Model:extend('collections', {
     relations = {
         -- creates Collection:get_creator(), written this way to only select relevant fields.
         {'creator', fetch = function (self)
-            return Users:select('WHERE id = ?', self.creator_id, {fields = 'username, id'})[1]
+            return Users:find({id = self.creator_id})
         end},
         {'memberships', has_many = 'CollectionMemberships'},
         {'editors', many = true, fetch = function (self)
             if self.editor_ids then
-                return Users:find_all(self.editor_ids)
+                return Users:find_all(self.editor_ids, {fields = 'username, id'})
             else
                 return {}
             end
         end},
         {'viewers', many = true, fetch = function (self)
             if self.viewer_ids then
-                return User:find_all(self.viewer_ids)
+                return User:find_all(self.viewer_ids, {fields = 'username, id'})
             else
                 return {}
             end

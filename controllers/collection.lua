@@ -172,7 +172,7 @@ CollectionController = {
                 collection.thumbnail =
                     disk:retrieve_thumbnail(collection.thumbnail_id)
             end
-            collection.projects_count = cWollection:count_projects()
+            collection.projects_count = collection:count_projects()
             collection.username = creator.username
             collection.editors = collection:get_editors()
             collection.viewers = collection:get_viewers()
