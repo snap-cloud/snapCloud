@@ -50,6 +50,9 @@ end
 
 APIController = {
     GET = {
+        init = function (self)
+            return errorResponse('Try refreshing the page and logging in again.', 400)
+        end,
         version = function (self)
             return jsonResponse({
                 name = 'Snap! Cloud',
@@ -71,7 +74,7 @@ APIController = {
 -- API Endpoints
 -- =============
 app:match(api_route('version', '/version', APIController, { 'GET' }))
-app:match(api_route('init', '/init', APIController, { 'POST' }))
+app:match(api_route('init', '/init', APIController, { 'GET', 'POST' }))
 
 -- Users
 -- =====
