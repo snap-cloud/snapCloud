@@ -20,6 +20,10 @@ certs/*
 # Location for LetsEncrypt challenge files.
 html/
 
+# Snap! Versions on the public site.
+snap-versions/
+!snap-versions/README.md
+
 # Temporary: The old static snap site:
 old_site
 
