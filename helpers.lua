@@ -61,7 +61,7 @@ helpers.normalize_error = function(str)
     local result = grammar:match(first) or first
     -- Additionally, trim the fat of standard paths
     return string.gsub(result,
-                       '/usr/local/share/lua/%[NUMBER%]/%a+/([%a%.]+:%d+):%s+', '')
+                      '/usr/local/share/lua/%[NUMBER%]/%a+/([%a%.]+:%d+):%s+', '')
 end
 
 return helpers
