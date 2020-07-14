@@ -3,7 +3,9 @@
 
 -- Main snapcloud owner for example collections.
 INSERT INTO users (id, username, verified, role)
-VALUES (519956, 'snapcloud', true, 'admin')
+VALUES
+  (519956, 'snapcloud', true, 'admin'),
+  (659145, 'snapcon', true, 'admin')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO collections (id, name, creator_id, created_at, updated_at, description, published, published_at, shared, shared_at, thumbnail_id, editor_ids)
@@ -16,5 +18,6 @@ VALUES
   (9, 'Science Projects', 519956, NOW(), NOW(), 'A collection of science-related projects curated by the Snap! team.', 't', NOW(), 't', NOW(), NULL, '{}'),
   (37, 'Animations', 519956, NOW(), NOW(), '', 't', NOW(), 't', NOW(), NULL, '{}'),
   (67, 'Simulations', 519956, NOW(), NOW(), 'Simulating real-world behavior in Snap!.', 'f', NULL, 'f', NULL, NULL, '{}'),
-  (390, 'Snap!Con 2019', 519956, NOW(), NOW(), 'Projects that we all demoed, shared or developed during Snap!Con 2019 in Heidelberg.', 't', NOW(), 't', NOW(), NULL, '{}')
+  (390, 'Snap!Con 2019', 519956, NOW(), NOW(), 'Projects that we all demoed, shared or developed during Snap!Con 2019 in Heidelberg.', 't', NOW(), 't', NOW(), NULL, '{}'),
+  (1603, 'Snap!Con 2020', 659145, NOW(), NOW(), 'Snap!Con 2020 Online!\n\nAll the content presented and demoed during the event.\n\nhttps://snapcon.org/', 't', NOW(), 't', NOW(), NULL, '{}')
  ON CONFLICT DO NOTHING;

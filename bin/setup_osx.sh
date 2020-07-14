@@ -34,3 +34,5 @@ brew install denji/nginx/openresty
 ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx ||:;
 
 $(dirname $(realpath $0))/luarocks-install-macos.sh;
+
+echo "Please run 'createdb snapcloud' once postgres is running.";

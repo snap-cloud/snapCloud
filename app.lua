@@ -42,7 +42,6 @@ package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
 package.loaded.rollbar = require('resty.rollbar')
 package.loaded.disk = require('disk')
-package.loaded.helpers = require('helpers')
 
 local app = package.loaded.app
 local config = package.loaded.config
@@ -57,7 +56,7 @@ local domain_allowed = require('cors')
 
 -- Utility functions
 local date = require("date")
-local helpers = package.loaded.helpers
+local helpers = require('helpers')
 
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})
@@ -124,10 +123,10 @@ app:before_filter(function (self)
         self.queried_user = package.loaded.Users:find({ username = self.params.username })
     end
 
-    if self.session.username and self.session.username ~= '' then
+    if self.session.username then
         self.current_user = package.loaded.Users:find({ username = self.session.username })
     else
-        self.session.username = nil
+        self.session.username = ''
         self.current_user = nil
     end
 
@@ -157,12 +156,10 @@ function app:handle_error(err, trace)
         user_params = current_user:rollbar_params()
     end
 
+    rollbar.set_person(user_params)
     err = helpers.normalize_error(err)
-    if config._name ~= 'development' then
-        rollbar.set_person(user_params)
-        rollbar.set_custom_trace(err .. "\n\n" .. trace)
-        rollbar.report(rollbar.ERR, err)
-    end
+    rollbar.set_custom_trace(err .. "\n\n" .. trace)
+    rollbar.report(rollbar.ERR, err)
     return errorResponse(err, 500)
 end
 
