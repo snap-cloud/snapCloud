@@ -65,6 +65,10 @@ domain_allowed['edge.edx.org'] = true
 domain_allowed['soundscope-website-beta.s3.amazonaws.com/index.html'] = true
 domain_allowed['soundscope-website-beta.s3.amazonaws.com'] = true
 domain_allowed['soundscope-website.web.app'] = true
+domain_allowed['tunescope.org'] = true
+domain_allowed['soundscope-website.firebaseapp.com'] = true
+domain_allowed['tune-scope.web.app'] = true
+domain_allowed['tune-scope.firebaseapp.com'] = true
 -- Others
 domain_allowed['www.maketolearn.org'] = true
 domain_allowed['snap.techlit.org'] = true
