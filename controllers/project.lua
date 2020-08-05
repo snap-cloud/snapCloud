@@ -430,9 +430,13 @@ ProjectController = {
                 -- A project flagged as "deleted" with the same name may exist
                 -- in the DB.
                 -- We need to check for that and delete it for real this time
-                local deleted_project = DeletedProjects:find(
-                    self.params.username, self.params.projectname)
-                if deleted_project then deleted_project:delete() end
+                local deleted_project =
+                    DeletedProjects:select(
+                        'where username = ? and projectname = ?',
+                        self.params.username, self.params.projectname)
+                if (deleted_project and deleted_project[1]) then
+                    deleted_project[1]:delete()
+                end
 
                 Projects:create({
                     projectname = self.params.projectname,
