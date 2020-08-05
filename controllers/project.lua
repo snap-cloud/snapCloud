@@ -430,14 +430,22 @@ ProjectController = {
                 -- A project flagged as "deleted" with the same name may exist
                 -- in the DB.
                 -- We need to check for that and delete it for real this time
-                local deleted_project =
-                    DeletedProjects:select(
-                        'where username = ? and projectname = ?',
-                        self.params.username, self.params.projectname)
-                if (deleted_project and deleted_project[1]) then
-                    deleted_project[1]:delete()
+                local deleted_project = DeletedProjects:find(
+                    self.params.username, self.params.projectname)
+                -- Deleted project may have remixes or be included in a
+                -- collection. Let's take care of this.
+                if deleted_project then
+                    db.query(
+                        'DELETE FROM Remixes WHERE '..
+                            'original_project_id = ? OR remixed_project_id = ?',
+                        deleted_project.id,
+                        deleted_project.id)
+                    db.query(
+                        'DELETE FROM Collection_Memberships WHERE ' ..
+                            'project_id = ?',
+                        deleted_project.id)
+                    deleted_project:delete()
                 end
-
                 Projects:create({
                     projectname = self.params.projectname,
                     username = self.params.username,
