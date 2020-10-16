@@ -55,9 +55,10 @@ err = {
                 'a new validation link.',
         status = 401 },
     nonvalidated_user_html = {
-        msg = 'This user has not been validated within the first 3 days ' ..
-            'after its creation.<br>Please use the cloud menu to ask for ' ..
-            'a new validation link:<img src="/static/cloud_menu.png"></img>',
+        msg = '<p>This user has not been validated within the first 3 days ' ..
+            'after its creation.</p><p>Please use the cloud menu to ask for ' ..
+            'a new validation link:</p><p><img src="/static/cloud_menu.png">' ..
+            '</img></p>',
         status = 401 },
     invalid_role = { msg = 'This user role is not valid', status = 401 },
     banned = { msg = 'Your user has been banned', status = 403 },
