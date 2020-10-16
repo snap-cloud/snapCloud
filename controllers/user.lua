@@ -399,6 +399,12 @@ UserController = {
             if (hash_password(password, self.queried_user.salt) ==
                     self.queried_user.password) then
                 if not self.queried_user.verified then
+                    -- Different message depending on where the login is coming
+                    -- from (editor vs. site)
+                    local message =
+                        (ngx.var.http_referer:sub(-#'snap.html') == 'snap.html')
+                            and err.nonvalidated_user_plaintext
+                            or err.nonvalidated_user_html
                     -- Check whether verification token is unused and valid
                     local token =
                         Tokens:find({
@@ -411,12 +417,12 @@ UserController = {
                                 token.created)[1]
                         if query.date_part > 3 then
                             token:delete()
-                            yield_error(err.nonvalidated_user)
+                            yield_error(message)
                         else
                             self.queried_user.days_left = 3 - query.date_part
                         end
                     else
-                        yield_error(err.nonvalidated_user)
+                        yield_error(message)
                     end
                 end
                 self.session.username = self.queried_user.username
