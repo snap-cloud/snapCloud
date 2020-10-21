@@ -262,12 +262,10 @@ UserController = {
             if (self.current_user) then
                 -- user is updating profile, or an admin is updating somebody
                 -- else's profile
-                if not users_match(self) then
-                    if self.params.role then
-                        assert_can_set_role(self, self.params.role)
-                    else
-                        assert_admin(self)
-                    end
+                if self.params.role then
+                    assert_can_set_role(self, self.params.role)
+                else
+                    assert_admin(self)
                 end
                 self.queried_user:update({
                     email = self.params.email or self.queried_user.email,
