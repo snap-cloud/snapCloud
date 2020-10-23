@@ -123,5 +123,12 @@ return {
             { 'updated_at', types.time({ timezone = true }) },
             { 'offense_count', types.integer, { default = 1 } }
         })
+    end,
+
+    ['2020-10-22:0'] = function ()
+        schema.add_column('users', 'unique_email', types.text({ null = true }))
+        -- We use an index on *non-unique* emails to be able to search related accounts.
+        -- We will rarely query by unique_email and thus no index is necessary.
+        schema.create_index('users', 'email', { unique = false })
     end
 }

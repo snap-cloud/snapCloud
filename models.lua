@@ -31,6 +31,9 @@ package.loaded.Users = Model:extend('active_users', {
     isadmin = function (self)
         return self.role == 'admin'
     end,
+    ismoderator = function (self)
+        return self.role == 'moderator'
+    end,
     isbanned = function (self)
         return self.role == 'banned'
     end,
@@ -45,6 +48,27 @@ package.loaded.Users = Model:extend('active_users', {
     rollbar_params = function (self)
         -- just the info necessary for error tracking
         return {id = self.id, username = self.username}
+    end,
+    discourse_email = function (self)
+        if self.unique_email ~= nil and self.unique_email ~= '' then
+            return self.unique_email
+        end
+        return self:ensure_unique_email()
+    end,
+    ensure_unique_email = function (self)
+        unique_email = self.email
+        if self:shares_email_with_others() then
+            unique_email = string.gsub(self.email, '@', '+snap-id-' .. self.id .. '@')
+        end
+        self:update({ unqiue_email = unique_email })
+        return unique_email
+    end,
+    shares_email_with_others = function (self)
+        email_count = db.interpolate_query('SELECT COUNT(*) FROM useres WHERE email = ?', self.email)
+        return email_count > 1
+    end,
+    can_access_forum = function (self)
+        return not self:isbanned() -- eventually no students.
     end
 })
 
