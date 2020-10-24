@@ -60,15 +60,15 @@ package.loaded.Users = Model:extend('active_users', {
         if self:shares_email_with_others() then
             unique_email = string.gsub(self.email, '@', '+snap-id-' .. self.id .. '@')
         end
-        self:update({ unqiue_email = unique_email })
+        self:update({ unique_email = unique_email })
         return unique_email
     end,
     shares_email_with_others = function (self)
-        email_count = db.interpolate_query('SELECT COUNT(*) FROM useres WHERE email = ?', self.email)
-        return email_count > 1
+        count = package.loaded.Users:count("email like '%'", self.email)
+        return count > 1
     end,
-    can_access_forum = function (self)
-        return not self:isbanned() -- eventually no students.
+    cannot_access_forum = function (self)
+        return self:isbanned() -- eventually no students.
     end
 })
 

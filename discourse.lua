@@ -67,34 +67,34 @@ app:get('/api/v1/discourse-sso', capture_errors(function(self)
     local request_payload = extract_payload(payload)
     local user = Users:select('where username = ? limit 1',
             self.session.username,
-            { fields = 'id, username, verified, role, email' })[1]
+            { fields = 'id, username, verified, role, email, unique_email' })[1]
 
     if user:cannot_access_forum() then
-        yield_error()
+        yield_error({ msg = 'Banned users cannot use the forum.', status = 403 })
     end
 
-    local response_payload = build_payload(user, request_payload.nonce)
+    local response_payload = build_payload(user, request_payload)
     local final_url = create_redirect_url(request_payload.return_sso_url,
                                           response_payload)
 
     -- don't redirect in development so you don't mess up your forum account.
-    if config._name == 'development' then return final_url end
+    -- if config._name == 'development' then return final_url end
     return { redirect_to = final_url }
 end))
 
-local function create_signature(payload)
+function create_signature(payload)
     local secret = config.discourse_sso_secret
     return resty_string.to_hex(encoding.hmac_sha256(secret, payload))
 end
 
-local function extract_payload(payload)
+function extract_payload(payload)
     return util.parse_query_string(encoding.decode_base64(payload))
 end
 
 -- Base64 encode the required discourse params.
 -- "require_activation" is a special discourse flag,
 -- for user's whose email is not verified. It enables additional restrictions.
-local function build_payload(user, nonce)
+function build_payload(user, request_payload)
     local params = {
         external_id = user.id,
         username = user.username,
@@ -102,8 +102,8 @@ local function build_payload(user, nonce)
         require_activation = not user.verified,
         admin = user:isadmin(),
         moderator = user:ismoderator(),
-        secondary_email = user.email,
-        nonce = nonce
+        nonce = request_payload.nonce,
+        return_sso_url = request_payload.return_sso_url
     }
     return encoding.encode_base64(util.encode_query_string(params))
 end
