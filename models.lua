@@ -56,6 +56,9 @@ package.loaded.Users = Model:extend('active_users', {
         return self:ensure_unique_email()
     end,
     ensure_unique_email = function (self)
+        -- If a user is new, then their "unique email" is an unmodified email address.
+        -- When emails are not unique, we will create a new unique email.
+        -- Unqiue emails take the form original-address+snap-id-01234@original.domain
         unique_email = self.email
         if self:shares_email_with_others() then
             unique_email = string.gsub(self.email, '@', '+snap-id-' .. self.id .. '@')

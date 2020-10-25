@@ -78,7 +78,7 @@ app:get('/api/v1/discourse-sso', capture_errors(function(self)
                                           response_payload)
 
     -- don't redirect in development so you don't mess up your forum account.
-    -- if config._name == 'development' then return final_url end
+    if config._name == 'development' then return final_url end
     return { redirect_to = final_url }
 end))
 
