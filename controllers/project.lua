@@ -43,7 +43,7 @@ ProjectController = {
         projects = cached({
             -- GET /projects
             -- Description: Get a list of published projects.
-            -- Parameters:  page, pagesize, matchtext, withthumbnail
+            -- Parameters:  page, pagesize, matchtext, withthumbnail, filtered
             exptime = 30, -- cache expires after 30 seconds
             function (self)
                 local query = 'where ispublished'
@@ -56,6 +56,12 @@ ProjectController = {
                             self.params.matchtext,
                             self.params.matchtext
                         )
+                end
+
+                -- Apply project name filter to hide projects with typical
+                -- BJC or Teals names.
+                if self.params.filtered then
+                    query = query .. db.interpolate_query(course_name_filter())
                 end
 
                 local paginator =
@@ -310,7 +316,7 @@ ProjectController = {
                     '(collections.shared and ?) or ' ..
                     '(not collections.shared and not ?)' ..
                         (self.current_user
-                            and 
+                            and
                                 (' or (collections.creator_id = ?) or ' ..
                                 '(collections.editor_ids @> array[?]))')
                             or
@@ -426,8 +432,20 @@ ProjectController = {
                 -- We need to check for that and delete it for real this time
                 local deleted_project = DeletedProjects:find(
                     self.params.username, self.params.projectname)
-                if deleted_project then deleted_project:delete() end
-
+                -- Deleted project may have remixes or be included in a
+                -- collection. Let's take care of this.
+                if deleted_project then
+                    db.query(
+                        'DELETE FROM Remixes WHERE '..
+                            'original_project_id = ? OR remixed_project_id = ?',
+                        deleted_project.id,
+                        deleted_project.id)
+                    db.query(
+                        'DELETE FROM Collection_Memberships WHERE ' ..
+                            'project_id = ?',
+                        deleted_project.id)
+                    deleted_project:delete()
+                end
                 Projects:create({
                     projectname = self.params.projectname,
                     username = self.params.username,
@@ -501,31 +519,36 @@ ProjectController = {
                 or (self.params.ispublic and not project.ispublic))
 
             -- Read request body and parse it into JSON
+            -- TODO: Replace this with json_params() after updating the projectname key.
             ngx.req.read_body()
             local body_data = ngx.req.get_body_data()
             local body = body_data and util.from_json(body_data) or nil
-            local new_name = body and body.projectname or nil
-            local new_notes = body and body.notes or nil
+            --local new_name = body and body.projectname and body.projectname ~= project.projectname
+            --local new_notes = body and body.notes and body.notes ~= project.notes
 
-            -- save new notes and project name into the project XML
-            if new_notes then disk:update_notes(project.id, new_notes) end
-            if new_name then disk:update_name(project.id, new_name) end
-
-            project:update({
-                projectname = new_name or project.projectname,
+            local result, error = project:update({
+                --projectname = new_name and body.projectname or project.projectname,
                 lastupdated = db.format_date(),
                 lastshared = shouldUpdateSharedDate and db.format_date() or nil,
                 firstpublished =
                     project.firstpublished or
                     (self.params.ispublished and db.format_date()) or
                     nil,
-                notes = new_notes or project.notes,
+                --notes = new_notes and body.notes or project.notes,
                 ispublic = self.params.ispublic or project.ispublic,
                 ispublished = self.params.ispublished or project.ispublished
             })
 
-            return okResponse('project ' .. self.params.projectname
-                .. ' updated')
+            if error then yield_error({ msg = error, status = 422 }) end
+
+            --[[
+            -- save new notes and project name into the project XML
+            if new_notes or new_name then
+                disk:update_metadata(project.id, project.projectname, project.notes)
+            end
+            --]]
+
+            return okResponse('project ' .. self.params.projectname .. ' updated')
         end
     },
 

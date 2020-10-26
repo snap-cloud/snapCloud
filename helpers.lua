@@ -58,7 +58,10 @@ helpers.normalize_error = function(str)
         make_grammar()
     end
     local first = str:match("^[^\n]+")
-    return grammar:match(first) or first
+    local result = grammar:match(first) or first
+    -- Additionally, trim the fat of standard paths
+    return string.gsub(result,
+                      '/usr/local/share/lua/%[NUMBER%]/%a+/([%a%.]+:%d+):%s+', '')
 end
 
 return helpers

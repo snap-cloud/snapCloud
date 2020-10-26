@@ -5,13 +5,13 @@
 
 
 # Ensure brew is installed.
-if [[-z `which brew`]]; then
+if [[ -z `which brew` ]]; then
     echo 'Please install homebrew before continuing.';
     echo 'Visit brew.sh for instructions.';
     exit 1;
 fi
 
-if [[-z `which npm`]]; then
+if [[ -z `which npm` ]]; then
     echo 'Skipping installing maildev (an email catcher).'
     echo 'To install maildev, first install node (npm), then do:'
     echo '"npm install -g maildev"'
@@ -33,4 +33,9 @@ brew install denji/nginx/openresty
 # Need to link openresty to an nginx name for lapis
 ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx
 
-./luarocks-install-macos.sh
+echo 'Adding luarocks path info to bashrc'
+echo "" >> ~/.bashrc
+echo "# Luarocks 3 and Lua 5.1 tools (added by snapCloud." >> ~/.bashrc
+echo $(luarocks path --lua-version 5.1) >> ~/.bashrc
+
+bin/luarocks-install-macos.sh;

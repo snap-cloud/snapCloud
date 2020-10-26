@@ -86,7 +86,7 @@ app.cookie_attributes = function(self)
 end
 
 -- Remove the protocol and port from a URL
-function domain_name(url)
+local function domain_name(url)
     if not url then
         return
     end
@@ -101,34 +101,37 @@ app:before_filter(function (self)
         return
     end
 
-    if ngx.req.get_method() ~= 'OPTIONS' then
-        -- unescape all parameters
-        for k, v in pairs(self.params) do
-            self.params[k] = package.loaded.util.unescape(v)
-        end
-
-        if self.params.username then
-            self.params.username = self.params.username:lower()
-            self.queried_user = package.loaded.Users:find({ username = self.params.username })
-        end
-
-        if self.session.username then
-            self.current_user = package.loaded.Users:find({ username = self.session.username })
-        else
-            self.session.username = ''
-            self.current_user = nil
-        end
-
-        if self.params.matchtext then
-            self.params.matchtext = '%' .. self.params.matchtext .. '%'
-        end
-    end
     -- Set Access Control header
     local domain = domain_name(self.req.headers.origin)
     if self.req.headers.origin and domain_allowed[domain] then
         self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
         self.res.headers['Access-Control-Allow-Credentials'] = 'true'
         self.res.headers['Vary'] = 'Origin'
+    end
+
+    if ngx.req.get_method() == 'OPTIONS' then
+        return -- avoid any unnecessary work for CORS pre-flight requests
+    end
+
+    -- unescape all parameters
+    for k, v in pairs(self.params) do
+        self.params[k] = package.loaded.util.unescape(tostring(v))
+    end
+
+    if self.params.username and self.params.username ~= '' then
+        self.params.username = self.params.username:lower()
+        self.queried_user = package.loaded.Users:find({ username = self.params.username })
+    end
+
+    if self.session.username then
+        self.current_user = package.loaded.Users:find({ username = self.session.username })
+    else
+        self.session.username = ''
+        self.current_user = nil
+    end
+
+    if self.params.matchtext then
+        self.params.matchtext = '%' .. self.params.matchtext .. '%'
     end
 end)
 
@@ -176,8 +179,10 @@ end
 function app:handle_error(err, trace)
     print('HANDLE ERROR')
     -- self.current_user is not available here.
+    if self.session.username then
+        local current_user = package.loaded.Users:find({ username = self.session.username })
+    end
     local user_params = {}
-    local current_user = package.loaded.Users:find({ username = self.session.username })
     if current_user then
         user_params = current_user:rollbar_params()
     end
@@ -213,7 +218,7 @@ end
 -- No routes are served, and a generic error is returned.
 if config.maintenance_mode == 'true' then
     local msg = 'The Snap!Cloud is currently down for maintenance.'
-    app:get('/*', function(self)
+    app:match('/*', function(self)
         return errorResponse(msg, 500)
     end)
     return app

@@ -411,7 +411,11 @@ CollectionController = {
             -- DELETE /users/:username/collections/:name
             --            /editors/:editor_username
             -- Description: Remove an editor from a collection
-            if not users_match(self) then assert_admin(self) end
+            if not users_match(self) and
+                -- users can remove themselves from collections
+                (self.params.editor_username ~= self.current_user.username) then
+                    assert_admin(self)
+            end
 
             local editor = Users:find(
                 { username = self.params.editor_username })

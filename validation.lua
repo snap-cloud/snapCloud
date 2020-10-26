@@ -49,13 +49,22 @@ err = {
     expired_token = { msg = 'This token has expired', status = 401 },
     invalid_token =
         { msg = 'This token is either invalid or has expired', status = 401 },
-    nonvalidated_user = {
+    nonvalidated_user_plaintext = {
         msg = 'This user has not been validated within the first 3 days ' ..
                 'after its creation.\nPlease use the cloud menu to ask for ' ..
                 'a new validation link.',
         status = 401 },
+    nonvalidated_user_html = {
+        msg = '<p>This user has not been validated within the first 3 days ' ..
+            'after its creation.</p>' ..
+            '<p>Please <a href="/run">open the Snap<em>!</em> editor</a> and' ..
+            ' then use the cloud menu to ask for a new validation link:</p>' ..
+            '<p><img src="/static/cloud_menu.png"></img></p>',
+        status = 401 },
     invalid_role = { msg = 'This user role is not valid', status = 401 },
     banned = { msg = 'Your user has been banned', status = 403 },
+    update_project_fail =
+        { msg = 'Project could not be updated', status = 500 },
     unparseable_xml =
         { msg = 'Project file could not be parsed', status = 500 },
     file_not_found = { msg = 'Project file not found', status = 404 },
@@ -362,3 +371,28 @@ assert_project_not_in_collection = function (self, project, collection)
         yield_error(err.project_already_in_collection)
     end
 end
+
+-- Project name filter
+-- Matches project names that are typical in courses like BJC or Teals.
+course_name_filter = function ()
+    local expressions = {
+        '^[0-9]+\\.[0-9]+',
+        'u[0-9]+l[0-9]+',
+        'm[0-9]+l[0-9]+',
+        '^lab *[0-9]+',
+        '^unit([0-9]+| )',
+        '^ap ',
+        'create *task',
+        '^coin *flip',
+        'week *[0-9]+',
+        'lesson *[0-9]+',
+        'task *[0-9]+',
+        'do now'
+    }
+    local filter = ''
+    for _, expression in pairs(expressions) do
+        filter = filter .. ' and (projectname !~* ' .. "'" .. expression .. "')"
+    end
+    return filter
+end
+--]]

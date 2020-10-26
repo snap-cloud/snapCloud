@@ -276,12 +276,10 @@ end
             if (self.current_user) then
                 -- user is updating profile, or an admin is updating somebody
                 -- else's profile
-                if not users_match(self) then
-                    if self.params.role then
-                        assert_can_set_role(self, self.params.role)
-                    else
-                        assert_admin(self)
-                    end
+                if self.params.role then
+                    assert_can_set_role(self, self.params.role)
+                else
+                    assert_admin(self)
                 end
                 self.queried_user:update({
                     email = self.params.email or self.queried_user.email,
@@ -413,6 +411,12 @@ end
             if (hash_password(password, self.queried_user.salt) ==
                     self.queried_user.password) then
                 if not self.queried_user.verified then
+                    -- Different message depending on where the login is coming
+                    -- from (editor vs. site)
+                    local message =
+                        (ngx.var.http_referer:sub(-#'snap.html') == 'snap.html')
+                            and err.nonvalidated_user_plaintext
+                            or err.nonvalidated_user_html
                     -- Check whether verification token is unused and valid
                     local token =
                         Tokens:find({
@@ -425,12 +429,12 @@ end
                                 token.created)[1]
                         if query.date_part > 3 then
                             token:delete()
-                            yield_error(err.nonvalidated_user)
+                            yield_error(message)
                         else
                             self.queried_user.days_left = 3 - query.date_part
                         end
                     else
-                        yield_error(err.nonvalidated_user)
+                        yield_error(message)
                     end
                 end
                 self.session.username = self.queried_user.username
