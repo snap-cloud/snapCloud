@@ -34,33 +34,6 @@ local db = require("lapis.db")
 local schema = require("lapis.db.schema")
 local types = schema.types
 
--- You MUST recreate the views modifying the users table.
-local update_user_views = function ()
-    db.query([[
-        CREATE OR REPLACE VIEW active_users AS (
-            SELECT * FROM users WHERE deleted is null
-        )
-    ]])
-    db.query([[
-        CREATE OR REPLACE VIEW deleted_users AS (
-            SELECT * FROM users WHERE deleted is not null
-        )
-    ]])
-end
-
-local update_project_views = function ()
-    db.query([[
-        CREATE OR REPLACE VIEW active_projects AS (
-            SELECT * FROM projects WHERE deleted is null
-        )
-    ]])
-    db.query([[
-        CREATE OR REPLACE VIEW deleted_projects AS (
-            SELECT * FROM projects WHERE deleted is not null
-        )
-    ]])
-end
-
 return {
     -- TODO: We will eventually create migrations for the other tables.
 
@@ -107,12 +80,30 @@ return {
         schema.add_column('users',
                           'deleted',
                           types.time({ timezone = true, null = true }))
-        update_user_views()
+        db.query([[
+            CREATE VIEW active_users AS (
+                SELECT * FROM users WHERE deleted is null
+            )
+        ]])
+        db.query([[
+            CREATE VIEW deleted_users AS (
+                SELECT * FROM users WHERE deleted is not null
+            )
+        ]])
 
         schema.add_column('projects',
                           'deleted',
                           types.time({ timezone = true, null = true }))
-        update_project_views()
+        db.query([[
+            CREATE VIEW active_projects AS (
+                SELECT * FROM projects WHERE deleted is null
+            )
+        ]])
+        db.query([[
+            CREATE VIEW deleted_projects AS (
+                SELECT * FROM projects WHERE deleted is not null
+            )
+        ]])
     end,
 
     -- Add an editor_ids[] field to collections
@@ -132,13 +123,5 @@ return {
             { 'updated_at', types.time({ timezone = true }) },
             { 'offense_count', types.integer, { default = 1 } }
         })
-    end,
-
-    ['2020-10-22:0'] = function ()
-        schema.add_column('users', 'unique_email', types.text({ null = true, unique = true }))
-        -- We use an index on *non-unique* emails to be able to search related accounts.
-        -- We will rarely query by unique_email and thus no index is necessary.
-        schema.create_index('users', 'email', { unique = false })
-        update_user_views()
     end
 }
