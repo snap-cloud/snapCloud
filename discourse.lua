@@ -67,8 +67,13 @@ app:get('/api/v1/discourse-sso', capture_errors(function(self)
     local request_payload = extract_payload(payload)
     local user = Users:select('where username = ? limit 1',
             self.session.username,
-            { fields = 'id, username, verified, role, email' })[1]
-    local response_payload = build_payload(user, request_payload.nonce)
+            { fields = 'id, username, verified, role, email, unique_email' })[1]
+
+    if user:cannot_access_forum() then
+        yield_error({ msg = 'Banned users cannot use the forum.', status = 403 })
+    end
+
+    local response_payload = build_payload(user, request_payload)
     local final_url = create_redirect_url(request_payload.return_sso_url,
                                           response_payload)
 
@@ -89,14 +94,16 @@ end
 -- Base64 encode the required discourse params.
 -- "require_activation" is a special discourse flag,
 -- for user's whose email is not verified. It enables additional restrictions.
-function build_payload(user, nonce)
+function build_payload(user, request_payload)
     local params = {
         external_id = user.id,
         username = user.username,
-        email = user.email,
+        email = user:discourse_email(),
         require_activation = not user.verified,
         admin = user:isadmin(),
-        nonce = nonce
+        moderator = user:ismoderator(),
+        nonce = request_payload.nonce,
+        return_sso_url = request_payload.return_sso_url
     }
     return encoding.encode_base64(util.encode_query_string(params))
 end
