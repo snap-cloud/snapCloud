@@ -267,6 +267,15 @@ UserController = {
                 else
                     assert_admin(self)
                 end
+                -- someone's trying to update the user's email
+                if self.params.email then
+                    -- they need to provide the user's password, or be an admin
+                    if
+                        hash_password(password, self.queried_user.salt) ~=
+                            self.queried_user.password then
+                        assert_admin(self)
+                    end
+                end
                 self.queried_user:update({
                     email = self.params.email or self.queried_user.email,
                     role = self.params.role or self.queried_user.role
