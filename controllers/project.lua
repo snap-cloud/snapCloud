@@ -92,7 +92,7 @@ ProjectController = {
             -- Parameters:  ispublished, page, pagesize, matchtext,
             --              withthumbnail, updatingnotes
             local order = 'lastupdated'
-
+            xyz()
             if not (users_match(self)) then
                 if not self.current_user or not self.current_user:isadmin() then
                     self.params.ispublished = 'true'

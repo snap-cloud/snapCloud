@@ -22,9 +22,60 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+-- _G Write guard spam hack. TODO: clean this up.
+rawset(_G, 'lfs', false)
+rawset(_G, 'lpeg', false)
+rawset(_G, 'socket', false)
+rawset(_G, 'ltn12', false)
+
+rawset(_G, 'create_redirect_url', false)
+rawset(_G, 'build_payload', false)
+rawset(_G, 'extract_payload', false)
+rawset(_G, 'tbl', false)
+rawset(_G, 'APIController', false)
+rawset(_G, 'CollectionController', false)
+rawset(_G, 'ProjectController', false)
+rawset(_G, 'UserController', false)
+rawset(_G, 'random_password', false)
+rawset(_G, 'secure_token', false)
+rawset(_G, 'secure_salt', false)
+rawset(_G, 'jsonResponse', false)
+rawset(_G, 'xmlResponse', false)
+rawset(_G, 'okResponse', false)
+rawset(_G, 'errorResponse', false)
+rawset(_G, 'htmlPage', false)
+rawset(_G, 'cors_options', false)
+rawset(_G, 'rawResponse', false)
+rawset(_G, 'TIMEOUT', false)
+rawset(_G, 'bad_func', false)
+rawset(_G, 'mail_bodies', false)
+rawset(_G, 'mail_subjects', false)
+rawset(_G, 'send_mail', false)
+rawset(_G, 'err', false)
+rawset(_G, 'assert_all', false)
+rawset(_G, 'assert_logged_in', false)
+rawset(_G, 'assert_role', false)
+rawset(_G, 'assert_has_one_of_roles', false)
+rawset(_G, 'assert_admin', false)
+rawset(_G, 'assert_can_set_role', false)
+rawset(_G, 'users_match', false)
+rawset(_G, 'assert_users_match', false)
+rawset(_G, 'assert_user_exists', false)
+rawset(_G, 'assert_users_have_email', false)
+rawset(_G, 'assert_project_exists', false)
+rawset(_G, 'check_token', false)
+rawset(_G, 'create_token', false)
+rawset(_G, 'can_edit_collection', false)
+rawset(_G, 'assert_collection_exists', false)
+rawset(_G, 'assert_can_view_collection', false)
+rawset(_G, 'assert_can_add_project_to_collection', false)
+rawset(_G, 'assert_can_remove_project_from_collection', false)
+rawset(_G, 'assert_project_not_in_collection', false)
+rawset(_G, 'course_name_filter', false)
+rawset(_G, 'hash_password', false)
+rawset(_G, 'create_signature', false)
 
 -- Packaging everything so it can be accessed from other modules
-
 local lapis = require 'lapis'
 package.loaded.app = lapis.Application()
 package.loaded.db = require 'lapis.db'
@@ -47,6 +98,7 @@ local app = package.loaded.app
 local config = package.loaded.config
 
 -- Track exceptions
+local helpers = require('helpers')
 local rollbar = package.loaded.rollbar
 rollbar.set_token(config.rollbar_token)
 rollbar.set_environment(config._name)
@@ -56,7 +108,6 @@ local domain_allowed = require('cors')
 
 -- Utility functions
 local date = require("date")
-local helpers = require('helpers')
 
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})
@@ -135,39 +186,12 @@ app:before_filter(function (self)
     end
 end)
 
-package.loaded['raven.util'] = require "lib/raven-lua/raven/util"
-package.loaded['raven.senders.luasocket'] = require "lib/raven-lua/raven/senders/luasocket"
-package.loaded['raven.senders.ngx'] = require "lib/raven-lua/raven/senders/ngx"
+-- requires raven to be at ./raven/*
+local raven = require "raven"
 
-local raven = require "lib/raven-lua/raven/init"
-
-local rvn = raven.new {
-    -- multiple senders are available for different networking backends,
-    -- doing a custom one is also very easy.
-    sender = require("raven.senders.luasocket").new {
-        dsn = "https://a643b06dd38f46aab9a32de8d5f435ed:ba5b31c4918742ceadfa59d31449f8b0@sentry.cs10.org/2",
-    },
-    environment = config._name,
-    release = '1234',
-    user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
-    tags = { foo = "bar" },
-}
-package.loaded.rvn = rvn
-
--- Send a message to sentry
-local id, err = rvn:captureMessage(
-    "A NEW MESSAGE",
-    {
-        tags = { abc = "def" },
-        user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
-    } -- optional
-)
-if not id then
-    print(err)
-end
+-- package.loaded.rvn = rvn
 
 -- This module only takes care of the index endpoint
-
 app:get('/', function(self)
     return { redirect_to = self:build_url('site/') }
 end)
@@ -175,6 +199,9 @@ end)
 function app:handle_404()
     return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
 end
+
+-- local dsn_url = "https://cd8408d79b474f398042d3d78d2b805e:ca49d1e991e54b84a6d7d545a91956b5@o467698.ingest.sentry.io/5494510"
+local dsn_url = "https://a643b06dd38f46aab9a32de8d5f435ed:ba5b31c4918742ceadfa59d31449f8b0@sentry.cs10.org/2"
 
 function app:handle_error(err, trace)
     print('HANDLE ERROR')
@@ -187,31 +214,34 @@ function app:handle_error(err, trace)
         user_params = current_user:rollbar_params()
     end
 
-    rvn:captureMessage(
-    trace,
-    {
-        -- tags = { abc = "def" },
+    local rvn = raven.new({
+        -- multiple senders are available for different networking backends,
+        -- doing a custom one is also very easy.
+        sender = require("raven.senders.luasocket").new { dsn = dsn_url },
+        environment = config._name
+        -- release = '1234',
         -- user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
-    } -- optional
-)
-rvn:captureException(
-    {
-      {
-          message = err,
-          value = err,
-          stacktrace = trace,
-      }
-    },
-    -- self.original_request.error
-    {
---         tags = { abc = "def" },
-        user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
-    } -- optional
-)
-    -- rollbar.set_person(user_params)
-    -- rollbar.set_custom_trace(err .. "\n\n" .. trace)
-    -- rollbar.report(rollbar.ERR, helpers.normalize_error(err))
-    return errorResponse(err, 500)
+    })
+
+    local id, err2 = rvn:captureException(
+        { {
+            type = "Test Type 2",
+            module = "test module",
+            message = "Test",
+            value = err .. '1',
+            stacktrace = trace,
+        } },
+        -- self.original_request.error
+        { user = { id = 305, username = 'cycomachead'} } -- optional
+    )
+    print('ID: ')
+    print(id)
+    print(trace)
+    local mId, mErr = rvn:captureMessage('TESTING')
+    rollbar.set_person(user_params)
+    rollbar.set_custom_trace(err .. "\n\n" .. trace)
+    rollbar.report(rollbar.ERR, helpers.normalize_error(err))
+    return errorResponse(id .. '    2     ' .. mId, 500)
 end
 
 -- Enable the ability to have a maintenance mode
