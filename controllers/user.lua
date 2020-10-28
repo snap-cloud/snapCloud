@@ -564,7 +564,10 @@ UserController = {
                 end
             else
                 if not users_match(self) then assert_admin(self) end
-                if
+
+                if not self.params.password then
+                    assert_admin(self)
+                elseif
                     hash_password(self.params.password,
                         self.queried_user.salt) ~=
                             self.queried_user.password then
