@@ -264,8 +264,6 @@ UserController = {
                 -- else's profile
                 if self.params.role then
                     assert_can_set_role(self, self.params.role)
-                else
-                    assert_admin(self)
                 end
                 -- someone's trying to update the user's email
                 if self.params.email then
@@ -566,6 +564,12 @@ UserController = {
                 end
             else
                 if not users_match(self) then assert_admin(self) end
+                if
+                    hash_password(self.params.password,
+                        self.queried_user.salt) ~=
+                            self.queried_user.password then
+                    assert_admin(self)
+                end
                 assert_user_exists(self)
                 -- Do not actually delete the user; flag it as deleted.
                 if not (self.queried_user:update({
