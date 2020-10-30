@@ -387,6 +387,16 @@ UserController = {
             -- Description: Generate a token to reset a user's password.
             -- @see validation.create_token
             assert_user_exists(self)
+            local token = find_token(self.params.username, 'password_reset')
+            if token then
+                local epoch = db.select(
+                    "extract(epoch from (now()::timestamp - ?::timestamp))",
+                    token.created)[1].date_part
+                local minutes = epoch / 60
+                if minutes < 15 then
+                    yield_error(err.too_many_password_resets)
+                end
+            end
             create_token(self, 'password_reset', self.params.username,
                 self.queried_user.email)
             return okResponse('Password reset request sent.\n' ..

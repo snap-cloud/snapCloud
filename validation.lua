@@ -78,7 +78,12 @@ err = {
     collection_contains_unpublished_projects = {
         msg = 'This collection cannot be published' ..
             ' as it contains unpublished projects',
-        status = 409 }
+        status = 409 },
+    too_many_password_resets = {
+        msg = 'A password reset email has already been sent to this user ' ..
+            'recently.<br/>Please check your spam folder, or wait a few minutes ' ..
+            'and try again.',
+        status = 429 }
 }
 
 assert_all = function (assertions, self)
@@ -244,6 +249,10 @@ check_token = function (token_value, purpose, on_success)
     end
 end
 
+find_token = function (username, purpose)
+    return Tokens:find({ username = username, purpose = purpose})
+end
+
 --- Creates a token and sends an email
 -- @param self: request object
 -- @param purpose string: token purpose and route name
@@ -254,8 +263,7 @@ create_token = function (self, purpose, username, email)
 
     -- First check whether there's an existing token for the same user and
     -- purpose. If we find it, we'll just reset its creation date and reuse it.
-    local existing_token =
-        Tokens:find({ username = username, purpose = purpose })
+    local existing_token = find_token(username, purpose)
 
     if existing_token then
         token_value = existing_token.value
