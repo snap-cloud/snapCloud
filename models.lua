@@ -45,9 +45,9 @@ package.loaded.Users = Model:extend('active_users', {
         end
         return false
     end,
-    rollbar_params = function (self)
-        -- just the info necessary for error tracking
-        return {id = self.id, username = self.username}
+    logging_params = function (self)
+        -- Identifying info, excluding email (PII)
+        return { id = self.id, username = self.username }
     end,
     discourse_email = function (self)
         if self.unique_email ~= nil and self.unique_email ~= '' then

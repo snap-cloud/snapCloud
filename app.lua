@@ -85,27 +85,21 @@ package.loaded.yield_error = package.loaded.app_helpers.yield_error
 package.loaded.validate = require 'lapis.validate'
 package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
-package.loaded.respond_to = require('lapis.application').respond_to
+package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.cached = require('lapis.cache').cached
 package.loaded.resty_sha512 = require "resty.sha512"
 package.loaded.resty_string = require "resty.string"
 package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
-package.loaded.rollbar = require('resty.rollbar')
 package.loaded.disk = require('disk')
 
 local app = package.loaded.app
 local config = package.loaded.config
 
--- Track exceptions
-local helpers = require('helpers')
-local rollbar = package.loaded.rollbar
-rollbar.set_token(config.rollbar_token)
-rollbar.set_environment(config._name)
-
+-- Track exceptions, exposes raven, rollbar, and normalize_error
+local exceptions = require('lib.exceptions')
 -- Store whitelisted domains
 local domain_allowed = require('cors')
-
 -- Utility functions
 local date = require("date")
 
@@ -186,9 +180,6 @@ app:before_filter(function (self)
     end
 end)
 
--- requires raven to be at ./raven/*
-local raven = require "raven"
-
 -- This module only takes care of the index endpoint
 app:get('/', function(self)
     return { redirect_to = self:build_url('site/') }
@@ -198,68 +189,28 @@ function app:handle_404()
     return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
 end
 
-local rvn = raven.new({
-    sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
-    environment = config._name,
-})
-raven.get_server_name = function()
-    return 'Snap!Cloud'
-end
-raven.get_request_data = function()
-    local url = ngx.var.scheme..'://'..ngx.var.host..ngx.var.request_uri
-    local method = ngx.req.get_method()
-    local request = {
-      url = url,
-      method = method,
-      headers = ngx.req.get_headers(),
-      query_string = ngx.var.args,
-      env = config
-    }
-    if method == 'GET' then
-      request.GET = ngx.req.get_uri_args()
-    elseif method == 'POST' then
-      ngx.req.read_body()
-      local args, err = ngx.req.get_post_args()
-      if err then
-        request.data = 'ERROR READING POST ARGS'
-      else
-        request.data = args
-      end
-    end
-    return request
-end
--- Setup seed for raven to generate event ids.
-local math = require('math')
-math.randomseed(os.time())
-
 function app:handle_error(err, trace)
+    local err_msg = exceptions.normalize_error(err)
     -- self.current_user is not available here.
-    local current_user = nil
-    local user_params = { id = 0, username = "logged-out" }
-    if self.session.username then
-        current_user = package.loaded.Users:find({ username = self.session.username })
+    local user_info = exceptions.get_user_info(self.session)
+    if config.sentry_dsn then
+        local _, send_err = exceptions.rvn:captureException({{
+            type = err_msg,
+            module = string.sub(err_msg, 1, string.find(err_msg, " ")),
+            value = err .. "\n\n" .. trace,
+            trace_level = 3, -- Skip `handle_error`
+        }}, {
+            user = user_info
+        })
+        if send_err then
+            ngx.log(ngx.ERR, send_err)
+        end
     end
-
-    if current_user then
-        user_params = current_user:rollbar_params()
+    if config.rollbar_token then
+        exceptions.rollbar.set_person(user_params)
+        exceptions.rollbar.set_custom_trace(err .. "\n\n" .. trace)
+        exceptions.rollbar.report(exceptions.rollbar.ERR, err_msg)
     end
-
-    local err_msg = helpers.normalize_error(err)
-
-    local _, send_err = rvn:captureException({{
-        type = err_msg,
-        module = string.sub(err_msg, 1, string.find(err_msg, " ")),
-        value = err,
-        trace_level = 3, -- Skip `handle_error`
-    }}, {
-        user = user_params
-    })
-    if send_err then
-        ngx.say(ngx.ERROR, send_err)
-    end
-    rollbar.set_person(user_params)
-    rollbar.set_custom_trace(err .. "\n\n" .. trace)
-    rollbar.report(rollbar.ERR, err_msg)
     return errorResponse("An unexpected error occured: " .. err_msg, 500)
 end
 
