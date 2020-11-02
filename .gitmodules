@@ -1,9 +1,9 @@
 [submodule "snap"]
 	path = snap
-	url = git://github.com/jmoenig/Snap--Build-Your-Own-Blocks.git
+	url = git://github.com/jmoenig/snap.git
 [submodule "site"]
 	path = site
-	url = git://github.com/bromagosa/SnapSite.git
+	url = git://github.com/snap-cloud/SnapSite.git
 [submodule "lib/raven-lua"]
 	path = lib/raven-lua
-	url = git://github.com/cloudflare/raven-lua.git
+	url = git://github.com/snap-cloud/raven-lua.git
