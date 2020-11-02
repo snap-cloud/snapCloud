@@ -52,7 +52,7 @@ APIController = {
     GET = {
         init = function (self)
             return errorResponse(
-                'It seems like you are trying to login in. ' ..
+                'It seems like you are trying to log in. ' ..
                 'Try refreshing the page and try again. This URL is internal to the Snap!Cloud.',
                 400)
         end,

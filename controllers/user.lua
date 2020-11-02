@@ -278,8 +278,16 @@ end
                 -- else's profile
                 if self.params.role then
                     assert_can_set_role(self, self.params.role)
-                else
-                    assert_admin(self)
+                end
+                -- someone's trying to update the user's email
+                if self.params.email then
+                    -- they need to provide the user's password, or be an admin
+                    if
+                        hash_password(self.params.password,
+                            self.queried_user.salt) ~=
+                                self.queried_user.password then
+                        assert_admin(self)
+                    end
                 end
                 self.queried_user:update({
                     email = self.params.email or self.queried_user.email,
@@ -393,6 +401,16 @@ end
             -- Description: Generate a token to reset a user's password.
             -- @see validation.create_token
             assert_user_exists(self)
+            local token = find_token(self.params.username, 'password_reset')
+            if token then
+                local epoch = db.select(
+                    "extract(epoch from (now()::timestamp - ?::timestamp))",
+                    token.created)[1].date_part
+                local minutes = epoch / 60
+                if minutes < 15 then
+                    yield_error(err.too_many_password_resets)
+                end
+            end
             create_token(self, 'password_reset', self.params.username,
                 self.queried_user.email)
             return okResponse('Password reset request sent.\n' ..
@@ -570,6 +588,15 @@ end
                 end
             else
                 if not users_match(self) then assert_admin(self) end
+
+                if not self.params.password then
+                    assert_admin(self)
+                elseif
+                    hash_password(self.params.password,
+                        self.queried_user.salt) ~=
+                            self.queried_user.password then
+                    assert_admin(self)
+                end
                 assert_user_exists(self)
                 -- Do not actually delete the user; flag it as deleted.
                 if not (self.queried_user:update({
