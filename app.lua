@@ -189,8 +189,6 @@ end)
 -- requires raven to be at ./raven/*
 local raven = require "raven"
 
--- package.loaded.rvn = rvn
-
 -- This module only takes care of the index endpoint
 app:get('/', function(self)
     return { redirect_to = self:build_url('site/') }
@@ -200,48 +198,69 @@ function app:handle_404()
     return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
 end
 
--- local dsn_url = "https://cd8408d79b474f398042d3d78d2b805e:ca49d1e991e54b84a6d7d545a91956b5@o467698.ingest.sentry.io/5494510"
-local dsn_url = "https://a643b06dd38f46aab9a32de8d5f435ed:ba5b31c4918742ceadfa59d31449f8b0@sentry.cs10.org/2"
+local dsn_url = "https://a643b06dd38f46aab9a32de8d5f435ed@sentry.cs10.org/2"
+local rvn = raven.new({
+    -- multiple senders are available for different networking backends,
+    -- doing a custom one is also very easy.
+    sender = require("raven.senders.luasocket").new { dsn = dsn_url },
+    environment = config._name,
+})
+raven.get_server_name = function()
+    return 'Snap!Cloud'
+end
+raven.get_request_data = function()
+    local url = ngx.var.scheme..'://'..ngx.var.host..ngx.var.request_uri
+    local method = ngx.req.get_method()
+    local request = {
+      url = url,
+      method = method,
+      headers = ngx.req.get_headers(),
+      query_string = ngx.var.args,
+      env = config
+    }
+    if method == 'GET' then
+      request.GET = ngx.req.get_uri_args()
+    elseif method == 'POST' then
+      ngx.req.read_body()
+      local args, err = ngx.req.get_post_args()
+      if err then
+        request.data = 'ERROR READING POST ARGS'
+      else
+        request.data = args
+      end
+    end
+    return request
+end
+-- Setup seed for raven to generate event ids.
+local math = require('math')
+math.randomseed(os.time())
 
 function app:handle_error(err, trace)
-    print('HANDLE ERROR')
     -- self.current_user is not available here.
+    local current_user = nil
+    local user_params = { id = 0, username = "logged-out" }
     if self.session.username then
-        local current_user = package.loaded.Users:find({ username = self.session.username })
+        current_user = package.loaded.Users:find({ username = self.session.username })
     end
-    local user_params = {}
+
     if current_user then
         user_params = current_user:rollbar_params()
     end
 
-    local rvn = raven.new({
-        -- multiple senders are available for different networking backends,
-        -- doing a custom one is also very easy.
-        sender = require("raven.senders.luasocket").new { dsn = dsn_url },
-        environment = config._name
-        -- release = '1234',
-        -- user = { email = 'cycomachead@gmail.com', id = 365, username = 'cycomachead' },
-    })
+    local err_msg = helpers.normalize_error(err)
 
-    local id, err2 = rvn:captureException(
-        { {
-            type = "Test Type 2",
-            module = "test module",
-            message = "Test",
-            value = err .. '1',
-            stacktrace = trace,
-        } },
-        -- self.original_request.error
-        { user = { id = 305, username = 'cycomachead'} } -- optional
-    )
-    print('ID: ')
-    print(id)
-    print(trace)
-    local mId, mErr = rvn:captureMessage('TESTING')
+    local id, err2 = rvn:captureException({{
+        type = err_msg,
+        module = string.sub(err_msg, 1, string.find(err_msg, " ")),
+        value = err,
+        trace_level = 3, -- Skip `handle_error`
+    }}, {
+        user = user_params
+    })
     rollbar.set_person(user_params)
     rollbar.set_custom_trace(err .. "\n\n" .. trace)
-    rollbar.report(rollbar.ERR, helpers.normalize_error(err))
-    return errorResponse(id .. '    2     ' .. mId, 500)
+    rollbar.report(rollbar.ERR, err_msg)
+    return errorResponse(err_msg, 500)
 end
 
 -- Enable the ability to have a maintenance mode
