@@ -141,13 +141,10 @@ function app:handle_error(err, trace)
     local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then
         local _, send_err = exceptions.rvn:captureException({{
-            type = err_msg,
-            module = string.sub(err_msg, 1, string.find(err_msg, " ")),
+            type = string.sub(err_msg, string.find(err_msg, ": ") + 2, -1),
             value = err .. "\n\n" .. trace,
-            trace_level = 3, -- Skip `handle_error`
-        }}, {
-            user = user_info
-        })
+            trace_level = 2, -- Skip `handle_error`
+        }}, { user = user_info })
         if send_err then
             ngx.log(ngx.ERR, send_err)
         end
