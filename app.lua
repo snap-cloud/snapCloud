@@ -22,59 +22,6 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
--- _G Write guard spam hack. TODO: clean this up.
-rawset(_G, 'lfs', false)
-rawset(_G, 'lpeg', false)
-rawset(_G, 'socket', false)
-rawset(_G, 'ltn12', false)
-
-rawset(_G, 'create_redirect_url', false)
-rawset(_G, 'build_payload', false)
-rawset(_G, 'extract_payload', false)
-rawset(_G, 'tbl', false)
-rawset(_G, 'APIController', false)
-rawset(_G, 'CollectionController', false)
-rawset(_G, 'ProjectController', false)
-rawset(_G, 'UserController', false)
-rawset(_G, 'random_password', false)
-rawset(_G, 'secure_token', false)
-rawset(_G, 'secure_salt', false)
-rawset(_G, 'jsonResponse', false)
-rawset(_G, 'xmlResponse', false)
-rawset(_G, 'okResponse', false)
-rawset(_G, 'errorResponse', false)
-rawset(_G, 'htmlPage', false)
-rawset(_G, 'cors_options', false)
-rawset(_G, 'rawResponse', false)
-rawset(_G, 'TIMEOUT', false)
-rawset(_G, 'bad_func', false)
-rawset(_G, 'mail_bodies', false)
-rawset(_G, 'mail_subjects', false)
-rawset(_G, 'send_mail', false)
-rawset(_G, 'err', false)
-rawset(_G, 'assert_all', false)
-rawset(_G, 'assert_logged_in', false)
-rawset(_G, 'assert_role', false)
-rawset(_G, 'assert_has_one_of_roles', false)
-rawset(_G, 'assert_admin', false)
-rawset(_G, 'assert_can_set_role', false)
-rawset(_G, 'users_match', false)
-rawset(_G, 'assert_users_match', false)
-rawset(_G, 'assert_user_exists', false)
-rawset(_G, 'assert_users_have_email', false)
-rawset(_G, 'assert_project_exists', false)
-rawset(_G, 'check_token', false)
-rawset(_G, 'create_token', false)
-rawset(_G, 'can_edit_collection', false)
-rawset(_G, 'assert_collection_exists', false)
-rawset(_G, 'assert_can_view_collection', false)
-rawset(_G, 'assert_can_add_project_to_collection', false)
-rawset(_G, 'assert_can_remove_project_from_collection', false)
-rawset(_G, 'assert_project_not_in_collection', false)
-rawset(_G, 'course_name_filter', false)
-rawset(_G, 'hash_password', false)
-rawset(_G, 'create_signature', false)
-
 -- Packaging everything so it can be accessed from other modules
 local lapis = require 'lapis'
 package.loaded.app = lapis.Application()
@@ -191,7 +138,6 @@ end
 
 function app:handle_error(err, trace)
     local err_msg = exceptions.normalize_error(err)
-    -- self.current_user is not available here.
     local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then
         local _, send_err = exceptions.rvn:captureException({{
