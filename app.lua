@@ -198,11 +198,8 @@ function app:handle_404()
     return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
 end
 
-local dsn_url = "https://a643b06dd38f46aab9a32de8d5f435ed@sentry.cs10.org/2"
 local rvn = raven.new({
-    -- multiple senders are available for different networking backends,
-    -- doing a custom one is also very easy.
-    sender = require("raven.senders.luasocket").new { dsn = dsn_url },
+    sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
     environment = config._name,
 })
 raven.get_server_name = function()
@@ -249,7 +246,7 @@ function app:handle_error(err, trace)
 
     local err_msg = helpers.normalize_error(err)
 
-    local id, err2 = rvn:captureException({{
+    local _, send_err = rvn:captureException({{
         type = err_msg,
         module = string.sub(err_msg, 1, string.find(err_msg, " ")),
         value = err,
@@ -257,10 +254,13 @@ function app:handle_error(err, trace)
     }}, {
         user = user_params
     })
+    if send_err then
+        ngx.say(ngx.ERROR, send_err)
+    end
     rollbar.set_person(user_params)
     rollbar.set_custom_trace(err .. "\n\n" .. trace)
     rollbar.report(rollbar.ERR, err_msg)
-    return errorResponse(err_msg, 500)
+    return errorResponse("An unexpected error occured: " .. err_msg, 500)
 end
 
 -- Enable the ability to have a maintenance mode
