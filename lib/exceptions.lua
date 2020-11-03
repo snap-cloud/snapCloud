@@ -23,8 +23,9 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
--- Note: The raven-lua repo is inside lib/raven-lua
--- This works because snapCloud/raven is a symlink to lib/raven-lua/raven
+-- look for a local package in the right spot.
+package.path = [[./lib/raven-lua/?.lua;./lib/raven-lua/?/init.lua;]] .. package.path
+
 local raven = require("raven")
 local math = require('math')
 local rollbar = require("resty.rollbar")
