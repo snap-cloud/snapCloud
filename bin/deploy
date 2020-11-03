@@ -31,11 +31,6 @@ repo='https://api.github.com/repos/snap-cloud/snapCloud/releases'
 prelease=$(if [ "$LAPIS_ENVIRONMENT" = 'production' ]; then echo 'false'; else echo 'true'; fi)
 curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $repo -d "{\"tag_name\": \"$current_time\", \"target_commitish\": \"$deploy_sha\", \"prerelease\": $prelease}"
 
-# Mark a deploy in Rollbar
-echo 'Tagging Deploy in Rollbar'
-curl -POST --url https://api.rollbar.com/api/1/deploy/ \
-    --data "{\"access_token\": \"$ROLLBAR_TOKEN\", \"environment\":\"$LAPIS_ENVIRONMENT\", \"revision\": \"$deploy_sha\"}"
-echo
 echo
 
 echo 'Tagging Deploy in Sentry'

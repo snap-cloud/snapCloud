@@ -27,15 +27,11 @@
 package.path = [[./lib/raven-lua/?.lua;./lib/raven-lua/?/init.lua;]] .. package.path
 
 local raven = require("raven")
-local math = require('math')
-local rollbar = require("resty.rollbar")
+local math = require("math")
 local config = package.loaded.config
 
 -- Setup seed for raven to generate event ids.
 math.randomseed(os.time())
-
-rollbar.set_token(config.rollbar_token)
-rollbar.set_environment(config._name)
 
 local rvn = raven.new({
   sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
@@ -63,7 +59,7 @@ end
 -- Used by Sentry to identify the server.
 -- If we ever deploy multiple servers, we should adjust this function.
 raven.get_server_name = function()
-  return 'Snap!Cloud'
+  return 'Snap!Cloud - ' .. ngx.var.host
 end
 
 -- Send data about each request to sentry.
