@@ -116,8 +116,7 @@ package.loaded.Collections = Model:extend('collections', {
                             WHERE collection_id = ?)
                             AS memberships
                             ON active_projects.id = memberships.project_id
-                        ORDER BY memberships.created_at DESC
-                    ]],
+                        ORDER BY memberships.created_at DESC ]],
                     self.id)
                 return package.loaded.Projects:paginated(query)
             end
@@ -125,12 +124,14 @@ package.loaded.Collections = Model:extend('collections', {
         {'shared_and_published_projects',
             fetch = function (self)
                 local query = db.interpolate_query(
-                    [[ WHERE id IN (
-                        SELECT project_id
-                        FROM collection_memberships
-                        WHERE collection_id = ?
-                    )
-                    AND (ispublished OR ispublic) ]],
+                    [[ INNER JOIN (
+                            SELECT project_id, created_at
+                            FROM collection_memberships
+                            WHERE collection_id = ?)
+                            AS memberships
+                            ON active_projects.id = memberships.project_id
+                        WHERE (ispublished OR ispublic)
+                        ORDER BY memberships.created_at DESC ]],
                     self.id)
                 return package.loaded.Projects:paginated(query)
             end
@@ -138,12 +139,14 @@ package.loaded.Collections = Model:extend('collections', {
         {'published_projects',
             fetch = function (self)
                 local query = db.interpolate_query(
-                    [[ WHERE id IN (
-                        SELECT project_id
-                        FROM collection_memberships
-                        WHERE collection_id = ?
-                    )
-                    AND ispublished ]],
+                    [[ INNER JOIN (
+                            SELECT project_id, created_at
+                            FROM collection_memberships
+                            WHERE collection_id = ?)
+                            AS memberships
+                            ON active_projects.id = memberships.project_id
+                        WHERE ispublished
+                        ORDER BY memberships.created_at DESC ]],
                     self.id)
                 return package.loaded.Projects:paginated(query)
             end
