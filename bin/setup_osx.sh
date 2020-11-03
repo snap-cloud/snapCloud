@@ -33,6 +33,16 @@ brew install denji/nginx/openresty
 # Need to link openresty to an nginx name for lapis
 ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx ||:;
 
+
+echo
+echo '!! Adding luarocks path info to bashrc'
+echo "" >> ~/.bashrc
+echo "# Luarocks 3 and Lua 5.1 tools (added by snapCloud." >> ~/.bashrc
+echo $(luarocks path --lua-version 5.1) >> ~/.bashrc
+
+echo "Installing Lua Dependencies"
 $(dirname $(realpath $0))/luarocks-install-macos.sh;
 
+echo
 echo "Please run 'createdb snapcloud' once postgres is running.";
+echo

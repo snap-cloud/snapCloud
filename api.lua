@@ -50,6 +50,12 @@ end
 
 APIController = {
     GET = {
+        init = function (self)
+            return errorResponse(
+                'It seems like you are trying to log in. ' ..
+                'Try refreshing the page and try again. This URL is internal to the Snap!Cloud.',
+                400)
+        end,
         version = function (self)
             return jsonResponse({
                 name = 'Snap! Cloud',
@@ -71,7 +77,7 @@ APIController = {
 -- API Endpoints
 -- =============
 app:match(api_route('version', '/version', APIController, { 'GET' }))
-app:match(api_route('init', '/init', APIController, { 'POST' }))
+app:match(api_route('init', '/init', APIController, { 'GET', 'POST' }))
 
 -- Users
 -- =====

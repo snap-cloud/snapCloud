@@ -262,10 +262,16 @@ UserController = {
             if (self.current_user) then
                 -- user is updating profile, or an admin is updating somebody
                 -- else's profile
-                if not users_match(self) then
-                    if self.params.role then
-                        assert_can_set_role(self, self.params.role)
-                    else
+                if self.params.role then
+                    assert_can_set_role(self, self.params.role)
+                end
+                -- someone's trying to update the user's email
+                if self.params.email then
+                    -- they need to provide the user's password, or be an admin
+                    if
+                        hash_password(self.params.password,
+                            self.queried_user.salt) ~=
+                                self.queried_user.password then
                         assert_admin(self)
                     end
                 end
@@ -381,6 +387,16 @@ UserController = {
             -- Description: Generate a token to reset a user's password.
             -- @see validation.create_token
             assert_user_exists(self)
+            local token = find_token(self.params.username, 'password_reset')
+            if token then
+                local epoch = db.select(
+                    "extract(epoch from (now()::timestamp - ?::timestamp))",
+                    token.created)[1].date_part
+                local minutes = epoch / 60
+                if minutes < 15 then
+                    yield_error(err.too_many_password_resets)
+                end
+            end
             create_token(self, 'password_reset', self.params.username,
                 self.queried_user.email)
             return okResponse('Password reset request sent.\n' ..
@@ -399,6 +415,12 @@ UserController = {
             if (hash_password(password, self.queried_user.salt) ==
                     self.queried_user.password) then
                 if not self.queried_user.verified then
+                    -- Different message depending on where the login is coming
+                    -- from (editor vs. site)
+                    local message =
+                        (ngx.var.http_referer:sub(-#'snap.html') == 'snap.html')
+                            and err.nonvalidated_user_plaintext
+                            or err.nonvalidated_user_html
                     -- Check whether verification token is unused and valid
                     local token =
                         Tokens:find({
@@ -411,12 +433,12 @@ UserController = {
                                 token.created)[1]
                         if query.date_part > 3 then
                             token:delete()
-                            yield_error(err.nonvalidated_user)
+                            yield_error(message)
                         else
                             self.queried_user.days_left = 3 - query.date_part
                         end
                     else
-                        yield_error(err.nonvalidated_user)
+                        yield_error(message)
                     end
                 end
                 self.session.username = self.queried_user.username
@@ -552,6 +574,15 @@ UserController = {
                 end
             else
                 if not users_match(self) then assert_admin(self) end
+
+                if not self.params.password then
+                    assert_admin(self)
+                elseif
+                    hash_password(self.params.password,
+                        self.queried_user.salt) ~=
+                            self.queried_user.password then
+                    assert_admin(self)
+                end
                 assert_user_exists(self)
                 -- Do not actually delete the user; flag it as deleted.
                 if not (self.queried_user:update({
