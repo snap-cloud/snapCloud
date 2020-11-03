@@ -110,11 +110,14 @@ package.loaded.Collections = Model:extend('collections', {
         {'projects',
             fetch = function (self)
                 local query = db.interpolate_query(
-                    [[ WHERE id IN (
-                        SELECT project_id
-                        FROM collection_memberships
-                        WHERE collection_id = ?
-                    )]],
+                    [[ INNER JOIN (
+                            SELECT project_id, created_at
+                            FROM collection_memberships
+                            WHERE collection_id = ?)
+                            AS memberships
+                            ON active_projects.id = memberships.project_id
+                        ORDER BY memberships.created_at DESC
+                    ]],
                     self.id)
                 return package.loaded.Projects:paginated(query)
             end
