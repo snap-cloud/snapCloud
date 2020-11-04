@@ -116,8 +116,10 @@ CollectionController = {
             assert_user_exists(self)
 
             local query = db.interpolate_query(
-                'join active_users on (active_users.id = collections.creator_id) ' ..
-                    'where (creator_id = ? or editor_ids @> array[?])',
+                'join active_users on ' ..
+                    '(active_users.id = collections.creator_id) ' ..
+                    'where ((creator_id = ? or editor_ids @> array[?]) or ' ..
+                    '(collections.free_for_all and not collections.id = 0))',
                 self.queried_user.id,
                 self.queried_user.id)
 
@@ -144,9 +146,11 @@ CollectionController = {
                 {
                     per_page = self.params.pagesize or 16,
                     fields =
-                        'collections.id, creator_id, collections.created_at, published, ' ..
-                        'collections.published_at, shared, shared_at, collections.updated_at, name, ' ..
-                        'description, thumbnail_id, username, editor_ids'
+                        'collections.id, creator_id, collections.created_at, ' ..
+                        'published, collections.published_at, shared, ' ..
+                        'shared_at, collections.updated_at, name, ' ..
+                        'description, thumbnail_id, username, editor_ids, ' ..
+                        'free_for_all'
                 })
 
             local collections = self.params.page and

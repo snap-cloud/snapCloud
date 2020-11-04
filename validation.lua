@@ -341,8 +341,8 @@ assert_can_add_project_to_collection = function (self, project, collection)
     -- Admins can add any project to any collection.
     if self.current_user:isadmin() then return end
 
-    -- Anyone can add projects to the "Flagged" collection, with id == 0
-    if collection.id == 0 then return end
+    -- Anyone can add projects to "free for all" collections
+    if collection.free_for_all then return end
 
     -- Users can add their own projects and published projects to collections
     -- they can edit

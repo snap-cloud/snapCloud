@@ -101,7 +101,6 @@ return {
                             'collection_id', 'project_id', 'user_id',
                             { unique = true })
     end,
-
     -- Create and views for handling deleted items.
     ['2019-02-01:0'] = function ()
         schema.add_column('users',
@@ -140,5 +139,22 @@ return {
         -- We will rarely query by unique_email and thus no index is necessary.
         schema.create_index('users', 'email', { unique = false })
         update_user_views()
+    end,
+
+    -- Update Collections to include a "free for all" flag
+    ['2020-11-03:0'] = function ()
+        schema.add_column(
+            'collections',
+            'free_for_all',
+            types.boolean
+        
+        )
+        -- The "flagged" collection is free for all
+        db.update(
+            'collections',
+            { free_for_all = true },
+            { id = 0 }
+        )
     end
+
 }

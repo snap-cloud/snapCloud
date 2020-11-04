@@ -39,7 +39,6 @@ local rvn = raven.new({
 })
 
 local exceptions = {
-  rollbar = rollbar,
   raven = raven,
   rvn = rvn
 }
