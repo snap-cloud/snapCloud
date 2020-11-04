@@ -40,6 +40,7 @@ rollbar.set_environment(config._name)
 local rvn = raven.new({
   sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
   environment = config._name,
+  release = config.release_sha
 })
 
 local exceptions = {
