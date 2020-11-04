@@ -20,7 +20,8 @@ dependencies = {
    "lua-resty-mail",
    "luasocket",
    "lua-resty-http",
-   "lua-cjson"
+   "lua-cjson",
+   "luasec"
 }
 build = {
     type = "builtin",

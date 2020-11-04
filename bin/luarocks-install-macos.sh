@@ -10,5 +10,6 @@ LUA_DIR="/usr/local/opt/lua@5.1"
 OPENSSL_BREW='/usr/local/opt/openssl/'
 
 echo 'Installing lua dependencies'
+$gcc_version='gcc-10'
 # For some reason luarocks needs both directories specified...
-luarocks install --lua-dir=$LUA_DIR snap-cloud-beta-0.rockspec OPENSSL_DIR=$OPENSSL_BREW CRYPTO_DIR=$OPENSSL_BREW CC=gcc-9 LD=gcc-9 $@
+luarocks install --lua-dir=$LUA_DIR snap-cloud-beta-0.rockspec OPENSSL_DIR=$OPENSSL_BREW CRYPTO_DIR=$OPENSSL_BREW CC=$gcc_version LD=$gcc_version $@

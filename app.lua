@@ -22,9 +22,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 -- Packaging everything so it can be accessed from other modules
-
 local lapis = require 'lapis'
 package.loaded.app = lapis.Application()
 package.loaded.db = require 'lapis.db'
@@ -34,29 +32,23 @@ package.loaded.yield_error = package.loaded.app_helpers.yield_error
 package.loaded.validate = require 'lapis.validate'
 package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
-package.loaded.respond_to = require('lapis.application').respond_to
+package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.cached = require('lapis.cache').cached
 package.loaded.resty_sha512 = require "resty.sha512"
 package.loaded.resty_string = require "resty.string"
 package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
-package.loaded.rollbar = require('resty.rollbar')
 package.loaded.disk = require('disk')
 
 local app = package.loaded.app
 local config = package.loaded.config
 
--- Track exceptions
-local rollbar = package.loaded.rollbar
-rollbar.set_token(config.rollbar_token)
-rollbar.set_environment(config._name)
-
+-- Track exceptions, exposes raven, rollbar, and normalize_error
+local exceptions = require('lib.exceptions')
 -- Store whitelisted domains
 local domain_allowed = require('cors')
-
 -- Utility functions
 local date = require("date")
-local helpers = require('helpers')
 
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})
@@ -135,9 +127,7 @@ app:before_filter(function (self)
     end
 end)
 
-
 -- This module only takes care of the index endpoint
-
 app:get('/', function(self)
     return { redirect_to = self:build_url('site/') }
 end)
@@ -147,20 +137,24 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
-    -- self.current_user is not available here.
-    if self.session.username then
-        local current_user = package.loaded.Users:find({ username = self.session.username })
+    local err_msg = exceptions.normalize_error(err)
+    local user_info = exceptions.get_user_info(self.session)
+    if config.sentry_dsn then
+        local _, send_err = exceptions.rvn:captureException({{
+            type = string.sub(err_msg, string.find(err_msg, ": ") + 2, -1),
+            value = err .. "\n\n" .. trace,
+            trace_level = 2, -- Skip `handle_error`
+        }}, { user = user_info })
+        if send_err then
+            ngx.log(ngx.ERR, send_err)
+        end
     end
-    local user_params = {}
-    if current_user then
-        user_params = current_user:rollbar_params()
+    if config.rollbar_token then
+        exceptions.rollbar.set_person(user_params)
+        exceptions.rollbar.set_custom_trace(err .. "\n\n" .. trace)
+        exceptions.rollbar.report(exceptions.rollbar.ERR, err_msg)
     end
-
-    rollbar.set_person(user_params)
-    err = helpers.normalize_error(err)
-    rollbar.set_custom_trace(err .. "\n\n" .. trace)
-    rollbar.report(rollbar.ERR, err)
-    return errorResponse(err, 500)
+    return errorResponse("An unexpected error occured: " .. err_msg, 500)
 end
 
 -- Enable the ability to have a maintenance mode

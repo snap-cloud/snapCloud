@@ -12,6 +12,8 @@ pushd ~/snapCloud/ > /dev/null;
 
 git checkout $branch
 git pull origin $branch
+# Always init, just incase we add a submodule.
+git submodule init
 git submodule update --recursive --remote
 
 # Build community site
@@ -41,7 +43,7 @@ echo 'Tagging Deploy in Sentry'
 curl https://sentry.cs10.org/api/hooks/release/builtin/2/aca228bdf5410118114d83644397592ba4c12bc165a9d34f0e7c08c2e2103bf4/ \
   -X POST \
   -H 'Content-Type: application/json' \
-  -d "{\"version\": \"$current_time\"}"
+  -d "{\"version\": \"$deploy_sha\"}"
 
 echo
 echo

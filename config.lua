@@ -11,7 +11,10 @@ config({'development', 'staging', 'production', 'test'}, {
 
     -- Exception monitoring service.
     -- Leave empty to avoid forwarding errors.
+    -- TODO: Currently we are using both rollbar and sentry.
+    -- Remove rollbar after Sentry is shown to be working.
     rollbar_token = os.getenv('ROLLBAR_TOKEN'),
+    sentry_dsn = os.getenv('SENTRY_DSN'),
 
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have
