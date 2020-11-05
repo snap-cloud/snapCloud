@@ -141,7 +141,7 @@ function app:handle_error(err, trace)
     local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then
         local _, send_err = exceptions.rvn:captureException({{
-            type = string.sub(err_msg, string.find(err_msg, ": ") + 2, -1),
+            type = err_msg,
             value = err .. "\n\n" .. trace,
             trace_level = 2, -- Skip `handle_error`
         }}, { user = user_info })

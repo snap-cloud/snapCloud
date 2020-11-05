@@ -36,10 +36,10 @@ math.randomseed(os.time())
 local rvn = raven.new({
   sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
   environment = config._name,
+  release = config.release_sha
 })
 
 local exceptions = {
-  rollbar = rollbar,
   raven = raven,
   rvn = rvn
 }

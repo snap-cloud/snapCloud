@@ -11,6 +11,9 @@ config({'development', 'staging', 'production', 'test'}, {
 
     -- Exception monitoring: leave empty to avoid forwarding errors.
     sentry_dsn = os.getenv('SENTRY_DSN'),
+    -- Used to tag exceptions with the current commit or tag.
+    -- Example: export RELEASE_SHA=$(git rev-parse --short HEAD)
+    release_sha = os.getenv('RELEASE_SHA'),
 
     -- Change to the relative (or absolute) path of your disk storage
     -- directory.  Note that the user running Lapis needs to have

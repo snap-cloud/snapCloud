@@ -169,11 +169,21 @@ UserController = {
             -- Description: Get info about a user
             if not users_match(self) then assert_admin(self) end
             return jsonResponse(
-                Users:select(
-                    'where username = ? limit 1',
-                    self.params.username,
-                    { fields =
-                        'username, created, role, email, verified, id' })[1])
+                db.query(
+                    [[SELECT
+                        users.username, users.created, users.role, users.email,
+                        users.verified, users.id, count(projects.projectname)
+                            AS project_count
+                    FROM active_users AS users
+                    LEFT JOIN active_projects AS projects
+                        ON projects.username = users.username
+                    WHERE users.username = ?
+                    GROUP BY
+                        users.username, users.created, users.role, users.email,
+                        users.verified, users.id]],
+                    self.params.username
+                )[1]
+            )
         end,
 
         password_reset = function (self)
