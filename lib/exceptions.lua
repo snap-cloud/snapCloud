@@ -28,14 +28,11 @@ package.path = [[./lib/raven-lua/?.lua;./lib/raven-lua/?/init.lua;]] .. package.
 
 local raven = require("raven")
 local math = require("math")
-local rollbar = require("resty.rollbar")
 local config = package.loaded.config
+local util = package.loaded.util
 
 -- Setup seed for raven to generate event ids.
 math.randomseed(os.time())
-
-rollbar.set_token(config.rollbar_token)
-rollbar.set_environment(config._name)
 
 local rvn = raven.new({
   sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
@@ -44,7 +41,6 @@ local rvn = raven.new({
 })
 
 local exceptions = {
-  rollbar = rollbar,
   raven = raven,
   rvn = rvn
 }
@@ -84,10 +80,12 @@ raven.get_request_data = function()
   elseif method == 'POST' then
     ngx.req.read_body()
     local args, err = ngx.req.get_post_args()
+    local body_data = ngx.req.get_body_data()
     if err then
       request.data = 'ERROR READING POST ARGS'
     else
-      request.data = args
+      -- Parse post as JSON if possible.
+      request.data = (body_data and util.from_json(body_data)) or args
     end
   end
   return request

@@ -9,11 +9,7 @@ config({'development', 'staging', 'production', 'test'}, {
     },
     session_name = 'snapsession',
 
-    -- Exception monitoring service.
-    -- Leave empty to avoid forwarding errors.
-    -- TODO: Currently we are using both rollbar and sentry.
-    -- Remove rollbar after Sentry is shown to be working.
-    rollbar_token = os.getenv('ROLLBAR_TOKEN'),
+    -- Exception monitoring: leave empty to avoid forwarding errors.
     sentry_dsn = os.getenv('SENTRY_DSN'),
     -- Used to tag exceptions with the current commit or tag.
     -- Example: export RELEASE_SHA=$(git rev-parse --short HEAD)
