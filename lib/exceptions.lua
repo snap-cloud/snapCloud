@@ -29,6 +29,7 @@ package.path = [[./lib/raven-lua/?.lua;./lib/raven-lua/?/init.lua;]] .. package.
 local raven = require("raven")
 local math = require("math")
 local config = package.loaded.config
+local util = package.loaded.util
 
 -- Setup seed for raven to generate event ids.
 math.randomseed(os.time())
@@ -79,10 +80,12 @@ raven.get_request_data = function()
   elseif method == 'POST' then
     ngx.req.read_body()
     local args, err = ngx.req.get_post_args()
+    local body_data = ngx.req.get_body_data()
     if err then
       request.data = 'ERROR READING POST ARGS'
     else
-      request.data = args
+      -- Parse post as JSON if possible.
+      request.data = (body_data and util.from_json(body_data)) or args
     end
   end
   return request
