@@ -83,7 +83,11 @@ err = {
         msg = 'A password reset email has already been sent to this user ' ..
             'recently.<br/>Please check your spam folder, or wait a few minutes ' ..
             'and try again.',
-        status = 429 }
+        status = 429 },
+    project_already_flagged =
+        { msg = 'You have already flagged this project.', status = 409 },
+    project_never_flagged =
+        { msg = 'This project was not flagged by you.', status = 404 }
 }
 
 assert_all = function (assertions, self)

@@ -178,3 +178,10 @@ package.loaded.BannedIPs = Model:extend(
         timestamp = true
     }
 )
+
+package.loaded.FlaggedProjects = Model:extend(
+    'flagged_projects', {
+        primary_key = 'id',
+        timestamp = true
+    }
+)

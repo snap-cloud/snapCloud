@@ -328,7 +328,7 @@ ProjectController = {
                     self.current_user and self.current_user.id or nil
                 )
 
-                paginator = CollectionMemberships:paginated(
+                local paginator = CollectionMemberships:paginated(
                     query,
                     {
                         fields = 'collections.creator_id, collections.name, ' ..
@@ -370,7 +370,41 @@ ProjectController = {
                     disk:retrieve(project.id, 'thumbnail') or
                         disk:generate_thumbnail(project.id))
             end
-        })
+        }),
+
+        flags = function (self)
+            -- GET /flagged_projects
+            -- Description: Get a list of all flagged projects and their flag
+            --              count
+            -- Parameters:  page, pagesize
+
+            assert_has_one_of_roles(self, { 'admin', 'moderator', 'reviewer' })
+
+            local query =
+                'INNER JOIN flagged_projects ON ' ..
+                    'active_projects.id = flagged_projects.project_id ' ..
+                'GROUP BY active_projects.projectname, ' ..
+                    'active_projects.username ' ..
+                'ORDER BY flag_count DESC'
+
+            local paginator =
+                Projects:paginated(
+                    query,
+                    {
+                        fields = 'active_projects.projectname, ' ..
+                            'active_projects.username, count(*) AS flag_count',
+                        per_page = self.params.pagesize or 16
+                    }
+                )
+
+            local projects = self.params.page and
+                paginator:get_page(self.params.page) or paginator:get_all()
+
+            return jsonResponse({
+                pages = self.params.page and paginator:num_pages() or nil,
+                projects = projects
+            })
+        end
     },
 
     POST = {
@@ -519,15 +553,13 @@ ProjectController = {
                 or (self.params.ispublic and not project.ispublic))
 
             -- Read request body and parse it into JSON
-            -- TODO: Replace this with json_params() after updating the projectname key.
+            -- TODO: Replace this with json_params() after updating the
+            -- projectname key.
             ngx.req.read_body()
             local body_data = ngx.req.get_body_data()
             local body = body_data and util.from_json(body_data) or nil
-            --local new_name = body and body.projectname and body.projectname ~= project.projectname
-            --local new_notes = body and body.notes and body.notes ~= project.notes
 
             local result, error = project:update({
-                --projectname = new_name and body.projectname or project.projectname,
                 lastupdated = db.format_date(),
                 lastshared = shouldUpdateSharedDate and db.format_date() or nil,
                 firstpublished =
@@ -541,14 +573,40 @@ ProjectController = {
 
             if error then yield_error({ msg = error, status = 422 }) end
 
-            --[[
-            -- save new notes and project name into the project XML
-            if new_notes or new_name then
-                disk:update_metadata(project.id, project.projectname, project.notes)
-            end
-            --]]
+            return okResponse(
+                'project ' .. self.params.projectname .. ' updated'
+            )
+        end,
 
-            return okResponse('project ' .. self.params.projectname .. ' updated')
+        flag = function (self)
+            -- POST /projects/:username/:projectname/flag
+            -- Description: Flag a project and provide a reason for doing so.
+            -- Parameters:  reason
+
+            if self.current_user:isbanned() then yield_error(err.banned) end
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
+            if not project then yield_error(err.nonexistent_project) end
+
+            local flag =
+                FlaggedProjects:select(
+                    'where project_id = ? and flagger_id in '..
+                        '(select id from users where username = ?)',
+                    project.id,
+                    self.current_user.id
+                )[1]
+
+            if flag then yield_error(err.project_already_flagged) end
+
+            FlaggedProjects:create({
+                flagger_id = self.current_user.id,
+                project_id = project.id,
+                reason = self.params.reason
+            })
+
+            return okResponse(
+                'project ' .. self.params.projectname .. ' has been flagged'
+            )
         end
     },
 
@@ -585,6 +643,32 @@ ProjectController = {
                 return okResponse('Project ' .. self.params.projectname
                     .. ' has been removed.')
             end
+        end,
+
+        flag = function (self)
+            -- DELETE /projects/:username/:projectname/flag
+            -- Description: Unflag a project that the current user has
+            --              previously flagged
+
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
+            if not project then yield_error(err.nonexistent_project) end
+
+            local flag =
+                FlaggedProjects:select(
+                    'where project_id = ? and flagger_id in '..
+                        '(select id from users where username = ?)',
+                    project.id,
+                    self.current_user.id
+                )[1]
+
+            if not flag then yield_error(err.project_never_flagged) end
+
+            flag:delete()
+
+            return okResponse(
+                'project ' .. self.params.projectname .. ' has been unflagged'
+            )
         end
     }
 }

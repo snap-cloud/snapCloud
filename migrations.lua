@@ -155,6 +155,24 @@ return {
             { free_for_all = true },
             { id = 0 }
         )
+    end,
+
+    -- Create a FlaggedProjects table
+    ['2020-11-09:0'] = function ()
+        schema.create_table("flagged_projects", {
+            { 'id', types.serial({ primary_key = true }) },
+            { 'flagger_id', types.foreign_key },
+            { 'project_id', types.foreign_key },
+            { 'reason', types.text },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) }
+        })
+
+        -- One flag per user and project
+        schema.create_index('flagged_projects',
+                            'flagger_id', 'project_id',
+                            { unique = true })
     end
+
 
 }
