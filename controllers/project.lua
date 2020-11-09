@@ -32,6 +32,7 @@ local Users = package.loaded.Users
 local DeletedProjects = package.loaded.DeletedProjects
 local Remixes = package.loaded.Remixes
 local CollectionMemberships = package.loaded.CollectionMemberships
+local FlaggedProjects = package.loaded.FlaggedProjects
 
 local disk = package.loaded.disk
 
@@ -590,8 +591,7 @@ ProjectController = {
 
             local flag =
                 FlaggedProjects:select(
-                    'where project_id = ? and flagger_id in '..
-                        '(select id from users where username = ?)',
+                    'where project_id = ? and flagger_id = ?',
                     project.id,
                     self.current_user.id
                 )[1]
