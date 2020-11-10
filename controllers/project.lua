@@ -191,9 +191,11 @@ ProjectController = {
             local remixed_from =
                 Remixes:select('where remixed_project_id = ?', project.id)[1]
 
-            if CollectionMemberships:find(0, project.id) then
-                project.flagged = true
-            end
+            project.flagged = FlaggedProjects:select(
+                    'where project_id = ? and flagger_id = ?',
+                    project.id,
+                    self.current_user.id,
+                    {fields = 'count(*) as count'})[1].count > 0
 
             if remixed_from then
                 if remixed_from.original_project_id then
@@ -385,14 +387,16 @@ ProjectController = {
                 'INNER JOIN flagged_projects ON ' ..
                     'active_projects.id = flagged_projects.project_id ' ..
                 'GROUP BY active_projects.projectname, ' ..
-                    'active_projects.username ' ..
+                    'active_projects.username, ' ..
+                    'active_projects.id ' ..
                 'ORDER BY flag_count DESC'
 
             local paginator =
                 Projects:paginated(
                     query,
                     {
-                        fields = 'active_projects.projectname, ' ..
+                        fields = 'active_projects.id as id, ' ..
+                            'active_projects.projectname, ' ..
                             'active_projects.username, count(*) AS flag_count',
                         per_page = self.params.pagesize or 16
                     }
@@ -400,6 +404,8 @@ ProjectController = {
 
             local projects = self.params.page and
                 paginator:get_page(self.params.page) or paginator:get_all()
+
+            disk:process_thumbnails(projects)
 
             return jsonResponse({
                 pages = self.params.page and paginator:num_pages() or nil,
@@ -656,8 +662,7 @@ ProjectController = {
 
             local flag =
                 FlaggedProjects:select(
-                    'where project_id = ? and flagger_id in '..
-                        '(select id from users where username = ?)',
+                    'where project_id = ? and flagger_id = ?',
                     project.id,
                     self.current_user.id
                 )[1]
