@@ -118,7 +118,7 @@ CollectionController = {
             local query = db.interpolate_query(
                 'join active_users on ' ..
                     '(active_users.id = collections.creator_id) ' ..
-                    'where ((creator_id = ? or editor_ids @> array[?]) or ' ..
+                    'where (creator_id = ? or editor_ids @> array[?]) or ' ..
                     'collections.free_for_all',
                 self.queried_user.id,
                 self.queried_user.id)
