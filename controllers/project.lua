@@ -199,7 +199,6 @@ ProjectController = {
                         {fields = 'count(*) as count'})[1].count > 0
             end
 
-
             if remixed_from and remixed_from.original_project_id then
                 local original_project = Projects:select(
                     'where id = ?', remixed_from.original_project_id)[1]
@@ -214,7 +213,7 @@ ProjectController = {
                         projectname = nil
                     }
                 end
-            else if remixed_from then
+            elseif remixed_from then
                 project.remixedfrom = {
                     username = nil,
                     projectname = nil
