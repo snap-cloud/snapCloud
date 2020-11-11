@@ -668,9 +668,9 @@ ProjectController = {
             -- Description: Unflag a project that the current user, or someone
             --              else if query issuer has permissions, has previously
             --              flagged.
-            -- Parameters:  flagger_id
+            -- Parameters:  flagger
 
-            if flagger_id then
+            if self.params.flagger then
                 -- We're removing someone else's flag
                 assert_has_one_of_roles(
                     self, { 'admin', 'moderator', 'reviewer' }
@@ -683,9 +683,10 @@ ProjectController = {
 
             local flag =
                 FlaggedProjects:select(
-                    'where project_id = ? and flagger_id = ?',
+                    'where project_id = ? and flagger_id in ' ..
+                    '(select id from users where username = ?)',
                     project.id,
-                    flagger_id or self.current_user.id
+                    self.params.flagger or self.current_user.username
                 )[1]
 
             if not flag then yield_error(err.project_never_flagged) end
