@@ -375,42 +375,53 @@ ProjectController = {
             end
         }),
 
-        flags = function (self)
-            -- GET /flagged_projects
-            -- Description: Get a list of all flagged projects and their flag
-            --              count
-            -- Parameters:  page, pagesize
+        flag = function (self)
+            -- GET /projects/:username/:projectname/flag
+            -- Description: Get flagging information for a specific project.
+            local project =
+                Projects:find(self.params.username, self.params.projectname)
+
+            if not project then yield_error(err.nonexistent_project) end
 
             assert_has_one_of_roles(self, { 'admin', 'moderator', 'reviewer' })
 
-            local query =
-                'INNER JOIN flagged_projects ON ' ..
-                    'active_projects.id = flagged_projects.project_id ' ..
-                'GROUP BY active_projects.projectname, ' ..
-                    'active_projects.username, ' ..
-                    'active_projects.id ' ..
-                'ORDER BY flag_count DESC'
+            return jsonResponse(
+                FlaggedProjects:select(
+                    'JOIN active_users ON active_users.id = flagger_id '..
+                    'WHERE project_id = ? ' ..
+                    'GROUP BY reason, username, created_at',
+                    project.id,
+                    { fields = 'username, created_at, reason' }
+                )
+            )
+        end,
 
-            local paginator =
-                Projects:paginated(
-                    query,
+        flags = function (self)
+            -- GET /flagged_projects
+            -- Description: Get a list of all flagged projects and their flag
+            --              count.
+
+            assert_has_one_of_roles(self, { 'admin', 'moderator', 'reviewer' })
+
+            local projects =
+                Projects:select(
+                    'INNER JOIN flagged_projects ON ' ..
+                        'active_projects.id = flagged_projects.project_id ' ..
+                    'GROUP BY active_projects.projectname, ' ..
+                        'active_projects.username, ' ..
+                        'active_projects.id ' ..
+                    'ORDER BY flag_count DESC',
                     {
                         fields = 'active_projects.id as id, ' ..
-                            'active_projects.projectname, ' ..
-                            'active_projects.username, count(*) AS flag_count',
-                        per_page = self.params.pagesize or 16
+                            'active_projects.projectname as projectname, ' ..
+                            'active_projects.username as username, ' ..
+                            'count(*) AS flag_count',
                     }
                 )
 
-            local projects = self.params.page and
-                paginator:get_page(self.params.page) or paginator:get_all()
-
             disk:process_thumbnails(projects)
 
-            return jsonResponse({
-                pages = self.params.page and paginator:num_pages() or nil,
-                projects = projects
-            })
+            return jsonResponse({ projects = projects })
         end
     },
 
@@ -653,8 +664,17 @@ ProjectController = {
 
         flag = function (self)
             -- DELETE /projects/:username/:projectname/flag
-            -- Description: Unflag a project that the current user has
-            --              previously flagged
+            -- Description: Unflag a project that the current user, or someone
+            --              else if query issuer has permissions, has previously
+            --              flagged.
+            -- Parameters:  flagger_id
+
+            if flagger_id then
+                -- We're removing someone else's flag
+                assert_has_one_of_roles(
+                    self, { 'admin', 'moderator', 'reviewer' }
+                )
+            end
 
             local project =
                 Projects:find(self.params.username, self.params.projectname)
@@ -664,7 +684,7 @@ ProjectController = {
                 FlaggedProjects:select(
                     'where project_id = ? and flagger_id = ?',
                     project.id,
-                    self.current_user.id
+                    flagger_id or self.current_user.id
                 )[1]
 
             if not flag then yield_error(err.project_never_flagged) end
