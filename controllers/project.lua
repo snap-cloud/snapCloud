@@ -389,9 +389,9 @@ ProjectController = {
                 FlaggedProjects:select(
                     'JOIN active_users ON active_users.id = flagger_id '..
                     'WHERE project_id = ? ' ..
-                    'GROUP BY reason, username, created_at',
+                    'GROUP BY reason, username, created_at, notes',
                     project.id,
-                    { fields = 'username, created_at, reason' }
+                    { fields = 'username, created_at, reason, notes' }
                 )
             )
         end,
@@ -599,7 +599,7 @@ ProjectController = {
         flag = function (self)
             -- POST /projects/:username/:projectname/flag
             -- Description: Flag a project and provide a reason for doing so.
-            -- Parameters:  reason
+            -- Parameters:  reason, notes
 
             if self.current_user:isbanned() then yield_error(err.banned) end
             local project =
@@ -618,7 +618,8 @@ ProjectController = {
             FlaggedProjects:create({
                 flagger_id = self.current_user.id,
                 project_id = project.id,
-                reason = self.params.reason
+                reason = self.params.reason,
+                notes = self.params.notes
             })
 
             return okResponse(

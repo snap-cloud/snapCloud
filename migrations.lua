@@ -147,7 +147,6 @@ return {
             'collections',
             'free_for_all',
             types.boolean
-        
         )
         -- The "flagged" collection is free for all
         db.update(
@@ -172,7 +171,14 @@ return {
         schema.create_index('flagged_projects',
                             'flagger_id', 'project_id',
                             { unique = true })
+    end,
+
+    -- Add a notes column to FlaggedProjects
+    ['2020-11-10:0'] = function ()
+        schema.add_column(
+            'flagged_projects',
+            'notes',
+            types.text({ null = true })
+        )
     end
-
-
 }
