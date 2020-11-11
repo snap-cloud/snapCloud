@@ -332,12 +332,7 @@ assert_can_view_collection = function (self, collection)
                 users_match(self) or
                 can_edit_collection(self, collection))
             ) then
-        if collection.id == 0 then
-            -- Reviewers, moderators and admins can view the Flagged collection
-            assert_has_one_of_roles(self, { 'reviewer', 'moderator', 'admin' })
-        else
-            yield_error(err.nonexistent_collection)
-        end
+        yield_error(err.nonexistent_collection)
     end
 end
 
@@ -364,22 +359,14 @@ assert_can_remove_project_from_collection =
         -- Admins can remove any project from any collection.
         if self.current_user:isadmin() then return end
 
-        -- Moderators and reviewers can remove projects from the "Flagged"
-        -- collection, with id == 0
-        if collection.id == 0 then
-            assert_has_one_of_roles(self, { 'moderator', 'reviewer' })
-        end
-
         if not can_edit_collection(self, collection) then
             yield_error(err.auth)
         end
 end
 
 assert_project_not_in_collection = function (self, project, collection)
-    -- We can't add a project twice to a collection, unless that collection
-    -- is the "Flagged" one
-    if CollectionMemberships:find(collection.id, project.id) and
-        collection.id ~= 0 then
+    -- We can't add a project twice to a collection
+    if CollectionMemberships:find(collection.id, project.id) then
         yield_error(err.project_already_in_collection)
     end
 end

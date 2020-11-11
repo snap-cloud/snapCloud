@@ -119,7 +119,7 @@ CollectionController = {
                 'join active_users on ' ..
                     '(active_users.id = collections.creator_id) ' ..
                     'where ((creator_id = ? or editor_ids @> array[?]) or ' ..
-                    '(collections.free_for_all and not collections.id = 0))',
+                    'collections.free_for_all',
                 self.queried_user.id,
                 self.queried_user.id)
 
@@ -206,9 +206,6 @@ CollectionController = {
             elseif collection.shared or
                     can_edit_collection(self, collection) then
                 paginator = collection:get_shared_and_published_projects()
-            elseif collection.id == 0 then
-                -- flagged collection can be seen by anyone
-                paginator = collection:get_projects()
             end
 
             paginator.per_page = self.params.pagesize or 16
@@ -353,7 +350,6 @@ CollectionController = {
             local collection = assert_collection_exists(self)
             local project = Projects:find(body.username, body.projectname)
 
-            -- Should let us add a project twice into the "Flagged" collection
             assert_project_not_in_collection(self, project, collection)
             assert_can_add_project_to_collection(self, project, collection)
 
