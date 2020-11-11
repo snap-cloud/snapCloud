@@ -191,11 +191,13 @@ ProjectController = {
             local remixed_from =
                 Remixes:select('where remixed_project_id = ?', project.id)[1]
 
-            project.flagged = FlaggedProjects:select(
-                    'where project_id = ? and flagger_id = ?',
-                    project.id,
-                    self.current_user.id,
-                    {fields = 'count(*) as count'})[1].count > 0
+            if self.current_user then
+                project.flagged = FlaggedProjects:select(
+                        'where project_id = ? and flagger_id = ?',
+                        project.id,
+                        self.current_user.id,
+                        {fields = 'count(*) as count'})[1].count > 0
+            end
 
             if remixed_from then
                 if remixed_from.original_project_id then
