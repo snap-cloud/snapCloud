@@ -47,8 +47,8 @@ ProjectController = {
             -- Parameters:  page, pagesize, matchtext, withthumbnail, filtered
             exptime = 30, -- cache expires after 30 seconds
             function (self)
-                local query = 'where ispublished'
-
+                local query = 'where ispublished and username not in ' ..
+                    '(select username from deleted_users)'
                 -- Apply where clauses
                 if self.params.matchtext then
                     query = query ..
