@@ -399,7 +399,8 @@ CollectionController = {
             -- Description: Remove a project from a collection.
             -- Parameters:  username, name
             local collection = assert_collection_exists(self)
-            assert_can_remove_project_from_collection(self, collection)
+            local project = Projects:find({ id = self.params.project_id })
+            assert_can_remove_project_from_collection(self, collection, project)
             local membership =
                 CollectionMemberships:find(
                     collection.id,

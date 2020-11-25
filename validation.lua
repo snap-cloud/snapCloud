@@ -357,12 +357,11 @@ assert_can_add_project_to_collection = function (self, project, collection)
 end
 
 assert_can_remove_project_from_collection =
-    function (self, collection)
-        -- We don't yet check for which project we're removing
+    function (self, collection, project)
         -- Admins can remove any project from any collection.
         if self.current_user:isadmin() then return end
-
-        if not can_edit_collection(self, collection) then
+        if not (can_edit_collection(self, collection) or
+                project.username == self.current_user.username) then
             yield_error(err.auth)
         end
 end
