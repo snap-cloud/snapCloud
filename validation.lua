@@ -345,7 +345,7 @@ assert_can_add_project_to_collection = function (self, project, collection)
 
     -- Users can add their own projects to "free for all" collections
     if collection.free_for_all then
-        return project.username == self.current_user.username or
+        return project.username == self.current_user.username
     end
 
     -- Users can add their own projects and published projects to collections
