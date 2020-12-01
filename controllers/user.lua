@@ -609,6 +609,8 @@ UserController = {
     }
 }
 
+UserController.GET.logout = UserController.POST.logout
+
 -- Zombies
 UserController.GET.zombies = function (self)
     return UserController.GET.user_list(self, true)
