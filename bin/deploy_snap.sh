@@ -35,5 +35,3 @@ git checkout $snap_release
 popd;
 echo
 echo
-
-popd;
