@@ -18,15 +18,12 @@ git submodule update --recursive --remote
 
 # Build community site
 pushd site
+echo "Building Comminty Frontend"
+echo
 Snippets/build.sh
 popd
 
-echo "Updating Snap! Release"
-pushd snap
-snap_release=$(git describe --tags $(git rev-list --tags --max-count=1))
-echo "Checking out Snap! ${snap_release}"
-git checkout $snap_release
-popd
+./deploy_snap.sh
 
 source .env
 deploy_sha=$(git rev-parse HEAD)
