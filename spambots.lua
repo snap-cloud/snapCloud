@@ -56,7 +56,11 @@ local suspicious_paths = {
     '/MySQL(*)',
     '/MySQL(*)',
     '/cgi-bin(*)',
-    '/cf_scripts(*)'
+    '/cf_scripts(*)',
+    '/phpMyAdmin(*)',
+    '/.htaccess',
+    '/wp-content(*)',
+    '/wp-ajax(*)'
 }
 
 for _, path in pairs(suspicious_paths) do
