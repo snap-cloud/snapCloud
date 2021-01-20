@@ -79,10 +79,14 @@ err = {
         msg = 'This collection cannot be published' ..
             ' as it contains unpublished projects',
         status = 409 },
+    unpublished_project_in_ffa_collection = {
+        msg = 'You need to first publish your project before you can add it' ..
+            ' to this collection',
+        status = 409 },
     too_many_password_resets = {
         msg = 'A password reset email has already been sent to this user ' ..
-            'recently.<br/>Please check your spam folder, or wait a few minutes ' ..
-            'and try again.',
+            'recently.<br/>Please check your spam folder, or wait a few ' ..
+            'minutes and try again.',
         status = 429 },
     project_already_flagged =
         { msg = 'You have already flagged this project.', status = 409 },
@@ -343,10 +347,14 @@ assert_can_add_project_to_collection = function (self, project, collection)
     -- Admins can add any project to any collection.
     if self.current_user:isadmin() then return end
 
-    -- Users can add their own projects to "free for all" collections
-    if collection.free_for_all and
+    -- Users can add their own published projects to "free for all" collections
+    if collection.free_for_all
             project.username == self.current_user.username then
-        return
+        if not project.ispublished then
+            yield_error(unpublished_project_in_ffa_collection)
+        else
+            return
+        end
     end
 
     -- Users can add their own projects and published projects to collections
