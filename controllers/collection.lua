@@ -302,6 +302,11 @@ CollectionController = {
             local new_name = body and body.name or nil
             local new_description = body and body.description or nil
 
+            local new_free_for_all =
+                (self.params.free_for_all == nil)
+                    and collection.free_for_all
+                    or self.params.free_for_all
+
             collection:update({
                 name = new_name or collection.name,
                 description = new_description or collection.description,
@@ -311,8 +316,7 @@ CollectionController = {
                     (self.params.published and db.format_date()) or
                     nil,
                 shared_at = shouldUpdateSharedDate and db.format_date() or nil,
-                free_for_all =
-                    self.params.free_for_all or collection.free_for_all
+                free_for_all = new_free_for_all
             })
 
             return okResponse('collection ' .. self.params.name .. ' updated')
