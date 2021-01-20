@@ -281,10 +281,10 @@ CollectionController = {
         collection_meta = function (self)
             -- POST /users/:username/collections/:name/metadata
             -- Description: Change metadata from a collection
-            -- Parameters:  shared, published
+            -- Parameters:  shared, published, free_for_all
             -- Body:        description, name
             if not users_match(self) then assert_admin(self) end
-
+            if self.params.free_for_all then assert_admin(self) end
             if self.current_user:isbanned() and self.params.published then
                 yield_error(err.banned)
             end
@@ -310,7 +310,9 @@ CollectionController = {
                 published_at = collection.published_at or
                     (self.params.published and db.format_date()) or
                     nil,
-                shared_at = shouldUpdateSharedDate and db.format_date() or nil
+                shared_at = shouldUpdateSharedDate and db.format_date() or nil,
+                free_for_all =
+                    self.params.free_for_all or collection.free_for_all
             })
 
             return okResponse('collection ' .. self.params.name .. ' updated')
