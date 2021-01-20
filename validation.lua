@@ -348,7 +348,7 @@ assert_can_add_project_to_collection = function (self, project, collection)
     if self.current_user:isadmin() then return end
 
     -- Users can add their own published projects to "free for all" collections
-    if collection.free_for_all
+    if collection.free_for_all and
             project.username == self.current_user.username then
         if not project.ispublished then
             yield_error(unpublished_project_in_ffa_collection)
