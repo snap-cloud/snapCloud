@@ -46,7 +46,7 @@ curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $re
 echo
 
 echo 'Tagging Deploy in Sentry'
-curl https://sentry.cs10.org/api/hooks/release/builtin/2/aca228bdf5410118114d83644397592ba4c12bc165a9d34f0e7c08c2e2103bf4/ \
+curl https://bugs.cs10.org/api/hooks/release/builtin/4/98015fb16a4b64ce985b93a4cb546ff025c9bc8d48956917799d7ab828b15f99/ \
   -X POST \
   -H 'Content-Type: application/json' \
   -d "{\"version\": \"$deploy_sha\"}"
