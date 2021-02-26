@@ -307,6 +307,8 @@ UserController = {
                     self.queried_user.username .. ' updated')
             else
                 -- new user
+                -- Strip whitespace *only* on create users.
+                self.params.username = util.trim(self.params.username)
                 validate.assert_valid(self.params, {
                     { 'username', exists = true, min_length = 4,
                         max_length = 200 },
