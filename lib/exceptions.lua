@@ -63,6 +63,10 @@ raven.get_server_name = function()
   return 'Snap!Cloud - ' .. ngx.var.host
 end
 
+raven.get_release = function()
+  return config.release_sha
+end
+
 -- Send data about each request to sentry.
 -- This was adapted from rollbar.lua
 raven.get_request_data = function()
