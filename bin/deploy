@@ -25,6 +25,13 @@ popd
 
 ./deploy_snap.sh
 
+
+echo "Updating Dependencies:"
+luarocks install
+
+echo;
+echo;
+
 source .env
 deploy_sha=$(git rev-parse HEAD)
 
