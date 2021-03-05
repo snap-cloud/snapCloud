@@ -34,11 +34,14 @@ local util = package.loaded.util
 -- Setup seed for raven to generate event ids.
 math.randomseed(os.time())
 
-local rvn = raven.new({
-  sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
-  environment = config._name,
-  release = config.release_sha
-})
+local rvn = nil
+if config.sentry_dsn then
+  rvn = raven.new({
+    sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
+    environment = config._name,
+    release = config.release_sha
+  })
+end
 
 local exceptions = {
   raven = raven,
