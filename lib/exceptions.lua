@@ -34,11 +34,14 @@ local util = package.loaded.util
 -- Setup seed for raven to generate event ids.
 math.randomseed(os.time())
 
-local rvn = raven.new({
-  sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
-  environment = config._name,
-  release = config.release_sha
-})
+local rvn = nil
+if config.sentry_dsn then
+  rvn = raven.new({
+    sender = require("raven.senders.luasocket").new { dsn = config.sentry_dsn },
+    environment = config._name,
+    release = config.release_sha
+  })
+end
 
 local exceptions = {
   raven = raven,
@@ -61,6 +64,10 @@ end
 -- If we ever deploy multiple servers, we should adjust this function.
 raven.get_server_name = function()
   return 'Snap!Cloud - ' .. ngx.var.host
+end
+
+raven.get_release = function()
+  return config.release_sha
 end
 
 -- Send data about each request to sentry.

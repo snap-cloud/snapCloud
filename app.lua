@@ -149,11 +149,6 @@ function app:handle_error(err, trace)
             ngx.log(ngx.ERR, send_err)
         end
     end
-    if config.rollbar_token then
-        exceptions.rollbar.set_person(user_params)
-        exceptions.rollbar.set_custom_trace(err .. "\n\n" .. trace)
-        exceptions.rollbar.report(exceptions.rollbar.ERR, err_msg)
-    end
     return errorResponse("An unexpected error occured: " .. err_msg, 500)
 end
 

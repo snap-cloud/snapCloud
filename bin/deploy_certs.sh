@@ -18,6 +18,10 @@ fi
 cp -r -u --verbose -L ${sourceDir}snap-${domain}.cs10.org $destDir;
 cp -r -u --verbose -L ${sourceDir}${domain}.snap.berkeley.edu $destDir;
 
+curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY \
+ -H 'Content-Type: application/json' \
+ -d "{\"message\":\"Deployed Certs to $LAPIS_ENVIRONMENT\"}"
+
 # restart for nginx to reload the certs.
 # TODO can we just "rebuild"?
 sudo service snapcloud_daemon restart;
