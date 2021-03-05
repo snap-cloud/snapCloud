@@ -26,8 +26,8 @@ popd
 ./deploy_snap.sh
 
 
-echo "Updating Dependencies:"
-luarocks install
+# echo "Updating Dependencies:"
+# luarocks install snap-cloud-beta-0.rockspec
 
 echo;
 echo;
