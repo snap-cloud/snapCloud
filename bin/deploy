@@ -46,13 +46,26 @@ curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $re
 echo
 
 echo 'Tagging Deploy in Sentry'
-curl https://bugs.cs10.org/api/hooks/release/builtin/4/98015fb16a4b64ce985b93a4cb546ff025c9bc8d48956917799d7ab828b15f99/ \
-  -X POST \
-  -H 'Content-Type: application/json' \
-  -d "{\"version\": \"$deploy_sha\"}"
+curl https://bugs.cs10.org/api/0/organizations/snap/releases/ \
+ -H "Authorization: Bearer $SENTRY_API_TOKEN" \
+ -H 'Content-Type: application/json' \
+ -d "{\"version\":\"$current_time\",\"ref\":\"$deploy_sha\",\"projects\":[\"snap-cloud\"]}"
+
+
+curl https://bugs.cs10.org/api/0/organizations/snap/releases/$current_time/deploys/ \
+ -H "Authorization: Bearer $SENTRY_API_TOKEN" \
+ -H 'Content-Type: application/json' \
+ -d "{\"environment\":\"$LAPIS_ENVIRONMENT\"}"
 
 echo
 echo
+
+echo "Notifiying Slack"
+
+curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY \
+ -H 'Content-Type: application/json' \
+ -d "{\"message\":\"Deployed Snap! to $LAPIS_ENVIRONMENT at $current_time\"}"
+
 
 # Always update the letsencrypt script incase it changes.
 cp bin/deploy_certs.sh ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
