@@ -10,6 +10,29 @@ $ git clone --recursive https://github.com/bromagosa/snapCloud.git
 
 (Use the `--recursive` option so that you can see the Social site and have a working Snap<em>!</em> install.)
 
+**NOTE**: If you forked the repo, make sure that `bromagosa` is replaced with your **GitHub username**. However, submodules will be from the original author. There is no way to clone from your forked repo. You may choose to relinking the folders to the forked repository on your repos, but if you do, make sure to not push the folder references.
+
+## Development
+
+### NOTE: Browser Selection for Cookies to work
+
+Chromium-based browsers will not save the cookies of your login session during the development of Snap!Cloud. They will work on the deployed wesite.
+
+As a result, it is recommended to use Firefox or Safari to load pages during development, and never Chromium browsers (Chrome, Opera, New Microsoft Edge, etc.).
+
+### Steps to look into
+
+When developing on Snap!Cloud on your local machine, the following sections are important:
+1. Prereqs
+2. Setting up the database
+    * The following subsections should be skimmed or read only, no action needed on these:
+        * Lapis database configuration
+        * Getting Emails (Follow these instructions for a mail server)
+        * A Procfile Runner (You will run the commands here at Step 3, when appropriate)
+3. Running the Snap!Cloud
+
+The other sections not listed are not needed for development, but may be needed for certain features or deployment.
+
 ## Prereqs
 
 For Debian-based distros, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a the database" afterwards.
@@ -78,16 +101,35 @@ Heroku has a good guide on [generating self-signed certs][heroku-guide].
 
 ## Setting up the database
 
+### Starting up a local PostgreSql server
+
+Follow instructions [here](https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html), depending on your operating system.
+
 ### Creating a user and a database
 
 A PostgreSQL script is provided to help you get all tables set up easily. However, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
 
+```sh
+$ psql postgres
+
+# Enter these in the PSQL command line
+> CREATE USER cloud WITH PASSWORD 'snap-cloud-password';
+> ALTER ROLE cloud WITH LOGIN;
+> CREATE DATABASE snapcloud OWNER cloud;
 ```
-# adduser cloud
-# su - postgres
+
+Alternatively, if you are on Linux, you can have postgres become the superuser, but that is not required
+
+```sh
+$ sudo -i
+# adduser cloud   # } These are inside the Root of Linux, these are not comments
+# su - postgres   # } (Note the Root uses the # instead of the $)
+
+# # Then "ctrl D" here (at the same time)
 
 $ psql
 
+# Note: Enter these in the PSQL command line
 > CREATE USER cloud WITH PASSWORD 'snap-cloud-password';
 > ALTER ROLE cloud WITH LOGIN;
 > CREATE DATABASE snapcloud OWNER cloud;
@@ -95,11 +137,22 @@ $ psql
 
 ### Building the database schema
 
-Continue by logging in as `cloud` and running the provided SQL file:
+Continue by logging in as `cloud` and running the provided SQL file in the main Terminal:
 
-```
-# su - cloud
+```sh
 $ psql -U cloud -d snapcloud -a -f cloud.sql
+```
+
+Linux users can run the following to set the "cloud" to create a substitute user (after running `sudo -i`) before running the above:
+
+```sh
+# su - cloud
+```
+
+You then have to apply the Migration file (called `migrations.lua`) by running the following command, applying changes to your PSQL snapcloud tables:
+
+```sh
+$ bin/migrations.sh
 ```
 
 If it all goes well, you should now have all tables properly set up. You can make sure it all worked by firing up the PostgreSQL shell and running the `\dt` command, which should print a list of all tables (`projects` and `users`).
@@ -119,8 +172,13 @@ We've included a configuration to run a local server called [maildev][maildev].
 To install maildev, you need node/npm.
 
 Run: (The macOS install script includes this already.)
+```sh
+$ npm i -g maildev
 ```
-npm i -g maildev
+
+Start maildev by just typing `maildev`:
+```sh
+$ maildev
 ```
 
 When you start maildev, all emails sent by the Snap!Cloud will be avaialbe at:
@@ -132,11 +190,11 @@ We've included a Procfile, which declares all the resources needed to run the ap
 You can use any tool you'd like to run a procfile, but two common ones are [foreman][foreman] or [node-foreman][nf]. These make it really easy to run all the resources:
 
 ```sh
-$ foreman s[tart] # OR
-$ nf s[tart]
+$ foreman s[tart] -p 8080 # OR
+$ nf start -x 8080
 ```
 
-You can now point your browser to `http://localhost:8080`.
+You can now point your browser to `http://localhost:8080` (note: `foreman` and `node-forman (nf)` by default goes to 5000 without the `-p` or `-x` port flag).
 
 [foreman]: https://github.com/ddollar/foreman
 [nf]: https://github.com/strongloop/node-foreman
@@ -178,12 +236,17 @@ We now need to configure `authbind` so that user `cloud` can start a service ove
 
 ## Running the Snap!Cloud
 
-If it all went well, you're now ready to fire up Lapis. While in development, just run this command under your Snap!Cloud local folder, if you use authbind:
+If it all went well, you're now ready to fire up Lapis. While in development, just run this command under your Snap!Cloud local folder.
 
+If you use authbind:
 ```
 $ ./start.sh
 ```
+
+Otherwise, run Snap!Cloud using the instructions in: "A Procfile Runner"
+
 You will also need to start your Postgres database separately.
+When running locally, follow the instructions listed in "Starting up a local PostgreSql server"
 
 ## Setting up the Snap!Cloud as a system daemon
 
