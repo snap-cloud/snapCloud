@@ -115,7 +115,7 @@ app:before_filter(function (self)
         self.queried_user = package.loaded.Users:find({ username = self.params.username })
     end
 
-    if self.session.username then
+    if self.session.username and self.session.username ~= '' then
         self.current_user = package.loaded.Users:find({ username = self.session.username })
     else
         self.session.username = ''
