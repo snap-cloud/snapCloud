@@ -74,7 +74,7 @@ require 'responses'
 app.cookie_attributes = function(self)
     local expires = date(true):adddays(365):fmt("${http}")
     local secure = config._name ~= 'development' and " Secure" or ""
-    return "Expires=" .. expires .. "; Path=/; HttpOnly; SameSite=None;" .. secure
+    return "Expires=" .. expires .. "; Path=/; HttpOnly; SameSite=Lax;" .. secure
 end
 
 -- Remove the protocol and port from a URL
