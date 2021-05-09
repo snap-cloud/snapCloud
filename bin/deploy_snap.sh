@@ -20,7 +20,7 @@ echo
 git fetch origin
 snap_release="origin/master"
 echo "Checking out Snap! $snap_release"
-git checkout origin/master
+git checkout $snap_release
 popd;
 echo
 echo
