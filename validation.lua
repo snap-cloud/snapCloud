@@ -311,6 +311,10 @@ end
 -- Collections
 
 can_edit_collection = function (self, collection)
+    if self.current_user == nil then
+        return false
+    end
+
     -- Users can edit their own collections
     local can_edit = collection.creator_id == self.current_user.id
 
