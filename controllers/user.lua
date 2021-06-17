@@ -279,9 +279,10 @@ UserController = {
                 if self.params.email then
                     -- they need to provide the user's password, or be an admin
                     if
-                        hash_password(self.params.password,
+                        (self.params.password == nil) or
+                        (hash_password(self.params.password,
                             self.queried_user.salt) ~=
-                                self.queried_user.password then
+                                self.queried_user.password) then
                         assert_admin(self)
                     end
                 end
