@@ -238,6 +238,8 @@ CollectionController = {
             -- Parameters:  username, ...
 
             assert_users_match(self)
+            assert_can_create_colletion(self)
+
             local params = self.params
             local collection =
                 Collections:find(self.queried_user.id, params.name)

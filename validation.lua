@@ -49,6 +49,8 @@ err = {
     expired_token = { msg = 'This token has expired', status = 401 },
     invalid_token =
         { msg = 'This token is either invalid or has expired', status = 401 },
+    nonvalidated_user =
+        { msg = 'Your user has not been validated.', status = 403 },
     nonvalidated_user_plaintext = {
         msg = 'This user has not been validated within the first 3 days ' ..
                 'after its creation.\nPlease use the cloud menu to ask for ' ..
@@ -63,6 +65,10 @@ err = {
         status = 401 },
     invalid_role = { msg = 'This user role is not valid', status = 401 },
     banned = { msg = 'Your user has been banned', status = 403 },
+    user_too_new = {
+        msg = 'Your user has not had enough activity in this community' ..
+            ' and it cannot yet create collections.',
+        status = 403 },
     update_project_fail =
         { msg = 'Project could not be updated', status = 500 },
     unparseable_xml =
@@ -91,7 +97,7 @@ err = {
     project_already_flagged =
         { msg = 'You have already flagged this project.', status = 409 },
     project_never_flagged =
-        { msg = 'This project was not flagged by you.', status = 404 }
+        { msg = 'This project was not flagged by you.', status = 404 },
 }
 
 assert_all = function (assertions, self)
@@ -305,6 +311,10 @@ end
 -- Collections
 
 can_edit_collection = function (self, collection)
+    if self.current_user == nil then
+        return false
+    end
+
     -- Users can edit their own collections
     local can_edit = collection.creator_id == self.current_user.id
 
@@ -381,6 +391,24 @@ assert_project_not_in_collection = function (self, project, collection)
     -- We can't add a project twice to a collection
     if CollectionMemberships:find(collection.id, project.id) then
         yield_error(err.project_already_in_collection)
+    end
+end
+
+assert_can_create_colletion = function (self)
+    -- Spammer guard.
+    -- Not validated users and users without at least a project can't create
+    -- collections.
+    if not self.current_user.verified then
+        yield_error(err.nonvalidated_user)
+    end
+    project_count =
+        Projects:select(
+            'where username = ?',
+            self.current_user.username,
+            { fields = 'count(*) as count'}
+            )[1].count
+    if (project_count == 0) then
+        yield_error(err.user_too_new)
     end
 end
 
