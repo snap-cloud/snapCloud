@@ -14,12 +14,6 @@ $ git clone --recursive https://github.com/bromagosa/snapCloud.git
 
 ## Development
 
-### NOTE: Browser Selection for Cookies to work
-
-Chromium-based browsers will not save the cookies of your login session during the development of Snap!Cloud. They will work on the deployed wesite.
-
-As a result, it is recommended to use Firefox or Safari to load pages during development, and never Chromium browsers (Chrome, Opera, New Microsoft Edge, etc.).
-
 ### Steps to look into
 
 When developing on Snap!Cloud on your local machine, the following sections are important:
