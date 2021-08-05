@@ -134,7 +134,7 @@ end)
 
 -- This module only takes care of the index endpoint
 app:get('/', function(self)
-    return { redirect_to = self:build_url('site/') }
+    -- return { redirect_to = self:build_url('site/') }
 end)
 
 function app:handle_404()
