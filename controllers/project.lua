@@ -414,6 +414,7 @@ ProjectController = {
                 Projects:select(
                     'INNER JOIN flagged_projects ON ' ..
                         'active_projects.id = flagged_projects.project_id ' ..
+                    'WHERE active_projects.ispublic ' ..
                     'GROUP BY active_projects.projectname, ' ..
                         'active_projects.username, ' ..
                         'active_projects.id ' ..
