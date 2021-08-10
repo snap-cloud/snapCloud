@@ -82,6 +82,7 @@ raven.get_request_data = function()
     query_string = ngx.var.args,
     env = config
   }
+  request.env.REMOTE_ADDR = ngx.var.remote_addr or nil
   if method == 'GET' then
     request.GET = ngx.req.get_uri_args()
   elseif method == 'POST' then
