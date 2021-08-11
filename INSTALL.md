@@ -5,12 +5,12 @@
 First of all, clone the Snap!Cloud repository into a local folder:
 
 ```
-$ git clone --recursive https://github.com/bromagosa/snapCloud.git
+$ git clone --recursive https://github.com/snap-cloud/snapCloud.git
 ```
 
 (Use the `--recursive` option so that you can see the Social site and have a working Snap<em>!</em> install.)
 
-**NOTE**: If you forked the repo, make sure that `bromagosa` is replaced with your **GitHub username**. However, submodules will be from the original author. There is no way to clone from your forked repo. You may choose to relinking the folders to the forked repository on your repos, but if you do, make sure to not push the folder references.
+**NOTE**: If you forked the repo, make sure that `snap-cloud` is replaced with your **GitHub username**. However, submodules will be from the original author. There is no way to clone from your forked repo. You may choose to relinking the folders to the forked repository on your repos, but if you do, make sure to not push the folder references.
 
 ## Development
 
@@ -39,6 +39,17 @@ echo "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main" \
 ```
 
 And change `$(lsb_release -sc)` for the latest possible LTS codename that's still compatible with your distro. For example, if you're running Ubuntu 20.10 groovy, you'll need to use `focal`, which is the latest LTS release before groovy.
+
+
+**macOS Users**
+The installation process relies on [`brew`](https://brew.sh).
+
+You should be able to run the following scripts to get up and running.
+
+```
+bin/setup_osx.sh # also installs luarocks dependecies
+bin/migrations.sh
+```
 
 ### Lua 5.1
 
@@ -69,16 +80,7 @@ All Lua dependencies are contained in the rockspec.
 # luarocks install snap-cloud-beta-0.rockspec
 ```
 
-#### Only for the MioSoft Cloud migration
-
-When using the migrate.lua script to import collections exported from the MioSoft Cloud (previous Snap! Cloud), you'll need to also install the following Lua rock:
-
-```
-# luarocks install pgmoon
-
-```
-
-### Authbind
+### Authbind (Production Only)
 
 In order to serve the cloud over HTTPS, we need the cloud user to have permissions over port 443, for which we're going to be using the `authbind` utility.
 
@@ -104,10 +106,11 @@ Heroku has a good guide on [generating self-signed certs][heroku-guide].
 
 ## Setting up the database
 
-### Starting up a local PostgreSql server
+### Starting up a local PostgreSQL server
 
 Follow instructions [here](https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html), depending on your operating system.
 
+**macOS:** The default macOS install script will setup Postgres for you.
 ### Creating a user and a database
 
 A PostgreSQL script is provided to help you get all tables set up easily. However, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
