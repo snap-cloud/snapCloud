@@ -32,11 +32,12 @@ apt-get install luarocks -y
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing OpenResty..."
-wget -qO - https://openresty.org/package/pubkey.gpg | apt-key add -
-apt-get -y install software-properties-common
-add-apt-repository -y "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main"
+apt-get -y install --no-install-recommends wget gnupg ca-certificates
+wget -O - https://openresty.org/package/pubkey.gpg | apt-key add -
+echo "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main" \
+    | tee /etc/apt/sources.list.d/openresty.list
 apt-get update
-apt-get install openresty -y
+apt-get -y install openresty
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing OpenSSL..."
