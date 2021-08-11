@@ -68,6 +68,7 @@ package.loaded.capture_errors = function(fn)
 end
 
 require 'models'
+require 'models.users'
 require 'models.contracts'
 require 'responses'
 local db = package.loaded.db
