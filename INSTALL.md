@@ -31,7 +31,7 @@ The other sections not listed are not needed for development, but may be needed 
 
 For Ubuntu, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a the database" afterwards.
 
-** Warning for Ubuntu users **
+**Warning for Ubuntu users**
 If you are not running an LTS (long term support) Ubuntu release, you will need to look for this line in `bin/prereqs.sh`:
 
 ```
