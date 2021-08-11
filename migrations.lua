@@ -224,5 +224,7 @@ return {
     ['2021-08-12:0'] = function ()
         schema.add_column('users', 'last_session_at', types.time({ timezone = true, null = true }))
         schema.add_column('users', 'last_login_at', types.time({ timezone = true, null = true }))
+
+        update_user_views()
     end
 }

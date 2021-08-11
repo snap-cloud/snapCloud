@@ -70,6 +70,7 @@ end
 require 'models'
 require 'models.contracts'
 require 'responses'
+local db = package.loaded.db
 
 -- Make cookies persistent
 app.cookie_attributes = function(self)
@@ -123,6 +124,7 @@ app:before_filter(function (self)
 
     if self.session.username and self.session.username ~= '' then
         self.current_user = package.loaded.Users:find({ username = self.session.username })
+        self.current_user:update({ last_session_at = db.format_date() })
     else
         self.session.username = ''
         self.current_user = nil
@@ -143,6 +145,7 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    ngx.log(ngx.ERR, err .. trace)
     local err_msg = exceptions.normalize_error(err)
     local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then

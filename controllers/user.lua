@@ -459,6 +459,7 @@ UserController = {
                 self.session.verified = self.queried_user.verified
                 self.session.user_id = self.queried_user.id
                 self.cookies.persist_session = self.params.persist
+                self.queried_user:update({last_login_at = db.format_date() })
                 if self.queried_user.verified then
                     return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
@@ -468,6 +469,7 @@ UserController = {
                 end
             else
                 -- Admins can log in as other people
+                -- Do not update this user's login time
                 assert_admin(self, 'wrong password')
                 local previous_username = self.current_user.username
                 self.session.username = self.queried_user.username
