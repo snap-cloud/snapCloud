@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-base=/home/snapCloud/snap/
+base=~/snapCloud;
 
 pushd $base/snap/;
 echo "Updating Main Snap! Release"
