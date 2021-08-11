@@ -8,8 +8,8 @@ if [ ! -f site/www/index.html ]; then
     echo "First time run. Building the Snap! community site..."
     echo "####################################################"
     (cd site; Snippets/build.sh)
-    ln -s snap/src/cloud.js site/www/libs/cloud.js
-    ln -s snap/src/sha512.js site/www/libs/sha512.js
+    ln snap/src/cloud.js site/www/libs/cloud.js
+    ln snap/src/sha512.js site/www/libs/sha512.js
 fi
 
 authbind --deep lapis server $LAPIS_ENVIRONMENT
