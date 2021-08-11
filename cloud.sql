@@ -137,7 +137,9 @@ CREATE TABLE public.users (
     updated_at timestamp with time zone,
     role public.snap_user_role DEFAULT 'standard'::public.snap_user_role,
     deleted timestamp with time zone,
-    unique_email text
+    unique_email text,
+    last_session_at timestamp with time zone,
+    last_login_at timestamp with time zone
 );
 
 
@@ -787,6 +789,7 @@ test
 2020-11-09:0
 2020-11-10:0
 2021-08-11:0
+2021-08-12:0
 \.
 
 

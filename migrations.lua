@@ -218,5 +218,11 @@ return {
         ]])
 
         schema.create_index('contract_users', 'user_id', 'contract_id', { unique = true });
+    end,
+
+    -- Store login, session times on user
+    ['2021-08-12:0'] = function ()
+        schema.add_column('users', 'last_session_at', types.time({ timezone = true, null = true }))
+        schema.add_column('users', 'last_login_at', types.time({ timezone = true, null = true }))
     end
 }
