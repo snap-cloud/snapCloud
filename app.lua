@@ -68,6 +68,7 @@ package.loaded.capture_errors = function(fn)
 end
 
 require 'models'
+require 'models.contracts'
 require 'responses'
 
 -- Make cookies persistent
