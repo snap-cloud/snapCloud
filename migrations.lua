@@ -180,5 +180,43 @@ return {
             'notes',
             types.text({ null = true })
         )
+    end,
+
+    -- Contracts Model
+    ['2021-08-11:0'] = function ()
+        schema.create_table('contracts', {
+            { 'id', types.serial({ primary_key = true }) },
+            { 'name', types.text },
+            { 'start_date', types.date },
+            { 'end_date', types.date },
+            { 'email_domains', types.text({ array = true }) },
+            { 'contact_info', types.text({ null = true }) },
+            { 'contact_email', types.text },
+            { 'notes', types.text({ null = true }) },
+            { 'location', types.text({ null = true}) },
+            { 'timezone', types.text({ null = true}) },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) }
+        })
+
+        schema.create_table('contract_users', {
+            { 'id', types.serial({ primary_key = true }) },
+            { 'user_id', types.foreign_key },
+            { 'contract_id', types.foreign_key },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) }
+        })
+
+        db.query([[
+            CREATE TYPE contract_role AS ENUM ('admin', 'teacher', 'student');
+        ]])
+
+        db.query([[
+            ALTER TABLE contract_users ADD COLUMN role contract_role;
+            ALTER TABLE contract_users ALTER COLUMN role SET NOT NULL;
+            ALTER TABLE contract_users ALTER COLUMN role SET DEFAULT 'student';
+        ]])
+
+        schema.create_index('contract_users', 'user_id', 'contract_id', { unique = true });
     end
 }
