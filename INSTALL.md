@@ -29,7 +29,16 @@ The other sections not listed are not needed for development, but may be needed 
 
 ## Prereqs
 
-For Debian-based distros, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a the database" afterwards.
+For Ubuntu, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a the database" afterwards.
+
+** Warning for Ubuntu users **
+If you are not running an LTS (long term support) Ubuntu release, you will need to look for this line in `bin/prereqs.sh`:
+
+```
+echo "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main" \
+```
+
+And change `$(lsb_release -sc)` for the latest possible LTS codename that's still compatible with your distro. For example, if you're running Ubuntu 20.10 groovy, you'll need to use `focal`, which is the latest LTS release before groovy.
 
 ### Lua 5.1
 
