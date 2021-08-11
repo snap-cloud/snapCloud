@@ -160,7 +160,9 @@ CREATE VIEW public.active_users AS
     users.updated_at,
     users.role,
     users.deleted,
-    users.unique_email
+    users.unique_email,
+    users.last_session_at,
+    users.last_login_at
    FROM public.users
   WHERE (users.deleted IS NULL);
 
@@ -373,7 +375,9 @@ CREATE VIEW public.deleted_users AS
     users.updated_at,
     users.role,
     users.deleted,
-    users.unique_email
+    users.unique_email,
+    users.last_session_at,
+    users.last_login_at
    FROM public.users
   WHERE (users.deleted IS NOT NULL);
 
@@ -708,6 +712,13 @@ CREATE INDEX users_email_idx ON public.users USING btree (email);
 
 
 --
+-- Name: users_last_session_at_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_last_session_at_idx ON public.users USING btree (last_session_at);
+
+
+--
 -- Name: tokens expire_token_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -790,6 +801,7 @@ test
 2020-11-10:0
 2021-08-11:0
 2021-08-12:0
+2021-08-12:1
 \.
 
 

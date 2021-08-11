@@ -226,5 +226,10 @@ return {
         schema.add_column('users', 'last_login_at', types.time({ timezone = true, null = true }))
 
         update_user_views()
+    end,
+
+    -- Primarily for analytics.
+    ['2021-08-12:1'] = function ()
+        schema.create_index('users', 'last_session_at')
     end
 }
