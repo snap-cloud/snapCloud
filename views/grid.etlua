@@ -1,0 +1,76 @@
+<% --[[
+    # REQUIRED
+    pageNumber →  (num) current page.
+    class →  (str) CSS class.
+    paginator →  Lapis paginator to retrieve items to show.
+
+    # OPTIONAL
+    title →  (str) grid title. Default: none.
+    itemType → 'project', 'user' or 'collection'. Default: 'project'.
+    withSearch →  (bool) add search widget. Default: false.
+    withPaginator → (bool) show paginator. Default: false.
+    maxPages →  (num) maximum amount of pages to show. Default: 0 (all).
+    keepIfEmpty → (bool) show the widget even if empty. Default: false.
+    itemsPerRow → (num) number of items per grid row. Default: 5.
+    withThumbnail → (bool) retrieve a thumbnail for this item. Default: true.
+]]-- 
+
+-- set defaults
+
+withSearch = withSearch or false
+withPaginator = withPaginator or false
+maxPages = maxPages or 0
+keepIfEmpty = keepIfEmpty or false
+withThumbnail = withThumbnail or true
+itemsPerRow = itemsPerRow or 5
+itemType = itemType or 'project'
+
+selectors = {
+    project = {
+        title = 'projectname',
+        author = 'username'
+    },
+    user = {
+        title = 'username'
+    },
+    collection = {
+        title = 'name',
+    }
+}
+%>
+<link rel="stylesheet" href="style/project.css">
+<div class="<%= class %> container">
+    <% if (title) then %>
+    <h2 class="<%= class %> header" localizable>
+        <%= title %>
+    </h2>
+    <% end %>
+    <div class="bar">
+        <% if (withSearch) then render('views.search') end %>
+        <% if (withPaginator) then render('views.paginator') end %>
+    </div>
+
+    <%
+    local items = pageNumber and
+        paginator:get_page(pageNumber) or paginator:get_all()
+
+    if withThumbnail == 'true' then
+        disk:process_thumbnails(items)
+    end
+    %>
+    <% if (paginator:num_pages() > 0) then %>
+    <div class="<%= class %> list pure-g">
+        <%
+            for _, item in pairs(items) do
+                render(
+                    'views.' .. itemType .. '-item',
+                    {
+                        item = item,
+                        itemsPerRow = itemsPerRow
+                    }
+                )
+            end
+        %>
+    </div>
+    <% end %>
+</div>

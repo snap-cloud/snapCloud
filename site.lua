@@ -27,6 +27,8 @@ local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local respond_to = package.loaded.respond_to
 
+local Projects = package.loaded.Projects
+
 app:enable('etlua')
 app.layout = require 'views.layout'
 
@@ -42,7 +44,40 @@ local views = {
 }
 
 for _, view in pairs(views) do
-    app:get('/' .. view, function(self)
+    app:get('/' .. view, function (self)
         return { render = view }
     end)
 end
+
+app:get('/test', function (self)
+    local query = 'where ispublished and username not in ' ..
+        '(select username from deleted_users)'
+    -- Apply where clauses
+    if self.params.matchtext then
+        query = query ..
+        db.interpolate_query(
+        ' and (projectname ILIKE ? or notes ILIKE ?)',
+        self.params.matchtext,
+        self.params.matchtext
+        )
+    end
+
+    -- Apply project name filter to hide projects with typical
+    -- BJC or Teals names.
+    if self.params.filtered then
+        query = query .. db.interpolate_query(course_name_filter())
+    end
+
+    local paginator =
+        Projects:paginated(
+        query .. ' order by firstpublished desc',
+        { per_page = 15 }
+    )
+
+   self.paginator = paginator
+   self.pageNumber = 1
+   self.class = 'projects'
+   self.title = 'Latest Projects'
+
+    return { render = 'grid' }
+end)

@@ -1,0 +1,18 @@
+<div class="project small pure-u-1-<%= itemsPerRow %>">
+    <% if (item.thumbnail == nil) then %>
+    <i class="no-image fas fa-question-circle"></i>
+    <% end %>
+    <a target="_self"
+        href="project?user=<%= item.username %>&amp;project=<%= item.projectname %>">
+        <img class="thumbnail" title=""
+            <% if (item.thumbnail) then %>
+                src="<%= item.thumbnail %>"
+            <% end %>
+        >
+        <span class="project-name"><%= item.projectname %></span>
+    </a>
+    <span 
+        class="author"> by <a 
+            href="user?user=<%= item.username %>" target=""
+            ><strong><%= item.username %></strong></a></span>
+</div>
