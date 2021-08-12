@@ -34,11 +34,11 @@
         <div id="loading">
             <i class="fas fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
         </div>
-        <% render("views.navigation_bar") %>
+        <% render('views.navigation_bar') %>
         <div id="wrapper">
-            <% content_for("inner") %>
+            <% content_for('inner') %>
         </div>
-        <% render("views.footer") %>
+        <% render('views.footer') %>
     </body>
     <script>
     SnapCloud.genericError = genericError;

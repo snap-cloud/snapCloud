@@ -30,6 +30,15 @@ local respond_to = package.loaded.respond_to
 app:enable('etlua')
 app.layout = require 'views.layout'
 
-app:get('/test', function(self)
-    return { render = 'test' }
-end)
+local views = {
+    -- Static pages
+    'about', 'bjc', 'coc', 'contact', 'credits', 'dmca', 'extensions',
+    'materials', 'mirrors', 'offline', 'partners', 'privacy', 'requirements',
+    'research', 'snapinator', 'snapp', 'source', 'tos'
+}
+
+for _, view in pairs(views) do
+    app:get('/' .. view, function(self)
+        return { render = view }
+    end)
+end

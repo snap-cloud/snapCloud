@@ -1,0 +1,11 @@
+<h1 localizable>Source Code</h1>
+<span><p>All components of the Snap<em>!</em> Programming System are free and open source under a GNU General Public License. You are welcome to explore and tinker with our code, to remix, extend and share.</p></span>
+<h2 localizable>The Snap<em>!</em> programming language/environment</h2>
+<span><p>IDE and the Snap<em>!</em> runtime environment, including the graphical blocks, widgets, evaluator and timesharing multiplexer.</p></span>
+<a localizable class="indent" href="https://github.com/jmoenig/Snap">Source Code</a>
+<h2 localizable>The Snap<em>!</em> cloud backend</h2>
+<span><p>Database system for storing, retrieving and sharing projects, user account administration and hooks for community tools, such as remix trees.</p></span>
+<a localizable class="indent" href="https://github.com/bromagosa/snapCloud">Source Code</a>
+<h2 localizable>The Snap<em>!</em> community website</h2>
+<span><p>This website, a system of static and dynamic web pages designed to showcase projects, ideas and the community.</p></span>
+<a localizable class="indent" href="https://github.com/bromagosa/snapSite">Source Code</a>

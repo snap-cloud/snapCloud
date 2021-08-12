@@ -1,0 +1,52 @@
+[x] about.tmp
+[ ] admin.tmp
+[x] base.tmp -> layout.etlua
+[x] bjc.tmp
+[ ] blog.tmp
+[ ] carousel.tmp
+[ ] change_email.tmp
+[ ] change_password.tmp
+[x] coc.tmp
+[ ] collection.tmp
+[x] contact.tmp
+[x] credits.tmp
+[ ] delete_user.tmp
+[x] dmca.tmp
+[ ] embed.tmp
+[ ] examples.tmp
+[ ] explore.tmp
+[x] extensions.tmp
+[ ] flag_details.tmp
+[ ] flags.tmp
+[x] footer.tmp
+[ ] forgot_password.tmp
+[ ] forgot_username.tmp
+[ ] grid.tmp
+[ ] login.tmp
+[x] materials.tmp
+[x] mirrors.tmp
+[ ] my_collections.tmp
+[ ] my_projects.tmp
+[x] navigation_bar.tmp
+[x] offline.tmp
+[ ] paginator.tmp
+[x] partners.tmp
+[x] privacy.tmp
+[ ] profile.tmp
+[ ] project_collections.tmp
+[ ] project_remixes.tmp
+[ ] project.tmp
+[x] requirements.tmp
+[x] research.tmp
+[ ] search.tmp
+[ ] sign_up.tmp
+[ ] slideshow.tmp
+[x] snapinator.tmp
+[x] snapp.tmp
+[x] source.tmp
+[x] tos.tmp
+[ ] user_admin.tmp
+[ ] username.tmp
+[ ] user.tmp
+[ ] welcome.tmp
+[ ] zombie_admin.tmp
