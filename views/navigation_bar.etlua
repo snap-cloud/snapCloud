@@ -1,0 +1,97 @@
+<nav id="top-bar">
+    <div class="pure-menu-horizontal pure-menu">
+        <ul class="pure-g pure-menu-list">
+            <a class="pure-u-1-12" href="/" aria-label="Snap! home page">
+                <img src="img/topbar-logo.png" class="logo clickable"/>
+            </a>
+            <span class="pure-u-5-12">
+                <li class="pure-menu-item">
+                    <a localizable class="pure-menu-link run"
+                        target="_blank">Run Snap<em>!</em></a>
+                </li>
+                <li class="pure-menu-item">
+                    <a localizable class="pure-menu-link explore"
+                        href="explore">Explore</a>
+                </li>
+                <li class="pure-menu-item">
+                    <a localizable class="pure-menu-link forum"
+                        href="https://forum.snap.berkeley.edu/">Forum</a>
+                </li>
+                <!--   =======   Snap!Con   =======
+                <li class="pure-menu-item">
+                    <a localizable class="pure-menu-link" target="_blank"
+                    href="https://www.snapcon.org">Snap<em>!</em>Con</a>
+                </li>
+                -->
+            </span>
+            <i class="pure-u-1-24"></i>
+            <div class="search pure-u-1-6">
+                <form action="search">
+                    <input type="text" name="query">
+                    <i class="fas fa-search"></i>
+                </form>
+            </div>
+            <i class="pure-u-1-24"></i>
+            <li hidden="true" class="join pure-menu-item pure-u-1-12">
+                <a localizable class="pure-menu-link"
+                    href="sign_up">Join</a></li>
+            <li hidden="true" class="sign-in pure-menu-item pure-u-1-12">
+                <a localizable class="pure-menu-link"
+                               href="login">Log In</a></li>
+            <li hidden="true" class="pure-menu-item pure-u-1-6
+                pure-menu-has-children pure-menu-allow-hover user-menu">
+                <a id="menuLink1" class="pure-menu-link visitor clickable"></a>
+                <ul class="pure-menu-children">
+                    <li class="pure-menu-item">
+                        <a localizable class="pure-menu-link my-projects"
+                            href="my_projects">My Projects</a></li>
+                    <li class="pure-menu-item">
+                        <a localizable class="pure-menu-link my-collections"
+                            href="my_collections">My Collections</a></li>
+                    <li class="pure-menu-item">
+                        <a localizable class="pure-menu-link my-public-projects"
+                           href="">My Public Page</a></li>
+                    <li class="pure-menu-item">
+                        <a localizable class="pure-menu-link my-profile"
+                            href="profile">My Profile</a></li>
+                    <li hidden="true" class="pure-menu-item admin">
+                        <a localizable class="pure-menu-link"
+                            href="admin">Administration</a></li>
+                    <hr>
+                    <li class="pure-menu-item">
+                        <a localizable class="pure-menu-link clickable"
+                            href="javascript:SnapCloud.logout(function () {
+                                sessionStorage.clear();
+                                location.href = 'index';
+                            });">Log Out</a></li>
+                </ul>
+            </li>
+            <li class="pure-menu-item pure-u-1-24 pure-menu-has-children
+                pure-menu-allow-hover language-select">
+                <a class="pure-menu-link clickable">
+                    <i class="fas fa-globe"></i>
+                </a>
+                <ul class="pure-menu-children languages">
+                    <a class="pure-menu-link clickable"
+                        onclick="localizer.setLanguage('es');">Castellano</a>
+                    <a class="pure-menu-link clickable"
+                        onclick="localizer.setLanguage('ca');">Català</a>
+                    <a class="pure-menu-link clickable"
+                        onclick="localizer.setLanguage('zh');">简体中文</a>
+                    <a class="pure-menu-link clickable"
+                        onclick="localizer.setLanguage('de');">Deutsch</a>
+                    <a class="pure-menu-link clickable"
+                        onclick="localizer.setLanguage('en');">English</a>
+                    <a class="pure-menu-link clickable"
+                        onclick="localizer.setLanguage('fr');">Français</a>
+                    <a class="pure-menu-link clickable"
+                        onclick="localizer.setLanguage('it');">Italiano</a>
+                    <a class="pure-menu-link clickable"
+                        onclick="localizer.setLanguage('pt');">Português</a>
+                    <a class="pure-menu-link clickable"
+                        onclick="localizer.setLanguage('tr');">Türkçe</a>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>

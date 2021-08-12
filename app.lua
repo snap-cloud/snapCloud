@@ -174,4 +174,7 @@ require 'discourse'
 -- We don't keep spam/exploit paths in the API
 require 'spambots'
 
+-- The community site is handled in the site.lua file
+require 'site'
+
 return app
