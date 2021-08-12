@@ -22,6 +22,9 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+-- Mute annoying _G guard warnings
+require 'writeguardmuter'
+
 -- Packaging everything so it can be accessed from other modules
 local lapis = require 'lapis'
 package.loaded.app = lapis.Application()
