@@ -1,0 +1,146 @@
+<h1 localizable>Create a Snap<em>!</em> account</h1>
+<form id="signup" class="pure-form pure-form-aligned">
+    <fieldset>
+        <div class="pure-control-group">
+            <label localizable for="username">Username</label>
+            <input id="username" name="username" type="text"
+                placeholder="Username" required>
+        </div>
+
+        <div class="pure-control-group">
+            <label localizable for="password">Password</label>
+            <input id="password" name="password" type="password"
+                placeholder="Password" required>
+        </div>
+
+        <div class="pure-control-group">
+            <label localizable for="password-repeat">Repeat Password</label>
+            <input id="password-repeat" name="password-repeat" type="password"
+                placeholder="Password" required>
+        </div>
+
+        <div class="pure-control-group">
+            <label localizable for="birth-month">Month of Birth</label>
+            <select id="birth-month" name="birth-month"
+                    onchange="checkDate(this.form)">
+                <option localizable value="1">January</option>
+                <option localizable value="2">February</option>
+                <option localizable value="3">March</option>
+                <option localizable value="4">April</option>
+                <option localizable value="5">May</option>
+                <option localizable value="6">June</option>
+                <option localizable value="7">July</option>
+                <option localizable value="8">August</option>
+                <option localizable value="9">September</option>
+                <option localizable value="10">October</option>
+                <option localizable value="11">November</option>
+                <option localizable value="12">December</option>
+            </select>
+            <select id="birth-year" name="birth-year"
+                onchange="checkDate(this.form)">
+            </select>
+        </div>
+
+        <div class="pure-control-group">
+            <label localizable for="email">Email address</label>
+            <input id="email" name="email" type="email"
+                placeholder="Email address" required>
+        </div>
+
+        <div class="pure-control-group">
+            <label localizable for="email">Repeat email address</label>
+            <input id="email-repeat" name="email-repeat" type="email"
+                placeholder="Email address" required>
+        </div>
+
+        <div class="pure-controls">
+            <label for="tos" class="pure-checkbox">
+                <input id="tos" name="tos" type="checkbox" required>
+                    <span localizable>I have read and agree to the <a
+                            target="_blank"
+                            href="tos">Terms of Service</a> and the <a
+                            target="_blank"
+                            href="privacy">Privacy Agreement</a></span>.
+            </label>
+
+            <button localizable type="submit"
+                class="pure-button red-button">Sign up</button>
+        </div>
+    </fieldset>
+</form>
+
+<script>
+    setTitle(localizer.localize('Sign Up') + ' - Snap! Build Your Own Blocks');
+
+    var currentYear = (new Date()).getFullYear(),
+        currentMonth = (new Date()).getMonth() + 1, // months are 0-based LOL
+        yearSelector = document.querySelector('#birth-year');
+
+    for (year = currentYear; year > currentYear - 20; year --) {
+        var option = document.createElement('option');
+        option.value = year;
+        option.innerHTML = year;
+        yearSelector.append(option);
+    }
+
+    var option = document.createElement('option');
+    option.value = currentYear - 20;
+    option.innerHTML = (currentYear - 20) + localizer.localize(' or before');
+    yearSelector.append(option);
+
+    function checkDate (form) {
+        var month = parseInt(form.querySelector('#birth-month').value),
+            year = parseInt(form.querySelector('#birth-year').value);
+        if ((currentYear - year < 12) ||
+                ((currentYear - year === 12) && (month >= currentMonth))) {
+            form.querySelector('label[for=email]').innerHTML =
+                localizer.localize('Email address of parent or guardian');
+        } else {
+            form.querySelector('label[for=email]').innerHTML =
+                localizer.localize('Email address');
+        }
+    };
+
+    document.querySelector('form#signup').addEventListener(
+        'submit',
+        function (event) {
+            var username = this.elements['username'].value,
+                password = this.elements['password'].value,
+                passwordRepeat = this.elements['password-repeat'].value,
+                email = this.elements['email'].value,
+                emailRepeat = this.elements['email-repeat'].value,
+                agreed = this.elements['tos'].checked;
+
+            event.preventDefault();
+
+            if (email !== emailRepeat) {
+                genericError(
+                    'Please make sure that you have entered your<br>' +
+                        'email twice and that both emails match.',
+                    'Emails do not match'
+                );
+            } else {
+                SnapCloud.signup(
+                    username,
+                    password,
+                    passwordRepeat,
+                    email,
+                    function (value) {
+                        alert(
+                            'User created.<br/>You can now log in.',
+                            function() {
+                                window.location.href = 'login';
+                            },
+                            { title: 'Account Created'}
+                        );
+                    },
+                    function (response) {
+                        genericError(
+                            'Could not create account: ' + response,
+                            'Sign Up Failed'
+                        );
+                    }
+                );
+            }
+        });
+</script>

@@ -1,0 +1,71 @@
+<h1 localizable>Log into Snap<em>!</em></h1>
+
+<form id="login" class="pure-form pure-form-aligned">
+    <fieldset>
+        <div class="pure-control-group">
+            <label localizable for="username">Username</label>
+            <input id="username" name="username" type="text"
+                placeholder="Username">
+        </div>
+
+        <div class="pure-control-group">
+            <label localizable for="password">Password</label>
+            <input id="password" name="password" type="password"
+                placeholder="Password">
+        </div>
+
+        <div class="pure-controls">
+            <label for="cb" class="pure-checkbox">
+                <input id="cb" name="persist" type="checkbox">
+                <span localizable>keep me logged in</span>
+            </label>
+
+            <button localizable type="submit"
+                class="pure-button">Log in</button>
+        </div>
+        <div class="pure-controls">
+            <p><small><em><a localizable href="forgot_password"
+                        onclick="">* I forgot my password</a></em></small></p>
+            <p><small><em><a localizable href="forgot_username"
+                        onclick="">* I forgot my username</a></em></small></p>
+        </div>
+    </fieldset>
+</form>
+
+<script>
+    setTitle(localizer.localize('Log In') + ' - Snap! Build Your Own Blocks');
+
+    function redirectPath() {
+        var defaultPath = 'index';
+        var redirect_to = getUrlParameter('redirect_to');
+        return redirect_to || defaultPath;
+    }
+
+    document.querySelector('form#login').addEventListener('submit',
+        function (event) {
+            var username = this.elements['username'].value,
+                password = this.elements['password'].value,
+                persist = this.elements['persist'].checked;
+
+            event.preventDefault();
+
+            SnapCloud.login(
+                username,
+                password,
+                persist,
+                function (username, role) {
+                    // TODO: this should handle verification.
+                    sessionStorage.username = username;
+                    sessionStorage.role = role;
+                    window.location.href = redirectPath();
+                },
+                function (response) {
+                    genericError(
+                        'Could not login: ' + response,
+                        'Login failed'
+                    );
+                }
+            );
+        }
+    );
+</script>

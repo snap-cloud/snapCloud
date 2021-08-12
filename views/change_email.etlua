@@ -1,0 +1,75 @@
+<h1 localizable>Change Email</h1>
+<form id="change-email" class="pure-form pure-form-aligned">
+    <fieldset>
+        <div class="pure-control-group">
+            <label localizable for="password">Password</label>
+            <input id="password" name="password" type="password" required>
+        </div>
+
+        <div class="pure-control-group">
+            <label localizable for="new-email">New Email</label>
+            <input id="new-email" name="new-email" type="email" required>
+        </div>
+
+        <div class="pure-control-group">
+            <label localizable for="new-password-again">Repeat New Email</label>
+            <input
+                id="new-email-again" name="new-email-again"
+                type="email" required>
+        </div>
+
+        <div class="pure-controls">
+            <button localizable type="submit"
+                class="pure-button red-button">Change My Email</button>
+        </div>
+    </fieldset>
+</form>
+
+<script>
+    setTitle(localizer.localize('Change Email') +
+        ' - Snap! Build Your Own Blocks');
+
+    document.querySelector('form#change-email').addEventListener('submit',
+        function (event) {
+            var password = this.elements['password'].value,
+                email = this.elements['new-email'].value,
+                emailRepeat = this.elements['new-email-again'].value;
+
+                event.preventDefault();
+
+                if (email !== emailRepeat) {
+                    genericError(
+                        'Please make sure that you have entered your<br>'+
+                            'email twice and that both emails match.',
+                        'Emails do not match'
+                    );
+                } else {
+                    SnapCloud.withCredentialsRequest(
+                        'POST',
+                        '/users/' + encodeURIComponent(SnapCloud.username) +
+                            '?' + SnapCloud.encodeDict({
+                                email: email,
+                                password: hex_sha512(password)
+                            }),
+                        function (response) {
+                            alert(
+                                localizer.localize(
+                                    'Your email has been updated.<br>' +
+                                    'Please log in again.'),
+                                function () {
+                                    SnapCloud.logout(
+                                        function () {
+                                            sessionStorage.clear();
+                                            location.href = 'login';
+                                        }
+                                    );
+                                }
+                            );
+                        },
+                        genericError,
+                        'Could not update email'
+                    );
+                }
+            }
+    );
+</script>

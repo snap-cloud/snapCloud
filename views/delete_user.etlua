@@ -1,0 +1,59 @@
+<h1 localizable>Delete your Account</h1>
+<h2 localizable>Please confirm your password</h2>
+
+<form id="confirm-password" class="pure-form pure-form-aligned">
+    <fieldset>
+        <div class="pure-control-group">
+            <label localizable for="password">Password</label>
+            <input id="password" name="password" type="password"
+                placeholder="Password">
+        </div>
+        <div class="pure-controls">
+            <button localizable type="submit"
+                class="pure-button pure-button-warning">
+                Confirm and delete account
+            </button>
+        </div>
+    </fieldset>
+</form>
+
+<script>
+    setTitle(localizer.localize('Delete your Account') +
+        ' - Snap! Build Your Own Blocks');
+
+    function redirectPath() {
+        var defaultPath = 'index';
+        var redirect_to = getUrlParameter('redirect_to');
+        return redirect_to || defaultPath;
+    };
+
+    document.querySelector('form#confirm-password').addEventListener(
+        'submit',
+        function (event) {
+            var password = this.elements['password'].value;
+            event.preventDefault();
+            SnapCloud.withCredentialsRequest(
+                'DELETE',
+                '/users/' + encodeURIComponent(SnapCloud.username) + '?' +
+                    SnapCloud.encodeDict({ password: hex_sha512(password) }),
+                function (response) {
+                    alert(
+                        response,
+                        function () {
+                            SnapCloud.logout(
+                                function () {
+                                    sessionStorage.clear();
+                                    location.href = redirectPath();
+                                }
+                            );
+                        }
+                    );
+                },
+                genericError(
+                    localizer.localize('User account could not be removed'),
+                    'Could not delete user'
+                )
+            );
+        }
+    );
+</script>
