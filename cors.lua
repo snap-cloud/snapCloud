@@ -30,7 +30,7 @@ domain_allowed['extensions.snap.berkeley.edu'] = true
 domain_allowed['snap4arduino.rocks'] = true
 domain_allowed['chrome-extension://bdmapaboflkhdmcgdpfooeeeadejodia'] = true
 domain_allowed['chrome-extension://ghipaghphhpfncbokoobcjlapbnceipg'] = true
--- App Server Domains
+-- Aliases for App Server Domains
 -- By Default CORS is not needed on the same domain.
 -- However, we want to allow access on http hosted versions of Snap!.
 domain_allowed['snap-cloud.cs10.org'] = true
@@ -43,11 +43,11 @@ domain_allowed['cs10.org'] = true
 domain_allowed['bjc.edc.org'] = true
 domain_allowed['web.media.mit.edu'] = true
 -- Snap! Research Projects
+domain_allowed['isnap.csc.ncsu.edu'] = true
 domain_allowed['eliza.csc.ncsu.edu'] = true
 domain_allowed['arena.csc.ncsu.edu'] = true
 domain_allowed['stemc.csc.ncsu.edu'] = true
 domain_allowed['snapapps.fi.ncsu.edu'] = true
-domain_allowed['lambda.cs10.org'] = true
 domain_allowed['ecraft2learn.github.io'] = true
 domain_allowed['microworld.edc.org'] = true
 -- All edX Sites, and test sites
