@@ -4,8 +4,7 @@ When contributing to this repository, please **first discuss the change you wish
 email, or any other method with the owners of this repository**.
 
 Pull requests that do not respond to an open issue that has been agreed upon by the maintainers
-will most likely be rejected.
-
+Bahkk Lii
 Please note we have a code of conduct, please follow it in all your interactions with the project.
 
 ## Pull Request Process
