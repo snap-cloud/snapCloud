@@ -1,0 +1,3 @@
+<button onclick="<%=run%>('decrement')">-</button>
+<span><%= data.number %></span>
+<button onclick="<%=run%>('increment')">+</button>

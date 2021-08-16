@@ -1,0 +1,29 @@
+<script>
+    var json_<%= component.id %> = '<%- json %>';
+    function update_<%= component.id %>(selector) {
+        var req = new XMLHttpRequest();
+        req.open(
+            'POST',
+            '/update_component/<%= component.id %>/' + selector,
+            true
+        );
+        req.onreadystatechange = function () {
+            if (req.readyState == 4 && req.status == 200) {
+                var response = JSON.parse(req.responseText);
+                json_<%= component.id %> = JSON.stringify(response.data);
+                document.querySelector('#<%= component.id %>').innerHTML =
+                    response.html;
+            }
+        };
+        req.send(json_<%= component.id %>);
+    };
+</script>
+
+<div id="<%= component.id %>">
+<%
+    render(
+        'views.' .. component.path,
+        { data = component.data, run = 'update_' .. component.id }
+    )
+%>
+</div>

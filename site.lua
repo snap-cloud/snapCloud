@@ -28,6 +28,12 @@ local capture_errors = package.loaded.capture_errors
 local respond_to = package.loaded.respond_to
 
 local Projects = package.loaded.Projects
+local db = package.loaded.db
+
+local etlua = require "etlua"
+local actions = {}
+
+local util = package.loaded.util
 
 app:enable('etlua')
 app.layout = require 'views.layout'
@@ -50,34 +56,86 @@ for _, view in pairs(views) do
 end
 
 app:get('/test', function (self)
-    local query = 'where ispublished and username not in ' ..
-        '(select username from deleted_users)'
-    -- Apply where clauses
-    if self.params.matchtext then
-        query = query ..
-        db.interpolate_query(
-        ' and (projectname ILIKE ? or notes ILIKE ?)',
-        self.params.matchtext,
-        self.params.matchtext
-        )
-    end
+-- This is WAY faster, but fails when using :num_pages because COUNT(*) can't
+-- be used with ORDER BY when there's a subquery, for some obscure reason.
+--[[    local query = ' WHERE ispublished AND NOT EXISTS( ' ..
+        'SELECT 1 FROM deleted_users WHERE ' ..
+            'username = active_projects.username LIMIT 1) ' ..
+        db.interpolate_query(course_name_filter()) ..
+        ' ORDER BY firstpublished DESC'
+]]--
 
-    -- Apply project name filter to hide projects with typical
-    -- BJC or Teals names.
-    if self.params.filtered then
-        query = query .. db.interpolate_query(course_name_filter())
-    end
+    local query = 'WHERE ispublished AND username NOT IN ' ..
+        '(SELECT username FROM deleted_users) ' ..
+        db.interpolate_query(course_name_filter()) ..
+        ' ORDER BY firstpublished DESC'
 
-    local paginator =
-        Projects:paginated(
-        query .. ' order by firstpublished desc',
-        { per_page = 15 }
-    )
+    self.paginator = Projects:paginated(query, { per_page = 15 })
+    self.pageNumber = 1
+    self.class = 'projects'
+    self.title = 'Latest Projects'
+    self.withPaginator = true
 
-   self.paginator = paginator
-   self.pageNumber = 1
-   self.class = 'projects'
-   self.title = 'Latest Projects'
-
-    return { render = 'grid' }
+    return { render = 'partials.grid' }
 end)
+
+
+
+
+
+
+app:post('/update_component/:component_id/:selector', function (self)
+
+    ngx.req.read_body()
+    local component = util.from_json(ngx.req.get_body_data())
+
+    debug_print(component.path)
+    actions[component.path][self.params.selector](component.data)
+
+    local template = ''
+    local file = io.open(
+        'views/' .. component.path:gsub("%.", "/") .. '.etlua',
+        'r'
+    )
+    if (file) then
+        template = file:read("*all")
+        file:close()
+    end
+    return jsonResponse({
+        data = component,
+        html = etlua.render(
+            template,
+            { data = component.data, run = 'update_' .. component.id }
+        )
+    })
+end)
+
+function component_html (self, path, data)
+    local component = {
+        path = path,
+        id = 'lps_' .. (math.floor(math.random()*10000000) + os.time()),
+        data = data
+    }
+
+    return 'views.partials.component', 
+        {
+            component = component,
+            json = util.to_json(component),
+            data = data
+        }
+end
+
+app:get('/multicounter', function (self)
+    self.component_html = component_html
+    return { render = 'multicounter' }
+end)
+
+actions['partials.counter'] = {
+    increment = function (data)
+        data.number = data.number + 1
+    end,
+    decrement = function (data)
+        data.number = data.number - 1
+    end
+}
+

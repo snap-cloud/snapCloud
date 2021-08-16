@@ -251,7 +251,7 @@ check_token = function (token_value, purpose, on_success)
             return htmlPage('Invalid token', '<p>' ..
                 err.invalid_token.msg .. '</p>')
         else
-            -- We delete expired tokens with 'verify_user' purpose
+            -- We delete expired tokens with 'verify_use'do now'r' purpose
             token:delete()
             return htmlPage('Expired token', '<p>' ..
                 err.expired_token.msg .. '</p>')
@@ -431,8 +431,8 @@ course_name_filter = function ()
     }
     local filter = ''
     for _, expression in pairs(expressions) do
-        filter = filter .. ' and (projectname !~* ' .. "'" .. expression .. "')"
+        filter = filter .. ' and (projectname !~* ' ..
+            "'" .. expression .. "')"
     end
     return filter
 end
---]]

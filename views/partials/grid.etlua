@@ -1,10 +1,17 @@
-<% --[[
-    # REQUIRED
+<%
+--[[
+    ======
+    README
+    ======
+
+    REQUIRED
+    --------
     pageNumber →  (num) current page.
     class →  (str) CSS class.
     paginator →  Lapis paginator to retrieve items to show.
 
-    # OPTIONAL
+    OPTIONAL
+    --------
     title →  (str) grid title. Default: none.
     itemType → 'project', 'user' or 'collection'. Default: 'project'.
     withSearch →  (bool) add search widget. Default: false.
@@ -25,19 +32,8 @@ withThumbnail = withThumbnail or true
 itemsPerRow = itemsPerRow or 5
 itemType = itemType or 'project'
 
-selectors = {
-    project = {
-        title = 'projectname',
-        author = 'username'
-    },
-    user = {
-        title = 'username'
-    },
-    collection = {
-        title = 'name',
-    }
-}
 %>
+
 <link rel="stylesheet" href="style/project.css">
 <div class="<%= class %> container">
     <% if (title) then %>
@@ -46,8 +42,19 @@ selectors = {
     </h2>
     <% end %>
     <div class="bar">
-        <% if (withSearch) then render('views.search') end %>
-        <% if (withPaginator) then render('views.paginator') end %>
+        <%
+            if (withSearch) then
+                render('views.partials.search')
+            end
+            if (withPaginator) then
+                render(
+                    'views.partials.paginator',
+                    {
+                        paginator = paginator,
+                        pageNumber = pageNumber
+                    }
+                )
+            end %>
     </div>
 
     <%
@@ -63,7 +70,7 @@ selectors = {
         <%
             for _, item in pairs(items) do
                 render(
-                    'views.' .. itemType .. '-item',
+                    'views.partials.' .. itemType,
                     {
                         item = item,
                         itemsPerRow = itemsPerRow

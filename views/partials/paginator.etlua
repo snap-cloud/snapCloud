@@ -1,0 +1,9 @@
+<nav class="<%= class %> paginator">
+    <a class="clickable" onclick="<%= class %>_toPage(1);"><i class="fas fa-caret-left"></i></a>
+    <a class="clickable" onclick="<%= class %>_toPage(<%= class %>_page - 5 > 0 ? <%= class %>_page - 5 : 1);"><i class="fas fa-angle-double-left"></i></a>
+    <a class="clickable" onclick="<%= class %>_toPage(<%= class %>_page - 1 > 0 ? <%= class %>_page - 1 : <%= class %>_page);"><i class="fas fa-angle-left"></i></a>
+    <span class="page"></span> / <span class="total-pages"></span>
+    <a class="clickable" onclick="<%= class %>_toPage(<%= class %>_page + 1 < <%= class %>_totalPages ? <%= class %>_page + 1 : <%= class %>_totalPages);"><i class="fas fa-angle-right"></i></a>
+    <a class="clickable" onclick="<%= class %>_toPage(<%= class %>_page + 5 < <%= class %>_totalPages ? <%= class %>_page + 5 : <%= class %>_totalPages);"><i class="fas fa-angle-double-right"></i></a>
+    <a class="clickable" onclick="<%= class %>_toPage(<%= class %>_totalPages);"><i class="fas fa-caret-right"></i></a>
+</nav>
