@@ -1,4 +1,4 @@
-<div class="project small pure-u-1-<%= itemsPerRow %>">
+<div class="project small pure-u-1-<%= items_per_row %>">
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle"></i>
     <% end %>

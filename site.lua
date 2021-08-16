@@ -33,7 +33,7 @@ local db = package.loaded.db
 app:enable('etlua')
 app.layout = require 'views.layout'
 
-require 'component'
+local component = require 'component'
 
 local views = {
     -- Static pages
@@ -52,7 +52,7 @@ for _, view in pairs(views) do
     end)
 end
 
-app:get('/test', function (self)
+app:get('/explore', function (self)
 -- This is WAY faster, but fails when using :num_pages because COUNT(*) can't
 -- be used with ORDER BY when there's a subquery, for some obscure reason.
 --[[    local query = ' WHERE ispublished AND NOT EXISTS( ' ..
@@ -61,6 +61,7 @@ app:get('/test', function (self)
         db.interpolate_query(course_name_filter()) ..
         ' ORDER BY firstpublished DESC'
 ]]--
+    component:enable_components(self)
 
     local query = 'WHERE ispublished AND username NOT IN ' ..
         '(SELECT username FROM deleted_users) ' ..
@@ -68,11 +69,26 @@ app:get('/test', function (self)
         ' ORDER BY firstpublished DESC'
 
     self.paginator = Projects:paginated(query, { per_page = 15 })
-    self.pageNumber = 1
+    self.page_number = 1
+    self.total_pages = self.paginator:num_pages()
     self.class = 'projects'
     self.title = 'Latest Projects'
-    self.withPaginator = true
 
-    return { render = 'partials.grid' }
+    return { render = 'explore' }
 end)
 
+component.actions['grid'] = {
+    first = function (data, params)
+        data.page_number = 1
+    end,
+    last = function (data, params)
+        data.page_number = data.total_pages
+    end,
+    next = function (data, params)
+        data.page_number =
+            math.min(data.total_pages, data.page_number + params[1])
+    end,
+    previous = function (data, params)
+        data.page_number = math.max(1, data.page_number - params[1])
+    end
+}

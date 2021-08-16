@@ -32,22 +32,19 @@
 -- 2) All data should be accessed via the Lua data object. For example:
 --    <span><%= data.current_number %></span>
 -- 3) Lua server-side actions should be called in JS source like this:
---    <%run%>('lua-selector')
+--    <%run%>('lua-selector', [param1, param2])
 --    where lua-selector is the actual selector in the actions table in this
 --    module, for example:
---    <button onclick="<%run%>('increment')">+</button>
---    <button onclick="<%run%>('decrement')">-</button>
+--    <button onclick="<%run%>('change_by', 1)">+</button>
+--    <button onclick="<%run%>('change_by', -1)">-</button>
 --
 -- Define actions for the component:
 --
 -- 4) Add functions for each selector into the actions table in this module.
 --    For example:
 --      actions['counter'] = {
---        increment = function (data)
---          data.number = data.number + 1
---        end,
---        decrement = function (data)
---          data.number = data.number - 1
+--        change_by = function (data, amount)
+--          data.number = data.number + amount
 --        end
 --      }
 --
@@ -77,60 +74,65 @@
 -- views/components/counter.etlua component. To test it, add this code to your
 -- route handler:
 --
+-- local component = require 'component'
+--
 -- app:get('/multicounter', function (self)
---    enable_components(self)
+--    component:enable_components(self)
 --    return { render = 'multicounter' }
 -- end)
 --
--- And uncomment the following lines:
---
-local actions = {}
---
---actions['counter'] = {
---    increment = function (data)
---        data.number = data.number + 1
---    end,
---    decrement = function (data)
---        data.number = data.number - 1
+-- component.actions['counter'] = {
+--    change_by = function (data, params)
+--        data.number = data.number + params[1]
 --    end
 --}
 
 local util = package.loaded.util
 local etlua = require "etlua"
 local app = package.loaded.app
+local component = { actions = {} }
 
-app:post('/update_component/:component_id/:selector', function (self)
+local actions = component.actions
 
-    ngx.req.read_body()
-    local component = util.from_json(ngx.req.get_body_data())
+app:post(
+    '/update_component/:component_id/:selector(/:params_json)',
+    function (self)
+        ngx.req.read_body()
+        local component = util.from_json(ngx.req.get_body_data())
 
-    -- run the action associated to this particular component and selector, from
-    -- the actions table
-    actions[component.path][self.params.selector](component.data)
-
-    -- find the component template and read it all into memory
-    local template = ''
-    local file = io.open(
-        'views/components/' .. component.path:gsub("%.", "/") .. '.etlua',
-        'r'
-    )
-    if (file) then
-        template = file:read("*all")
-        file:close()
-    end
-
-    -- return the compiled component, plus the new data for the component
-    return jsonResponse({
-        data = component,
-        html = etlua.render(
-            template,
-            { data = component.data, run = 'update_' .. component.id }
+        -- run the action associated to this particular component and selector,
+        -- from the actions table
+        actions[component.path][self.params.selector](
+            component.data,
+            self.params.params_json and
+                util.from_json(self.params.params_json) or
+                nil
         )
-    })
-end)
+
+        -- find the component template and read it all into memory
+        local template = ''
+        local file = io.open(
+            'views/components/' .. component.path:gsub("%.", "/") .. '.etlua',
+            'r'
+        )
+        if (file) then
+            template = file:read("*all")
+            file:close()
+        end
+
+        -- return the compiled component, plus the new data for the component
+        return jsonResponse({
+            data = component,
+            html = etlua.render(
+                template,
+                { data = component.data, run = 'update_' .. component.id, render = etlua.render }
+            )
+        })
+    end
+)
 
 
-function enable_components (self)
+function component:enable_components (self)
     -- add the component_html function for the template to use
     self.component_html = function (self, path, data)
         local component = {
@@ -139,7 +141,7 @@ function enable_components (self)
             data = data
         }
 
-        return 'views.components.component', 
+        return 'views.components.component',
         {
             component = component,
             json = util.to_json(component),
@@ -148,3 +150,4 @@ function enable_components (self)
     end
 end
 
+return component

@@ -1,0 +1,18 @@
+<h1>Explore</h1>
+<%
+    local items = page_number and
+        paginator:get_page(page_number) or paginator:get_all()
+
+    if with_thumbnail == 'true' then
+        disk:process_thumbnails(items)
+    end
+
+    render(component_html(
+        'grid',
+        {
+            page_number = page_number,
+            total_pages = total_pages,
+            items = items
+        }
+    ))
+%>

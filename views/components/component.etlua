@@ -1,10 +1,11 @@
 <script>
     var json_<%= component.id %> = '<%- json %>';
-    function update_<%= component.id %>(selector) {
+    function update_<%= component.id %>(selector, params) {
         var req = new XMLHttpRequest();
         req.open(
             'POST',
-            '/update_component/<%= component.id %>/' + selector,
+            '/update_component/<%= component.id %>/' +
+                selector + (params ? '/' + JSON.stringify(params) : ''),
             true
         );
         req.onreadystatechange = function () {
@@ -23,7 +24,10 @@
 <%
     render(
         'views.components.' .. component.path,
-        { data = component.data, run = 'update_' .. component.id }
+        {
+            data = component.data,
+            run = 'update_' .. component.id
+        }
     )
 %>
 </div>
