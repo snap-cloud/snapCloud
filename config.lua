@@ -2,7 +2,7 @@ local config = require('lapis.config')
 
 config({'development', 'staging', 'production', 'test'}, {
     postgres = {
-        host = os.getenv('DATABASE_URL') or '127.0.0.1:5432',
+        host = os.getenv('DATABASE_HOST') or '127.0.0.1:5432',
         user = os.getenv('DATABASE_USERNAME') or 'cloud',
         password = os.getenv('DATABASE_PASSWORD') or 'snap-cloud-password',
         database = os.getenv('DATABASE_NAME') or 'snapcloud'
