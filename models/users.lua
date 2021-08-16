@@ -1,24 +1,3 @@
--- Generated schema dump: (do not edit)
---
--- CREATE VIEW active_users AS
---  SELECT users.id,
---   users.created,
---   users.username,
---   users.email,
---   users.salt,
---   users.password,
---   users.about,
---   users.location,
---   users.verified,
---   users.updated_at,
---   users.role,
---   users.deleted,
---   users.unique_email,
---   users.last_session_at,
---   users.last_login_at
---    FROM public.users
---   WHERE (users.deleted IS NULL);
---
 -- User Model
 -- =====================
 --
@@ -45,7 +24,29 @@
 local db = package.loaded.db
 local Model = require('lapis.db.Model').Model
 
-package.loaded.Users = Model:extend('active_users', {
+-- Generated schema dump: (do not edit)
+--
+-- CREATE VIEW active_users AS
+--  SELECT users.id,
+--   users.created,
+--   users.username,
+--   users.email,
+--   users.salt,
+--   users.password,
+--   users.about,
+--   users.location,
+--   users.verified,
+--   users.updated_at,
+--   users.role,
+--   users.deleted,
+--   users.unique_email,
+--   users.last_session_at,
+--   users.last_login_at
+--    FROM public.users
+--   WHERE (users.deleted IS NULL);
+-- End active_users schema
+--
+local ActiveUsers = Model:extend('active_users', {
     relations = {
         {'collections', has_many = 'Collections'}
     },
@@ -96,6 +97,7 @@ package.loaded.Users = Model:extend('active_users', {
     end
 })
 
+package.loaded.Users = ActiveUsers
 package.loaded.DeletedUsers = Model:extend('deleted_users')
 
-return package.loaded.Users
+return ActiveUsers
