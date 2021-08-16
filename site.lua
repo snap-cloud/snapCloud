@@ -6,7 +6,7 @@
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2020 by Bernat Romagosa and Michael Ball
+-- Copyright (C) 2021 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --
@@ -30,13 +30,10 @@ local respond_to = package.loaded.respond_to
 local Projects = package.loaded.Projects
 local db = package.loaded.db
 
-local etlua = require "etlua"
-local actions = {}
-
-local util = package.loaded.util
-
 app:enable('etlua')
 app.layout = require 'views.layout'
+
+require 'component'
 
 local views = {
     -- Static pages
@@ -78,64 +75,4 @@ app:get('/test', function (self)
 
     return { render = 'partials.grid' }
 end)
-
-
-
-
-
-
-app:post('/update_component/:component_id/:selector', function (self)
-
-    ngx.req.read_body()
-    local component = util.from_json(ngx.req.get_body_data())
-
-    debug_print(component.path)
-    actions[component.path][self.params.selector](component.data)
-
-    local template = ''
-    local file = io.open(
-        'views/' .. component.path:gsub("%.", "/") .. '.etlua',
-        'r'
-    )
-    if (file) then
-        template = file:read("*all")
-        file:close()
-    end
-    return jsonResponse({
-        data = component,
-        html = etlua.render(
-            template,
-            { data = component.data, run = 'update_' .. component.id }
-        )
-    })
-end)
-
-function component_html (self, path, data)
-    local component = {
-        path = path,
-        id = 'lps_' .. (math.floor(math.random()*10000000) + os.time()),
-        data = data
-    }
-
-    return 'views.partials.component', 
-        {
-            component = component,
-            json = util.to_json(component),
-            data = data
-        }
-end
-
-app:get('/multicounter', function (self)
-    self.component_html = component_html
-    return { render = 'multicounter' }
-end)
-
-actions['partials.counter'] = {
-    increment = function (data)
-        data.number = data.number + 1
-    end,
-    decrement = function (data)
-        data.number = data.number - 1
-    end
-}
 
