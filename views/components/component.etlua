@@ -22,12 +22,12 @@
 
 <div id="<%= component.id %>">
 <%
-    render(
-        'views.components.' .. component.path,
-        {
-            data = component.data,
-            run = 'update_' .. component.id
-        }
-    )
+     render(
+         'views.components.' .. component.path,
+         {
+             data = component.data,
+             run = 'update_' .. component.id
+         }
+     )
 %>
 </div>

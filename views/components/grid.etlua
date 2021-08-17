@@ -8,26 +8,18 @@
     --------
     page_number →  (num) current page.
     class →  (str) CSS class.
-    paginator →  Lapis paginator to retrieve items to show.
+    items →  Items to show.
 
     OPTIONAL
     --------
     title →  (str) grid title. Default: none.
     item_type → 'project', 'user' or 'collection'. Default: 'project'.
-    with_search →  (bool) add search widget. Default: false.
-    with_paginator → (bool) show paginator. Default: false.
-    max_pages →  (num) maximum amount of pages to show. Default: 0 (all).
-    keep_if_empty → (bool) show the widget even if empty. Default: false.
     items_per_row → (num) number of items per grid row. Default: 5.
     with_thumbnail → (bool) retrieve a thumbnail for this item. Default: true.
 ]]-- 
 
 -- set defaults
 
-with_search = with_search or false
-with_paginator = with_paginator or false
-max_pages = max_pages or 0
-keep_if_empty = keep_if_empty or false
 with_thumbnail = with_thumbnail or true
 items_per_row = items_per_row or 5
 item_type = item_type or 'project'
@@ -56,15 +48,16 @@ item_type = item_type or 'project'
     <% if (data.total_pages > 0) then %>
     <div class="<%= class %> list pure-g">
         <%
-            for _, item in pairs(data.items) do
-                render(
-                    'views.partials.' .. item_type,
-                    {
-                        item = item,
-                        items_per_row = items_per_row
-                    }
-                )
-            end
+        for _, item in pairs(data.items) do
+            render(
+                'views.partials.' .. item_type,
+                {
+                    item = item,
+                    items_per_row = items_per_row,
+                    buffer = buffer
+                }
+            )
+        end 
         %>
     </div>
     <% end %>

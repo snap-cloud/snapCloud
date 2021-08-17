@@ -1,7 +1,13 @@
 <h1>Explore</h1>
 <%
-    local items = page_number and
-        paginator:get_page(page_number) or paginator:get_all()
+    local query = 'WHERE ispublished AND username NOT IN ' ..
+        '(SELECT username FROM deleted_users) ' ..
+        db.interpolate_query(course_name_filter()) ..
+        ' ORDER BY firstpublished DESC'
+
+    local paginator = Projects:paginated(query, { per_page = 15 })
+
+    local items = paginator:get_page(1)
 
     if with_thumbnail == 'true' then
         disk:process_thumbnails(items)
@@ -10,9 +16,12 @@
     render(component_html(
         'grid',
         {
-            page_number = page_number,
-            total_pages = total_pages,
-            items = items
+            page_number = 1,
+            total_pages = paginator:num_pages(),
+            items = items,
+            class = 'projects',
+            title = 'Latest Projects'
         }
     ))
+
 %>

@@ -61,34 +61,44 @@ app:get('/explore', function (self)
         db.interpolate_query(course_name_filter()) ..
         ' ORDER BY firstpublished DESC'
 ]]--
+    self.Projects = Projects
+    self.db = db
     component:enable_components(self)
-
-    local query = 'WHERE ispublished AND username NOT IN ' ..
-        '(SELECT username FROM deleted_users) ' ..
-        db.interpolate_query(course_name_filter()) ..
-        ' ORDER BY firstpublished DESC'
-
-    self.paginator = Projects:paginated(query, { per_page = 15 })
-    self.page_number = 1
-    self.total_pages = self.paginator:num_pages()
-    self.class = 'projects'
-    self.title = 'Latest Projects'
 
     return { render = 'explore' }
 end)
 
 component.actions['grid'] = {
-    first = function (data, params)
+    first = function (data, _)
         data.page_number = 1
+        component.actions['grid'].update_items(data)
     end,
-    last = function (data, params)
+    last = function (data, _)
         data.page_number = data.total_pages
+        component.actions['grid'].update_items(data)
     end,
     next = function (data, params)
         data.page_number =
             math.min(data.total_pages, data.page_number + params[1])
+        component.actions['grid'].update_items(data)
     end,
     previous = function (data, params)
         data.page_number = math.max(1, data.page_number - params[1])
+        component.actions['grid'].update_items(data)
+    end,
+    update_items = function (data, _)
+        local query = 'WHERE ispublished AND username NOT IN ' ..
+            '(SELECT username FROM deleted_users) ' ..
+            db.interpolate_query(course_name_filter()) ..
+            ' ORDER BY firstpublished DESC'
+
+        local paginator = Projects:paginated(query, { per_page = 15 })
+
+        data.items = paginator:get_page(data.page_number)
+
+        if with_thumbnail == 'true' then
+            disk:process_thumbnails(data.items)
+        end
     end
+
 }
