@@ -7,21 +7,24 @@
 
     local paginator = Projects:paginated(query, { per_page = 15 })
 
-    local items = paginator:get_page(1)
+    data.items = paginator:get_page(1)
+
 
     if with_thumbnail == 'true' then
-        disk:process_thumbnails(items)
+        disk:process_thumbnails(data.items)
     end
 
-    render(component_html(
-        'grid',
+    data.total_pages = paginator:num_pages()
+    data.page_number = 1
+    data.class = 'projects'
+    data.title = 'Latest Projects'
+
+    render(
+        'views.components.component',
         {
-            page_number = 1,
-            total_pages = paginator:num_pages(),
-            items = items,
-            class = 'projects',
-            title = 'Latest Projects'
+            path = 'grid',
+            data = data
         }
-    ))
+    )
 
 %>

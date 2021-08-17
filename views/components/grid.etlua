@@ -27,10 +27,10 @@ item_type = item_type or 'project'
 %>
 
 <link rel="stylesheet" href="style/project.css">
-<div class="<%= class %> container">
-    <% if (title) then %>
-    <h2 class="<%= class %> header" localizable>
-        <%= title %>
+<div class="<%= data.class %> container">
+    <% if (data.title) then %>
+    <h2 class="<%= data.class %> header" localizable>
+        <%= data.title %>
     </h2>
     <% end %>
     <div class="bar">
@@ -46,19 +46,18 @@ item_type = item_type or 'project'
     </div>
 
     <% if (data.total_pages > 0) then %>
-    <div class="<%= class %> list pure-g">
-        <%
-        for _, item in pairs(data.items) do
-            render(
-                'views.partials.' .. item_type,
-                {
-                    item = item,
-                    items_per_row = items_per_row,
-                    buffer = buffer
-                }
-            )
-        end 
-        %>
+    <div class="<%= data.class %> list pure-g">
+        <% for _, item in pairs(data.items) do %>
+            <%-
+                render(
+                        'views.partials.' .. item_type,
+                        {
+                            item = item,
+                            items_per_row = items_per_row
+                        }
+                    ) or ''
+            %>
+        <% end %>
     </div>
     <% end %>
 </div>

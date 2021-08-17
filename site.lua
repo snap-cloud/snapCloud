@@ -63,7 +63,7 @@ app:get('/explore', function (self)
 ]]--
     self.Projects = Projects
     self.db = db
-    component:enable_components(self)
+    component:enable(self, 'grid')
 
     return { render = 'explore' }
 end)
@@ -100,5 +100,4 @@ component.actions['grid'] = {
             disk:process_thumbnails(data.items)
         end
     end
-
 }

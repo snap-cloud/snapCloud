@@ -145,6 +145,9 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    local inspect = require('inspect')
+    print(inspect(err))
+    print(inspect(trace))
     local err_msg = exceptions.normalize_error(err)
     local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then

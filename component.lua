@@ -94,6 +94,20 @@ local component = { actions = {} }
 
 local actions = component.actions
 
+local inspect = require('inspect')
+
+local render = function (template_path, options)
+    local template_path = template_path:gsub('%.','/') .. '.etlua'
+    local template = ''
+    local file = io.open(template_path, 'r')
+    if (file) then
+        template = file:read('*all')
+        file:close()
+    end
+    options.internal = true
+    return etlua.render(template, options)
+end
+
 app:post(
     '/update_component/:component_id/:selector(/:params_json)',
     function (self)
@@ -109,22 +123,7 @@ app:post(
                 nil
         )
 
-        local render = function (template_path, options)
-            -- options.buffer gets here
-            for k, v in pairs(options.buffer) do
-                print('\n\n\n' .. k .. ':\n' .. v .. '\n\n\n')
-            end
-            local template_path = template_path:gsub('%.','/') .. '.etlua'
-            local template = ''
-            local file = io.open(template_path, 'r')
-            if (file) then
-                template = file:read('*all')
-                file:close()
-            end
-            local html = etlua.render(template, options)
-            table.insert(options.buffer, html)
-            return html
-        end
+
 
         -- return the compiled component, plus the new data for the component
         return jsonResponse({
@@ -134,31 +133,23 @@ app:post(
                 {
                     data = component.data,
                     run = 'update_' .. component.id,
-                    render = render,
-                    buffer = self.buffer -- we got a buffer here
-
+                    render = render
                 }
             )
         })
     end
 )
 
-function component:enable_components (self)
-    -- add the component_html function for the template to use
-    self.component_html = function (self, path, data)
-        local component = {
-            path = path,
-            id = 'lps_' .. (math.floor(math.random()*10000000) + os.time()),
-            data = data,
-        }
+function component:enable (self, path)
+    local component = {
+        path = path,
+        id = 'lps_' .. (math.floor(math.random()*10000000) + os.time()),
+        data = {}
+    }
 
-        return 'views.components.component',
-            {
-                component = component,
-                json = util.to_json(component),
-                data = data
-            }
-    end
+    self.component = component
+    self.data = component.data
+    self.run = 'update_' .. component.id
 end
 
 return component
