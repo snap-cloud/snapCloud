@@ -13,7 +13,7 @@
     projects.data.total_pages = paginator:num_pages()
     projects.data.page_number = 1
     projects.data.class = 'projects'
-    projects.data.title = 'Latest Projects'
+    projects.data.title = 'Published Projects'
     projects.data.item_type = 'project'
 
     render(
@@ -36,7 +36,7 @@
     collections.data.total_pages = paginator:num_pages()
     collections.data.page_number = 1
     collections.data.class = 'collections'
-    collections.data.title = 'Latest Collections'
+    collections.data.title = 'Published Collections'
     collections.data.item_type = 'collection'
 
     render(
