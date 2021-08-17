@@ -21,71 +21,7 @@
 --
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
---
---
--- HowTo
--- =====
---
--- Create a component:
---
--- 1) Create an etlua template in views/components. For example: counter.etlua.
--- 2) All data should be accessed via the Lua data object. For example:
---    <span><%= data.current_number %></span>
--- 3) Lua server-side actions should be called in JS source like this:
---    <%run%>('lua-selector', [param1, param2])
---    where lua-selector is the actual selector in the actions table in this
---    module, for example:
---    <button onclick="<%run%>('change_by', 1)">+</button>
---    <button onclick="<%run%>('change_by', -1)">-</button>
---
--- Define actions for the component:
---
--- 4) Add functions for each selector into the actions table in this module.
---    For example:
---      actions['counter'] = {
---        change_by = function (data, amount)
---          data.number = data.number + amount
---        end
---      }
---
--- Use a component in an etlua template:
---
--- 5) Include the component anywhere in your template like this:
---
--- <% render(component_html('component-name', { key = value })) %>
---
--- , for example:
---
--- <% render(component_html('counter', { current_number = 10 })) %>
---
--- Add a route for the component-using template:
---
--- 6) Before rendering it, enable components for the template:
---
--- app:get('/my-route', function (self)
---      enable_components(self)
---      return { render = 'a-template-that-uses-components' }
--- end)
---
--- A Complete Example
--- ==================
---
--- For a complete example, see the views/multicounter.etlua template and the
--- views/components/counter.etlua component. To test it, add this code to your
--- route handler:
---
--- local component = require 'component'
---
--- app:get('/multicounter', function (self)
---    component:enable_components(self)
---    return { render = 'multicounter' }
--- end)
---
--- component.actions['counter'] = {
---    change_by = function (data, params)
---        data.number = data.number + params[1]
---    end
---}
+
 
 local util = package.loaded.util
 local etlua = require 'etlua'
@@ -93,8 +29,6 @@ local app = package.loaded.app
 local component = { actions = {} }
 
 local actions = component.actions
-
-local inspect = require('inspect')
 
 local render = function (template_path, options)
     local template_path = template_path:gsub('%.','/') .. '.etlua'
@@ -123,8 +57,6 @@ app:post(
                 nil
         )
 
-
-
         -- return the compiled component, plus the new data for the component
         return jsonResponse({
             data = component,
@@ -140,16 +72,12 @@ app:post(
     end
 )
 
-function component:enable (self, path)
-    local component = {
+function component:new (path)
+    return {
         path = path,
-        id = 'lps_' .. (math.floor(math.random()*10000000) + os.time()),
+        id = 'lps_' .. (math.floor(math.random()*1000000000) + os.time()),
         data = {}
     }
-
-    self.component = component
-    self.data = component.data
-    self.run = 'update_' .. component.id
 end
 
 return component

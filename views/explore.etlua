@@ -1,30 +1,49 @@
 <h1>Explore</h1>
 <%
-    local query = 'WHERE ispublished AND username NOT IN ' ..
-        '(SELECT username FROM deleted_users) ' ..
-        db.interpolate_query(course_name_filter()) ..
-        ' ORDER BY firstpublished DESC'
+    local paginator = Projects:paginated(
+        'WHERE ispublished AND username NOT IN ' ..
+            '(SELECT username FROM deleted_users) ' ..
+            db.interpolate_query(course_name_filter()),
+        { per_page = 15 }
+    )
 
-    local paginator = Projects:paginated(query, { per_page = 15 })
+    local projects = new_component('grid')
 
-    data.items = paginator:get_page(1)
-
-
-    if with_thumbnail == 'true' then
-        disk:process_thumbnails(data.items)
-    end
-
-    data.total_pages = paginator:num_pages()
-    data.page_number = 1
-    data.class = 'projects'
-    data.title = 'Latest Projects'
+    projects.data.items = {}
+    projects.data.total_pages = paginator:num_pages()
+    projects.data.page_number = 1
+    projects.data.class = 'projects'
+    projects.data.title = 'Latest Projects'
+    projects.data.item_type = 'project'
 
     render(
         'views.components.component',
         {
             path = 'grid',
-            data = data
+            component = projects
         }
     )
 
+    paginator = Collections:paginated(
+        'JOIN active_users on (active_users.id = collections.creator_id) ' ..
+            'WHERE published ',
+        { per_page = 15 }
+    )
+
+    local collections = new_component('grid')
+
+    collections.data.items = {}
+    collections.data.total_pages = paginator:num_pages()
+    collections.data.page_number = 1
+    collections.data.class = 'collections'
+    collections.data.title = 'Latest Collections'
+    collections.data.item_type = 'collection'
+
+    render(
+        'views.components.component',
+        {
+            path = 'grid',
+            component = collections
+        }
+    )
 %>

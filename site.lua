@@ -26,8 +26,10 @@
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local respond_to = package.loaded.respond_to
+local disk = package.loaded.disk
 
 local Projects = package.loaded.Projects
+local Collections = package.loaded.Collections
 local db = package.loaded.db
 
 app:enable('etlua')
@@ -62,10 +64,13 @@ app:get('/explore', function (self)
         ' ORDER BY firstpublished DESC'
 ]]--
     self.Projects = Projects
+    self.Collections = Collections
     self.db = db
-    component:enable(self, 'grid')
+    self.new_component = component.new
 
-    return { render = 'explore' }
+    return {
+        render = 'explore',
+    }
 end)
 
 component.actions['grid'] = {
@@ -87,6 +92,9 @@ component.actions['grid'] = {
         component.actions['grid'].update_items(data)
     end,
     update_items = function (data, _)
+        component.actions['grid']['update_' .. data.item_type .. 's'](data)
+    end,
+    update_projects = function (data, _)
         local query = 'WHERE ispublished AND username NOT IN ' ..
             '(SELECT username FROM deleted_users) ' ..
             db.interpolate_query(course_name_filter()) ..
@@ -95,9 +103,27 @@ component.actions['grid'] = {
         local paginator = Projects:paginated(query, { per_page = 15 })
 
         data.items = paginator:get_page(data.page_number)
+        disk:process_thumbnails(data.items)
+    end,
+    update_collections = function (data, _)
+        local query =
+            'JOIN active_users on ' ..
+                '(active_users.id = collections.creator_id) ' ..
+                'WHERE published ORDER BY collections.published_at DESC'
 
-        if with_thumbnail == 'true' then
-            disk:process_thumbnails(data.items)
-        end
+        local paginator = Collections:paginated(
+            query,
+            {
+                per_page = 15,
+                fields =
+                    'collections.id, creator_id, collections.created_at, '..
+                    'published, collections.published_at, shared, ' ..
+                    'collections.shared_at, collections.updated_at, name, ' ..
+                    'description, thumbnail_id, username, editor_ids'
+            }
+        )
+
+        data.items = paginator:get_page(data.page_number)
+        disk:process_thumbnails(data.items, 'thumbnail_id')
     end
 }

@@ -15,14 +15,12 @@
     title →  (str) grid title. Default: none.
     item_type → 'project', 'user' or 'collection'. Default: 'project'.
     items_per_row → (num) number of items per grid row. Default: 5.
-    with_thumbnail → (bool) retrieve a thumbnail for this item. Default: true.
 ]]-- 
 
 -- set defaults
 
-with_thumbnail = with_thumbnail or true
-items_per_row = items_per_row or 5
-item_type = item_type or 'project'
+data.items_per_row = data.items_per_row or 5
+data.item_type = data.item_type or 'project'
 
 %>
 
@@ -46,14 +44,15 @@ item_type = item_type or 'project'
     </div>
 
     <% if (data.total_pages > 0) then %>
+
     <div class="<%= data.class %> list pure-g">
         <% for _, item in pairs(data.items) do %>
             <%-
                 render(
-                        'views.partials.' .. item_type,
+                        'views.partials.' .. data.item_type,
                         {
                             item = item,
-                            items_per_row = items_per_row
+                            items_per_row = data.items_per_row
                         }
                     ) or ''
             %>
@@ -61,3 +60,4 @@ item_type = item_type or 'project'
     </div>
     <% end %>
 </div>
+<script><%=run%>('update_items')</script>

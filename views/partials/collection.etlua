@@ -1,0 +1,17 @@
+<div class="collection small pure-u-1-<%= items_per_row %>">
+    <% if (item.thumbnail == nil) then %>
+    <i class="no-image fas fa-question-circle"></i>
+    <% end %>
+    <a target="_self"
+        href="collection?user=<%= item.username %>&amp;collection=<%= item.name %>">
+        <img class="thumbnail" title=""
+            <% if (item.thumbnail) then %>
+                src="<%= item.thumbnail %>"
+            <% end %>
+        >
+        <span class="collection-name"><%= item.name %></span>
+    </a>
+    <span
+        class="author"> by <a href="user?user=<%= item.username %>" target=""
+        ><strong><%= item.username %></strong></a></span>
+</div>
