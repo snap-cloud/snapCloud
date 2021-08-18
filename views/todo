@@ -1,13 +1,10 @@
-[ ] update page count on search
+[ ] 00 update page count on search
 [ ] carousel.tmp
 [ ] collection.tmp
 [ ] embed.tmp
 [ ] examples.tmp
 [ ] flag_details.tmp
 [ ] flags.tmp
-[ ] grid.tmp
-[ ] my_collections.tmp
-[ ] paginator.tmp
 [ ] profile.tmp
 [ ] project.tmp
 [ ] project_collections.tmp
@@ -36,12 +33,15 @@
 [x] footer.tmp
 [x] forgot_password.tmp
 [x] forgot_username.tmp
+[x] grid.tmp
 [x] login.tmp
 [x] materials.tmp
 [x] mirrors.tmp
+[x] my_collections.tmp
 [x] my_projects.tmp
 [x] navigation_bar.tmp
 [x] offline.tmp
+[x] paginator.tmp
 [x] partners.tmp
 [x] privacy.tmp
 [x] requirements.tmp

@@ -1,0 +1,30 @@
+<h1>My Collections</h1>
+<%
+    -- Just to get the page count. No need for any ordering here.
+    local paginator = Collections:paginated(
+        'JOIN active_users ON ' ..
+            '(active_users.id = collections.creator_id) ' ..
+            'WHERE (creator_id = ? OR editor_ids @> ARRAY[?])',
+        user_id,
+        user_id,
+        { per_page = 15 }
+    )
+
+    local collections = new_component('grid')
+
+    collections.data.items = {}
+    collections.data.total_pages = paginator:num_pages()
+    collections.data.page_number = 1
+    collections.data.class = 'my_collections'
+    collections.data.item_type = 'collection'
+    collections.data.query = 'my_collections'
+    collections.data.with_search = true
+
+    render(
+        'views.components.component',
+        {
+            path = 'grid',
+            component = collections
+        }
+    )
+%>

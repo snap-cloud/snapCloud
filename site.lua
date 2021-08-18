@@ -62,20 +62,22 @@ app:get('/explore', function (self)
     self.Collections = Collections
     self.db = db
     self.new_component = component.new
-
-    return {
-        render = 'explore',
-    }
+    return { render = 'explore' }
 end)
 
 app:get('/my_projects', function (self)
     self.Projects = Projects
-    self.username = self.session.username
     self.db = db
+    self.username = self.session.username
     self.new_component = component.new
+    return { render = 'my_projects' }
+end)
 
-    return {
-        render = 'my_projects',
-    }
+app:get('/my_collections', function (self)
+    self.Collections = Collections
+    self.db = db
+    self.user_id = self.current_user.id
+    self.new_component = component.new
+    return { render = 'my_collections' }
 end)
 

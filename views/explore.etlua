@@ -40,6 +40,7 @@
     collections.data.class = 'collections'
     collections.data.title = 'Published Collections'
     collections.data.item_type = 'collection'
+    collections.data.query = 'explore_collections'
 
     render(
         'views.components.component',

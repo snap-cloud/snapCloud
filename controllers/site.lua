@@ -39,7 +39,15 @@ component.queries = {
             end,
         order = 'firstpublished DESC'
     },
-    explore_collections = { --[[ TODO ]] },
+    explore_collections = {
+        fetch =
+            function (session)
+                return 'JOIN active_users on ' ..
+                    '(active_users.id = collections.creator_id) ' ..
+                    'WHERE published'
+            end,
+        order = 'collections.published_at DESC'
+    },
     my_projects = {
         fetch =
             function (session)
@@ -49,6 +57,18 @@ component.queries = {
                 )
             end,
         order = 'lastupdated DESC'
+    },
+    my_collections = {
+        fetch =
+            function (session)
+                return db.interpolate_query(
+                    'JOIN active_users ON ' ..
+                        '(active_users.id = collections.creator_id) ' ..
+                        'WHERE (creator_id = ? OR editor_ids @> ARRAY[?])',
+                    session.current_user.id,
+                    session.current_user.id)
+            end,
+        order = 'updated_at DESC'
     }
 }
 
@@ -94,13 +114,14 @@ component.actions['grid'] = {
         disk:process_thumbnails(data.items)
     end,
     update_collections = function (session, data, _)
-        local query =
-            'JOIN active_users on ' ..
-                '(active_users.id = collections.creator_id) ' ..
-                'WHERE published ORDER BY collections.published_at DESC'
-
         local paginator = Collections:paginated(
-            query,
+            component.queries[data.query].fetch(session) ..
+                (data.search_term and (db.interpolate_query(
+                    ' and (name ILIKE ? or description ILIKE ?)',
+                    '%' .. data.search_term .. '%',
+                    '%' .. data.search_term .. '%')
+                ) or '') ..
+            ' ORDER BY ' .. component.queries[data.query].order,
             {
                 per_page = 15,
                 fields =

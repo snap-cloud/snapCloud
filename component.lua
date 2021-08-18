@@ -48,6 +48,14 @@ app:post(
         ngx.req.read_body()
         local component = util.from_json(ngx.req.get_body_data())
 
+        if self.session.username and self.session.username ~= '' then
+            self.session.current_user =
+                package.loaded.Users:find({ username = self.session.username })
+        else
+            self.session.username = ''
+            self.session.current_user = nil
+        end
+
         -- run the action associated to this particular component and selector,
         -- from the actions table
         actions[component.path][self.params.selector](
