@@ -51,7 +51,7 @@ data.item_type = data.item_type or 'project'
             <a class="clickable" onclick="loader(this); <%=run%>('first');"><i class="fas fa-caret-left"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('previous', [5]);"><i class="fas fa-angle-double-left"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('previous', [1]);"><i class="fas fa-angle-left"></i></a>
-            <span class="page"></span><%= data.page_number %> / <%= data.total_pages %><span class="total-pages"></span>
+            <span class="page"><%= data.page_number %></span> / <span class="total-pages"><%= data.total_pages %></span>
             <a class="clickable" onclick="loader(this); <%=run%>('next', [1]);"><i class="fas fa-angle-right"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('next', [5]);"><i class="fas fa-angle-double-right"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('last');"><i class="fas fa-caret-right"></i></a>

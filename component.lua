@@ -26,7 +26,7 @@
 local util = package.loaded.util
 local etlua = require 'etlua'
 local app = package.loaded.app
-local component = { actions = {} }
+local component = { actions = {}, queries = {} }
 
 local actions = component.actions
 
@@ -51,6 +51,7 @@ app:post(
         -- run the action associated to this particular component and selector,
         -- from the actions table
         actions[component.path][self.params.selector](
+            self.session,
             component.data,
             self.params.params_json and
                 util.from_json(self.params.params_json) or

@@ -58,7 +58,6 @@ app:get('/explore', function (self)
     self.Projects = Projects
     self.Collections = Collections
     self.db = db
-    self.course_name_filter = course_name_filter
     self.new_component = component.new
 
     return {
@@ -77,47 +76,72 @@ app:get('/my_projects', function (self)
     }
 end)
 
+component.queries = {
+    explore_projects = {
+        fetch =
+            function (session)
+                return 'WHERE ispublished AND NOT EXISTS( ' ..
+                    'SELECT 1 FROM deleted_users WHERE ' ..
+                    'username = active_projects.username LIMIT 1) ' ..
+                    db.interpolate_query(course_name_filter())
+            end,
+        order = 'firstpublished DESC'
+    },
+    explore_collections = { --[[ TODO ]] },
+    my_projects = {
+        fetch =
+            function (session)
+                return db.interpolate_query(
+                    'where username = ?',
+                    session.username
+                )
+            end,
+        order = 'lastupdated DESC'
+    }
+}
+
 component.actions['grid'] = {
-    first = function (data, _)
+    first = function (session, data, _)
         data.page_number = 1
-        component.actions['grid'].update_items(data)
+        component.actions['grid'].update_items(session, data)
     end,
-    last = function (data, _)
+    last = function (session, data, _)
         data.page_number = data.total_pages
-        component.actions['grid'].update_items(data)
+        component.actions['grid'].update_items(session, data)
     end,
-    next = function (data, params)
+    next = function (session, data, params)
         data.page_number =
             math.min(data.total_pages, data.page_number + params[1])
-        component.actions['grid'].update_items(data)
+        component.actions['grid'].update_items(session, data)
     end,
-    previous = function (data, params)
+    previous = function (session, data, params)
         data.page_number = math.max(1, data.page_number - params[1])
-        component.actions['grid'].update_items(data)
+        component.actions['grid'].update_items(session, data)
     end,
-    search = function (data, params)
+    search = function (session, data, params)
         data.search_term = params[1]
-        component.actions['grid'].update_items(data)
+        component.actions['grid'].update_items(session, data)
     end,
-    update_items = function (data, _)
-        component.actions['grid']['update_' .. data.item_type .. 's'](data)
+    update_items = function (session, data, _)
+        component.actions['grid'][
+            'update_' .. data.item_type .. 's'](session, data)
     end,
-    update_projects = function (data, _)
+    update_projects = function (session, data, _)
         local paginator =
             Projects:paginated(
-                data.query ..
+                component.queries[data.query].fetch(session) ..
                     (data.search_term and (db.interpolate_query(
                         ' and (projectname ILIKE ? or notes ILIKE ?)',
                         '%' .. data.search_term .. '%',
                         '%' .. data.search_term .. '%')
                     ) or '') ..
-                ' ORDER BY ' .. data.order,
+                ' ORDER BY ' .. component.queries[data.query].order,
             { per_page = 15 })
 
         data.items = paginator:get_page(data.page_number)
         disk:process_thumbnails(data.items)
     end,
-    update_collections = function (data, _)
+    update_collections = function (session, data, _)
         local query =
             'JOIN active_users on ' ..
                 '(active_users.id = collections.creator_id) ' ..
@@ -139,3 +163,5 @@ component.actions['grid'] = {
         disk:process_thumbnails(data.items, 'thumbnail_id')
     end
 }
+
+

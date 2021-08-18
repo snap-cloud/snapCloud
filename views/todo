@@ -1,3 +1,6 @@
+[ ] never have SQL in the client. Have a queries table in the server side for
+    each page
+[ ] update page count on search
 [ ] carousel.tmp
 [ ] collection.tmp
 [ ] embed.tmp
@@ -6,7 +9,6 @@
 [ ] flags.tmp
 [ ] grid.tmp
 [ ] my_collections.tmp
-[ ] my_projects.tmp
 [ ] paginator.tmp
 [ ] profile.tmp
 [ ] project.tmp
@@ -39,6 +41,7 @@
 [x] login.tmp
 [x] materials.tmp
 [x] mirrors.tmp
+[x] my_projects.tmp
 [x] navigation_bar.tmp
 [x] offline.tmp
 [x] partners.tmp
