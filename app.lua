@@ -42,6 +42,7 @@ package.loaded.resty_string = require "resty.string"
 package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
 package.loaded.disk = require('disk')
+package.loaded.component = require 'component'
 
 local app = package.loaded.app
 local config = package.loaded.config

@@ -1,5 +1,3 @@
-[ ] never have SQL in the client. Have a queries table in the server side for
-    each page
 [ ] update page count on search
 [ ] carousel.tmp
 [ ] collection.tmp
