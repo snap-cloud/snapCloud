@@ -1,5 +1,6 @@
 <h1>Explore</h1>
 <%
+    -- Just to get the page count. No need for any ordering here.
     local paginator = Projects:paginated(
         'WHERE ispublished AND username NOT IN ' ..
             '(SELECT username FROM deleted_users) ' ..
@@ -15,6 +16,13 @@
     projects.data.class = 'projects'
     projects.data.title = 'Published Projects'
     projects.data.item_type = 'project'
+    -- This is WAY faster, but fails when using :num_pages because COUNT(*)
+    -- can't be used with ORDER BY when there's a subquery, for some reason.
+    projects.data.query = 'WHERE ispublished AND NOT EXISTS( ' ..
+        'SELECT 1 FROM deleted_users WHERE ' ..
+        'username = active_projects.username LIMIT 1) ' ..
+        db.interpolate_query(course_name_filter())
+    projects.data.order = 'firstpublished DESC'
 
     render(
         'views.components.component',

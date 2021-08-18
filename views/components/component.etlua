@@ -1,5 +1,6 @@
 <script>
-    var json_<%= component.id %> = '<%- require("lapis.util").to_json(component) %>';
+    var json_<%= component.id %> =
+        JSON.stringify(<%- require("lapis.util").to_json(component) %>);
     function update_<%= component.id %>(selector, params) {
         var req = new XMLHttpRequest();
         req.open(

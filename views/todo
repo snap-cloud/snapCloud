@@ -2,7 +2,6 @@
 [ ] collection.tmp
 [ ] embed.tmp
 [ ] examples.tmp
-[ ] explore.tmp
 [ ] flag_details.tmp
 [ ] flags.tmp
 [ ] grid.tmp
@@ -32,6 +31,7 @@
 [x] credits.tmp
 [x] delete_user.tmp
 [x] dmca.tmp
+[x] explore.tmp
 [x] extensions.tmp
 [x] footer.tmp
 [x] forgot_password.tmp

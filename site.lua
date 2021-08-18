@@ -55,21 +55,25 @@ for _, view in pairs(views) do
 end
 
 app:get('/explore', function (self)
--- This is WAY faster, but fails when using :num_pages because COUNT(*) can't
--- be used with ORDER BY when there's a subquery, for some obscure reason.
---[[    local query = ' WHERE ispublished AND NOT EXISTS( ' ..
-        'SELECT 1 FROM deleted_users WHERE ' ..
-            'username = active_projects.username LIMIT 1) ' ..
-        db.interpolate_query(course_name_filter()) ..
-        ' ORDER BY firstpublished DESC'
-]]--
     self.Projects = Projects
     self.Collections = Collections
     self.db = db
+    self.course_name_filter = course_name_filter
     self.new_component = component.new
 
     return {
         render = 'explore',
+    }
+end)
+
+app:get('/my_projects', function (self)
+    self.Projects = Projects
+    self.username = self.session.username
+    self.db = db
+    self.new_component = component.new
+
+    return {
+        render = 'my_projects',
     }
 end)
 
@@ -91,16 +95,27 @@ component.actions['grid'] = {
         data.page_number = math.max(1, data.page_number - params[1])
         component.actions['grid'].update_items(data)
     end,
+    search = function (data, params)
+        data.search_term = params[1]
+        if data.search_term then
+            print('\n\n\nsearching: ' .. data.search_term .. '\n\n')
+        end
+        component.actions['grid'].update_items(data)
+    end,
     update_items = function (data, _)
         component.actions['grid']['update_' .. data.item_type .. 's'](data)
     end,
     update_projects = function (data, _)
-        local query = 'WHERE ispublished AND username NOT IN ' ..
-            '(SELECT username FROM deleted_users) ' ..
-            db.interpolate_query(course_name_filter()) ..
-            ' ORDER BY firstpublished DESC'
-
-        local paginator = Projects:paginated(query, { per_page = 15 })
+        local paginator =
+            Projects:paginated(
+                data.query ..
+                    (data.search_term and (db.interpolate_query(
+                        ' and (projectname ILIKE ? or notes ILIKE ?)',
+                        data.search_term,
+                        data.search_term)
+                    ) or '') ..
+                ' ORDER BY ' .. data.order,
+            { per_page = 15 })
 
         data.items = paginator:get_page(data.page_number)
         disk:process_thumbnails(data.items)

@@ -1,22 +1,14 @@
 <%
 --[[
-    ======
-    README
-    ======
-
-    REQUIRED
-    --------
-    page_number →  (num) current page.
-    total_pages →  (num) total number of pages.
-    class →  (str) CSS class.
-    items →  Items to show.
-    item_type → 'project', 'user' or 'collection'. Default: 'project'.
-    items_per_row → (num) number of items per grid row. Default: 5.
-
-    OPTIONAL
-    --------
-    title →  (str) grid title. Default: none.
-]]-- 
+    title               (str) grid title. Default: none.
+    page_number         (num) current page.
+    total_pages         (num) total number of pages.
+    class               (str) CSS class.
+    items               (tbl) Items to show.
+    item_type           'project', 'user' or 'collection'. Default: 'project'.
+    items_per_row       (num) number of items per grid row. Default: 5.
+    with_search         (bool) adds a search input. Default: false.
+]]--
 
 -- set defaults
 
@@ -41,6 +33,20 @@ data.item_type = data.item_type or 'project'
     };
     </script>
     <div class="bar">
+        <% if data.with_search then %>
+        <div class="<%= data.class %> search">
+            <form onsubmit="
+                event.preventDefault();
+                <%=run%>(
+                    'search',
+                    [Object.fromEntries(new FormData(this)).query]
+                );"
+            >
+                <input type="text" name="query">
+                <i class="fas fa-search"></i>
+            </form>
+        </div>
+        <% end %>
         <nav class="paginator">
             <a class="clickable" onclick="loader(this); <%=run%>('first');"><i class="fas fa-caret-left"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('previous', [5]);"><i class="fas fa-angle-double-left"></i></a>
