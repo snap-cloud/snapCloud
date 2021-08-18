@@ -97,9 +97,6 @@ component.actions['grid'] = {
     end,
     search = function (data, params)
         data.search_term = params[1]
-        if data.search_term then
-            print('\n\n\nsearching: ' .. data.search_term .. '\n\n')
-        end
         component.actions['grid'].update_items(data)
     end,
     update_items = function (data, _)
@@ -111,8 +108,8 @@ component.actions['grid'] = {
                 data.query ..
                     (data.search_term and (db.interpolate_query(
                         ' and (projectname ILIKE ? or notes ILIKE ?)',
-                        data.search_term,
-                        data.search_term)
+                        '%' .. data.search_term .. '%',
+                        '%' .. data.search_term .. '%')
                     ) or '') ..
                 ' ORDER BY ' .. data.order,
             { per_page = 15 })
