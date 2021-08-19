@@ -1,0 +1,55 @@
+<!-- Thanks to www.w3schools.com -->
+<link rel="stylesheet" href="style/banner.css">
+
+<div class="slideshow">
+    <a href="collection.html?user=snapcloud&collection=Snap!%20Olympics">
+        <div class="slide fade">
+            <img src="img/totm.png" style="width:100%">
+        </div>
+    </a>
+
+    <div class="slide fade">
+        <img src="img/snap-byob.png" style="width:100%">
+    </div>
+
+    <div class="slide fade">
+        <img src="img/lowfloor.png" style="width:100%">
+    </div>
+
+    <div class="slide fade">
+        <img src="img/widewalls.png" style="width:100%">
+    </div>
+
+    <div class="slide fade">
+        <img src="img/noceiling.png" style="width:100%">
+    </div>
+
+    <a class="previous" onclick="plusSlides(-1)">&#10094;</a>
+    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+</div>
+<br>
+
+<script>
+    var slideIndex = 1;
+
+    showSlide(slideIndex);
+
+    function plusSlides (n) {
+        showSlide(slideIndex += n);
+    };
+
+    function currentSlide (n) {
+        showSlide(slideIndex = n);
+    };
+
+    function showSlide (n) {
+        var slides = document.querySelectorAll('.slide'),
+            i;
+        if (n > slides.length) { slideIndex = 1 }
+        if (n < 1) { slideIndex = slides.length }
+        slides.forEach(function (slide) {
+            slide.style.display = 'none';
+        });
+        slides[slideIndex-1].style.display = 'block';
+    };
+</script>

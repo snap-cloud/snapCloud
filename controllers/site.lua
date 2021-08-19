@@ -72,9 +72,10 @@ component.queries = {
     },
     collection_projects = {
         fetch = function (session, data)
-            local collection = Collections:find(data.user_id, data.title)
-            paginator = collection:get_projects()
-            paginator.per_page = 5
+            local collection =
+                Collections:find(data.user_id, data.collection_name)
+            local paginator = collection:get_projects()
+            paginator.per_page = data.per_page or 5
             return paginator
         end
     }
@@ -118,7 +119,7 @@ component.actions['grid'] = {
                         '%' .. data.search_term .. '%')
                     ) or '') ..
                 ' ORDER BY ' .. component.queries[data.query].order,
-            { per_page = 15 })
+            { per_page = data.per_page or 15 })
 
         data.items = paginator:get_page(data.page_number)
         disk:process_thumbnails(data.items)
@@ -134,7 +135,7 @@ component.actions['grid'] = {
                 ) or '') ..
             ' ORDER BY ' .. component.queries[data.query].order,
             {
-                per_page = 15,
+                per_page = data.per_page or 15,
                 fields =
                     'collections.id, creator_id, collections.created_at, '..
                     'published, collections.published_at, shared, ' ..

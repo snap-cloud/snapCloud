@@ -2,12 +2,12 @@
 <link rel="stylesheet" href="style/project.css">
 <h1 localizable>Examples</h1>
 <%
-for k, name in pairs({
+for _, name in pairs({
         'Art Projects',
         'Science Projects',
         'Fractals',
         'Animations',
-        'Music'
+        'Music',
         'Maths',
         'Games',
         'Computer Science',
@@ -24,6 +24,7 @@ for k, name in pairs({
     -- take only the first word, and lowercase it:
     projects.data.class = name:match("(%w+)"):lower()
     projects.data.title = name
+    projects.data.collection_name = name
     projects.data.item_type = 'project'
     projects.data.query = 'collection_projects'
     -- store for use in querying for next pages

@@ -8,11 +8,9 @@
 [ ] project_collections.tmp
 [ ] project_remixes.tmp
 [ ] search.tmp
-[ ] slideshow.tmp
 [ ] user.tmp
 [ ] user_admin.tmp
 [ ] username.tmp
-[ ] welcome.tmp
 [ ] zombie_admin.tmp
 [-] change_email.tmp
 [-] change_password.tmp
@@ -47,7 +45,9 @@
 [x] profile.tmp
 [x] requirements.tmp
 [x] research.tmp
+[x] slideshow.tmp
 [x] snapinator.tmp
 [x] snapp.tmp
 [x] source.tmp
 [x] tos.tmp
+[x] welcome.tmp → index.etlua

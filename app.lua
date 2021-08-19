@@ -136,11 +136,6 @@ app:before_filter(function (self)
     end
 end)
 
--- This module only takes care of the index endpoint
-app:get('/', function(self)
-    return { redirect_to = self:build_url('site/') }
-end)
-
 function app:handle_404()
     return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
 end

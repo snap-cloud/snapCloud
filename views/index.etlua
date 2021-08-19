@@ -1,0 +1,99 @@
+<script src="js/project.js"></script>
+<link rel="stylesheet" href="style/project.css">
+
+<% render('views.partials.slideshow') %>
+
+<h1><span localizable>Welcome to Snap</span><em>!</em></h1>
+
+<div class="indent bigger" localizable>Snap<em>!</em> is a broadly inviting programming language for kids and adults that's also a platform for serious study of computer science.</div>
+
+<div class="indent v-spaced">
+    <a href="/snap" class="pure-button" localizable>Run Snap<em>!</em> Now</a>
+    <a href="/examples" class="pure-button" localizable>Example Projects</a>
+    <a href="/snap/help/SnapManual.pdf" class="pure-button" localizable>Reference Manual</a>
+</div>
+
+<br class="v-spaced">
+
+<%
+local collections = {
+    {
+        collection_name = 'Featured',
+        title = 'Featured Projects'
+    },
+    {
+        collection_name = 'Snap! Olympics',
+        title = 'Topic of the Month, August: Snap! Olympics'
+    },
+    {
+        collection_name = 'Snap!Con 2021',
+        title = 'Snap!Con 2021'
+    }
+}
+
+local curated = {
+    'Science Projects',
+    'Simulations',
+    '3D',
+    'Music',
+    'Art Projects',
+    'Fractals',
+    'Animations',
+    'Games'
+}
+
+-- Add 3 curated collections to the front page
+for i = 1, 3, 1 do
+    local choice = table.remove(curated, math.random(#curated))
+    table.insert(collections, { collection_name = choice, title = choice })
+end
+
+for _, descriptor in pairs(collections) do 
+    local collection = Collections:find(user_id, descriptor.collection_name)
+
+    local paginator = collection:get_projects()
+    paginator.per_page = 5
+
+    local projects = new_component('grid')
+    projects.data.items = {}
+    projects.data.total_pages = paginator:num_pages()
+    projects.data.page_number = 1
+    -- take only the first word, and lowercase it:
+    projects.data.class = descriptor.collection_name:match("(%w+)"):lower()
+    projects.data.title = descriptor.title
+    projects.data.item_type = 'project'
+    projects.data.query = 'collection_projects'
+    -- store for use in querying for next pages
+    projects.data.user_id = user_id
+
+    render(
+        'views.components.component',
+        {
+            path = 'grid',
+            component = projects
+        }
+    )
+end
+
+-- Show latest projects next
+
+    local projects = new_component('grid')
+    projects.data.items = {}
+    projects.data.total_pages = 20
+    projects.data.page_number = 1
+    projects.data.per_page = 5
+    projects.data.class = 'projects'
+    projects.data.title = 'Latest Projects'
+    projects.data.item_type = 'project'
+    projects.data.query = 'explore_projects'
+
+    render(
+        'views.components.component',
+        {
+            path = 'grid',
+            component = projects
+        }
+    )
+
+%>
+
