@@ -58,9 +58,11 @@ for _, descriptor in pairs(collections) do
     projects.data.items = {}
     projects.data.total_pages = paginator:num_pages()
     projects.data.page_number = 1
-    -- take only the first word, and lowercase it:
-    projects.data.class = descriptor.collection_name:match("(%w+)"):lower()
+    -- take only the first word, and lowercase it. Prepend 'c-' because classes
+    -- need to start with a letter, and '3d' does not...
+    projects.data.class = 'col-' .. math.random(1000000)
     projects.data.title = descriptor.title
+    projects.data.collection_name = descriptor.collection_name
     projects.data.item_type = 'project'
     projects.data.query = 'collection_projects'
     -- store for use in querying for next pages

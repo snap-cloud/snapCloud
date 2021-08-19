@@ -1,0 +1,46 @@
+<script src="js/dialog.js"></script>
+<script src="js/project.js"></script>
+<script src="js/inplace.js"></script>
+<link rel="stylesheet" href="style/project.css">
+<div class="collection">
+    <div class="title">
+        <h1><%= collection.name %></h1>
+        <span class="author">by <a href="user?user=<%= collection.username %>" target=""><strong><%= collection.creator.username %></strong></a></span>
+    </div>
+    <div class="contents pure-g">
+        <div class="pure-u-7-24 info">
+            <% render('views.collection_info') %>
+        </div>
+        <!-- just a separator -->
+        <i class="pure-u-1-24"></i>
+        <div class="pure-u-2-3 projects">
+            <%
+                paginator = collection:get_projects()
+                paginator.per_page = 12
+
+                local projects = new_component('grid')
+                projects.data.items = {}
+                projects.data.total_pages = paginator:num_pages()
+                projects.data.page_number = 1
+                projects.data.items_per_row = 4
+                projects.data.per_page = 12
+                -- take only the first word, and lowercase it:
+                projects.data.class = 'collection_projects'
+                projects.data.collection_name = collection.name
+                projects.data.item_type = 'project'
+                projects.data.query = 'collection_projects'
+                -- store for use in querying for next pages
+                projects.data.user_id = collection.creator.id
+
+                render(
+                        'views.components.component',
+                        {
+                            path = 'grid',
+                            component = projects
+                        }
+                      )
+
+                %>
+        </div>
+    </div>
+</div>

@@ -99,6 +99,28 @@ app:get('/examples', function (self)
     return { render = 'examples' }
 end)
 
+app:get('/collection', function (self)
+    local creator = Users:find({ username = self.params.user })
+    self.collection =
+        Collections:find(creator.id, self.params.collection)
+    assert_can_view_collection(self, self.collection)
+    self.collection.creator = creator
+
+    if self.collection.thumbnail_id then
+        self.collection.thumbnail =
+        package.loaded['disk']:retrieve_thumbnail(
+            self.collection.thumbnail_id)
+    end
+    if self.collection.editor_ids then
+        self.collection.editors = Users:find_all(
+        self.collection.editor_ids,
+        { fields = 'username, id' })
+    end
+
+    self.new_component = component.new
+    return { render = 'collection' }
+end)
+
 -- Administration and data management pages
 
 app:get('/profile', function (self)

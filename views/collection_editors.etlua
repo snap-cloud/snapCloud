@@ -1,0 +1,41 @@
+<div class="editors">
+    <ul class="editor-list">
+<%
+if collection.editor_ids then
+    for _, editor in pairs(collection.editors) do %>
+    <li class="editor"><a href="user?user=<%= editor.username %>" target=""><strong><%= editor.username %></strong></a></li>
+<%
+    end
+end
+%>
+    </ul>
+<% if collection.creator.id == current_user.id then %>
+    <a onclick="this.nextElementSibling.hidden = false; this.nextElementSibling.focus();" class="clickable add-editor"><i class="fas fa-plus-circle"></i></a>
+    <input hidden class="new-editor"></input>
+<% end %>
+<%
+if current_user:isadmin() then
+    if not(collection.free_for_all) then
+%>
+    <a localizable class="pure-button ffa" target="_blank">Mark as free-for-all</a>
+<%  else %>
+    <a localizable class="pure-button un-ffa" target="_blank">Unmark as free-for-all</a>
+<%
+    end
+end
+%>
+<%
+    if (collection.creator.id ~= current_user.id) and collection.editor_ids then
+        for _, id in pairs(collection.editor_ids) do
+            if id == current_user.id then
+%>
+    <a localizable class="pure-button pure-button-warning unenroll" target="_blank">Remove myself</a>
+<%
+                break
+            end
+        end
+    end
+%>
+
+</div>
+
