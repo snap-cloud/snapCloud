@@ -2,7 +2,6 @@
 [ ] carousel.tmp
 [ ] collection.tmp
 [ ] embed.tmp
-[ ] examples.tmp
 [ ] flag_details.tmp
 [ ] flags.tmp
 [ ] project.tmp
@@ -15,25 +14,27 @@
 [ ] username.tmp
 [ ] welcome.tmp
 [ ] zombie_admin.tmp
+[-] change_email.tmp
+[-] change_password.tmp
+[-] delete_user.tmp
+[-] forgot_password.tmp
+[-] forgot_username.tmp
+[-] login.tmp
+[-] sign_up.tmp
 [x] about.tmp
 [x] admin.tmp
 [x] base.tmp -> layout.etlua
 [x] bjc.tmp
 [x] blog.tmp
-[x] change_email.tmp
-[x] change_password.tmp
 [x] coc.tmp
 [x] contact.tmp
 [x] credits.tmp
-[x] delete_user.tmp
 [x] dmca.tmp
+[x] examples.tmp
 [x] explore.tmp
 [x] extensions.tmp
 [x] footer.tmp
-[x] forgot_password.tmp
-[x] forgot_username.tmp
 [x] grid.tmp
-[x] login.tmp
 [x] materials.tmp
 [x] mirrors.tmp
 [x] my_collections.tmp
@@ -46,7 +47,6 @@
 [x] profile.tmp
 [x] requirements.tmp
 [x] research.tmp
-[x] sign_up.tmp
 [x] snapinator.tmp
 [x] snapp.tmp
 [x] source.tmp

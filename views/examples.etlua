@@ -1,0 +1,40 @@
+<script src="js/project.js"></script>
+<link rel="stylesheet" href="style/project.css">
+<h1 localizable>Examples</h1>
+<%
+for k, name in pairs({
+        'Art Projects',
+        'Science Projects',
+        'Fractals',
+        'Animations',
+        'Music'
+        'Maths',
+        'Games',
+        'Computer Science',
+        }) do
+
+    local collection = Collections:find(user_id, name)
+    paginator = collection:get_projects()
+    paginator.per_page = 5
+
+    local projects = new_component('grid')
+    projects.data.items = {}
+    projects.data.total_pages = paginator:num_pages()
+    projects.data.page_number = 1
+    -- take only the first word, and lowercase it:
+    projects.data.class = name:match("(%w+)"):lower()
+    projects.data.title = name
+    projects.data.item_type = 'project'
+    projects.data.query = 'collection_projects'
+    -- store for use in querying for next pages
+    projects.data.user_id = user_id
+
+    render(
+        'views.components.component',
+        {
+            path = 'grid',
+            component = projects
+        }
+    )
+end
+%>

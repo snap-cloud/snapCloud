@@ -31,7 +31,7 @@ local component = package.loaded.component
 component.queries = {
     explore_projects = {
         fetch =
-            function (session)
+            function (session, data)
                 return 'WHERE ispublished AND NOT EXISTS( ' ..
                     'SELECT 1 FROM deleted_users WHERE ' ..
                     'username = active_projects.username LIMIT 1) ' ..
@@ -41,7 +41,7 @@ component.queries = {
     },
     explore_collections = {
         fetch =
-            function (session)
+            function (session, data)
                 return 'JOIN active_users on ' ..
                     '(active_users.id = collections.creator_id) ' ..
                     'WHERE published'
@@ -50,7 +50,7 @@ component.queries = {
     },
     my_projects = {
         fetch =
-            function (session)
+            function (session, data)
                 return db.interpolate_query(
                     'where username = ?',
                     session.username
@@ -60,7 +60,7 @@ component.queries = {
     },
     my_collections = {
         fetch =
-            function (session)
+            function (session, data)
                 return db.interpolate_query(
                     'JOIN active_users ON ' ..
                         '(active_users.id = collections.creator_id) ' ..
@@ -69,6 +69,14 @@ component.queries = {
                     session.current_user.id)
             end,
         order = 'updated_at DESC'
+    },
+    collection_projects = {
+        fetch = function (session, data)
+            local collection = Collections:find(data.user_id, data.title)
+            paginator = collection:get_projects()
+            paginator.per_page = 5
+            return paginator
+        end
     }
 }
 
@@ -99,9 +107,11 @@ component.actions['grid'] = {
             'update_' .. data.item_type .. 's'](session, data)
     end,
     update_projects = function (session, data, _)
-        local paginator =
+        local query = component.queries[data.query].fetch(session, data)
+        -- query can hold a paginator or an SQL query
+        local paginator = query.per_page and query or
             Projects:paginated(
-                component.queries[data.query].fetch(session) ..
+                 query ..
                     (data.search_term and (db.interpolate_query(
                         ' and (projectname ILIKE ? or notes ILIKE ?)',
                         '%' .. data.search_term .. '%',
@@ -114,8 +124,9 @@ component.actions['grid'] = {
         disk:process_thumbnails(data.items)
     end,
     update_collections = function (session, data, _)
+        local query = component.queries[data.query].fetch(session, data)
         local paginator = Collections:paginated(
-            component.queries[data.query].fetch(session) ..
+            query ..
                 (data.search_term and (db.interpolate_query(
                     ' and (name ILIKE ? or description ILIKE ?)',
                     '%' .. data.search_term .. '%',

@@ -27,6 +27,7 @@ local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local respond_to = package.loaded.respond_to
 
+local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
 local db = package.loaded.db
@@ -81,9 +82,18 @@ app:get('/my_collections', function (self)
     return { render = 'my_collections' }
 end)
 
+app:get('/examples', function (self)
+    self.Collections = Collections
+    self.user_id = Users:find({ username = 'snapcloud' }).id
+    self.db = db
+    self.new_component = component.new
+    return { render = 'examples' }
+end)
+
 -- Administration and data management pages
 
 app:get('/profile', function (self)
     self.user = self.current_user
     return { render = 'profile' }
 end)
+
