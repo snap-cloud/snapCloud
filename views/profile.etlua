@@ -1,0 +1,42 @@
+<link rel="stylesheet" href="style/profile.css">
+<h1><span class="visitor"></span></h1>
+<div class="pure-g profile">
+    <div class="pure-u-1-2 fields">
+        <span class="pure-u-1-1"><strong localizable>Joined in </strong>
+            <span class="created"></span>
+        </span>
+        <span class="pure-u-1-1"><strong localizable>Email: </strong>
+            <span class="email"><a href="mailto:<%= user.email %>"
+                target="_blank"><%= user.email %></a></span>
+        </span>
+        <% if user.role ~= 'standard' then %>
+        <span class="pure-u-1-1 role-container">
+            <strong localizable>Role</strong><strong>: </strong>
+            <span localizable class="role"><%= user.role %></span>
+        </span>
+        <% end %>
+    </div>
+    <div class="pure-u-1-2 buttons">
+        <a localizable class="pure-button"
+            href="change_password">Change Password</a>
+        <a localizable class="pure-button"
+            href="change_email">Change Email</a>
+        <a localizable class="pure-button pure-button-warning"
+            onclick="confirmDeleteMyself()">Delete my Account</a>
+    </div>
+</div>
+<script>
+    document.querySelector('.profile .fields .created').innerText =
+        formatDate('<%= user.created %>');
+    function confirmDeleteMyself () {
+        confirm(
+            localizer.localize(
+                'Are you sure you want to delete your user account?') + '<br>' +
+            '<i class="warning fa fa-exclamation-triangle"></i> ' +
+            localizer.localize('WARNING! This action cannot be undone!') +
+            ' <i class="warning fa fa-exclamation-triangle"></i>',
+            function (ok) { if (ok) { location.href = 'delete_user'; }},
+            confirmTitle('Delete your Account')
+        );
+    };
+</script>

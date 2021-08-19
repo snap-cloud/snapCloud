@@ -5,7 +5,6 @@
 [ ] examples.tmp
 [ ] flag_details.tmp
 [ ] flags.tmp
-[ ] profile.tmp
 [ ] project.tmp
 [ ] project_collections.tmp
 [ ] project_remixes.tmp
@@ -44,6 +43,7 @@
 [x] paginator.tmp
 [x] partners.tmp
 [x] privacy.tmp
+[x] profile.tmp
 [x] requirements.tmp
 [x] research.tmp
 [x] sign_up.tmp

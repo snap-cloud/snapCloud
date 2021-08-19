@@ -81,3 +81,9 @@ app:get('/my_collections', function (self)
     return { render = 'my_collections' }
 end)
 
+-- Administration and data management pages
+
+app:get('/profile', function (self)
+    self.user = self.current_user
+    return { render = 'profile' }
+end)
