@@ -231,5 +231,40 @@ return {
     -- Primarily for analytics.
     ['2021-08-12:1'] = function ()
         schema.create_index('users', 'last_session_at')
+    end,
+
+    -- User Identities & OAuth Providers
+    -- The basics needed to support external logins.
+    ['2021-09-20:1'] = function ()
+        -- Notable we will not store access/refresh tokens because we are just authenticating users.
+        schema.create_table('identities', {
+            { 'id', types.serial({ primary_key = true }) },
+            { 'user_id', types.foreign_key },
+            { 'provider_id', types.foreign_key },
+            { 'uid', types.text },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) }
+        })
+
+        schema.create_index('identities', 'user_id', 'provider_id', { unique = true });
+
+        schema.create_table('oauth_providers', {
+            { 'id', types.serial({ primary_key = true }) },
+            { 'name', types.text },
+            { 'short_name', types.text },
+            { 'logo_path', types.text },
+            { 'client_id', types.text },
+            { 'client_secret', types.text },
+            { 'authorization_url', types.text },
+            { 'scopes', types.text },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) }
+        })
+
+        -- Add our jsonb columns which lapis doesn't natively know about.
+        db.query([[
+            ALTER TABLE identities ADD COLUMN metadata jsonb DEFAULT '{}';
+            ALTER TABLE oauth_providers ADD COLUMN config jsonb DEFAULT '{}';
+        ]])
     end
 }

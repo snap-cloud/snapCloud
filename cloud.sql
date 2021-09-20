@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.3
--- Dumped by pg_dump version 13.3
+-- Dumped from database version 13.2
+-- Dumped by pg_dump version 13.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -15,6 +15,20 @@ SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
 
 --
 -- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
@@ -94,7 +108,6 @@ CREATE TABLE public.projects (
     lastshared timestamp with time zone,
     username public.dom_username NOT NULL,
     firstpublished timestamp with time zone,
-    remixedfrom integer,
     deleted timestamp with time zone
 );
 
@@ -114,7 +127,6 @@ CREATE VIEW public.active_projects AS
     projects.lastshared,
     projects.username,
     projects.firstpublished,
-    projects.remixedfrom,
     projects.deleted
    FROM public.projects
   WHERE (projects.deleted IS NULL);
@@ -134,7 +146,6 @@ CREATE TABLE public.users (
     about text,
     location text,
     verified boolean,
-    updated_at timestamp with time zone,
     role public.snap_user_role DEFAULT 'standard'::public.snap_user_role,
     deleted timestamp with time zone,
     unique_email text,
@@ -157,7 +168,6 @@ CREATE VIEW public.active_users AS
     users.about,
     users.location,
     users.verified,
-    users.updated_at,
     users.role,
     users.deleted,
     users.unique_email,
@@ -198,6 +208,7 @@ CREATE TABLE public.collection_memberships (
 --
 
 CREATE SEQUENCE public.collection_memberships_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -229,7 +240,6 @@ CREATE TABLE public.collections (
     shared_at timestamp with time zone,
     thumbnail_id integer,
     editor_ids integer[],
-    viewer_ids integer[],
     free_for_all boolean DEFAULT false NOT NULL
 );
 
@@ -239,6 +249,7 @@ CREATE TABLE public.collections (
 --
 
 CREATE SEQUENCE public.collections_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -352,7 +363,6 @@ CREATE VIEW public.deleted_projects AS
     projects.lastshared,
     projects.username,
     projects.firstpublished,
-    projects.remixedfrom,
     projects.deleted
    FROM public.projects
   WHERE (projects.deleted IS NOT NULL);
@@ -372,7 +382,6 @@ CREATE VIEW public.deleted_users AS
     users.about,
     users.location,
     users.verified,
-    users.updated_at,
     users.role,
     users.deleted,
     users.unique_email,
@@ -418,12 +427,86 @@ ALTER SEQUENCE public.flagged_projects_id_seq OWNED BY public.flagged_projects.i
 
 
 --
+-- Name: identities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.identities (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    provider_id integer NOT NULL,
+    uid text NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    metadata jsonb DEFAULT '{}'::jsonb
+);
+
+
+--
+-- Name: identities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.identities_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: identities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.identities_id_seq OWNED BY public.identities.id;
+
+
+--
 -- Name: lapis_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.lapis_migrations (
     name character varying(255) NOT NULL
 );
+
+
+--
+-- Name: oauth_providers; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.oauth_providers (
+    id integer NOT NULL,
+    name text NOT NULL,
+    short_name text NOT NULL,
+    logo_path text NOT NULL,
+    client_id text NOT NULL,
+    client_secret text NOT NULL,
+    authorization_url text NOT NULL,
+    scopes text NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    config jsonb DEFAULT '{}'::jsonb
+);
+
+
+--
+-- Name: oauth_providers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.oauth_providers_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: oauth_providers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.oauth_providers_id_seq OWNED BY public.oauth_providers.id;
 
 
 --
@@ -460,9 +543,9 @@ CREATE VIEW public.recent_projects_2_days AS
 --
 
 CREATE TABLE public.remixes (
-    original_project_id integer NOT NULL,
-    remixed_project_id integer,
-    created timestamp with time zone NOT NULL
+    original_project_id integer,
+    remixed_project_id integer NOT NULL,
+    created timestamp with time zone
 );
 
 
@@ -471,7 +554,7 @@ CREATE TABLE public.remixes (
 --
 
 CREATE TABLE public.tokens (
-    created_at timestamp without time zone DEFAULT now() NOT NULL,
+    created timestamp without time zone DEFAULT now() NOT NULL,
     username public.dom_username NOT NULL,
     purpose text,
     value text NOT NULL
@@ -530,6 +613,20 @@ ALTER TABLE ONLY public.contracts ALTER COLUMN id SET DEFAULT nextval('public.co
 --
 
 ALTER TABLE ONLY public.flagged_projects ALTER COLUMN id SET DEFAULT nextval('public.flagged_projects_id_seq'::regclass);
+
+
+--
+-- Name: identities id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.identities ALTER COLUMN id SET DEFAULT nextval('public.identities_id_seq'::regclass);
+
+
+--
+-- Name: oauth_providers id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.oauth_providers ALTER COLUMN id SET DEFAULT nextval('public.oauth_providers_id_seq'::regclass);
 
 
 --
@@ -595,11 +692,27 @@ ALTER TABLE ONLY public.flagged_projects
 
 
 --
+-- Name: identities identities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.identities
+    ADD CONSTRAINT identities_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: lapis_migrations lapis_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.lapis_migrations
     ADD CONSTRAINT lapis_migrations_pkey PRIMARY KEY (name);
+
+
+--
+-- Name: oauth_providers oauth_providers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.oauth_providers
+    ADD CONSTRAINT oauth_providers_pkey PRIMARY KEY (id);
 
 
 --
@@ -611,19 +724,19 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: projects unique_id; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.projects
+    ADD CONSTRAINT unique_id UNIQUE (id);
+
+
+--
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_pkey PRIMARY KEY (username);
-
-
---
--- Name: users users_unique_email_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_unique_email_key UNIQUE (unique_email);
 
 
 --
@@ -677,31 +790,24 @@ CREATE UNIQUE INDEX flagged_projects_flagger_id_project_id_idx ON public.flagged
 
 
 --
--- Name: remixes_original_project_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: identities_user_id_provider_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX remixes_original_project_id_idx ON public.remixes USING btree (original_project_id);
-
-
---
--- Name: remixes_remixed_project_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX remixes_remixed_project_id_idx ON public.remixes USING btree (remixed_project_id);
+CREATE UNIQUE INDEX identities_user_id_provider_id_idx ON public.identities USING btree (user_id, provider_id);
 
 
 --
--- Name: unique_id; Type: INDEX; Schema: public; Owner: -
+-- Name: original_project_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX unique_id ON public.projects USING btree (id);
+CREATE INDEX original_project_id_index ON public.remixes USING btree (original_project_id);
 
 
 --
--- Name: unique_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: remixed_project_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX unique_idx ON public.projects USING btree (id);
+CREATE INDEX remixed_project_id_index ON public.remixes USING btree (remixed_project_id);
 
 
 --
@@ -765,8 +871,8 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 13.3
--- Dumped by pg_dump version 13.3
+-- Dumped from database version 13.2
+-- Dumped by pg_dump version 13.2
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -786,15 +892,12 @@ SET row_security = off;
 COPY public.lapis_migrations (name) FROM stdin;
 20190140
 201901291
+20190141
 2019-01-04:0
 2019-01-29:0
-a
-b
 2019-02-01:0
-test
-2019-02-04:0
 2019-02-05:0
-2020-06-11:0
+2019-02-04:0
 2020-10-22:0
 2020-11-03:0
 2020-11-09:0
@@ -802,6 +905,7 @@ test
 2021-08-11:0
 2021-08-12:0
 2021-08-12:1
+2021-09-20:1
 \.
 
 
