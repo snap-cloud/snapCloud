@@ -14,7 +14,7 @@ $ git clone --recursive https://github.com/snap-cloud/snapCloud.git
 
 ## Development
 
-### Steps to look into
+### Overview
 
 When developing on Snap!Cloud on your local machine, the following sections are important:
 1. Prereqs
@@ -26,6 +26,25 @@ When developing on Snap!Cloud on your local machine, the following sections are 
 3. Running the Snap!Cloud
 
 The other sections not listed are not needed for development, but may be needed for certain features or deployment.
+
+## Makefile
+
+There is a basic `Makefile` for the Snap!Cloud. It will be expanded overtime.
+
+It contains a few basic utilties to help with common development tasks:
+
+```sh
+👉 make help
+annotate_models
+checkpoint
+cloud.sql
+env
+init_schema
+install
+migrate
+restore_checkpoint
+routes
+```
 
 ## Prereqs
 
@@ -48,7 +67,7 @@ You should be able to run the following scripts to get up and running.
 
 ```
 bin/setup_osx.sh # also installs luarocks dependecies
-bin/migrations.sh
+make migrations
 ```
 
 ### Lua 5.1
@@ -76,8 +95,11 @@ Once OpenResty is ready, installing Lapis is just a matter of asking the LuaRock
 Additional Lua packages you need for the Snap!Cloud to work properly are the Bcrypt module and the md5 module used for secure password encryption. You can use LuaRocks to install them all as root:
 
 All Lua dependencies are contained in the rockspec.
+
+Run `make install`, which is the same as:
+
 ```
-# luarocks install snap-cloud-beta-0.rockspec
+# luarocks install --lua-version 5.1 snap-cloud-beta-0.rockspec
 ```
 
 ### Authbind (Production Only)
@@ -96,7 +118,7 @@ The Snap!Cloud backend uses PostreSQL for storage, so you'll need to install it 
 # apt-get install postgresql postgresql-client
 ```
 
-#### Getting a self-signed certificate
+#### (Optional) Getting a self-signed certificate
 You should not need to run locally with SSL enabled. However, you may want to do so, if you were testing either the production or staging configurations. In those cases you might want to generate a self-signed certificate so that you can verify SL works locally.
 
 Heroku has a good guide on [generating self-signed certs][heroku-guide].
@@ -111,6 +133,7 @@ Heroku has a good guide on [generating self-signed certs][heroku-guide].
 Follow instructions [here](https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html), depending on your operating system.
 
 **macOS:** The default macOS install script will setup Postgres for you.
+
 ### Creating a user and a database
 
 A PostgreSQL script is provided to help you get all tables set up easily. However, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
@@ -146,7 +169,7 @@ $ psql
 Continue by logging in as `cloud` and running the provided SQL file in the main Terminal:
 
 ```sh
-$ psql -U cloud -d snapcloud -a -f cloud.sql
+$ make init_db
 ```
 
 Linux users can run the following to set the "cloud" to create a substitute user (after running `sudo -i`) before running the above:
@@ -158,7 +181,7 @@ Linux users can run the following to set the "cloud" to create a substitute user
 You then have to apply the Migration file (called `migrations.lua`) by running the following command, applying changes to your PSQL snapcloud tables:
 
 ```sh
-$ bin/migrations.sh
+$ make migrations
 ```
 
 If it all goes well, you should now have all tables properly set up. You can make sure it all worked by firing up the PostgreSQL shell and running the `\dt` command, which should print a list of all tables (`projects` and `users`).
@@ -217,7 +240,7 @@ SnapCloud will read variables from a file `.env` which contains contains data sp
 
 ```sh
 export LAPIS_ENVIRONMENT=production
-export DATABASE_URL=127.0.0.1:5432
+export DATABASE_HOST=localhost
 export DATABASE_USERNAME=cloud
 export DATABASE_PASSWORD=snap-cloud-password
 export DATABASE_NAME=snapcloud
