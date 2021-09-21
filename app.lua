@@ -141,6 +141,10 @@ app:get('/', function(self)
     return { redirect_to = self:build_url('site/') }
 end)
 
+app:get('/test', function(self)
+    return errorResponse(app.router.routes)
+end)
+
 function app:handle_404()
     return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
 end
@@ -179,4 +183,4 @@ require 'discourse'
 -- We don't keep spam/exploit paths in the API
 require 'spambots'
 
-return app
+return package.loaded.app
