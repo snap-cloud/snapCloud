@@ -66,6 +66,7 @@ domain_allowed['soundscope-website-beta.s3.amazonaws.com/index.html'] = true
 domain_allowed['soundscope-website-beta.s3.amazonaws.com'] = true
 domain_allowed['soundscope-website.web.app'] = true
 domain_allowed['tunescope.org'] = true
+domain_allowed['beta.tunescope.org'] = true
 domain_allowed['soundscope-website.firebaseapp.com'] = true
 domain_allowed['tune-scope.web.app'] = true
 domain_allowed['tune-scope.firebaseapp.com'] = true
