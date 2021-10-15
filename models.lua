@@ -71,7 +71,7 @@ package.loaded.Users = Model:extend('active_users', {
         return count > 1
     end,
     cannot_access_forum = function (self)
-        return self:isbanned() -- eventually no students.
+        return self:isbanned() or self.validated == false
     end
 })
 
