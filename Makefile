@@ -23,8 +23,8 @@ cloud.sql:: env
 	pg_dump -s -U ${DATABASE_USER} ${CURRENT_DB} > cloud.sql
 	pg_dump -a -t lapis_migrations -U ${DATABASE_USER} ${CURRENT_DB} >> cloud.sql
 
-routes:
-	lapis exec 'require "cmd.routes"' --trace
+# routes:
+# 	lapis exec 'require "cmd.routes"' --trace
 
 # save a copy of dev database into dev_backup
 checkpoint:
