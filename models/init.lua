@@ -26,6 +26,7 @@ local Model = package.loaded.Model
 
 require 'models.users'
 require 'models.projects'
+require 'models.collections'
 require 'models.contracts'
 
 package.loaded.BannedIPs = Model:extend(
