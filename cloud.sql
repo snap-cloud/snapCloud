@@ -24,7 +24,7 @@ CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
@@ -38,14 +38,14 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: -
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
 --
 
 COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
 
 
 --
--- Name: contract_role; Type: TYPE; Schema: public; Owner: -
+-- Name: contract_role; Type: TYPE; Schema: public; Owner: michael
 --
 
 CREATE TYPE public.contract_role AS ENUM (
@@ -55,15 +55,19 @@ CREATE TYPE public.contract_role AS ENUM (
 );
 
 
+ALTER TYPE public.contract_role OWNER TO michael;
+
 --
--- Name: dom_username; Type: DOMAIN; Schema: public; Owner: -
+-- Name: dom_username; Type: DOMAIN; Schema: public; Owner: michael
 --
 
 CREATE DOMAIN public.dom_username AS text;
 
 
+ALTER DOMAIN public.dom_username OWNER TO michael;
+
 --
--- Name: snap_user_role; Type: TYPE; Schema: public; Owner: -
+-- Name: snap_user_role; Type: TYPE; Schema: public; Owner: michael
 --
 
 CREATE TYPE public.snap_user_role AS ENUM (
@@ -75,8 +79,10 @@ CREATE TYPE public.snap_user_role AS ENUM (
 );
 
 
+ALTER TYPE public.snap_user_role OWNER TO michael;
+
 --
--- Name: expire_token(); Type: FUNCTION; Schema: public; Owner: -
+-- Name: expire_token(); Type: FUNCTION; Schema: public; Owner: michael
 --
 
 CREATE FUNCTION public.expire_token() RETURNS trigger
@@ -89,12 +95,14 @@ END;
 $$;
 
 
+ALTER FUNCTION public.expire_token() OWNER TO michael;
+
 SET default_tablespace = '';
 
 SET default_table_access_method = heap;
 
 --
--- Name: projects; Type: TABLE; Schema: public; Owner: -
+-- Name: projects; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.projects (
@@ -112,8 +120,10 @@ CREATE TABLE public.projects (
 );
 
 
+ALTER TABLE public.projects OWNER TO michael;
+
 --
--- Name: active_projects; Type: VIEW; Schema: public; Owner: -
+-- Name: active_projects; Type: VIEW; Schema: public; Owner: michael
 --
 
 CREATE VIEW public.active_projects AS
@@ -132,8 +142,10 @@ CREATE VIEW public.active_projects AS
   WHERE (projects.deleted IS NULL);
 
 
+ALTER TABLE public.active_projects OWNER TO michael;
+
 --
--- Name: users; Type: TABLE; Schema: public; Owner: -
+-- Name: users; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.users (
@@ -154,8 +166,10 @@ CREATE TABLE public.users (
 );
 
 
+ALTER TABLE public.users OWNER TO michael;
+
 --
--- Name: active_users; Type: VIEW; Schema: public; Owner: -
+-- Name: active_users; Type: VIEW; Schema: public; Owner: michael
 --
 
 CREATE VIEW public.active_users AS
@@ -177,8 +191,10 @@ CREATE VIEW public.active_users AS
   WHERE (users.deleted IS NULL);
 
 
+ALTER TABLE public.active_users OWNER TO michael;
+
 --
--- Name: banned_ips; Type: TABLE; Schema: public; Owner: -
+-- Name: banned_ips; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.banned_ips (
@@ -189,8 +205,10 @@ CREATE TABLE public.banned_ips (
 );
 
 
+ALTER TABLE public.banned_ips OWNER TO michael;
+
 --
--- Name: collection_memberships; Type: TABLE; Schema: public; Owner: -
+-- Name: collection_memberships; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.collection_memberships (
@@ -203,8 +221,10 @@ CREATE TABLE public.collection_memberships (
 );
 
 
+ALTER TABLE public.collection_memberships OWNER TO michael;
+
 --
--- Name: collection_memberships_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: collection_memberships_id_seq; Type: SEQUENCE; Schema: public; Owner: michael
 --
 
 CREATE SEQUENCE public.collection_memberships_id_seq
@@ -216,15 +236,17 @@ CREATE SEQUENCE public.collection_memberships_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.collection_memberships_id_seq OWNER TO michael;
+
 --
--- Name: collection_memberships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: collection_memberships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: michael
 --
 
 ALTER SEQUENCE public.collection_memberships_id_seq OWNED BY public.collection_memberships.id;
 
 
 --
--- Name: collections; Type: TABLE; Schema: public; Owner: -
+-- Name: collections; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.collections (
@@ -244,8 +266,10 @@ CREATE TABLE public.collections (
 );
 
 
+ALTER TABLE public.collections OWNER TO michael;
+
 --
--- Name: collections_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: collections_id_seq; Type: SEQUENCE; Schema: public; Owner: michael
 --
 
 CREATE SEQUENCE public.collections_id_seq
@@ -257,15 +281,17 @@ CREATE SEQUENCE public.collections_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.collections_id_seq OWNER TO michael;
+
 --
--- Name: collections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: collections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: michael
 --
 
 ALTER SEQUENCE public.collections_id_seq OWNED BY public.collections.id;
 
 
 --
--- Name: contract_users; Type: TABLE; Schema: public; Owner: -
+-- Name: contract_users; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.contract_users (
@@ -278,8 +304,10 @@ CREATE TABLE public.contract_users (
 );
 
 
+ALTER TABLE public.contract_users OWNER TO michael;
+
 --
--- Name: contract_users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: contract_users_id_seq; Type: SEQUENCE; Schema: public; Owner: michael
 --
 
 CREATE SEQUENCE public.contract_users_id_seq
@@ -291,15 +319,17 @@ CREATE SEQUENCE public.contract_users_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.contract_users_id_seq OWNER TO michael;
+
 --
--- Name: contract_users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: contract_users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: michael
 --
 
 ALTER SEQUENCE public.contract_users_id_seq OWNED BY public.contract_users.id;
 
 
 --
--- Name: contracts; Type: TABLE; Schema: public; Owner: -
+-- Name: contracts; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.contracts (
@@ -318,8 +348,10 @@ CREATE TABLE public.contracts (
 );
 
 
+ALTER TABLE public.contracts OWNER TO michael;
+
 --
--- Name: contracts_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: contracts_id_seq; Type: SEQUENCE; Schema: public; Owner: michael
 --
 
 CREATE SEQUENCE public.contracts_id_seq
@@ -331,15 +363,17 @@ CREATE SEQUENCE public.contracts_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.contracts_id_seq OWNER TO michael;
+
 --
--- Name: contracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: contracts_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: michael
 --
 
 ALTER SEQUENCE public.contracts_id_seq OWNED BY public.contracts.id;
 
 
 --
--- Name: count_recent_projects; Type: VIEW; Schema: public; Owner: -
+-- Name: count_recent_projects; Type: VIEW; Schema: public; Owner: michael
 --
 
 CREATE VIEW public.count_recent_projects AS
@@ -348,8 +382,10 @@ CREATE VIEW public.count_recent_projects AS
   WHERE (projects.lastupdated > (('now'::text)::date - '1 day'::interval));
 
 
+ALTER TABLE public.count_recent_projects OWNER TO michael;
+
 --
--- Name: deleted_projects; Type: VIEW; Schema: public; Owner: -
+-- Name: deleted_projects; Type: VIEW; Schema: public; Owner: michael
 --
 
 CREATE VIEW public.deleted_projects AS
@@ -368,8 +404,10 @@ CREATE VIEW public.deleted_projects AS
   WHERE (projects.deleted IS NOT NULL);
 
 
+ALTER TABLE public.deleted_projects OWNER TO michael;
+
 --
--- Name: deleted_users; Type: VIEW; Schema: public; Owner: -
+-- Name: deleted_users; Type: VIEW; Schema: public; Owner: michael
 --
 
 CREATE VIEW public.deleted_users AS
@@ -391,8 +429,10 @@ CREATE VIEW public.deleted_users AS
   WHERE (users.deleted IS NOT NULL);
 
 
+ALTER TABLE public.deleted_users OWNER TO michael;
+
 --
--- Name: flagged_projects; Type: TABLE; Schema: public; Owner: -
+-- Name: flagged_projects; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.flagged_projects (
@@ -406,8 +446,10 @@ CREATE TABLE public.flagged_projects (
 );
 
 
+ALTER TABLE public.flagged_projects OWNER TO michael;
+
 --
--- Name: flagged_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: flagged_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: michael
 --
 
 CREATE SEQUENCE public.flagged_projects_id_seq
@@ -419,15 +461,17 @@ CREATE SEQUENCE public.flagged_projects_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.flagged_projects_id_seq OWNER TO michael;
+
 --
--- Name: flagged_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: flagged_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: michael
 --
 
 ALTER SEQUENCE public.flagged_projects_id_seq OWNED BY public.flagged_projects.id;
 
 
 --
--- Name: identities; Type: TABLE; Schema: public; Owner: -
+-- Name: identities; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.identities (
@@ -441,8 +485,10 @@ CREATE TABLE public.identities (
 );
 
 
+ALTER TABLE public.identities OWNER TO michael;
+
 --
--- Name: identities_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: identities_id_seq; Type: SEQUENCE; Schema: public; Owner: michael
 --
 
 CREATE SEQUENCE public.identities_id_seq
@@ -454,15 +500,17 @@ CREATE SEQUENCE public.identities_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.identities_id_seq OWNER TO michael;
+
 --
--- Name: identities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: identities_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: michael
 --
 
 ALTER SEQUENCE public.identities_id_seq OWNED BY public.identities.id;
 
 
 --
--- Name: lapis_migrations; Type: TABLE; Schema: public; Owner: -
+-- Name: lapis_migrations; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.lapis_migrations (
@@ -470,8 +518,10 @@ CREATE TABLE public.lapis_migrations (
 );
 
 
+ALTER TABLE public.lapis_migrations OWNER TO michael;
+
 --
--- Name: oauth_providers; Type: TABLE; Schema: public; Owner: -
+-- Name: oauth_providers; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.oauth_providers (
@@ -489,8 +539,10 @@ CREATE TABLE public.oauth_providers (
 );
 
 
+ALTER TABLE public.oauth_providers OWNER TO michael;
+
 --
--- Name: oauth_providers_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: oauth_providers_id_seq; Type: SEQUENCE; Schema: public; Owner: michael
 --
 
 CREATE SEQUENCE public.oauth_providers_id_seq
@@ -502,15 +554,17 @@ CREATE SEQUENCE public.oauth_providers_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.oauth_providers_id_seq OWNER TO michael;
+
 --
--- Name: oauth_providers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: oauth_providers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: michael
 --
 
 ALTER SEQUENCE public.oauth_providers_id_seq OWNED BY public.oauth_providers.id;
 
 
 --
--- Name: projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: projects_id_seq; Type: SEQUENCE; Schema: public; Owner: michael
 --
 
 CREATE SEQUENCE public.projects_id_seq
@@ -521,15 +575,17 @@ CREATE SEQUENCE public.projects_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.projects_id_seq OWNER TO michael;
+
 --
--- Name: projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: michael
 --
 
 ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
 
 
 --
--- Name: recent_projects_2_days; Type: VIEW; Schema: public; Owner: -
+-- Name: recent_projects_2_days; Type: VIEW; Schema: public; Owner: michael
 --
 
 CREATE VIEW public.recent_projects_2_days AS
@@ -538,8 +594,10 @@ CREATE VIEW public.recent_projects_2_days AS
   WHERE (projects.lastupdated > (('now'::text)::date - '2 days'::interval));
 
 
+ALTER TABLE public.recent_projects_2_days OWNER TO michael;
+
 --
--- Name: remixes; Type: TABLE; Schema: public; Owner: -
+-- Name: remixes; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.remixes (
@@ -549,8 +607,10 @@ CREATE TABLE public.remixes (
 );
 
 
+ALTER TABLE public.remixes OWNER TO michael;
+
 --
--- Name: tokens; Type: TABLE; Schema: public; Owner: -
+-- Name: tokens; Type: TABLE; Schema: public; Owner: michael
 --
 
 CREATE TABLE public.tokens (
@@ -561,8 +621,10 @@ CREATE TABLE public.tokens (
 );
 
 
+ALTER TABLE public.tokens OWNER TO michael;
+
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: michael
 --
 
 CREATE SEQUENCE public.users_id_seq
@@ -573,78 +635,80 @@ CREATE SEQUENCE public.users_id_seq
     CACHE 1;
 
 
+ALTER TABLE public.users_id_seq OWNER TO michael;
+
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: michael
 --
 
 ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- Name: collection_memberships id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: collection_memberships id; Type: DEFAULT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.collection_memberships ALTER COLUMN id SET DEFAULT nextval('public.collection_memberships_id_seq'::regclass);
 
 
 --
--- Name: collections id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: collections id; Type: DEFAULT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.collections ALTER COLUMN id SET DEFAULT nextval('public.collections_id_seq'::regclass);
 
 
 --
--- Name: contract_users id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: contract_users id; Type: DEFAULT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.contract_users ALTER COLUMN id SET DEFAULT nextval('public.contract_users_id_seq'::regclass);
 
 
 --
--- Name: contracts id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: contracts id; Type: DEFAULT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.contracts ALTER COLUMN id SET DEFAULT nextval('public.contracts_id_seq'::regclass);
 
 
 --
--- Name: flagged_projects id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: flagged_projects id; Type: DEFAULT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.flagged_projects ALTER COLUMN id SET DEFAULT nextval('public.flagged_projects_id_seq'::regclass);
 
 
 --
--- Name: identities id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: identities id; Type: DEFAULT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.identities ALTER COLUMN id SET DEFAULT nextval('public.identities_id_seq'::regclass);
 
 
 --
--- Name: oauth_providers id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: oauth_providers id; Type: DEFAULT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.oauth_providers ALTER COLUMN id SET DEFAULT nextval('public.oauth_providers_id_seq'::regclass);
 
 
 --
--- Name: projects id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: projects id; Type: DEFAULT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.projects ALTER COLUMN id SET DEFAULT nextval('public.projects_id_seq'::regclass);
 
 
 --
--- Name: users id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 
 --
--- Name: banned_ips banned_ips_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: banned_ips banned_ips_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.banned_ips
@@ -652,7 +716,7 @@ ALTER TABLE ONLY public.banned_ips
 
 
 --
--- Name: collection_memberships collection_memberships_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: collection_memberships collection_memberships_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.collection_memberships
@@ -660,7 +724,7 @@ ALTER TABLE ONLY public.collection_memberships
 
 
 --
--- Name: collections collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: collections collections_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.collections
@@ -668,7 +732,7 @@ ALTER TABLE ONLY public.collections
 
 
 --
--- Name: contract_users contract_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: contract_users contract_users_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.contract_users
@@ -676,7 +740,7 @@ ALTER TABLE ONLY public.contract_users
 
 
 --
--- Name: contracts contracts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: contracts contracts_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.contracts
@@ -684,7 +748,7 @@ ALTER TABLE ONLY public.contracts
 
 
 --
--- Name: flagged_projects flagged_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: flagged_projects flagged_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.flagged_projects
@@ -692,7 +756,7 @@ ALTER TABLE ONLY public.flagged_projects
 
 
 --
--- Name: identities identities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: identities identities_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.identities
@@ -700,7 +764,7 @@ ALTER TABLE ONLY public.identities
 
 
 --
--- Name: lapis_migrations lapis_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: lapis_migrations lapis_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.lapis_migrations
@@ -708,7 +772,7 @@ ALTER TABLE ONLY public.lapis_migrations
 
 
 --
--- Name: oauth_providers oauth_providers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: oauth_providers oauth_providers_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.oauth_providers
@@ -716,7 +780,7 @@ ALTER TABLE ONLY public.oauth_providers
 
 
 --
--- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.projects
@@ -724,7 +788,7 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- Name: projects unique_id; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: projects unique_id; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.projects
@@ -732,7 +796,7 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.users
@@ -740,7 +804,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: tokens value_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: tokens value_pkey; Type: CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.tokens
@@ -748,91 +812,91 @@ ALTER TABLE ONLY public.tokens
 
 
 --
--- Name: collection_memberships_collection_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: collection_memberships_collection_id_idx; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE INDEX collection_memberships_collection_id_idx ON public.collection_memberships USING btree (collection_id);
 
 
 --
--- Name: collection_memberships_collection_id_project_id_user_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: collection_memberships_collection_id_project_id_user_id_idx; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE UNIQUE INDEX collection_memberships_collection_id_project_id_user_id_idx ON public.collection_memberships USING btree (collection_id, project_id, user_id);
 
 
 --
--- Name: collection_memberships_project_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: collection_memberships_project_id_idx; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE INDEX collection_memberships_project_id_idx ON public.collection_memberships USING btree (project_id);
 
 
 --
--- Name: collections_creator_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: collections_creator_id_idx; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE INDEX collections_creator_id_idx ON public.collections USING btree (creator_id);
 
 
 --
--- Name: contract_users_user_id_contract_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: contract_users_user_id_contract_id_idx; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE UNIQUE INDEX contract_users_user_id_contract_id_idx ON public.contract_users USING btree (user_id, contract_id);
 
 
 --
--- Name: flagged_projects_flagger_id_project_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: flagged_projects_flagger_id_project_id_idx; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE UNIQUE INDEX flagged_projects_flagger_id_project_id_idx ON public.flagged_projects USING btree (flagger_id, project_id);
 
 
 --
--- Name: identities_user_id_provider_id_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: identities_user_id_provider_id_idx; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE UNIQUE INDEX identities_user_id_provider_id_idx ON public.identities USING btree (user_id, provider_id);
 
 
 --
--- Name: original_project_id_index; Type: INDEX; Schema: public; Owner: -
+-- Name: original_project_id_index; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE INDEX original_project_id_index ON public.remixes USING btree (original_project_id);
 
 
 --
--- Name: remixed_project_id_index; Type: INDEX; Schema: public; Owner: -
+-- Name: remixed_project_id_index; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE INDEX remixed_project_id_index ON public.remixes USING btree (remixed_project_id);
 
 
 --
--- Name: users_email_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: users_email_idx; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE INDEX users_email_idx ON public.users USING btree (email);
 
 
 --
--- Name: users_last_session_at_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: users_last_session_at_idx; Type: INDEX; Schema: public; Owner: michael
 --
 
 CREATE INDEX users_last_session_at_idx ON public.users USING btree (last_session_at);
 
 
 --
--- Name: tokens expire_token_trigger; Type: TRIGGER; Schema: public; Owner: -
+-- Name: tokens expire_token_trigger; Type: TRIGGER; Schema: public; Owner: michael
 --
 
 CREATE TRIGGER expire_token_trigger AFTER INSERT ON public.tokens FOR EACH STATEMENT EXECUTE FUNCTION public.expire_token();
 
 
 --
--- Name: projects projects_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: projects projects_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.projects
@@ -840,7 +904,7 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- Name: remixes remixes_original_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: remixes remixes_original_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.remixes
@@ -848,7 +912,7 @@ ALTER TABLE ONLY public.remixes
 
 
 --
--- Name: remixes remixes_remixed_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: remixes remixes_remixed_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.remixes
@@ -856,7 +920,7 @@ ALTER TABLE ONLY public.remixes
 
 
 --
--- Name: tokens users_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: tokens users_fkey; Type: FK CONSTRAINT; Schema: public; Owner: michael
 --
 
 ALTER TABLE ONLY public.tokens
@@ -886,7 +950,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Data for Name: lapis_migrations; Type: TABLE DATA; Schema: public; Owner: -
+-- Data for Name: lapis_migrations; Type: TABLE DATA; Schema: public; Owner: michael
 --
 
 COPY public.lapis_migrations (name) FROM stdin;
