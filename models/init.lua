@@ -24,9 +24,9 @@
 local db = package.loaded.db
 local Model = package.loaded.Model
 
-require 'users'
-require 'projects'
-require 'contracts'
+require 'models.users'
+require 'models.projects'
+require 'models.contracts'
 
 package.loaded.BannedIPs = Model:extend(
   'banned_ips', {
