@@ -22,9 +22,29 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
 local db = package.loaded.db
-local Model = package.loaded.Model
+local Model = require('lapis.db.Model').Model
 
-package.loaded.Contracts = Model:extend('contracts', {
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE contracts (
+--   id integer NOT NULL,
+--   name text NOT NULL,
+--   start_date date NOT NULL,
+--   end_date date NOT NULL,
+--   email_domains text[] NOT NULL,
+--   contact_info text,
+--   contact_email text NOT NULL,
+--   notes text,
+--   location text,
+--   timezone text,
+--   created_at timestamp with time zone NOT NULL,
+--   updated_at timestamp with time zone NOT NULL
+-- );
+-- ALTER TABLE ONLY contracts
+--   ADD CONSTRAINT contracts_pkey PRIMARY KEY (id);
+-- End contracts schema
+--
+local Contracts = Model:extend('contracts', {
   timestamp = true,
   relations = {
     {'members', has_many = 'ContractUsers'}
@@ -46,3 +66,6 @@ package.loaded.ContractUsers = Model:extend('contract_users', {
   },
   validations = {}
 })
+
+package.loaded.Contracts = Contracts
+return Contracts

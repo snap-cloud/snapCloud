@@ -1,5 +1,5 @@
--- User Model
--- =====================
+-- Users Model
+-- ==========
 --
 -- A cloud backend for Snap!
 -- Written by Bernat Romagosa and Michael Ball

@@ -68,8 +68,6 @@ package.loaded.capture_errors = function(fn)
 end
 
 require 'models'
-require 'models.users'
-require 'models.contracts'
 require 'responses'
 local db = package.loaded.db
 
@@ -139,10 +137,6 @@ end)
 -- This module only takes care of the index endpoint
 app:get('/', function(self)
     return { redirect_to = self:build_url('site/') }
-end)
-
-app:get('/test', function(self)
-    return errorResponse(app.router.routes)
 end)
 
 function app:handle_404()
