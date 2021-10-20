@@ -3,10 +3,14 @@ SHELL := /bin/bash
 CURRENT_DB=$(shell source .env && lua5.1 -e 'print(require("lapis.config").get().postgres.database)')
 CURRENT_ENVIRONMENT=$(shell source .env && lua5.1 -e 'print(require("lapis.config").get()._name)')
 
-.PHONY: init_schema install
+.PHONY: init_schema install install_new
 
 install::
 	luarocks install --lua-version 5.1 snap-cloud-beta-0.rockspec
+
+# Install Newest Versions of Dependencies
+install_new::
+	luarocks make --pin --lua-version 5.1 snap-cloud-beta-0.rockspec
 
 init_schema::
 	source .env && createdb -U ${DATABASE_USERNAME} ${CURRENT_DB}
