@@ -78,6 +78,28 @@ component.queries = {
             paginator.per_page = data.per_page or 5
             return paginator
         end
+    },
+    user_projects = {
+        fetch = function (session, data)
+            return db.interpolate_query(
+                'WHERE ispublished AND username = ? ',
+                data.username
+            )
+        end,
+        order = 'lastupdated DESC'
+    },
+    user_collections = {
+        fetch = function (session, data)
+            return db.interpolate_query(
+                'JOIN active_users ON ' ..
+                    '(active_users.id = collections.creator_id) ' ..
+                    'WHERE (creator_id = ? OR editor_ids @> ARRAY[?])' ..
+                    'AND published',
+                data.user_id,
+                data.user_id
+            )
+        end,
+        order = 'updated_at DESC'
     }
 }
 

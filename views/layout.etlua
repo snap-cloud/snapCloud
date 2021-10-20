@@ -43,39 +43,6 @@
     <script>
     SnapCloud.genericError = genericError;
     document.querySelector('#top-bar .run').href = snapURL;
-    if (!sessionStorage.username) {
-        SnapCloud.initSession(
-            function (username, role) {
-                sessionStorage.username = username;
-                sessionStorage.role = role;
-                initForUsername(username);
-            }
-        );
-    } else {
-        initForUsername(sessionStorage.username);
-    }
-
-    function initForUsername (username) {
-        if (username) {
-            SnapCloud.username = username;
-            document.querySelector('li.join').hidden = true;
-            document.querySelector('li.sign-in').hidden = true;
-            document.querySelector('li.user-menu').hidden = false;
-            document.querySelector('a.my-public-projects').href =
-                'user?user=' + username;
-            if (hasAnyOfRoles(['admin', 'moderator', 'reviewer'])) {
-                document.querySelector('.admin').hidden = false;
-            }
-            fillVisitorFields();
-        } else {
-            document.querySelector('li.join').hidden = false;
-            document.querySelector('li.sign-in').hidden = false;
-            document.querySelector('li.user-menu').hidden = true;
-        }
-        fillUsernameFields();
-        fillVisitorFields();
-        doneLoading();
-    }
 
     // Share sessionStorage across tabs
     // http://blog.guya.net/2015/06/12/sharing-sessionstorage-between-tabs-for-secure-multi-tab-authentication/
@@ -92,5 +59,6 @@
             for (key in data) { sessionStorage.setItem(key, data[key]); }
         }
     });
+    doneLoading();
     </script>
 </html>

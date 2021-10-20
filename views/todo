@@ -1,5 +1,4 @@
 [ ] 00 update page count on search
-[ ] carousel.tmp
 [ ] collection.tmp
 [ ] embed.tmp
 [ ] flag_details.tmp
@@ -8,7 +7,6 @@
 [ ] project_collections.tmp
 [ ] project_remixes.tmp
 [ ] search.tmp
-[ ] user.tmp
 [ ] user_admin.tmp
 [ ] username.tmp
 [ ] zombie_admin.tmp
@@ -18,12 +16,14 @@
 [-] forgot_password.tmp
 [-] forgot_username.tmp
 [-] login.tmp
+[-] profile.tmp
 [-] sign_up.tmp
 [x] about.tmp
 [x] admin.tmp
 [x] base.tmp -> layout.etlua
 [x] bjc.tmp
 [x] blog.tmp
+[x] carousel.tmp
 [x] coc.tmp
 [x] contact.tmp
 [x] credits.tmp
@@ -50,4 +50,5 @@
 [x] snapp.tmp
 [x] source.tmp
 [x] tos.tmp
+[x] user.tmp
 [x] welcome.tmp → index.etlua

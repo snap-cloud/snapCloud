@@ -91,6 +91,19 @@ app:get('/my_collections', function (self)
     return { render = 'my_collections' }
 end)
 
+app:get('/user', function (self)
+    self.Projects = Projects
+    self.Collections = Collections
+    self.Users = Users
+    self.username = self.queried_user.username
+    self.user_id = self.queried_user.id
+    self.new_component = component.new
+    self.render_profile =
+        self.current_user:has_one_of_roles({'admin', 'moderator'})
+
+    return { render = 'user' }
+end)
+
 app:get('/examples', function (self)
     self.Collections = Collections
     self.user_id = Users:find({ username = 'snapcloud' }).id

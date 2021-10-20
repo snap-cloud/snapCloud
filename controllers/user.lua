@@ -485,6 +485,7 @@ UserController = {
             -- Description: Logs out the current user from the system.
             self.session.username = ''
             self.session.user_id = nil
+            self.session.current_user = nil
             self.cookies.persist_session = 'false'
             return okResponse('logged out')
         end,

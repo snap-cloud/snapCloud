@@ -1,0 +1,69 @@
+<h1><%- username%>'s public page</h1>
+
+<%
+    -- PUBLIC PROJECTS
+
+    -- Just to get the page count. No need for any ordering here.
+    local paginator = Projects:paginated(
+        'WHERE ispublished AND username = ? ',
+        queried_user.username,
+        { per_page = 15 }
+    )
+
+    local projects = new_component('grid')
+
+    projects.data.items = {}
+    projects.data.total_pages = paginator:num_pages()
+    projects.data.page_number = 1
+    projects.data.class = 'projects'
+    projects.data.title = 'Public Projects'
+    projects.data.item_type = 'project'
+    projects.data.query = 'user_projects'
+    projects.data.username = queried_user.username
+
+    render(
+        'views.components.component',
+        {
+            path = 'grid',
+            component = projects
+        }
+    )
+
+    -- PUBLIC COLLECTIONS
+
+    -- Just to get the page count. No need for any ordering here.
+    local paginator = Collections:paginated(
+        'JOIN active_users ON ' ..
+            '(active_users.id = collections.creator_id) ' ..
+            'WHERE (creator_id = ? OR editor_ids @> array[?]) ' ..
+            'AND published',
+        queried_user.id,
+        queried_user.id,
+        { per_page = 15 }
+    )
+
+    local collections = new_component('grid')
+
+    collections.data.items = {}
+    collections.data.total_pages = paginator:num_pages()
+    collections.data.page_number = 1
+    collections.data.class = 'collections'
+    collections.data.title = 'Public Collections'
+    collections.data.item_type = 'collection'
+    collections.data.query = 'user_collections'
+    collections.data.user_id = queried_user.id
+
+    render(
+        'views.components.component',
+        {
+            path = 'grid',
+            component = collections
+        }
+    )
+
+    -- ADMIN TOOLS
+
+    if render_profile then
+        render('views.partials.profile')
+    end
+%>
