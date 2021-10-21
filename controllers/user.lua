@@ -275,6 +275,11 @@ UserController = {
                 if self.params.role then
                     assert_can_set_role(self, self.params.role)
                 end
+                if not self.queried_user then 
+                    self.queried_user = Users:find(
+                        { username = self.params.username })
+                end
+                assert_user_exists(self)
                 -- someone's trying to update the user's email
                 if self.params.email then
                     -- they need to provide the user's password, or be an admin
