@@ -98,6 +98,11 @@ err = {
         { msg = 'You have already flagged this project.', status = 409 },
     project_never_flagged =
         { msg = 'This project was not flagged by you.', status = 404 },
+    method_not_allowed =
+        {
+            msg = 'This API endpoint does not respond to this HTTP method.',
+            status = 405
+        },
 }
 
 assert_all = function (assertions, self)
