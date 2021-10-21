@@ -275,6 +275,11 @@ UserController = {
                 if self.params.role then
                     assert_can_set_role(self, self.params.role)
                 end
+                if not self.queried_user then 
+                    self.queried_user = Users:find(
+                        { username = self.params.username })
+                end
+                assert_user_exists(self)
                 -- someone's trying to update the user's email
                 if self.params.email then
                     -- they need to provide the user's password, or be an admin
@@ -587,6 +592,11 @@ UserController = {
                     yield_error(err.nonexistent_user)
                 end
             else
+                if not self.queried_user then 
+                    self.queried_user = Users:find(
+                        { username = self.params.username })
+                end
+                assert_user_exists(self)
                 if not users_match(self) then assert_admin(self) end
 
                 if not self.params.password then
@@ -597,7 +607,6 @@ UserController = {
                             self.queried_user.password then
                     assert_admin(self)
                 end
-                assert_user_exists(self)
                 -- Do not actually delete the user; flag it as deleted.
                 if not (self.queried_user:update({
                         deleted = db.format_date() }))

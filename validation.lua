@@ -43,7 +43,7 @@ err = {
     nonexistent_email =
         { msg = 'No users are associated to this email account', status = 404 },
     nonexistent_project =
-        { msg = 'This project does not exist', status = 404 },
+        { msg = 'This project does not exist or is private', status = 404 },
     nonexistent_collection =
         { msg = 'This collection does not exist', status = 404 },
     expired_token = { msg = 'This token has expired', status = 401 },
@@ -98,6 +98,11 @@ err = {
         { msg = 'You have already flagged this project.', status = 409 },
     project_never_flagged =
         { msg = 'This project was not flagged by you.', status = 404 },
+    method_not_allowed =
+        {
+            msg = 'This API endpoint does not respond to this HTTP method.',
+            status = 405
+        },
 }
 
 assert_all = function (assertions, self)

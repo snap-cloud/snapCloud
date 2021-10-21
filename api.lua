@@ -27,16 +27,25 @@ local api_version = 'v1'
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local respond_to = package.loaded.respond_to
+local yield_error = package.loaded.yield_error
 
 require 'controllers.user'
 require 'controllers.project'
 require 'controllers.collection'
+
+require 'validation'
 
 -- Wraps all API endpoints in standard behavior.
 -- All API routes are nested under /api/v1,
 -- which is currently an optional prefix.
 local function api_route(name, path, controller, methods)
     tbl = { OPTIONS = cors_options }
+    -- by default, respond with a method not allowed error
+    for _, method in pairs({'GET', 'POST', 'PUT', 'DELETE'}) do
+        tbl[method] = capture_errors(function (self)
+            yield_error(err.method_not_allowed)
+        end)
+    end
     -- methods is a table describing which REST methods this endpoint accepts
     for _, method in pairs(methods) do
         -- ex: tbl['GET'] =
