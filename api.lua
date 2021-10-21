@@ -42,7 +42,9 @@ local function api_route(name, path, controller, methods)
     tbl = { OPTIONS = cors_options }
     -- by default, respond with a method not allowed error
     for _, method in pairs({'GET', 'POST', 'PUT', 'DELETE'}) do
-        tbl[method] = function (self) yield_error(err.method_not_allowed) end
+        tbl[method] = capture_errors(function (self)
+            yield_error(err.method_not_allowed)
+        end)
     end
     -- methods is a table describing which REST methods this endpoint accepts
     for _, method in pairs(methods) do
