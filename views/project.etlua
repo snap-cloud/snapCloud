@@ -1,0 +1,84 @@
+<script src="static/js/dialog.js"></script>
+<script src="static/js/project.js"></script>
+<script src="static/js/inplace.js"></script>
+<link rel="stylesheet" href="static/style/project.css">
+
+<div class="project big">
+    <div class="title">
+        <h1><%- project.projectname %></h1>
+        <span class="remixed-from"></span>
+    <span class="author"> by <a href="user?username=<%= project.username %>" target=""><strong><%- project.username %></strong></a></span></div>
+    <div class="viewer pure-g">
+        <!-- Project viewer -->
+        <div class="embed pure-u-1-2">
+            <!-- Spinner shown while embed hasn't been loaded -->
+            <i class="project-loader fas fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
+
+            <!-- Project control bar -->
+            <div class="controlbar">
+                <i class="present-button fas fa-expand clickable" onclick="toggleFullScreen();"></i>
+                <i class="start-button fas fa-flag clickable" onclick="runProject(event);"></i>
+                <i class="pause-button fas fa-pause clickable" onclick="togglePauseProject();"></i>
+                <i class="stop-button fas fa-octagon clickable" onclick="stopProject();"></i>
+            </div>
+
+            <!-- Project embed placeholder -->
+            <iframe allow="geolocation; microphone; camera" sandbox="allow-scripts allow-same-origin" src="<%= project:url_for('viewer', params.devVersion) %>" height="406"></iframe>
+            
+            <!-- Project Action Buttons -->
+            <div class="buttons">
+                <a localizable="" class="pure-button open" target="_blank" href="<%= project:url_for('open', params.devVersion) %>">See Code</a>
+                <a localizable="" class="pure-button download" target="_blank">Download</a>
+                <a localizable="" class="pure-button embed-button" target="_blank">Embed</a>
+                <a localizable="" class="pure-button collect" target="_blank">Add to Collection</a>
+            <% if ((project.username == current_user.username) or admin_controls) then %>
+                <a localizable="" class="pure-button pure-button-warning delete" target="_blank">Delete</a>
+            <% end %>
+            <% if admin_controls then %>
+                <span class="flag-container">
+                    <i class="warning fas fa-exclamation-triangle"></i>
+                    <a localizable="" class="clickable warning flag" target="_blank">Report this project</a>
+                </span>
+            <% end %>
+            </div>
+        </div>
+        <!-- just a separator -->
+        <i class="pure-u-1-24"></i>
+        <div class="details pure-u-11-24">
+            <!-- Notes -->
+            <pre class="notes" title="Press Shift + Enter to enter a newline"><%- (project.notes == '') and '<small>This project has no notes</small>' or escape(project.notes) %></pre>
+            <!-- Dates and project meta -->
+            <div class="dates">
+                <p class="created"><strong localizable="">Created:</strong><span>NIL</span></p>
+                <p class="updated"><strong localizable="">Last updated:</strong><span>NIL</span></p>
+            <% if project.ispublic then %>
+                <p class="shared"><strong localizable="">Shared:</strong><span>NIL</span></p>
+            <% end %>
+            <% if project.ispublished then %>
+                <p class="published"><strong localizable="">Published:</strong><span>NIL</span></p>
+            <% end %>
+            <% if ((project.username == current_user.username) or reviewer_controls) then %>
+                <a localizable="" class="pure-button share" target="_blank">Share</a>
+                <a localizable="" class="pure-button unshare" target="_blank">Unshare</a>
+                <a localizable="" class="pure-button publish" target="_blank">Publish</a>
+                <a localizable="" class="pure-button unpublish" target="_blank">Unpublish</a>
+            <% end %>
+            </div>
+            <% if reviewer_controls then render('views.partials.flag-list') end %>
+        </div>
+    </div>
+
+<!-- Carousel of remixes -->
+
+<!-- Carousel of collections -->
+
+    <script>
+        // Prevent scrolling when focus is in the iframe
+        document.onscroll = function (event) {
+            if (document.activeElement.tagName === 'IFRAME') {
+                window.scrollTo(0, 0);
+            }
+        };
+    </script>
+</div>
+

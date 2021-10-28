@@ -1,0 +1,20 @@
+<% flags = project:get_flags() %>
+<div class="flag-list">
+<% if not flags then %>
+    <span localizable class="warning">This project has not been flagged by anybody</span>
+<% else
+    reasons = {
+            coc = 'Code of Conduct violation',
+            hack = 'Security vulnerability exploit',
+            dmca = 'DMCA policy violation'
+        }
+    for k, flag in pairs(flags) do
+        flag.reason = reasons[flag.reason]
+%>
+    <span class="flag" title="<%= flag.notes %>"><span class="header"><span class="reason warning"><%= flag.reason %></span><a class="remove clickable"><i class="fas fa-times-circle"></i></a></span><span>Flagged</span><span class="author"> by <a href="user?username=<%= flag.username %>" target="_blank"><strong><%= flag.username %></strong></a></span><span> on </span><span>NIL</span></span>
+<%
+    end 
+end
+%>
+</div>
+

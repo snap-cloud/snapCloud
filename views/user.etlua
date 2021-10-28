@@ -63,7 +63,7 @@
 
     -- ADMIN TOOLS
 
-    if render_profile then
+    if admin_controls then
         render('views.partials.profile')
     end
 %>

@@ -3,13 +3,12 @@
 [ ] embed.tmp
 [ ] flag_details.tmp
 [ ] flags.tmp
-[ ] project.tmp
 [ ] project_collections.tmp
 [ ] project_remixes.tmp
 [ ] search.tmp
 [ ] user_admin.tmp
-[ ] username.tmp
 [ ] zombie_admin.tmp
+[-] project.tmp
 [-] change_email.tmp
 [-] change_password.tmp
 [-] delete_user.tmp

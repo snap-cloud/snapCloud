@@ -98,10 +98,20 @@ app:get('/user', function (self)
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
     self.new_component = component.new
-    self.render_profile =
+    self.admin_controls =
         self.current_user:has_one_of_roles({'admin', 'moderator'})
 
     return { render = 'user' }
+end)
+
+app:get('/project', function (self)
+    self.project = Projects:find(self.params.username, self.params.projectname)
+    self.new_component = component.new
+    self.admin_controls =
+        self.current_user:has_one_of_roles({'admin', 'moderator'})
+    self.reviewer_controls =
+        self.current_user:has_one_of_roles({'admin', 'moderator', 'reviewer'})
+    return { render = 'project' }
 end)
 
 app:get('/examples', function (self)

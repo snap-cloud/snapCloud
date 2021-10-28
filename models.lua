@@ -85,7 +85,32 @@ package.loaded.Projects = Model:extend('active_projects', {
                 return "Project names must have at least one character."
             end
         end
-    }
+    },
+    url_for = function (self, purpose, dev_version)
+        local base = 'https://snap.berkeley.edu/' ..
+            (dev_version and 'snapsource/dev/' or '/') ..
+            'snap.html'
+        local urls = {
+            viewer = base ..
+                '#present:Username=' .. self.username ..
+                '&ProjectName=' .. self.projectname ..
+                '&embedMode&noExitWarning&noRun',
+            open = base ..
+                '#present:Username=' .. self.username ..
+                '&ProjectName=' .. self.projectname ..
+                '&editMode&noRun'
+        }
+        return urls[purpose]
+    end,
+    get_flags = function (self)
+        return package.loaded.FlaggedProjects:select(
+            'JOIN active_users ON active_users.id = flagger_id '..
+            'WHERE project_id = ? ' ..
+            'GROUP BY reason, username, created_at, notes',
+           self.id,
+            { fields = 'username, created_at, reason, notes' }
+        )
+    end
 })
 
 package.loaded.DeletedProjects = Model:extend('deleted_projects', {
