@@ -9,27 +9,25 @@
         <link rel="icon" href="favicon.ico">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- External libs, both stylesheets and JS -->
-        <link rel="stylesheet" href="libs/reset.css">
-        <link rel="stylesheet" href="libs/pure-min.css">
+        <link rel="stylesheet" href="static/js/reset.css">
+        <link rel="stylesheet" href="static/js/pure-min.css">
         <link rel="stylesheet"
             href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
             integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
             crossorigin="anonymous">
-        <link rel="stylesheet" href="libs/custom-alert.css">
-        <script type="text/javascript" src="libs/FileSaver.min.js"></script>
+        <link rel="stylesheet" href="static/js/custom-alert.css">
+        <script type="text/javascript" src="static/js/FileSaver.min.js"></script>
         <!-- Stylesheets -->
-        <link rel="stylesheet" href="style/elements.css">
-        <link rel="stylesheet" href="style/classes.css">
-        <link rel="stylesheet" href="style/layout.css">
+        <link rel="stylesheet" href="static/style/elements.css">
+        <link rel="stylesheet" href="static/style/classes.css">
+        <link rel="stylesheet" href="static/style/layout.css">
         <!-- JS -->
-        <script type="text/javascript" src="js/locale.js"></script>
-        <script type="text/javascript" src="js/base.js"></script>
-        <script type="text/javascript" src="libs/cloud.js"></script>
-        <script type="text/javascript">SnapCloud = new Cloud();</script>
-        <script type="text/javascript" src="libs/sha512.js"></script>
+        <script type="text/javascript" src="static/js/locale.js"></script>
+        <script type="text/javascript" src="static/js/base.js"></script>
+        <script type="text/javascript" src="static/js/sha512.js"></script>
     </head>
     <body>
-        <script type="text/javascript" src="libs/custom-alert.min.js"></script>
+        <script type="text/javascript" src="static/js/custom-alert.min.js"></script>
         <script>new customAlert();</script>
         <div id="loading">
             <i class="fas fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
@@ -41,24 +39,6 @@
         <% render('views.footer') %>
     </body>
     <script>
-    SnapCloud.genericError = genericError;
-    document.querySelector('#top-bar .run').href = snapURL;
-
-    // Share sessionStorage across tabs
-    // http://blog.guya.net/2015/06/12/sharing-sessionstorage-between-tabs-for-secure-multi-tab-authentication/
-    if (!sessionStorage.length) {
-        localStorage.setItem('getSessionStorage', Date.now());
-    };
-    window.addEventListener('storage', function(event) {
-        if (event.key == 'getSessionStorage') {
-            localStorage.setItem('sessionStorage',
-                JSON.stringify(sessionStorage));
-            localStorage.removeItem('sessionStorage');
-        } else if (event.key == 'sessionStorage' && !sessionStorage.length) {
-            var data = JSON.parse(event.newValue), value;
-            for (key in data) { sessionStorage.setItem(key, data[key]); }
-        }
-    });
     doneLoading();
     </script>
 </html>

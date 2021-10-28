@@ -1,27 +1,27 @@
 <!-- Thanks to www.w3schools.com -->
-<link rel="stylesheet" href="style/banner.css">
+<link rel="stylesheet" href="static/style/banner.css">
 
 <div class="slideshow">
     <a href="collection.html?user=snapcloud&collection=Snap!%20Olympics">
         <div class="slide fade">
-            <img src="img/totm.png" style="width:100%">
+            <img src="static/img/totm.png" style="width:100%">
         </div>
     </a>
 
     <div class="slide fade">
-        <img src="img/snap-byob.png" style="width:100%">
+        <img src="static/img/snap-byob.png" style="width:100%">
     </div>
 
     <div class="slide fade">
-        <img src="img/lowfloor.png" style="width:100%">
+        <img src="static/img/lowfloor.png" style="width:100%">
     </div>
 
     <div class="slide fade">
-        <img src="img/widewalls.png" style="width:100%">
+        <img src="static/img/widewalls.png" style="width:100%">
     </div>
 
     <div class="slide fade">
-        <img src="img/noceiling.png" style="width:100%">
+        <img src="static/img/noceiling.png" style="width:100%">
     </div>
 
     <a class="previous" onclick="plusSlides(-1)">&#10094;</a>

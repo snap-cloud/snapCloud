@@ -1,0 +1,42 @@
+.post {
+    margin: 3em 0;
+}
+
+.post h1 {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.post .author {
+    font-style: italic;
+    font-size: 0.8em;
+}
+
+.post .author:after {
+    content: ', ';
+}
+
+.post .date {
+    font-style: italic;
+    font-size: 0.8em;
+}
+
+.post .contents {
+    padding: 0.5em;
+}
+
+.post ul {
+    list-style-type: disc;
+    padding: 0 1em;
+}
+
+.post .comments {
+    font-size: 0.8em;
+}
+
+.post .separator {
+    display: block;
+    width: 120px;
+    border-bottom: 1px dashed #656565;
+    margin-bottom: 1em;
+}

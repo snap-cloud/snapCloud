@@ -1,5 +1,5 @@
-<script src="js/project.js"></script>
-<link rel="stylesheet" href="style/project.css">
+<script src="static/js/project.js"></script>
+<link rel="stylesheet" href="static/style/project.css">
 <h1 localizable>Examples</h1>
 <%
 for _, name in pairs({

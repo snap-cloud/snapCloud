@@ -17,7 +17,7 @@ data.item_type = data.item_type or 'project'
 
 %>
 
-<link rel="stylesheet" href="style/project.css">
+<link rel="stylesheet" href="static/style/project.css">
 <div class="<%= data.class %> container">
     <% if (data.title) then %>
     <h2 class="<%= data.class %> header" localizable>

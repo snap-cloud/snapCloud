@@ -1,0 +1,108 @@
+.user_admin .user {
+    padding: 0.5em;
+    box-sizing: border-box;
+}
+
+.user .details {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 0.5em;
+    border: 1px solid #AAAAAA;
+}
+
+.user .details.unverified {
+    filter: opacity(0.7);
+    border-style: dashed;
+}
+
+.user .details.admin {
+    background: rgba(255,0,0,0.1);
+}
+
+.user .details.banned {
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255,0,0,0.3);
+    opacity: 0.75;
+}
+
+.user .details.banned:before {
+    position: absolute;
+    content: '';
+    background: rgba(255, 0, 0, 0.3);
+    display: block;
+    width: 115%;
+    height: 26px;
+    transform: rotate(-25deg);
+    left: -25px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+}
+
+.user .details span {
+    display: block;
+    margin-top: 0.5em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+
+.user .buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.user .buttons .pure-button {
+    margin-top: 0.5em;
+}
+
+.user_admin.search {
+    margin-left: 0.5em;
+    width: 220px;
+}
+
+.user_admin.search form {
+    position: relative;
+}
+
+.user_admin.search input {
+    width: 100%;
+    height: 2em;
+    padding-left: 0.75em;
+    padding-right: 1.75em;
+    box-sizing: border-box;
+    border-radius: 15px;
+    border: 1px solid #AAAAAA;
+}
+
+.user_admin.search i {
+    position: absolute;
+    right: 0.45em;
+    top: 0.45em;
+}
+.paginator {
+    line-height: 2em;
+    margin: 0;
+}
+
+.filter select {
+    margin-left: 0.5em;
+    box-sizing: border-box;
+    border-radius: 5px;
+    border: 1px solid #AAAAAA;
+    padding-left: 0.5em;
+    padding-right: 1.5em;
+}
+
+.filter select:focus {
+    outline: none;
+}

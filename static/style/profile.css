@@ -1,0 +1,11 @@
+.fields span {
+    line-height: 2em;
+}
+
+.buttons .pure-button {
+    margin-bottom: 0.3em;
+}
+
+.delete {
+    margin-top: 2em;
+}
