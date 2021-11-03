@@ -70,6 +70,9 @@ domain_allowed['beta.tunescope.org'] = true
 domain_allowed['soundscope-website.firebaseapp.com'] = true
 domain_allowed['tune-scope.web.app'] = true
 domain_allowed['tune-scope.firebaseapp.com'] = true
+-- TensorSnap Sites
+domain_allowed['tensor-snap.web.app'] = true
+domain_allowed['tensor-snap.firebaseapp.com'] = true
 -- Others
 domain_allowed['www.maketolearn.org'] = true
 domain_allowed['snap.techlit.org'] = true
