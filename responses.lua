@@ -46,6 +46,10 @@ okResponse = function (message)
     return jsonResponse({ message = message })
 end
 
+okResponseWithStatusCode = function (message, status_code)
+    return jsonResponse({ message = message, status_code = status_code })
+end
+
 rawResponse = function (contents)
     return {
         layout = false,
