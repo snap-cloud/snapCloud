@@ -100,6 +100,20 @@ component.queries = {
             )
         end,
         order = 'updated_at DESC'
+    },
+    project_remixes = {
+        fetch = function (session, data)
+            return db.interpolate_query(
+                [[JOIN remixes
+                    ON active_projects.id = remixes.remixed_project_id
+                WHERE remixes.original_project_id = ?
+                AND ispublic
+                GROUP BY username, projectname, remixes.created]],
+                data.project_id
+            )
+        end,
+        order = 'remixes.created DESC',
+        fields = 'username, projectname, remixes.created'
     }
 }
 
@@ -141,7 +155,11 @@ component.actions['grid'] = {
                         '%' .. data.search_term .. '%')
                     ) or '') ..
                 ' ORDER BY ' .. component.queries[data.query].order,
-            { per_page = data.per_page or 15 })
+                {
+                    per_page = data.per_page or 15,
+                    fields = component.queries[data.query].fields or '*'
+                }
+            )
 
         data.items = paginator:get_page(data.page_number)
         disk:process_thumbnails(data.items)

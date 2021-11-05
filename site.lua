@@ -29,6 +29,7 @@ local respond_to = package.loaded.respond_to
 
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
+local Remixes = package.loaded.Remixes
 local Collections = package.loaded.Collections
 local db = package.loaded.db
 local component = package.loaded.component
@@ -105,6 +106,7 @@ app:get('/user', function (self)
 end)
 
 app:get('/project', function (self)
+    self.Remixes = Remixes
     self.project = Projects:find(self.params.username, self.params.projectname)
     self.new_component = component.new
     self.admin_controls =

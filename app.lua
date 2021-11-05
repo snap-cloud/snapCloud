@@ -140,6 +140,7 @@ function app:handle_404()
     return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
 end
 
+--[[
 function app:handle_error(err, trace)
     local inspect = require('inspect')
     print(inspect(err))
@@ -157,7 +158,7 @@ function app:handle_error(err, trace)
         end
     end
     return errorResponse("An unexpected error occured: " .. err_msg, 500)
-end
+end]]--
 
 -- Enable the ability to have a maintenance mode
 -- No routes are served, and a generic error is returned.

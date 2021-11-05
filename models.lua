@@ -102,15 +102,31 @@ package.loaded.Projects = Model:extend('active_projects', {
         }
         return urls[purpose]
     end,
-    get_flags = function (self)
-        return package.loaded.FlaggedProjects:select(
-            'JOIN active_users ON active_users.id = flagger_id '..
-            'WHERE project_id = ? ' ..
-            'GROUP BY reason, username, created_at, notes',
-           self.id,
-            { fields = 'username, created_at, reason, notes' }
-        )
-    end
+    relations = {
+        {'flags',
+            fetch = function (self)
+                return package.loaded.FlaggedProjects:select(
+                    'JOIN active_users ON active_users.id = flagger_id '..
+                    'WHERE project_id = ? ' ..
+                    'GROUP BY reason, username, created_at, notes',
+                    self.id,
+                    { fields = 'username, created_at, reason, notes' }
+                )
+            end
+        },
+        {'public_remixes',
+            fetch = function (self)
+                local query = db.interpolate_query(
+                    [[JOIN remixes
+                        ON active_projects.id = remixes.remixed_project_id
+                    WHERE remixes.original_project_id = ?
+                    AND ispublic]],
+                    self.id
+                )
+                return package.loaded.Projects:paginated(query)
+            end
+        }
+}
 })
 
 package.loaded.DeletedProjects = Model:extend('deleted_projects', {
@@ -139,8 +155,8 @@ package.loaded.Collections = Model:extend('collections', {
                             SELECT project_id, created_at
                             FROM collection_memberships
                             WHERE collection_id = ?)
-                            AS memberships
-                            ON active_projects.id = memberships.project_id
+                        AS memberships
+                        ON active_projects.id = memberships.project_id
                         ORDER BY memberships.created_at DESC ]],
                     self.id)
                 return package.loaded.Projects:paginated(query)
@@ -153,8 +169,8 @@ package.loaded.Collections = Model:extend('collections', {
                             SELECT project_id, created_at
                             FROM collection_memberships
                             WHERE collection_id = ?)
-                            AS memberships
-                            ON active_projects.id = memberships.project_id
+                        AS memberships
+                        ON active_projects.id = memberships.project_id
                         WHERE (ispublished OR ispublic)
                         ORDER BY memberships.created_at DESC ]],
                     self.id)
@@ -168,8 +184,8 @@ package.loaded.Collections = Model:extend('collections', {
                             SELECT project_id, created_at
                             FROM collection_memberships
                             WHERE collection_id = ?)
-                            AS memberships
-                            ON active_projects.id = memberships.project_id
+                        AS memberships
+                        ON active_projects.id = memberships.project_id
                         WHERE ispublished
                         ORDER BY memberships.created_at DESC ]],
                     self.id)
