@@ -239,7 +239,7 @@ UserController = {
             -- admins can verify people without the need of a token
             if self.params.token == '0' then assert_admin(self)
                 if self.queried_user.verified then
-                    return okResponseWithStatusCode('User ' .. self.queried_user.username ..
+                    return okResponseWithStateMessage('User ' .. self.queried_user.username ..
                         ' has already been verified', "Already Verified")
                 end
                 local token =
@@ -247,7 +247,7 @@ UserController = {
                         self.queried_user.username, 'verify_user')
                 if (token and token[1]) then token[1]:delete() end
                 self.queried_user:update({ verified = true })
-                return okResponseWithStatusCode('User ' .. self.queried_user.username ..
+                return okResponseWithStateMessage('User ' .. self.queried_user.username ..
                     ' has been verified', "New Verified")
             end
 
