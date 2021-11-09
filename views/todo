@@ -3,12 +3,9 @@
 [ ] embed.tmp
 [ ] flag_details.tmp
 [ ] flags.tmp
-[ ] project_collections.tmp
-[ ] project_remixes.tmp
 [ ] search.tmp
 [ ] user_admin.tmp
 [ ] zombie_admin.tmp
-[-] project.tmp
 [-] change_email.tmp
 [-] change_password.tmp
 [-] delete_user.tmp
@@ -16,6 +13,7 @@
 [-] forgot_username.tmp
 [-] login.tmp
 [-] profile.tmp
+[-] project.tmp
 [-] sign_up.tmp
 [x] about.tmp
 [x] admin.tmp
@@ -42,6 +40,8 @@
 [x] partners.tmp
 [x] privacy.tmp
 [x] profile.tmp
+[x] project_collections.tmp
+[x] project_remixes.tmp
 [x] requirements.tmp
 [x] research.tmp
 [x] slideshow.tmp

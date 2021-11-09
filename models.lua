@@ -123,7 +123,10 @@ package.loaded.Projects = Model:extend('active_projects', {
                     AND ispublic]],
                     self.id
                 )
-                return package.loaded.Projects:paginated(query)
+                return package.loaded.Projects:paginated(
+                    query,
+                    { per_page = 5 }
+                )
             end
         },
         {'public_collections',
@@ -139,12 +142,7 @@ package.loaded.Projects = Model:extend('active_projects', {
                 )
                 return package.loaded.Collections:paginated(
                     query,
-                    {
-                        fields = [[collections.creator_id, collections.name,
-                            collection_memberships.project_id, 
-                            collections.thumbnail_id, collections.shared,
-                            collections.published, users.username ]]
-                    }
+                    { per_page = 5 }
                 )
             end
         }

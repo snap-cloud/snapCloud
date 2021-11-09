@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="style/admin.css">
+<link rel="stylesheet" href="static/style/admin.css">
 <div class="profile">
     <h2>Admin tools</h2>
     <div class="user pure-u-1-2">

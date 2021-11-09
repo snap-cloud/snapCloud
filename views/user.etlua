@@ -21,13 +21,15 @@
     projects.data.query = 'user_projects'
     projects.data.username = queried_user.username
 
-    render(
-        'views.components.component',
-        {
-            path = 'grid',
-            component = projects
-        }
-    )
+    if (projects.data.total_pages > 0) then
+        render(
+            'views.components.component',
+            {
+                path = 'grid',
+                component = projects
+            }
+        )
+    end
 
     -- PUBLIC COLLECTIONS
 
@@ -53,13 +55,15 @@
     collections.data.query = 'user_collections'
     collections.data.user_id = queried_user.id
 
-    render(
-        'views.components.component',
-        {
-            path = 'grid',
-            component = collections
-        }
-    )
+    if (collections.data.total_pages > 0) then
+        render(
+            'views.components.component',
+            {
+                path = 'grid',
+                component = collections
+            }
+        )
+    end
 
     -- ADMIN TOOLS
 
