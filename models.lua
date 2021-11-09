@@ -24,6 +24,8 @@
 local db = package.loaded.db
 local Model = package.loaded.Model
 
+local escape = package.loaded.util.escape
+
 package.loaded.Users = Model:extend('active_users', {
     relations = {
         {'collections', has_many = 'Collections'}
@@ -92,13 +94,16 @@ package.loaded.Projects = Model:extend('active_projects', {
             'snap.html'
         local urls = {
             viewer = base ..
-                '#present:Username=' .. self.username ..
-                '&ProjectName=' .. self.projectname ..
+                '#present:Username=' .. escape(self.username) ..
+                '&ProjectName=' .. escape(self.projectname) ..
                 '&embedMode&noExitWarning&noRun',
             open = base ..
-                '#present:Username=' .. self.username ..
-                '&ProjectName=' .. self.projectname ..
-                '&editMode&noRun'
+                '#present:Username=' .. escape(self.username) ..
+                '&ProjectName=' .. escape(self.projectname) ..
+                '&editMode&noRun',
+            site = 'project?username=' .. escape(self.username) ..
+                '&projectname=' .. escape(self.projectname),
+            author = 'user?username=' .. escape(self.username)
         }
         return urls[purpose]
     end,
@@ -164,6 +169,14 @@ package.loaded.Remixes = Model:extend('remixes', {
 package.loaded.Collections = Model:extend('collections', {
     primary_key = {'creator_id', 'name'},
     timestamp = true,
+    url_for = function (self, purpose)
+        local urls = {
+            site = 'collection?username=' .. escape(self.username) ..
+                '&collection=' .. escape(self.name),
+            author = 'user?username=' .. escape(self.username)
+        }
+        return urls[purpose]
+    end,
     relations = {
         -- creates Collection:get_creator()
         {'creator', belongs_to = 'Users', key = 'creator_id'},

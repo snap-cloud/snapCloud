@@ -3,7 +3,7 @@
     <i class="no-image fas fa-question-circle"></i>
     <% end %>
     <a target="_self"
-        href="collection?username=<%= item.username %>&amp;collection=<%= item.name %>">
+        href="<%= item:url_for('site') %>">
         <img class="thumbnail" title=""
             <% if (item.thumbnail) then %>
                 src="<%= item.thumbnail %>"
@@ -12,6 +12,6 @@
         <span class="collection-name"><%= item.name %></span>
     </a>
     <span
-        class="author"> by <a href="user?username=<%= item.username %>" target=""
+        class="author"> by <a href="<%= item:url_for('author') %>" target=""
         ><strong><%= item.username %></strong></a></span>
 </div>
