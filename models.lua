@@ -125,6 +125,28 @@ package.loaded.Projects = Model:extend('active_projects', {
                 )
                 return package.loaded.Projects:paginated(query)
             end
+        },
+        {'public_collections',
+            fetch = function (self)
+                local query = db.interpolate_query(
+                    [[INNER JOIN collection_memberships
+                        ON collection_memberships.collection_id = collections.id
+                    INNER JOIN users
+                        ON collections.creator_id = users.id
+                    WHERE collection_memberships.project_id = ?
+                    AND collections.published]],
+                    self.id
+                )
+                return package.loaded.Collections:paginated(
+                    query,
+                    {
+                        fields = [[collections.creator_id, collections.name,
+                            collection_memberships.project_id, 
+                            collections.thumbnail_id, collections.shared,
+                            collections.published, users.username ]]
+                    }
+                )
+            end
         }
 }
 })

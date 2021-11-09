@@ -68,8 +68,9 @@
         </div>
     </div>
 
-<!-- Carousel of remixes -->
 <%
+-- Carousel of remixes
+
     local paginator = project:get_public_remixes()
 
     local remixes = new_component('grid')
@@ -91,9 +92,31 @@
             }
         )
     end
-%>
 
-<!-- Carousel of collections -->
+-- Carousel of collections
+
+    local paginator = project:get_public_collections()
+
+    local collections = new_component('grid')
+    collections.data.items = {}
+    collections.data.total_pages = paginator:num_pages()
+    collections.data.page_number = 1
+    collections.data.class = 'collections'
+    collections.data.title = 'Collections containing this project'
+    collections.data.item_type = 'collection'
+    collections.data.query = 'project_collections'
+    -- store for use in querying for next pages
+    collections.data.project_id = project.id
+    if (collections.data.total_pages > 0) then
+        render(
+            'views.components.component',
+            {
+                path = 'grid',
+                component = collections
+            }
+        )
+    end
+%>
 
     <script>
         // Prevent scrolling when focus is in the iframe

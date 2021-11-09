@@ -114,6 +114,24 @@ component.queries = {
         end,
         order = 'remixes.created DESC',
         fields = 'username, projectname, remixes.created'
+    },
+    project_collections = {
+        fetch = function (session, data)
+            return db.interpolate_query(
+                [[INNER JOIN collection_memberships
+                    ON collection_memberships.collection_id = collections.id
+                INNER JOIN users
+                    ON collections.creator_id = users.id
+                WHERE collection_memberships.project_id = ?
+                AND collections.published]],
+                data.project_id
+            )
+        end,
+        order = 'collections.created_at DESC',
+        fields =
+            [[collections.creator_id, collections.name,
+            collection_memberships.project_id, collections.thumbnail_id,
+            collections.shared, collections.published, users.username]]
     }
 }
 
@@ -176,7 +194,7 @@ component.actions['grid'] = {
             ' ORDER BY ' .. component.queries[data.query].order,
             {
                 per_page = data.per_page or 15,
-                fields =
+                fields = component.queries[data.query.fields] or
                     'collections.id, creator_id, collections.created_at, '..
                     'published, collections.published_at, shared, ' ..
                     'collections.shared_at, collections.updated_at, name, ' ..
