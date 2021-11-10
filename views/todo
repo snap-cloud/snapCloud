@@ -1,27 +1,52 @@
-[ ] 00 update page count on search
-[ ] collection.tmp
-[ ] embed.tmp
-[ ] flag_details.tmp
-[ ] flags.tmp
-[ ] search.tmp
+GENERAL TODO
+============
+[ ] update page count on search
+[x] include dates and fix their format
+[ ] include share status icons
+
+
+EDIT PAGES
+==========
 [ ] user_admin.tmp
 [ ] zombie_admin.tmp
+[ ] collection.tmp
+[ ] flag_details.tmp
+[ ] flags.tmp
+[-] profile.tmp
 [-] change_email.tmp
 [-] change_password.tmp
 [-] delete_user.tmp
+[-] project.tmp
+[-] my_collections.tmp
+[-] my_projects.tmp
+[-] profile.tmp
+[-] user.tmp
+
+100% VIEW PAGES
+===============
+[ ] search.tmp
+[ ] embed.tmp
 [-] forgot_password.tmp
 [-] forgot_username.tmp
-[-] login.tmp
-[-] profile.tmp
-[-] project.tmp
 [-] sign_up.tmp
+[-] login.tmp
+
+100% DONE: Nothing left to do
+=============================
+[x] requirements.tmp
+[x] research.tmp
+[x] slideshow.tmp
+[x] snapinator.tmp
+[x] snapp.tmp
+[x] source.tmp
+[x] tos.tmp
 [x] about.tmp
 [x] admin.tmp
 [x] base.tmp -> layout.etlua
 [x] bjc.tmp
 [x] blog.tmp
-[x] carousel.tmp
 [x] coc.tmp
+[x] carousel.tmp
 [x] contact.tmp
 [x] credits.tmp
 [x] dmca.tmp
@@ -32,22 +57,11 @@
 [x] grid.tmp
 [x] materials.tmp
 [x] mirrors.tmp
-[x] my_collections.tmp
-[x] my_projects.tmp
 [x] navigation_bar.tmp
 [x] offline.tmp
 [x] paginator.tmp
 [x] partners.tmp
 [x] privacy.tmp
-[x] profile.tmp
 [x] project_collections.tmp
 [x] project_remixes.tmp
-[x] requirements.tmp
-[x] research.tmp
-[x] slideshow.tmp
-[x] snapinator.tmp
-[x] snapp.tmp
-[x] source.tmp
-[x] tos.tmp
-[x] user.tmp
 [x] welcome.tmp → index.etlua

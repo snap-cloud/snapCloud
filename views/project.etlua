@@ -7,7 +7,7 @@
     <div class="title">
         <h1><%- project.projectname %></h1>
         <span class="remixed-from"></span>
-    <span class="author"> by <a href="user?username=<%= project.username %>" target=""><strong><%- project.username %></strong></a></span></div>
+    <span class="author"> by <a href="<%= project:url_for('author') %>" target=""><strong><%- project.username %></strong></a></span></div>
     <div class="viewer pure-g">
         <!-- Project viewer -->
         <div class="embed pure-u-1-2">
@@ -49,13 +49,12 @@
             <pre class="notes" title="Press Shift + Enter to enter a newline"><%= project.notes %><%- project.notes and '' or '<small>This project has no notes</small>' %></pre>
             <!-- Dates and project meta -->
             <div class="dates">
-                <p class="created"><strong localizable="">Created:</strong><span>NIL</span></p>
-                <p class="updated"><strong localizable="">Last updated:</strong><span>NIL</span></p>
-            <% if project.ispublic then %>
-                <p class="shared"><strong localizable="">Shared:</strong><span>NIL</span></p>
-            <% end %>
+                <p class="created"><strong localizable="">Created:</strong><span><%= string.from_sql_date(project.created) %></span></p>
+                <p class="updated"><strong localizable="">Last updated:</strong><span><%= string.from_sql_date(project.lastupdated) %></span></p>
             <% if project.ispublished then %>
-                <p class="published"><strong localizable="">Published:</strong><span>NIL</span></p>
+                <p class="published"><strong localizable="">Published:</strong><span><%= string.from_sql_date(project.firstpublished) %></span></p>
+            <% elseif project.ispublic then %>
+                <p class="shared"><strong localizable="">Shared:</strong><span><%= string.from_sql_date(project.lastshared) %></span></p>
             <% end %>
             <% if ((project.username == current_user.username) or reviewer_controls) then %>
                 <a localizable="" class="pure-button share" target="_blank">Share</a>

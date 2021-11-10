@@ -7,7 +7,7 @@
             <span><em><a target="_blank" href="mailto:<%=queried_user.email%>"><%=queried_user.email%></a></em></span>
             <span><strong>ID:</strong> <%=queried_user.id%></span>
             <span><strong>Project count:</strong> NIL</span>
-            <span><strong localizable="">Joined in </strong>NIL</span>
+            <span><strong localizable="">Joined in </strong><%= string.from_sql_date(queried_user.created) %></span>
             <span><strong localizable="">Role</strong>:<select><option value="<%=queried_user.role%>"><%=queried_user.role%></option><option value="reviewer">reviewer</option><option value="moderator">moderator</option><option value="admin">admin</option><option value="banned" disabled="">banned</option></select></span>
             <div class="buttons">
                 <a localizable="true" class="pure-button become">Become</a>
