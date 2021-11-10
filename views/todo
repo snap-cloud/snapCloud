@@ -1,17 +1,18 @@
 GENERAL TODO
 ============
 [ ] update page count on search
-[x] include dates and fix their format
 [ ] include share status icons
+[ ] make sure thumbnails are working
+[x] include dates and fix their format
 
 
 EDIT PAGES
 ==========
 [ ] user_admin.tmp
 [ ] zombie_admin.tmp
-[ ] collection.tmp
-[ ] flag_details.tmp
-[ ] flags.tmp
+[-] flag_details.tmp
+[-] flags.tmp
+[-] collection.tmp
 [-] profile.tmp
 [-] change_email.tmp
 [-] change_password.tmp

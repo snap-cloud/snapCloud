@@ -47,6 +47,12 @@ package.loaded.Users = Model:extend('active_users', {
         end
         return false
     end,
+    url_for = function (self, purpose)
+        local urls = {
+            profile = 'user?username=' .. escape(self.username)
+        }
+        return urls[purpose]
+    end,
     logging_params = function (self)
         -- Identifying info, excluding email (PII)
         return { id = self.id, username = self.username }
@@ -170,6 +176,13 @@ package.loaded.Collections = Model:extend('collections', {
     primary_key = {'creator_id', 'name'},
     timestamp = true,
     url_for = function (self, purpose)
+        if not self.username then
+            if self.creator then
+                self.username = self.creator.username
+            else
+                self.username = ''
+            end
+        end
         local urls = {
             site = 'collection?username=' .. escape(self.username) ..
                 '&collection=' .. escape(self.name),

@@ -132,6 +132,21 @@ component.queries = {
             [[collections.creator_id, collections.name,
             collection_memberships.project_id, collections.thumbnail_id,
             collections.shared, collections.published, users.username]]
+    },
+    flags = {
+        fetch = function (session, data)
+            return [[INNER JOIN flagged_projects ON
+                    active_projects.id = flagged_projects.project_id
+                WHERE active_projects.ispublic
+                GROUP BY active_projects.projectname,
+                    active_projects.username,
+                    active_projects.id]]
+        end,
+        order = 'flag_count DESC',
+        fields = [[active_projects.id as id,
+            active_projects.projectname as projectname,
+            active_projects.username as username,
+            count(*) AS flag_count]]
     }
 }
 

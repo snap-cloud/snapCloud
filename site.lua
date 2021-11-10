@@ -31,6 +31,7 @@ local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Remixes = package.loaded.Remixes
 local Collections = package.loaded.Collections
+local FlaggedProjects = package.loaded.FlaggedProjects
 local db = package.loaded.db
 local component = package.loaded.component
 
@@ -101,7 +102,6 @@ app:get('/user', function (self)
     self.new_component = component.new
     self.admin_controls =
         self.current_user:has_one_of_roles({'admin', 'moderator'})
-
     return { render = 'user' }
 end)
 
@@ -125,7 +125,7 @@ app:get('/examples', function (self)
 end)
 
 app:get('/collection', function (self)
-    local creator = Users:find({ username = self.params.user })
+    local creator = Users:find({ username = self.params.username })
     self.collection =
         Collections:find(creator.id, self.params.collection)
     assert_can_view_collection(self, self.collection)
@@ -152,4 +152,12 @@ app:get('/profile', function (self)
     self.user = self.current_user
     return { render = 'profile' }
 end)
+
+app:get('/flags', function (self)
+    self.Projects = Projects
+    self.new_component = component.new
+    assert_has_one_of_roles(self, {'admin', 'moderator', 'reviewer'})
+    return { render = 'flags' }
+end)
+
 
