@@ -5,7 +5,6 @@ GENERAL TODO
 [ ] make sure thumbnails are working
 [x] include dates and fix their format
 
-
 EDIT PAGES
 ==========
 [ ] user_admin.tmp
@@ -22,15 +21,15 @@ EDIT PAGES
 [-] my_projects.tmp
 [-] profile.tmp
 [-] user.tmp
-
-100% VIEW PAGES
-===============
-[ ] search.tmp
-[ ] embed.tmp
 [-] forgot_password.tmp
 [-] forgot_username.tmp
 [-] sign_up.tmp
 [-] login.tmp
+
+100% VIEW PAGES
+===============
+[x] search.tmp
+[ ] embed.tmp
 
 100% DONE: Nothing left to do
 =============================

@@ -24,6 +24,7 @@
 
 local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
+local Users = package.loaded.Users
 local db = package.loaded.db
 local disk = package.loaded.disk
 local component = package.loaded.component
@@ -32,9 +33,9 @@ component.queries = {
     explore_projects = {
         fetch =
             function (session, data)
-                return 'WHERE ispublished AND NOT EXISTS( ' ..
-                    'SELECT 1 FROM deleted_users WHERE ' ..
-                    'username = active_projects.username LIMIT 1) ' ..
+                return [[WHERE ispublished AND NOT EXISTS(
+                    SELECT 1 FROM deleted_users WHERE
+                    username = active_projects.username LIMIT 1)]] ..
                     db.interpolate_query(course_name_filter())
             end,
         order = 'firstpublished DESC'
@@ -42,17 +43,25 @@ component.queries = {
     explore_collections = {
         fetch =
             function (session, data)
-                return 'JOIN active_users on ' ..
-                    '(active_users.id = collections.creator_id) ' ..
-                    'WHERE published'
+                return [[JOIN active_users ON
+                    (active_users.id = collections.creator_id)
+                    WHERE published]]
             end,
         order = 'collections.published_at DESC'
+    },
+    explore_users = {
+        fetch =
+            function (session, data)
+                return 'WHERE true'
+            end,
+        order = 'username'
+
     },
     my_projects = {
         fetch =
             function (session, data)
                 return db.interpolate_query(
-                    'where username = ?',
+                    'WHERE username = ?',
                     session.username
                 )
             end,
@@ -62,9 +71,9 @@ component.queries = {
         fetch =
             function (session, data)
                 return db.interpolate_query(
-                    'JOIN active_users ON ' ..
-                        '(active_users.id = collections.creator_id) ' ..
-                        'WHERE (creator_id = ? OR editor_ids @> ARRAY[?])',
+                    [[JOIN active_users ON
+                        (active_users.id = collections.creator_id)
+                        WHERE (creator_id = ? OR editor_ids @> ARRAY[?])]],
                     session.current_user.id,
                     session.current_user.id)
             end,
@@ -91,10 +100,10 @@ component.queries = {
     user_collections = {
         fetch = function (session, data)
             return db.interpolate_query(
-                'JOIN active_users ON ' ..
-                    '(active_users.id = collections.creator_id) ' ..
-                    'WHERE (creator_id = ? OR editor_ids @> ARRAY[?])' ..
-                    'AND published',
+                [[JOIN active_users ON
+                    (active_users.id = collections.creator_id)
+                    WHERE (creator_id = ? OR editor_ids @> ARRAY[?])
+                    AND published]],
                 data.user_id,
                 data.user_id
             )
@@ -143,9 +152,9 @@ component.queries = {
                     active_projects.id]]
         end,
         order = 'flag_count DESC',
-        fields = [[active_projects.id as id,
-            active_projects.projectname as projectname,
-            active_projects.username as username,
+        fields = [[active_projects.id AS id,
+            active_projects.projectname AS projectname,
+            active_projects.username AS username,
             count(*) AS flag_count]]
     }
 }
@@ -183,7 +192,7 @@ component.actions['grid'] = {
             Projects:paginated(
                  query ..
                     (data.search_term and (db.interpolate_query(
-                        ' and (projectname ILIKE ? or notes ILIKE ?)',
+                        ' AND (projectname ILIKE ? OR notes ILIKE ?)',
                         '%' .. data.search_term .. '%',
                         '%' .. data.search_term .. '%')
                     ) or '') ..
@@ -202,7 +211,7 @@ component.actions['grid'] = {
         local paginator = Collections:paginated(
             query ..
                 (data.search_term and (db.interpolate_query(
-                    ' and (name ILIKE ? or description ILIKE ?)',
+                    ' AND (name ILIKE ? OR description ILIKE ?)',
                     '%' .. data.search_term .. '%',
                     '%' .. data.search_term .. '%')
                 ) or '') ..
@@ -210,15 +219,33 @@ component.actions['grid'] = {
             {
                 per_page = data.per_page or 15,
                 fields = component.queries[data.query.fields] or
-                    'collections.id, creator_id, collections.created_at, '..
-                    'published, collections.published_at, shared, ' ..
-                    'collections.shared_at, collections.updated_at, name, ' ..
-                    'description, thumbnail_id, username, editor_ids'
+                    [[collections.id, creator_id, collections.created_at,
+                    published, collections.published_at, shared,
+                    collections.shared_at, collections.updated_at, name,
+                    description, thumbnail_id, username, editor_ids]]
             }
         )
 
         data.items = paginator:get_page(data.page_number)
         disk:process_thumbnails(data.items, 'thumbnail_id')
+    end,
+    update_users = function (session, data, _)
+        local query = component.queries[data.query].fetch(session, data)
+        local paginator = Users:paginated(
+            query ..
+                (data.search_term and (db.interpolate_query(
+                    ' AND username ILIKE ? OR email ILIKE ?',
+                    '%' .. data.search_term .. '%',
+                    '%' .. data.search_term .. '%')
+                ) or '') ..
+            ' ORDER BY ' .. component.queries[data.query].order,
+            {
+                per_page = data.per_page or 15,
+                fields = component.queries[data.query.fields] or '*'
+            }
+        )
+
+        data.items = paginator:get_page(data.page_number)
     end
 }
 

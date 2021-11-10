@@ -41,7 +41,6 @@ require 'validation'
 
 ProjectController = {
     GET = {
-
         user_projects = function (self)
             -- GET /projects/:username
             -- Description: Get metadata for a project list by a user.
