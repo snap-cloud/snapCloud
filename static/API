@@ -64,7 +64,7 @@ Parameters:  page, pagesize, matchtext, withthumbnail
 Route:       GET /projects/:username
 Description: Get metadata for a project list by a user.
              Response will depend on parameters and query issuer permissions.
-Parameters:  ispublished, page, pagesize, matchtext, withthumbnail, updatingnotes
+Parameters:  ispublished, page, pagesize, matchtext, withthumbnail
 
 Route:       GET /projects/:username/:projectname
 Description: Get a particular project.
