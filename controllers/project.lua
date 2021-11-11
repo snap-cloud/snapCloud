@@ -91,7 +91,7 @@ ProjectController = {
             --              Response will depend on parameters and query issuer
             --              permissions.
             -- Parameters:  ispublished, page, pagesize, matchtext,
-            --              withthumbnail, updatingnotes
+            --              withthumbnail
             local order = 'lastupdated'
 
             if not (users_match(self)) then
@@ -129,9 +129,6 @@ ProjectController = {
             local projects = self.params.page and
                 paginator:get_page(self.params.page) or paginator:get_all()
 
-            if self.params.updatingnotes == 'true' then
-                disk:process_notes(projects)
-            end
             if self.params.withthumbnail == 'true' then
                 disk:process_thumbnails(projects)
             end
