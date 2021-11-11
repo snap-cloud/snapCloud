@@ -1,19 +1,7 @@
 <h1>Search Results: <%= params.query %></h1>
 <%
-    local paginator = Projects:paginated(
-        [[WHERE ispublished AND NOT EXISTS(
-            SELECT 1 FROM deleted_users WHERE
-            username = active_projects.username LIMIT 1)
-        AND (projectname ILIKE ? OR notes ILIKE ?)]],
-        '%' .. params.query .. '%',
-        '%' .. params.query .. '%',
-        { per_page = 15 }
-    )
-
     local projects = new_component('grid')
-
     projects.data.items = {}
-    projects.data.total_pages = paginator:num_pages()
     projects.data.page_number = 1
     projects.data.class = 'projects'
     projects.data.title = 'Projects'
@@ -29,20 +17,8 @@
         }
     )
 
-    paginator = Collections:paginated(
-        [[JOIN active_users ON
-            (active_users.id = collections.creator_id)
-        WHERE published
-        AND (name ILIKE ? OR description ILIKE ?)]],
-        '%' .. params.query .. '%',
-        '%' .. params.query .. '%',
-        { per_page = 15 }
-    )
-
     local collections = new_component('grid')
-
     collections.data.items = {}
-    collections.data.total_pages = paginator:num_pages()
     collections.data.page_number = 1
     collections.data.class = 'collections'
     collections.data.title = 'Collections'
@@ -58,25 +34,8 @@
         }
     )
 
-    query = db.interpolate_query(
-        'WHERE username ILIKE ?',
-        '%' .. params.query .. '%'
-    )
-
-    if reviewer_controls then
-        query = query ..
-            db.interpolate_query(
-                'OR email ILIKE ?',
-                '%' .. params.query .. '%'
-            )
-    end
-
-    paginator = Users:paginated(query, { per_page = 51 })
-
     local users = new_component('grid')
-
     users.data.items = {}
-    users.data.total_pages = paginator:num_pages()
     users.data.page_number = 1
     users.data.class = 'user_results'
     users.data.title = 'Users'

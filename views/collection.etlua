@@ -15,12 +15,8 @@
         <i class="pure-u-1-24"></i>
         <div class="pure-u-2-3 projects">
             <%
-                paginator = collection:get_projects()
-                paginator.per_page = 12
-
                 local projects = new_component('grid')
                 projects.data.items = {}
-                projects.data.total_pages = paginator:num_pages()
                 projects.data.page_number = 1
                 projects.data.items_per_row = 4
                 projects.data.per_page = 12

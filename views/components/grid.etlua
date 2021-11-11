@@ -1,29 +1,24 @@
 <%
 --[[
-    title               (str) grid title. Default: none.
-    page_number         (num) current page.
-    total_pages         (num) total number of pages.
+    title               (str) Grid title. Default: none.
+    page_number         (num) Current page.
     class               (str) CSS class.
     items               (tbl) Items to show.
     item_type           'project', 'user' or 'collection'. Default: 'project'.
-    items_per_row       (num) number of items per grid row. Default: 5.
-    with_search         (bool) adds a search input. Default: false.
+    items_per_row       (num) Number of items per grid row. Default: 5.
+    with_search         (bool) Adds a search input. Default: false.
+    show_if_empty       (bool) Show component if no items. Default: false.
 ]]--
 
 -- set defaults
 
 data.items_per_row = data.items_per_row or 5
 data.item_type = data.item_type or 'project'
-
+data.num_pages = data.num_pages or 0
 %>
 
 <link rel="stylesheet" href="static/style/project.css">
 <div class="<%= data.class %> container">
-    <% if (data.title) then %>
-    <h2 class="<%= data.class %> header" localizable>
-        <%= data.title %>
-    </h2>
-    <% end %>
     <script>
     function loader (element) {
         var list = element.closest('div.container').querySelector('.list');
@@ -32,6 +27,13 @@ data.item_type = data.item_type or 'project'
             </div>`;
     };
     </script>
+
+<% if ((data.num_pages > 0) or data.show_if_empty) then %>
+    <% if (data.title) then %>
+    <h2 class="<%= data.class %> header" localizable>
+        <%= data.title %>
+    </h2>
+    <% end %>
     <div class="bar">
         <% if data.with_search then %>
         <div class="<%= data.class %> search">
@@ -46,19 +48,19 @@ data.item_type = data.item_type or 'project'
                 <i class="fas fa-search"></i>
             </form>
         </div>
-        <% end %>
+        <% end -- show search bar, if requested %>
         <nav class="paginator">
             <a class="clickable" onclick="loader(this); <%=run%>('first');"><i class="fas fa-caret-left"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('previous', [5]);"><i class="fas fa-angle-double-left"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('previous', [1]);"><i class="fas fa-angle-left"></i></a>
-            <span class="page"><%= data.page_number %></span> / <span class="total-pages"><%= data.total_pages %></span>
+            <span class="page"><%= data.page_number %></span> / <span class="total-pages"><%= data.num_pages %></span>
             <a class="clickable" onclick="loader(this); <%=run%>('next', [1]);"><i class="fas fa-angle-right"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('next', [5]);"><i class="fas fa-angle-double-right"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('last');"><i class="fas fa-caret-right"></i></a>
         </nav>
     </div>
 
-    <% if (data.total_pages > 0) then %>
+    <% if (data.num_pages > 0) then %>
     <div class="<%= data.class %> list pure-g">
         <% for _, item in pairs(data.items) do %>
             <%-
@@ -72,9 +74,9 @@ data.item_type = data.item_type or 'project'
             %>
         <% end %>
     </div>
-    <% end %>
+    <% end  -- show items, if there are any %>
+<% end -- show if empty %>
     <script>
-        loader(document.querySelector('div.<%= data.class %>.container'));
         <%=run%>('update_items');
     </script>
 </div>

@@ -165,12 +165,12 @@ component.actions['grid'] = {
         component.actions['grid'].update_items(session, data)
     end,
     last = function (session, data, _)
-        data.page_number = data.total_pages
+        data.page_number = data.num_pages
         component.actions['grid'].update_items(session, data)
     end,
     next = function (session, data, params)
         data.page_number =
-            math.min(data.total_pages, data.page_number + params[1])
+            math.min(data.num_pages, data.page_number + params[1])
         component.actions['grid'].update_items(session, data)
     end,
     previous = function (session, data, params)
@@ -203,6 +203,7 @@ component.actions['grid'] = {
                 }
             )
 
+        data.num_pages = paginator:num_pages()
         data.items = paginator:get_page(data.page_number)
         disk:process_thumbnails(data.items)
     end,
@@ -226,6 +227,7 @@ component.actions['grid'] = {
             }
         )
 
+        data.num_pages = paginator:num_pages()
         data.items = paginator:get_page(data.page_number)
         disk:process_thumbnails(data.items, 'thumbnail_id')
     end,
@@ -245,6 +247,7 @@ component.actions['grid'] = {
             }
         )
 
+        data.num_pages = paginator:num_pages()
         data.items = paginator:get_page(data.page_number)
     end
 }

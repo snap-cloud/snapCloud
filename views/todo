@@ -1,5 +1,6 @@
 GENERAL TODO
 ============
+[ ] one single query per page
 [ ] update page count on search
 [ ] include share status icons
 [ ] make sure thumbnails are working

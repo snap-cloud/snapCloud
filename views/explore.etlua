@@ -1,17 +1,8 @@
 <h1>Explore</h1>
 <%
-    -- Just to get the page count. No need for any ordering here.
-    local paginator = Projects:paginated(
-        'WHERE ispublished AND username NOT IN ' ..
-            '(SELECT username FROM deleted_users) ' ..
-            db.interpolate_query(course_name_filter()),
-        { per_page = 15 }
-    )
-
     local projects = new_component('grid')
 
     projects.data.items = {}
-    projects.data.total_pages = paginator:num_pages()
     projects.data.page_number = 1
     projects.data.class = 'projects'
     projects.data.title = 'Published Projects'
@@ -26,16 +17,8 @@
         }
     )
 
-    paginator = Collections:paginated(
-        'JOIN active_users on (active_users.id = collections.creator_id) ' ..
-            'WHERE published ',
-        { per_page = 15 }
-    )
-
     local collections = new_component('grid')
-
     collections.data.items = {}
-    collections.data.total_pages = paginator:num_pages()
     collections.data.page_number = 1
     collections.data.class = 'collections'
     collections.data.title = 'Published Collections'

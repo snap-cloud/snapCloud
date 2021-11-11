@@ -49,14 +49,8 @@ for i = 1, 3, 1 do
 end
 
 for _, descriptor in pairs(collections) do 
-    local collection = Collections:find(user_id, descriptor.collection_name)
-
-    local paginator = collection:get_projects()
-    paginator.per_page = 5
-
     local projects = new_component('grid')
     projects.data.items = {}
-    projects.data.total_pages = paginator:num_pages()
     projects.data.page_number = 1
     -- take only the first word, and lowercase it. Prepend 'c-' because classes
     -- need to start with a letter, and '3d' does not...
