@@ -39,6 +39,12 @@ local disk = package.loaded.disk
 require 'responses'
 require 'validation'
 
+local xml = require('xml')
+
+local extract_notes_from_xml = function(project)
+    return xml.find(xml.load(project), 'notes')[1]
+end
+
 ProjectController = {
     GET = {
         projects = cached({
@@ -223,7 +229,6 @@ ProjectController = {
         project_versions = function (self)
             -- GET /projects/:username/:projectname/versions
             -- Description: Get info about backed up project versions.
-            -- Body:        versions
             local project =
                 Projects:find(self.params.username, self.params.projectname)
 
@@ -435,7 +440,7 @@ ProjectController = {
             -- POST /projects/:username/:projectname
             -- Description: Add/update a particular project.
             --              Response will depend on query issuer permissions.
-            -- Body:        xml, notes, thumbnail
+            -- Body:        xml, media, thumbnail, notes (optional)
             validate.assert_valid(self.params, {
                 { 'projectname', exists = true },
                 { 'username', exists = true }
@@ -472,7 +477,7 @@ ProjectController = {
                         project.firstpublished or
                         (self.params.ispublished and db.format_date()) or
                         nil,
-                    notes = body.notes,
+                    notes = body.notes or extract_notes_from_xml(body.xml),
                     ispublic = self.params.ispublic or project.ispublic,
                     ispublished = self.params.ispublished or project.ispublished
                 })
@@ -512,7 +517,7 @@ ProjectController = {
                         db.format_date() or nil,
                     firstpublished = self.params.ispublished
                         and db.format_date() or nil,
-                    notes = body.notes,
+                    notes = body.notes or extract_notes_from_xml(body.xml),
                     ispublic = self.params.ispublic or false,
                     ispublished = self.params.ispublished or false
                 })

@@ -77,7 +77,6 @@ Parameters:  projectname, ispublic, ispublished, lastupdated, lastshared
 
 Route:       GET /projects/:username/:projectname/versions
 Description: Get info about backed up project versions.
-Body:        versions
 
 Route:       GET /projects/:username/:projectname/remixes
 Description: Get a list of all published remixes from a project.
