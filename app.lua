@@ -124,9 +124,13 @@ app:before_filter(function (self)
         return -- avoid any unnecessary work for CORS pre-flight requests
     end
 
-    -- unescape all parameters
+    -- unescape all parameters and recast booleans
     for k, v in pairs(self.params) do
-        self.params[k] = package.loaded.util.unescape(tostring(v))
+        if ((v == 'true') or (v == 'false')) then
+            self.params[k] = (v == 'true')
+        else
+            self.params[k] = package.loaded.util.unescape(tostring(v))
+        end
     end
 
     if self.params.username and self.params.username ~= '' then

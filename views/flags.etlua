@@ -9,6 +9,7 @@ projects.data.page_number = 1
 projects.data.class = 'flags'
 projects.data.item_type = 'project'
 projects.data.query = 'flags'
+projects.data.ignore_page_count = true
 
 render(
     'views.components.component',

@@ -48,7 +48,7 @@ local views = {
     'research', 'snapinator', 'snapp', 'source', 'tos',
 
     -- Simple pages
-    'admin', 'blog', 'change_email', 'change_password', 'delete_user',
+    'blog', 'change_email', 'change_password', 'delete_user',
     'forgot_password', 'forgot_username', 'login', 'sign_up'
 }
 
@@ -60,13 +60,18 @@ end
 
 -- Pages that use AJAX-enabled components
 
-app:get('/index', function(self)
+app:get('/index', function (self)
     -- should be '/', but I need to persuade nginx to understand
     self.Collections = Collections
     self.db = db
     self.user_id = Users:find({ username = 'snapcloud' }).id
     self.new_component = component.new
     return { render = 'index' }
+end)
+
+app:get('/admin', function (self)
+    assert_has_one_of_roles({'admin', 'moderator', 'reviewer'})
+    return { render = 'admin' }
 end)
 
 app:get('/explore', function (self)
@@ -100,14 +105,16 @@ app:get('/user', function (self)
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
     self.new_component = component.new
-    self.admin_controls =
-        self.current_user:has_one_of_roles({'admin', 'moderator'})
     return { render = 'user' }
 end)
 
 app:get('/project', function (self)
     self.Remixes = Remixes
-    self.project = Projects:find(self.params.username, self.params.projectname)
+    -- Backwards compatibility with previous URL params
+    self.project = Projects:find(
+        self.params.user or self.params.username,
+        self.params.project or self.params.projectname
+    )
     self.new_component = component.new
     self.admin_controls =
         self.current_user:has_one_of_roles({'admin', 'moderator'})
@@ -171,4 +178,12 @@ app:get('/flags', function (self)
     return { render = 'flags' }
 end)
 
+app:get('/embed', function (self)
+    -- Backwards compatibility with previous URL params
+    self.project = Projects:find(
+        self.params.user or self.params.username,
+        self.params.project or self.params.projectname
+    )
+    return { render = 'embed', layout = false }
+end)
 

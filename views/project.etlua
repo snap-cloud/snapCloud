@@ -22,7 +22,7 @@
                 <i class="stop-button fas fa-octagon clickable" onclick="stopProject();"></i>
             </div>
 
-            <!-- Project embed placeholder -->
+            <!-- Project embed -->
             <iframe allow="geolocation; microphone; camera" sandbox="allow-scripts allow-same-origin" src="<%= project:url_for('viewer', params.devVersion) %>" height="406"></iframe>
             
             <!-- Project Action Buttons -->

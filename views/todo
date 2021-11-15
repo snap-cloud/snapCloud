@@ -1,10 +1,10 @@
 GENERAL TODO
 ============
-[ ] one single query per page
-[ ] update page count on search
+[x] one single query per page
+[x] update page count on search
+[x] include dates and fix their format
 [ ] include share status icons
 [ ] make sure thumbnails are working
-[x] include dates and fix their format
 
 EDIT PAGES
 ==========

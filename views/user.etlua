@@ -45,7 +45,7 @@
 
     -- ADMIN TOOLS
 
-    if admin_controls then
+    if current_user:has_one_of_roles({'admin', 'moderator'}) then
         render('views.partials.profile')
     end
 %>

@@ -202,8 +202,9 @@ component.actions['grid'] = {
                     fields = component.queries[data.query].fields or '*'
                 }
             )
-
-        data.num_pages = paginator:num_pages()
+        if not data.ignore_page_count then
+            data.num_pages = paginator:num_pages()
+        end
         data.items = paginator:get_page(data.page_number)
         disk:process_thumbnails(data.items)
     end,

@@ -1,21 +1,9 @@
-<script>
-SnapCloud.getCurrentUser(function (user) {
-    // Only admins and moderators can access this page
-    if (!hasAnyOfRoles(['admin', 'moderator', 'reviewer'])) {
-        location.href = 'index';
-    }
-});
-</script>
 <h1 localizable>Administration</h1>
-<a localizable hidden class="user-admin pure-button"
+<% if current_user:has_one_of_roles({'admin', 'moderator', 'reviewer'}) then %>
+<a localizable class="user-admin pure-button"
     href="user_admin">User Administration</a>
-<a localizable hidden class="zombie-admin pure-button"
+<a localizable class="zombie-admin pure-button"
     href="zombie_admin">Zombie Administration</a>
+<% end %>
 <a localizable class="pure-button"
     href="flags">Flagged Projects</a>
-<script>
-    if (hasAnyOfRoles(['admin', 'moderator'])) {
-        document.querySelector('.user-admin').hidden = false;
-        document.querySelector('.zombie-admin').hidden = false;
-    }
-</script>
