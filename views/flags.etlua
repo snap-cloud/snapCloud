@@ -1,11 +1,9 @@
 <h1>Flagged Projects</h1>
 <%
 local projects = new_component('grid')
-projects.data.items = {}
 projects.data.num_pages = 10 -- TODO how to get the actual number of pages
 projects.data.items_per_row = 5
 projects.data.per_page = 12
-projects.data.page_number = 1
 projects.data.class = 'flags'
 projects.data.item_type = 'project'
 projects.data.query = 'flags'

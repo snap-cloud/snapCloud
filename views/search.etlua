@@ -1,8 +1,6 @@
 <h1>Search Results: <%= params.query %></h1>
 <%
     local projects = new_component('grid')
-    projects.data.items = {}
-    projects.data.page_number = 1
     projects.data.class = 'projects'
     projects.data.title = 'Projects'
     projects.data.item_type = 'project'
@@ -18,8 +16,6 @@
     )
 
     local collections = new_component('grid')
-    collections.data.items = {}
-    collections.data.page_number = 1
     collections.data.class = 'collections'
     collections.data.title = 'Collections'
     collections.data.item_type = 'collection'
@@ -35,8 +31,6 @@
     )
 
     local users = new_component('grid')
-    users.data.items = {}
-    users.data.page_number = 1
     users.data.class = 'user_results'
     users.data.title = 'Users'
     users.data.item_type = 'user'

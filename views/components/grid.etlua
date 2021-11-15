@@ -4,10 +4,15 @@
     page_number         (num) Current page.
     class               (str) CSS class.
     items               (tbl) Items to show.
-    item_type           'project', 'user' or 'collection'. Default: 'project'.
+    item_type           (str) item template name at views/partials/[item_type]
     items_per_row       (num) Number of items per grid row. Default: 5.
-    with_search         (bool) Adds a search input. Default: false.
-    show_if_empty       (bool) Show component if no items. Default: false.
+    with_search         (t/f) Adds a search input. Default: false.
+    show_if_empty       (t/f) Show component if no items. Default: false.
+    filters             (tbl) Dropdown menu filter descriptors:
+        label           (str) Dropdown label
+        options         (tbl) Dropdown options
+            label       (str) Option label
+            value       (any) Option value
 ]]--
 
 -- set defaults
@@ -15,6 +20,12 @@
 data.items_per_row = data.items_per_row or 5
 data.item_type = data.item_type or 'project'
 data.num_pages = data.num_pages or 0
+if data.items == nil then
+    data.items = {}
+end
+if data.page_number == nil then
+    data.page_number = 1
+end
 %>
 
 <link rel="stylesheet" href="static/style/project.css">
@@ -49,6 +60,19 @@ data.num_pages = data.num_pages or 0
             </form>
         </div>
         <% end -- show search bar, if requested %>
+        <% if data.filters then
+            for selector, filter in pairs(data.filters) do
+        %>
+                <div class="filter <%= selector %>"><%= filter.label %>:
+                    <select name="<%= selector %>">
+                        <% for _, option in pairs(filter.options) do %>
+                        <option value="<%= option.value %>"><%= option.label %></option>
+                        <% end %>
+                    </select>
+                </div>
+        <%
+            end
+        end %>
         <nav class="paginator">
             <a class="clickable" onclick="loader(this); <%=run%>('first');"><i class="fas fa-caret-left"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('previous', [5]);"><i class="fas fa-angle-double-left"></i></a>

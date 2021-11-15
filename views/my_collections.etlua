@@ -1,8 +1,6 @@
 <h1>My Collections</h1>
 <%
     local collections = new_component('grid')
-    collections.data.items = {}
-    collections.data.page_number = 1
     collections.data.class = 'my_collections'
     collections.data.item_type = 'collection'
     collections.data.query = 'my_collections'

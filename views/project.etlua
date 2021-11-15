@@ -71,8 +71,6 @@
 -- Carousel of remixes
 
     local remixes = new_component('grid')
-    remixes.data.items = {}
-    remixes.data.page_number = 1
     remixes.data.class = 'remixes'
     remixes.data.title = 'Remixes'
     remixes.data.item_type = 'project'
@@ -90,8 +88,6 @@
 -- Carousel of collections
 
     local collections = new_component('grid')
-    collections.data.items = {}
-    collections.data.page_number = 1
     collections.data.class = 'collections'
     collections.data.title = 'Collections containing this project'
     collections.data.item_type = 'collection'

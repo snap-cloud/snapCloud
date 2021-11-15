@@ -1,21 +1,17 @@
-<link rel="stylesheet" href="static/style/admin.css">
-<div class="profile">
-    <h2>Admin tools</h2>
-    <div class="user pure-u-1-2">
-        <div class="details">
-            <a href="user?username=<%=queried_user.username%>" target=""><strong><%=queried_user.username%></strong></a>
-            <span><em><a target="_blank" href="mailto:<%=queried_user.email%>"><%=queried_user.email%></a></em></span>
-            <span><strong>ID:</strong> <%=queried_user.id%></span>
-            <span><strong>Project count:</strong> NIL</span>
-            <span><strong localizable="">Joined in </strong><%= string.from_sql_date(queried_user.created) %></span>
-            <span><strong localizable="">Role</strong>:<select><option value="<%=queried_user.role%>"><%=queried_user.role%></option><option value="reviewer">reviewer</option><option value="moderator">moderator</option><option value="admin">admin</option><option value="banned" disabled="">banned</option></select></span>
-            <div class="buttons">
-                <a localizable="true" class="pure-button become">Become</a>
-                <a localizable="true" class="pure-button changeemail">Change Email</a>
-                <a localizable="true" class="pure-button sendamessage">Send a message</a>
-                <a localizable="true" class="pure-button ban pure-button-warning">Ban</a>
-                <a localizable="true" class="pure-button delete pure-button-warning">Delete</a>
-            </div>
+<div class="user pure-u-1-2">
+    <div class="details">
+        <a href="user?username=<%=item.username%>" target=""><strong><%=item.username%></strong></a>
+        <span><em><a target="_blank" href="mailto:<%=item.email%>"><%=item.email%></a></em></span>
+        <span><strong>ID:</strong> <%=item.id%></span>
+        <span><strong>Project count:</strong> NIL</span>
+        <span><strong localizable="">Joined in </strong><%= string.from_sql_date(item.created) %></span>
+        <span><strong localizable="">Role</strong>:<select><option value="<%=item.role%>"><%=item.role%></option><option value="reviewer">reviewer</option><option value="moderator">moderator</option><option value="admin">admin</option><option value="banned" disabled="">banned</option></select></span>
+        <div class="buttons">
+            <a localizable="true" class="pure-button become">Become</a>
+            <a localizable="true" class="pure-button changeemail">Change Email</a>
+            <a localizable="true" class="pure-button sendamessage">Send a message</a>
+            <a localizable="true" class="pure-button ban pure-button-warning">Ban</a>
+            <a localizable="true" class="pure-button delete pure-button-warning">Delete</a>
         </div>
     </div>
 </div>

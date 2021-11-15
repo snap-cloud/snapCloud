@@ -250,6 +250,25 @@ component.actions['grid'] = {
 
         data.num_pages = paginator:num_pages()
         data.items = paginator:get_page(data.page_number)
+    end,
+    update_profiles = function (session, data, _)
+        local query = component.queries[data.query].fetch(session, data)
+        local paginator = Users:paginated(
+            query ..
+                (data.search_term and (db.interpolate_query(
+                    ' AND username ILIKE ? OR email ILIKE ?',
+                    '%' .. data.search_term .. '%',
+                    '%' .. data.search_term .. '%')
+                ) or '') ..
+            ' ORDER BY ' .. component.queries[data.query].order,
+            {
+                per_page = data.per_page or 15,
+                fields = component.queries[data.query.fields] or '*'
+            }
+        )
+
+        data.num_pages = paginator:num_pages()
+        data.items = paginator:get_page(data.page_number)
     end
 }
 

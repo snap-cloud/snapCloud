@@ -1,12 +1,11 @@
 <h1>My Projects</h1>
 <%
     local projects = new_component('grid')
-    projects.data.items = {}
-    projects.data.page_number = 1
     projects.data.class = 'my_projects'
     projects.data.item_type = 'project'
     projects.data.query = 'my_projects'
     projects.data.with_search = true
+    projects.data.show_if_empty = true
 
     render(
         'views.components.component',

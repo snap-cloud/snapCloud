@@ -48,8 +48,8 @@ local views = {
     'research', 'snapinator', 'snapp', 'source', 'tos',
 
     -- Simple pages
-    'blog', 'change_email', 'change_password', 'delete_user',
-    'forgot_password', 'forgot_username', 'login', 'sign_up'
+    'blog', 'change_email', 'change_password', 'delete_user', 'forgot_password',
+    'forgot_username', 'login', 'sign_up'
 }
 
 for _, view in pairs(views) do
@@ -57,6 +57,15 @@ for _, view in pairs(views) do
         return { render = view }
     end)
 end
+
+app:get('/embed', function (self)
+    -- Backwards compatibility with previous URL params
+    self.project = Projects:find(
+        self.params.user or self.params.username,
+        self.params.project or self.params.projectname
+    )
+    return { render = 'embed', layout = false }
+end)
 
 -- Pages that use AJAX-enabled components
 
@@ -178,12 +187,9 @@ app:get('/flags', function (self)
     return { render = 'flags' }
 end)
 
-app:get('/embed', function (self)
-    -- Backwards compatibility with previous URL params
-    self.project = Projects:find(
-        self.params.user or self.params.username,
-        self.params.project or self.params.projectname
-    )
-    return { render = 'embed', layout = false }
+app:get('/user_admin', function (self)
+    self.Users = Users
+    self.new_component = component.new
+    assert_has_one_of_roles(self, {'admin', 'moderator'})
+    return { render = 'user_admin' }
 end)
-

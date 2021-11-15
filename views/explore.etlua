@@ -1,9 +1,6 @@
 <h1>Explore</h1>
 <%
     local projects = new_component('grid')
-
-    projects.data.items = {}
-    projects.data.page_number = 1
     projects.data.class = 'projects'
     projects.data.title = 'Published Projects'
     projects.data.item_type = 'project'
@@ -18,8 +15,6 @@
     )
 
     local collections = new_component('grid')
-    collections.data.items = {}
-    collections.data.page_number = 1
     collections.data.class = 'collections'
     collections.data.title = 'Published Collections'
     collections.data.item_type = 'collection'

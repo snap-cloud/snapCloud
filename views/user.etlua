@@ -1,51 +1,50 @@
+<% if current_user:has_one_of_roles({'admin', 'moderator'}) then %>
+<link rel="stylesheet" href="static/style/admin.css">
+<% end %>
+
 <h1><%- username%>'s public page</h1>
 
 <%
     -- PUBLIC PROJECTS
 
     local projects = new_component('grid')
-    projects.data.items = {}
-    projects.data.page_number = 1
     projects.data.class = 'projects'
     projects.data.title = 'Public Projects'
     projects.data.item_type = 'project'
     projects.data.query = 'user_projects'
     projects.data.username = queried_user.username
 
-    if (projects.data.total_pages > 0) then
-        render(
-            'views.components.component',
-            {
-                path = 'grid',
-                component = projects
-            }
-        )
-    end
+    render(
+        'views.components.component',
+        {
+            path = 'grid',
+            component = projects
+        }
+    )
 
     -- PUBLIC COLLECTIONS
 
     local collections = new_component('grid')
-    collections.data.items = {}
-    collections.data.page_number = 1
     collections.data.class = 'collections'
     collections.data.title = 'Public Collections'
     collections.data.item_type = 'collection'
     collections.data.query = 'user_collections'
     collections.data.user_id = queried_user.id
 
-    if (collections.data.total_pages > 0) then
-        render(
-            'views.components.component',
-            {
-                path = 'grid',
-                component = collections
-            }
-        )
-    end
+    render(
+        'views.components.component',
+        {
+            path = 'grid',
+            component = collections
+        }
+    )
 
     -- ADMIN TOOLS
 
     if current_user:has_one_of_roles({'admin', 'moderator'}) then
-        render('views.partials.profile')
-    end
 %>
+<div class="profile">
+    <h2>Admin tools</h2>
+    <% render('views.partials.profile', { item = queried_user }) %>
+</div>
+<% end %>

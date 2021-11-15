@@ -3,13 +3,16 @@ GENERAL TODO
 [x] one single query per page
 [x] update page count on search
 [x] include dates and fix their format
+[ ] go back to page 1 on search
 [ ] include share status icons
 [ ] make sure thumbnails are working
+[ ] make user_admin filters work
+[ ] make project count work on profile partial
 
 EDIT PAGES
 ==========
-[ ] user_admin.tmp
 [ ] zombie_admin.tmp
+[-] user_admin.tmp
 [-] flag_details.tmp
 [-] flags.tmp
 [-] collection.tmp
@@ -27,13 +30,10 @@ EDIT PAGES
 [-] sign_up.tmp
 [-] login.tmp
 
-100% VIEW PAGES
-===============
-[x] search.tmp
-[ ] embed.tmp
-
 100% DONE: Nothing left to do
 =============================
+[x] search.tmp
+[x] embed.tmp
 [x] requirements.tmp
 [x] research.tmp
 [x] slideshow.tmp
