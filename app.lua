@@ -56,10 +56,10 @@ local date = require("date")
 
 string.from_sql_date = function (sql_date)
     -- Formats an SQL date into (i.e.) November 21, 2021
-    month_names = { 'January', 'February', 'March', 'April', 'May', 'June',
+    local month_names = { 'January', 'February', 'March', 'April', 'May', 'June',
         'July', 'August', 'September', 'October', 'November', 'December' }
     if (sql_date == nil) then return 'never' end
-    actual_date = date(sql_date)
+    local actual_date = date(sql_date)
     return month_names[actual_date:getmonth()] ..  ' ' ..
         actual_date:getday() ..  ', ' ..  actual_date:getyear()
 end

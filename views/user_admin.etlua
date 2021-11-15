@@ -8,7 +8,8 @@
     users.data.item_type = 'profile'
     users.data.query = 'explore_users'
     users.data.filters = {
-        verified = {
+        {
+            selector = 'verified',
             label = 'Verified',
             options = {
                 { label = 'Any', value = '' },
@@ -16,7 +17,8 @@
                 { label = 'Unverified', value = false }
             }
         },
-        role = {
+        {
+            selector = 'role',
             label = 'Role',
             options = {
                 { label = 'Any', value = '' },

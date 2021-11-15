@@ -3,7 +3,9 @@
         <a href="user?username=<%=item.username%>" target=""><strong><%=item.username%></strong></a>
         <span><em><a target="_blank" href="mailto:<%=item.email%>"><%=item.email%></a></em></span>
         <span><strong>ID:</strong> <%=item.id%></span>
-        <span><strong>Project count:</strong> NIL</span>
+        <% if item.project_count then %>
+        <span><strong>Project count:</strong> <%= item.project_count %></span>
+        <% end %>
         <span><strong localizable="">Joined in </strong><%= string.from_sql_date(item.created) %></span>
         <span><strong localizable="">Role</strong>:<select><option value="<%=item.role%>"><%=item.role%></option><option value="reviewer">reviewer</option><option value="moderator">moderator</option><option value="admin">admin</option><option value="banned" disabled="">banned</option></select></span>
         <div class="buttons">

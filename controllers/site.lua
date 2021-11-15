@@ -179,6 +179,7 @@ component.actions['grid'] = {
     end,
     search = function (session, data, params)
         data.search_term = params[1]
+        data.page_number = 1
         component.actions['grid'].update_items(session, data)
     end,
     update_items = function (session, data, _)

@@ -60,19 +60,16 @@ end
             </form>
         </div>
         <% end -- show search bar, if requested %>
-        <% if data.filters then
-            for selector, filter in pairs(data.filters) do
-        %>
-                <div class="filter <%= selector %>"><%= filter.label %>:
-                    <select name="<%= selector %>">
+        <% if data.filters then for _, filter in ipairs(data.filters) do %>
+                <div class="filter <%= filter.selector %>"><%= filter.label %>:
+                    <select name="<%= filter.selector %>">
                         <% for _, option in pairs(filter.options) do %>
                         <option value="<%= option.value %>"><%= option.label %></option>
                         <% end %>
                     </select>
                 </div>
-        <%
-            end
-        end %>
+        <% end end  -- filters %>
+
         <nav class="paginator">
             <a class="clickable" onclick="loader(this); <%=run%>('first');"><i class="fas fa-caret-left"></i></a>
             <a class="clickable" onclick="loader(this); <%=run%>('previous', [5]);"><i class="fas fa-angle-double-left"></i></a>
