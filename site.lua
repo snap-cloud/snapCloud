@@ -69,8 +69,7 @@ end)
 
 -- Pages that use AJAX-enabled components
 
-app:get('/index', function (self)
-    -- should be '/', but I need to persuade nginx to understand
+app:get('/', function (self)
     self.Collections = Collections
     self.db = db
     self.user_id = Users:find({ username = 'snapcloud' }).id
