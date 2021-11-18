@@ -103,6 +103,8 @@ err = {
             msg = 'This API endpoint does not respond to this HTTP method.',
             status = 405
         },
+    too_fast =
+        { msg = 'Too many requests. Slow down.', status = 429 },
 }
 
 assert_all = function (assertions, self)
@@ -440,4 +442,17 @@ course_name_filter = function ()
     end
     return filter
 end
---]]
+
+-- Rate limiting
+rate_limit = function (self)
+    local time_diff =
+        (self.session.last_accessed - self.session.previous_access)
+    if time_diff < self.session.allowed_time_difference then
+        -- you're being punished with double time
+        self.session.allowed_time_difference =
+            self.session.allowed_time_difference * 2
+        yield_error(err.too_fast)
+    else
+        self.session.allowed_time_difference = 2
+    end
+end

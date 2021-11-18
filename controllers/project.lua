@@ -439,6 +439,9 @@ ProjectController = {
             -- Description: Add/update a particular project.
             --              Response will depend on query issuer permissions.
             -- Body:        xml, notes, thumbnail
+
+            rate_limit(self)
+
             validate.assert_valid(self.params, {
                 { 'projectname', exists = true },
                 { 'username', exists = true }
@@ -608,6 +611,8 @@ ProjectController = {
             -- POST /projects/:username/:projectname/flag
             -- Description: Flag a project and provide a reason for doing so.
             -- Parameters:  reason, notes
+
+            rate_limit(self)
 
             if self.current_user:isbanned() then yield_error(err.banned) end
             local project =

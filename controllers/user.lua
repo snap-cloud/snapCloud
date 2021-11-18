@@ -269,6 +269,7 @@ UserController = {
             -- Description: Add or update a user. All passwords should travel
             --              pre-hashed with SHA512.
             -- Parameters:  username, password, password_repeat, email, role
+            rate_limit(self)
             if (self.current_user) then
                 -- user is updating profile, or an admin is updating somebody
                 -- else's profile
@@ -385,6 +386,7 @@ UserController = {
         resend_verification = function (self)
             -- POST /users/:username/resendverification
             -- Description: Resends user verification email.
+            rate_limit(self)
             assert_user_exists(self)
             if self.queried_user.verified then
                 return okResponse(
