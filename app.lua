@@ -131,12 +131,6 @@ app:before_filter(function (self)
         self.params.matchtext = '%' .. self.params.matchtext .. '%'
     end
 
-    -- per-session rate limiting
-    self.session.previous_access_time = self.session.current_access_time
-    self.session.current_access_time = os.time()
-    if self.session.allowed_time_difference == nil then
-        self.session.allowed_time_difference = 2
-    end
 end)
 
 -- This module only takes care of the index endpoint

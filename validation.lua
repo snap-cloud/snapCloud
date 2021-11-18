@@ -445,8 +445,15 @@ end
 
 -- Rate limiting
 rate_limit = function (self)
+    self.session.previous_access_time = self.session.current_access_time
+    self.session.current_access_time = os.time()
+
+    if self.session.allowed_time_difference == nil then
+        self.session.allowed_time_difference = 2
+    end
+
     local time_diff =
-        (self.session.last_accessed - self.session.previous_access)
+        (self.session.current_access_time - self.session.previous_access_time)
     if time_diff < self.session.allowed_time_difference then
         -- you're being punished with double time
         self.session.allowed_time_difference =
