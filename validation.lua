@@ -445,6 +445,10 @@ end
 
 -- Rate limiting
 rate_limit = function (self)
+    if self.session.current_access_time == nil then
+        self.session.current_access_time = os.time()
+        return
+    end
     self.session.previous_access_time = self.session.current_access_time
     self.session.current_access_time = os.time()
 
