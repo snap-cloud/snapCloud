@@ -237,6 +237,8 @@ CollectionController = {
             -- Description: Create a collection.
             -- Parameters:  username, ...
 
+            rate_limit(self)
+
             assert_users_match(self)
             assert_can_create_colletion(self)
 
@@ -351,6 +353,9 @@ CollectionController = {
             -- POST /users/:username/collections/:name/projects
             -- Description: Add a project to a collection.
             -- Body: projectname, username (project author)
+
+            rate_limit(self)
+
             ngx.req.read_body()
             local body_data = ngx.req.get_body_data()
             local body = body_data and util.from_json(body_data) or nil

@@ -148,6 +148,7 @@ app:before_filter(function (self)
     if self.params.matchtext then
         self.params.matchtext = '%' .. self.params.matchtext .. '%'
     end
+
 end)
 
 function app:handle_404()
