@@ -105,6 +105,10 @@ err = {
         },
     too_fast =
         { msg = 'Too many requests. Slow down.', status = 429 },
+    too_soon =
+        { msg = 'Please wait a few seconds and try again.', status = 429 },
+    session_reused =
+        { msg = 'Please use the Snap! site, not scripts.', status = 409 },
 }
 
 assert_all = function (assertions, self)
@@ -445,6 +449,18 @@ end
 
 -- Rate limiting
 rate_limit = function (self)
+    local cached_count = ngx.shared.session_cache:get(self.session.csrf)
+    if (cached_count == self.session.count) then
+        self.session.count = self.session.count + 1
+        ngx.shared.session_cache:set(self.session.csrf, self.session.count)
+    else
+        yield_error(err.session_reused)
+    end
+
+    if ((os.time() - self.session.first_access) < 10) then
+        yield_error(err.too_soon)
+    end
+
     if self.session.current_access_time == nil then
         self.session.current_access_time = os.time()
         return
