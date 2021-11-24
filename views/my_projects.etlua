@@ -6,6 +6,8 @@
     projects.data.query = 'my_projects'
     projects.data.with_search = true
     projects.data.show_if_empty = true
+    projects.data.show_author = false
+    projects.data.show_icons = true
 
     render(
         'views.components.component',

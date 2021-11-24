@@ -11,7 +11,13 @@
         >
         <span class="collection-name"><%= item.name %></span>
     </a>
+<% if show_icons then %>
+    <span class="is-public" title="This item <%= item.shared and 'can be shared via URL' or 'is private'%>"><small><i class="fas <%= item.shared and 'fa-link' or 'fa-unlink' %>" aria-hidden="true"></i></small></span>
+    <span class="is-published" title="This item is <%= item.published and 'published' or 'unpublished' %>"><small><i class="fas <%= item.published and 'fa-eye' or 'fa-eye-slash' %>" aria-hidden="true"></i></small></span>
+<% end %>
+<% if show_author then %>
     <span
         class="author"> by <a href="<%= item:url_for('author') %>" target=""
         ><strong><%= item.username %></strong></a></span>
+<% end %>
 </div>

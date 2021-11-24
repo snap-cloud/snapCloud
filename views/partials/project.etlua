@@ -10,6 +10,12 @@
         >
         <span class="project-name"><%= item.projectname %></span>
     </a>
+<% if show_icons then %>
+    <span class="is-public" title="This item <%= item.ispublic and 'can be shared via URL' or 'is private'%>"><small><i class="fas <%= item.ispublic and 'fa-link' or 'fa-unlink' %>" aria-hidden="true"></i></small></span>
+    <span class="is-published" title="This item is <%= item.ispublished and 'published' or 'unpublished' %>"><small><i class="fas <%= item.ispublished and 'fa-eye' or 'fa-eye-slash' %>" aria-hidden="true"></i></small></span>
+<% end %>
+<% if show_author then %>
     <span class="author"> by <a href="<%= item:url_for('author') %>" target=""
             ><strong><%= item.username %></strong></a></span>
+<% end %>
 </div>

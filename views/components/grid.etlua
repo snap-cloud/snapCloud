@@ -9,14 +9,16 @@
     with_search         (t/f) Adds a search input. Default: false.
     show_if_empty       (t/f) Show component if no items. Default: false.
     filters             (tbl) Dropdown menu filter descriptors:
-        label           (str) Dropdown label
-        options         (tbl) Dropdown options
-            label       (str) Option label
-            value       (any) Option value
+        label           (str) Dropdown label.
+        options         (tbl) Dropdown options.
+            label       (str) Option label.
+            value       (any) Option value.
+    show_author         (t/f) Show the item author, if any. Default: false.
+    show_icons          (t/f) Show item privacy icons. Default: false.
 ]]--
 
 -- set defaults
-
+if data.show_author == nil then data.show_author = true end
 data.items_per_row = data.items_per_row or 5
 data.item_type = data.item_type or 'project'
 data.num_pages = data.num_pages or 0
@@ -89,7 +91,9 @@ end
                         'views.partials.' .. data.item_type,
                         {
                             item = item,
-                            items_per_row = data.items_per_row
+                            items_per_row = data.items_per_row,
+                            show_author = data.show_author,
+                            show_icons = data.show_icons
                         }
                     ) or ''
             %>

@@ -4,7 +4,7 @@ GENERAL TODO
 [x] update page count on search
 [x] include dates and fix their format
 [x] go back to page 1 on search
-[ ] include share status icons
+[x] include share status icons
 [ ] make sure thumbnails are working
 [ ] make user_admin filters work
 [ ] make project count work on profile partial

@@ -22,6 +22,7 @@
                 projects.data.class = 'collection_projects'
                 projects.data.collection_name = collection.name
                 projects.data.item_type = 'project'
+                projects.data.show_icons = true
                 projects.data.query = 'collection_projects'
                 -- store for use in querying for next pages
                 projects.data.user_id = collection.creator.id

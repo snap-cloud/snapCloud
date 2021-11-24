@@ -13,6 +13,7 @@
     projects.data.item_type = 'project'
     projects.data.query = 'user_projects'
     projects.data.username = queried_user.username
+    projects.data.show_author = false
 
     render(
         'views.components.component',
