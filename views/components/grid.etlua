@@ -61,6 +61,9 @@ end
                 <i class="fas fa-search"></i>
             </form>
         </div>
+        <% if data.search_term then %>
+        <span class="search-term">Matching: <em><%= data.search_term %></em></span>
+        <% end %>
         <% end -- show search bar, if requested %>
         <% if data.filters then for _, filter in ipairs(data.filters) do %>
                 <div class="filter <%= filter.selector %>"><%= filter.label %>:

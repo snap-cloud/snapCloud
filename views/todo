@@ -1,68 +1,101 @@
-GENERAL TODO
-============
-[x] one single query per page
-[x] update page count on search
-[x] include dates and fix their format
-[x] go back to page 1 on search
-[x] include share status icons
-[ ] make sure thumbnails are working
-[ ] make user_admin filters work
-[ ] make project count work on profile partial
-
-EDIT PAGES
+TODO
 ==========
-[ ] zombie_admin.tmp
-[-] user_admin.tmp
-[-] flag_details.tmp
-[-] flags.tmp
-[-] collection.tmp
-[-] profile.tmp
-[-] change_email.tmp
-[-] change_password.tmp
-[-] delete_user.tmp
-[-] project.tmp
-[-] my_collections.tmp
-[-] my_projects.tmp
-[-] profile.tmp
-[-] user.tmp
-[-] forgot_password.tmp
-[-] forgot_username.tmp
-[-] sign_up.tmp
-[-] login.tmp
+[ ] make sure thumbnails are working
+[ ] zombie_admin
+[-] profile partial
+    [ ] add project count
+    [ ] become
+    [ ] change email
+    [ ] send a message
+    [ ] ban
+    [ ] delete
+    [ ] role selector
+[-] user_admin
+    [ ] make filters work
+[-] flag_details
+    [ ] remove flag
+[-] flags
+    [ ] proper flag count (didn't work in the old site)
+[-] collection
+    [ ] edit description
+    [ ] edit name
+    [ ] select thumbnail
+    [ ] remove project
+    [ ] remove editor
+    [ ] add editor
+    [ ] mark as free-for-all
+    [ ] remove myself
+    [ ] share / unshare
+    [ ] publish / unpublish
+    [ ] delete
+[-] change_email
+    [ ] actually do it
+[-] change_password
+    [ ] actually do it
+[-] delete_user
+    [ ] actually do it
+[-] project
+    [ ] share / unshare
+    [ ] publish / unpublish
+    [ ] delete
+    [ ] flag
+    [ ] embed
+    [ ] download
+    [ ] add to collection
+    [ ] edit notes (didn't work in the old site)
+    [ ] edit title (didn't work in the old site)
+[-] my_collections
+    [ ] "New Collection" button
+[-] forgot_password
+    [ ] actually do it
+[-] forgot_username
+    [ ] actually do it
+[-] sign_up
+    [ ] actually do it
+[-] login
+    [ ] actually do it
 
-100% DONE: Nothing left to do
-=============================
-[x] search.tmp
-[x] embed.tmp
-[x] requirements.tmp
-[x] research.tmp
-[x] slideshow.tmp
-[x] snapinator.tmp
-[x] snapp.tmp
-[x] source.tmp
-[x] tos.tmp
-[x] about.tmp
-[x] admin.tmp
-[x] base.tmp -> layout.etlua
-[x] bjc.tmp
-[x] blog.tmp
-[x] coc.tmp
-[x] carousel.tmp
-[x] contact.tmp
-[x] credits.tmp
-[x] dmca.tmp
-[x] examples.tmp
-[x] explore.tmp
-[x] extensions.tmp
-[x] footer.tmp
-[x] grid.tmp
-[x] materials.tmp
-[x] mirrors.tmp
-[x] navigation_bar.tmp
-[x] offline.tmp
-[x] paginator.tmp
-[x] partners.tmp
-[x] privacy.tmp
-[x] project_collections.tmp
-[x] project_remixes.tmp
-[x] welcome.tmp → index.etlua
+DONE
+====
+[x] about
+[x] admin
+[x] bjc
+[x] blog
+[x] carousel
+[x] coc
+[x] contact
+[x] credits
+[x] dmca
+[x] embed
+[x] examples
+[x] explore
+[x] extensions
+[x] footer
+[x] go back to page 1 on search
+[x] grid
+[x] include dates and fix their format
+[x] include share status icons
+[x] index
+[x] layout
+[x] materials
+[x] mirrors
+[x] my_projects
+[x] navigation_bar
+[x] offline
+[x] one single query per page
+[x] paginator
+[x] partners
+[x] privacy
+[x] profile
+[x] project_collections
+[x] project_remixes
+[x] requirements
+[x] research
+[x] search
+[x] slideshow
+[x] snapinator
+[x] snapp
+[x] source
+[x] tos
+[x] update page count on search
+[x] user
