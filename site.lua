@@ -69,13 +69,16 @@ end)
 
 -- Pages that use AJAX-enabled components
 
-app:get('/', function (self)
+local index = function (self)
     self.Collections = Collections
     self.db = db
     self.user_id = Users:find({ username = 'snapcloud' }).id
     self.new_component = component.new
     return { render = 'index' }
-end)
+end
+
+app:get('/', index)
+app:get('/index', index)
 
 app:get('/admin', function (self)
     assert_has_one_of_roles({'admin', 'moderator', 'reviewer'})
