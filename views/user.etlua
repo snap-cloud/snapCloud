@@ -46,6 +46,14 @@
 %>
 <div class="profile">
     <h2>Admin tools</h2>
-    <% render('views.partials.profile', { item = queried_user }) %>
+<%
+    render(
+        'views.partials.profile',
+        {
+            item = queried_user,
+            show_project_count = true
+        }
+    )
+%>
 </div>
 <% end %>

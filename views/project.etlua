@@ -28,7 +28,7 @@
             <!-- Project Action Buttons -->
             <div class="buttons">
                 <a localizable="" class="pure-button open" target="_blank" href="<%= project:url_for('open', params.devVersion) %>">See Code</a>
-                <a localizable="" class="pure-button download" target="_blank">Download</a>
+                <a localizable="" class="pure-button download" href="<%= project:url_for('download', params.devVersion) %>" download>Download</a>
                 <a localizable="" class="pure-button embed-button" target="_blank">Embed</a>
                 <a localizable="" class="pure-button collect" target="_blank">Add to Collection</a>
             <% if ((project.username == current_user.username) or admin_controls) then %>

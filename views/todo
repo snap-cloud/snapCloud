@@ -1,9 +1,9 @@
 TODO
-==========
+====
 [ ] make sure thumbnails are working
 [ ] zombie_admin
 [-] profile partial
-    [ ] add project count
+    [x] add project count
     [ ] become
     [ ] change email
     [ ] send a message
@@ -14,8 +14,6 @@ TODO
     [ ] make filters work
 [-] flag_details
     [ ] remove flag
-[-] flags
-    [ ] proper flag count (didn't work in the old site)
 [-] collection
     [ ] edit description
     [ ] edit name
@@ -28,24 +26,22 @@ TODO
     [ ] share / unshare
     [ ] publish / unpublish
     [ ] delete
-[-] change_email
-    [ ] actually do it
-[-] change_password
-    [ ] actually do it
-[-] delete_user
-    [ ] actually do it
 [-] project
     [ ] share / unshare
     [ ] publish / unpublish
     [ ] delete
     [ ] flag
     [ ] embed
-    [ ] download
     [ ] add to collection
-    [ ] edit notes (didn't work in the old site)
-    [ ] edit title (didn't work in the old site)
+    [x] download
 [-] my_collections
     [ ] "New Collection" button
+[-] change_email
+    [ ] actually do it
+[-] change_password
+    [ ] actually do it
+[-] delete_user
+    [ ] actually do it
 [-] forgot_password
     [ ] actually do it
 [-] forgot_username
@@ -54,6 +50,14 @@ TODO
     [ ] actually do it
 [-] login
     [ ] actually do it
+
+TODO AFTER DEPLOYING
+====================
+[-] flags
+    [ ] proper flag count
+[-] project
+    [ ] edit notes
+    [ ] edit title
 
 DONE
 ====

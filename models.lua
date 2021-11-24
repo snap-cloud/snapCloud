@@ -28,7 +28,16 @@ local escape = package.loaded.util.escape
 
 package.loaded.Users = Model:extend('active_users', {
     relations = {
-        {'collections', has_many = 'Collections'}
+        {'collections', has_many = 'Collections'},
+        {'project_count',
+            fetch = function (self)
+                return package.loaded.Projects:select(
+                    'WHERE username = ?',
+                    self.username,
+                    { fields = 'count(*) as count' }
+                )[1].count
+            end
+        }
     },
     isadmin = function (self)
         return self.role == 'admin'
@@ -107,6 +116,8 @@ package.loaded.Projects = Model:extend('active_projects', {
                 '#present:Username=' .. escape(self.username) ..
                 '&ProjectName=' .. escape(self.projectname) ..
                 '&editMode&noRun',
+            download = '/api/v1/projects/' .. escape(self.username) ..
+                '/' .. escape(self.projectname),
             site = 'project?username=' .. escape(self.username) ..
                 '&projectname=' .. escape(self.projectname),
             author = 'user?username=' .. escape(self.username)
