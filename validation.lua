@@ -31,7 +31,6 @@ local Tokens = package.loaded.Tokens
 local url = require 'socket.url'
 local exceptions = require 'lib.exceptions'
 
--- Utility functions
 require 'responses'
 require 'email'
 
