@@ -15,6 +15,9 @@
             value       (any) Option value.
     show_author         (t/f) Show the item author, if any. Default: false.
     show_icons          (t/f) Show item privacy icons. Default: false.
+    show_collection_controls
+                        (t/f) Show buttons to set thumbnail or remove from
+                              collection. Default: false
 ]]--
 
 -- set defaults
@@ -96,7 +99,10 @@ end
                             item = item,
                             items_per_row = data.items_per_row,
                             show_author = data.show_author,
-                            show_icons = data.show_icons
+                            show_icons = data.show_icons,
+                            show_collection_controls =
+                                data.show_collection_controls,
+                            run = run
                         }
                     ) or ''
             %>

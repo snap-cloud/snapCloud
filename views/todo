@@ -2,7 +2,7 @@ TODO
 ====
 [ ] make sure thumbnails are working
 [ ] zombie_admin
-[-] profile partial
+[-] profile partial (should become a component?)
     [x] add project count
     [ ] become
     [ ] change email

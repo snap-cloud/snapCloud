@@ -21,11 +21,13 @@
                 -- take only the first word, and lowercase it:
                 projects.data.class = 'collection_projects'
                 projects.data.collection_name = collection.name
+                projects.data.collection_id = collection.id
                 projects.data.item_type = 'project'
                 projects.data.show_icons = true
                 projects.data.query = 'collection_projects'
                 -- store for use in querying for next pages
                 projects.data.user_id = collection.creator.id
+                projects.data.show_collection_controls = true
 
                 render(
                         'views.components.component',
