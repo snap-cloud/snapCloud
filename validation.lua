@@ -29,6 +29,7 @@ local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 local url = require 'socket.url'
+local exceptions = require 'lib.exceptions'
 
 require 'responses'
 require 'email'
@@ -455,10 +456,12 @@ rate_limit = function (self)
         ngx.shared.session_cache:set(self.session.id, self.session.count)
     else
         yield_error(err.session_reused)
+        exceptions.rvn:captureMessage(err.session_reused)
     end
 
     if ((os.time() - self.session.first_access) < 10) then
         yield_error(err.too_soon)
+        exceptions.rvn:captureMessage(err.too_soon)
     end
 
     if self.session.current_access_time == nil then
@@ -479,6 +482,7 @@ rate_limit = function (self)
         self.session.allowed_time_difference =
             self.session.allowed_time_difference * 2
         yield_error(err.too_fast)
+        exceptions.rvn:captureMessage(err.too_fast)
     else
         self.session.allowed_time_difference = 2
     end
