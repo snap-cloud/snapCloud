@@ -460,7 +460,7 @@ rate_limit = function (self)
         exceptions.rvn:captureMessage(err.session_reused)
     end
 
-    if ((os.time() - self.session.first_access) < 1000000000000000000) then
+    if ((os.time() - self.session.first_access) < 10) then
         yield_error(err.too_soon)
         exceptions.rvn:captureMessage(err.too_soon)
     end
