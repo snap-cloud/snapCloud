@@ -36,6 +36,8 @@ local config = package.loaded.config
 local encoding = require("lapis.util.encoding")
 local resty_string = package.loaded.resty_string
 
+local create_signature, extract_payload, build_payload, create_redirect_url
+
 app:get('/api/v1/discourse-sso', capture_errors(function(self)
     if self.session.username == '' then
         local signin_url = '/login?redirect_to='
@@ -82,19 +84,19 @@ app:get('/api/v1/discourse-sso', capture_errors(function(self)
     return { redirect_to = final_url }
 end))
 
-local function create_signature(payload)
+function create_signature(payload)
     local secret = config.discourse_sso_secret
     return resty_string.to_hex(encoding.hmac_sha256(secret, payload))
 end
 
-local function extract_payload(payload)
+function extract_payload(payload)
     return util.parse_query_string(encoding.decode_base64(payload))
 end
 
 -- Base64 encode the required discourse params.
 -- "require_activation" is a special discourse flag,
 -- for user's whose email is not verified. It enables additional restrictions.
-local function build_payload(user, request_payload)
+function build_payload(user, request_payload)
     local params = {
         external_id = user.id,
         username = user.username,
@@ -108,7 +110,7 @@ local function build_payload(user, request_payload)
     return encoding.encode_base64(util.encode_query_string(params))
 end
 
-local function create_redirect_url(discourse_url, payload)
+function create_redirect_url(discourse_url, payload)
     local encoded_payload = util.escape(payload)
     local signature = create_signature(payload)
     return discourse_url .. '?sso=' .. encoded_payload .. '&sig=' .. signature
