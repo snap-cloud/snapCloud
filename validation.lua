@@ -30,6 +30,7 @@ local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 local url = require 'socket.url'
 local exceptions = require 'lib.exceptions'
+local socket = require('socket')
 
 require 'responses'
 require 'email'
@@ -451,16 +452,18 @@ end
 
 -- Rate limiting
 rate_limit = function (self)
-    local cached_count = ngx.shared.session_cache:get(self.session.id)
-    if (cached_count == self.session.count) then
-        self.session.count = self.session.count + 1
-        ngx.shared.session_cache:set(self.session.id, self.session.count)
-    else
+    if ngx.shared.session_cache:get(self.session.access_id) or
+            (self.session.access_id == nil) then
+        self.session.first_access = os.time()
+        self.session.access_id = socket.gettime() .. '-' .. math.random()
         yield_error(err.session_reused)
         exceptions.rvn:captureMessage(err.session_reused)
+    else
+        ngx.shared.session_cache:set(self.session.access_id, true)
+        self.session.access_id = socket.gettime() .. '-' .. math.random()
     end
 
-    if ((os.time() - self.session.first_access) < 10) then
+    if ((os.time() - self.session.first_access) < 2) then
         yield_error(err.too_soon)
         exceptions.rvn:captureMessage(err.too_soon)
     end
@@ -479,9 +482,9 @@ rate_limit = function (self)
     local time_diff =
         (self.session.current_access_time - self.session.previous_access_time)
     if time_diff < self.session.allowed_time_difference then
-        -- you're being punished with double time
+        -- you're being punished with double time, capped at 30 secs
         self.session.allowed_time_difference =
-            self.session.allowed_time_difference * 2
+            math.min(self.session.allowed_time_difference * 2, 30)
         yield_error(err.too_fast)
         exceptions.rvn:captureMessage(err.too_fast)
     else
