@@ -56,15 +56,10 @@ UserController = {
                 self.session.first_access = os.time()
             end
 
-            if (self.session.id == nil) then
+            if (self.session.access_id == nil) then
                 -- just to uniquely identify the session
-                self.session.id =
+                self.session.access_id =
                     socket.gettime() .. '-' .. math.random()
-                self.session.count = 1
-            end
-
-            if (ngx.shared.session_cache:get(self.session.id) == nil) then
-                ngx.shared.session_cache:set(self.session.id, self.session.count)
             end
 
             return jsonResponse({
