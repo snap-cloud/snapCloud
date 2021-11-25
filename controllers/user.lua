@@ -25,7 +25,7 @@ local validate = package.loaded.validate
 local db = package.loaded.db
 local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
-local csrf = require("lapis.csrf")
+local socket = require('socket')
 
 local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
@@ -56,14 +56,15 @@ UserController = {
                 self.session.first_access = os.time()
             end
 
-            if (self.session.csrf == nil) then
+            if (self.session.id == nil) then
                 -- just to uniquely identify the session
-                self.session.csrf = csrf.generate_token(self)
+                self.session.id =
+                    socket.gettime() .. '-' .. math.random()
                 self.session.count = 1
             end
 
-            if (ngx.shared.session_cache:get(self.session.csrf) == nil) then
-                ngx.shared.session_cache:set(self.session.csrf, self.session.count)
+            if (ngx.shared.session_cache:get(self.session.id) == nil) then
+                ngx.shared.session_cache:set(self.session.id, self.session.count)
             end
 
             return jsonResponse({

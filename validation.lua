@@ -449,10 +449,10 @@ end
 
 -- Rate limiting
 rate_limit = function (self)
-    local cached_count = ngx.shared.session_cache:get(self.session.csrf)
+    local cached_count = ngx.shared.session_cache:get(self.session.id)
     if (cached_count == self.session.count) then
         self.session.count = self.session.count + 1
-        ngx.shared.session_cache:set(self.session.csrf, self.session.count)
+        ngx.shared.session_cache:set(self.session.id, self.session.count)
     else
         yield_error(err.session_reused)
     end
