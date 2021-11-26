@@ -29,7 +29,7 @@ local selectors = {
     'create_redirect_url', 'build_payload', 'extract_payload',
 
     'tbl', 'APIController', 'CollectionController', 'ProjectController',
-    'UserController',
+    'UserController', 'CounterController',
 
     'random_password', 'secure_token', 'secure_salt', 'jsonResponse',
     'xmlResponse', 'okResponse', 'errorResponse', 'htmlPage', 'cors_options',

@@ -24,7 +24,6 @@
         <!-- JS -->
         <script type="text/javascript" src="static/js/locale.js"></script>
         <script type="text/javascript" src="static/js/base.js"></script>
-        <script type="text/javascript" src="static/js/sha512.js"></script>
     </head>
     <body>
         <script type="text/javascript" src="static/js/custom-alert.min.js"></script>

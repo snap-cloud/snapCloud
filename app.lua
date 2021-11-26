@@ -42,7 +42,6 @@ package.loaded.resty_string = require "resty.string"
 package.loaded.resty_random = require "resty.random"
 package.loaded.config = require("lapis.config").get()
 package.loaded.disk = require('disk')
-package.loaded.component = require 'component'
 
 local app = package.loaded.app
 local config = package.loaded.config
@@ -51,9 +50,9 @@ local config = package.loaded.config
 local exceptions = require('lib.exceptions')
 -- Store whitelisted domains
 local domain_allowed = require('cors')
+
 -- Utility functions
 local date = require("date")
-
 string.from_sql_date = function (sql_date)
     -- Formats an SQL date into (i.e.) November 21, 2021
     local month_names = { 'January', 'February', 'March', 'April', 'May', 'June',
@@ -93,7 +92,8 @@ app.cookie_attributes = function(self)
         secure = ""
         sameSite = "Lax"
     end
-    return "Expires=" .. expires .. "; Path=/; HttpOnly; SameSite=" .. sameSite .. ";" .. secure
+    return "Expires=" .. expires .. "; Path=/; HttpOnly; SameSite=" ..
+                sameSite .. ";" .. secure
 end
 
 -- Remove the protocol and port from a URL
@@ -108,14 +108,17 @@ end
 app:before_filter(function (self)
     local ip_entry = package.loaded.BannedIPs:find(ngx.var.remote_addr)
     if (ip_entry and ip_entry.offense_count > 2) then
-        self:write(errorResponse('Your IP has been banned from the system', 403))
+        self:write(
+            errorResponse('Your IP has been banned from the system', 403)
+        )
         return
     end
 
     -- Set Access Control header
     local domain = domain_name(self.req.headers.origin)
     if self.req.headers.origin and domain_allowed[domain] then
-        self.res.headers['Access-Control-Allow-Origin'] = self.req.headers.origin
+        self.res.headers['Access-Control-Allow-Origin'] =
+            self.req.headers.origin
         self.res.headers['Access-Control-Allow-Credentials'] = 'true'
         self.res.headers['Vary'] = 'Origin'
     end
@@ -124,22 +127,26 @@ app:before_filter(function (self)
         return -- avoid any unnecessary work for CORS pre-flight requests
     end
 
-    -- unescape all parameters and recast booleans
+    -- unescape all parameters and JSON-decode them
     for k, v in pairs(self.params) do
-        if ((v == 'true') or (v == 'false')) then
-            self.params[k] = (v == 'true')
-        else
-            self.params[k] = package.loaded.util.unescape(tostring(v))
+        -- try to decode it, if it fails it's not proper JSON
+        if pcall(function () package.loaded.util.from_json(v) end) then
+            self.params[k] =
+                package.loaded.util.from_json(
+                    package.loaded.util.unescape(v)
+                )
         end
     end
 
     if self.params.username and self.params.username ~= '' then
         self.params.username = self.params.username:lower()
-        self.queried_user = package.loaded.Users:find({ username = self.params.username })
+        self.queried_user =
+            package.loaded.Users:find({ username = self.params.username })
     end
 
     if self.session.username and self.session.username ~= '' then
-        self.current_user = package.loaded.Users:find({ username = self.session.username })
+        self.current_user =
+            package.loaded.Users:find({ username = self.session.username })
     else
         self.session.username = ''
         self.current_user = nil
@@ -152,7 +159,7 @@ app:before_filter(function (self)
 end)
 
 function app:handle_404()
-    return errorResponse("Failed to find resource: " .. self.req.cmd_url, 404)
+    return errorResponse('Failed to find resource: ' .. self.req.cmd_url, 404)
 end
 
 --[[
@@ -186,7 +193,7 @@ if config.maintenance_mode == 'true' then
 end
 
 -- The API is implemented in the api.lua file
-require 'api'
+--require 'api'
 require 'discourse'
 
 -- We don't keep spam/exploit paths in the API

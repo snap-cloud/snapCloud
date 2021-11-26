@@ -7,178 +7,41 @@ var snapURL = location.origin + '/snap/snap.html',
     buttonDefaults =
         { done: { text: 'Ok', default: true }, cancel: { text: 'Cancel' } };
 
+function run_selector (controller, selector, params) {
+    var req = new XMLHttpRequest();
+    req.open(
+        'POST',
+        '/call_lua/' + controller + '/' + selector + encodeParams(params),
+        true
+    );
+    req.onreadystatechange = function () {
+        if (req.readyState == 4 && req.status == 200) {
+            console.log(req.responseText);
+            location.href = req.responseText;
+        }
+    };
+    req.send();
+};
+
+function encodeParams (params) {
+    if (params) {
+        return '?' +
+            Object.keys(params).map(
+                paramName => 
+                    encodeURIComponent(paramName) + '=' +
+                        encodeURIComponent(JSON.stringify(params[paramName]))
+            ).join('&');
+    } else {
+        return '';
+    }
+};
+
 function getUrlParameter (param) {
     var regex = new RegExp('[?&]' + param + '(=([^&#]*)|&|#|$)'),
         results = regex.exec(location.href);
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
-};
-
-function pageUser () {
-    return getUrlParameter('user');
-};
-
-function pageProject () {
-    return getUrlParameter('project');
-};
-
-// Permissions
-
-function hasAnyOfRoles (roleList) {
-    return roleList.indexOf(sessionStorage.role) > -1
-};
-
-// Data insertion
-
-function fillVisitorFields () {
-    if (sessionStorage.username) {
-        document.querySelectorAll('.visitor').forEach(function (each) {
-            each.innerHTML = escapeHtml(sessionStorage.username);
-        });
-    }
-};
-
-function fillUsernameFields () {
-    var username = pageUser();
-    if (username) {
-        document.querySelectorAll('.username').forEach(function (each) {
-            each.innerHTML = escapeHtml(username);
-        });
-    }
-};
-
-function setTitle (newTitle) {
-    document.title = newTitle;
-};
-
-// Element creation
-
-function authorSpan (author, newTab) {
-    var span = document.createElement('span');
-    span.classList.add('author');
-    span.innerHTML = localizer.localize(' by ');
-    span.appendChild(userAnchor(author, newTab));
-    return span;
-};
-
-function userAnchor (username, newTab) {
-    var anchor = document.createElement('a');
-    anchor.href = 'user?user=' + encodeURIComponent(username);
-    anchor.target = newTab ? '_blank' : '';
-    anchor.innerHTML = '<strong>' + escapeHtml(username) + '</strong>';
-    return anchor;
-};
-
-function flagCountSpan (count) {
-    var span = document.createElement('span');
-    span.innerHTML =
-        'Flagged <strong>' + count + '</strong> time' +
-        ((count > 1) ? 's' : '');
-    return span;
-};
-
-function flagSpan (flag) {
-    var span = document.createElement('span'),
-        dateSpan = document.createElement('span'),
-        headerSpan = document.createElement('span'),
-        reasonSpan = document.createElement('span'),
-        flaggedText = document.createElement('span'),
-        onText = document.createElement('span'),
-        removeAnchor = document.createElement('a'),
-        icon = document.createElement('i');
-    span.classList.add('flag');
-    headerSpan.classList.add('header');
-    reasonSpan.classList.add('reason');
-    reasonSpan.classList.add('warning');
-    reasonSpan.innerText = {
-        coc: 'Code of Conduct violation',
-        hack: 'Security vulnerability exploit',
-        dmca: 'DMCA policy violation'
-    }[flag.reason];
-    headerSpan.appendChild(reasonSpan);
-    icon.classList.add('fas');
-    icon.classList.add('fa-times-circle');
-    removeAnchor.classList.add('remove');
-    removeAnchor.classList.add('clickable');
-    removeAnchor.appendChild(icon);
-    removeAnchor.onclick = function () {
-        SnapCloud.withCredentialsRequest(
-            'DELETE',
-            '/projects/' +
-            encodeURIComponent(pageUser()) + '/' +
-            encodeURIComponent(pageProject()) +
-            '/flag?flagger=' + encodeURIComponent(flag.username),
-            function () {
-                span.classList.add('warning-flash');
-                setTimeout( function () { span.remove(); }, 1000);
-            },
-            genericError,
-            'Could not unflag project'
-        );
-    };
-    headerSpan.appendChild(removeAnchor);
-    span.appendChild(headerSpan);
-    flaggedText.innerText = localizer.localize('Flagged');
-    span.appendChild(flaggedText);
-    span.appendChild(authorSpan(flag.username, true));
-    onText.innerText = localizer.localize(' on ');
-    span.appendChild(onText);
-    dateSpan.innerHTML = formatDate(flag.created_at);
-    span.appendChild(dateSpan);
-    span.title = flag.notes;
-    return span;
-};
-
-function isPublicSpan (isPublic) {
-    var span = document.createElement('span'),
-        tooltip = isPublic ?
-            'This item can be shared via URL' :
-            'This item is private',
-        faClass = isPublic ? 'fa-link' : 'fa-unlink';
-    span.classList.add('is-public');
-    span.innerHTML = '<small><i class="fas ' + faClass +
-        '" aria-hidden="true"></i></small>';
-    span.title = localizer.localize(tooltip);
-    return span;
-};
-
-function isPublishedSpan (isPublished) {
-    var span = document.createElement('span'),
-        tooltip = isPublished ?
-            'This item is published' :
-            'This item is unpublished',
-        faClass = isPublished ? 'fa-eye' : 'fa-eye-slash';
-
-    span.classList.add('is-published');
-    span.innerHTML = '<small><i class="fas ' + faClass +
-        '" aria-hidden="true"></i></small>';
-    span.title = localizer.localize(tooltip);
-    return span;
-};
-
-function projectURL (author, project, devVersion) {
-    return (devVersion ? snapDevURL : snapURL) +
-        '#present:Username=' + encodeURIComponent(author) +
-        '&ProjectName=' + encodeURIComponent(project);
-};
-
-function projectSpan (author, project) {
-    var span = document.createElement('span');
-    span.classList.add('project-link');
-    span.innerHTML =
-        '<a href="project?user=' + encodeURIComponent(author) +
-        '&project=' + encodeURIComponent(project) + '">' +
-        escapeHtml(project) + '</a>';
-    return span;
-};
-
-function collectionURL (author, name) {
-    return 'collection?' + 
-        SnapCloud.encodeDict({
-            user: author,
-            collection: name
-        });
 };
 
 // Error handling
@@ -217,13 +80,6 @@ function doneLoading (selector) {
 };
 
 // Other goodies
-
-function formatDate (dateString) {
-    return (new Date(dateString + ':00')).toLocaleString(
-        localizer.locale || 'en-us',
-        { month: 'long', day: 'numeric', year: 'numeric' }
-    );
-};
 
 function escapeHtml (text) {
     // Based on an answer by Kip @ StackOverflow

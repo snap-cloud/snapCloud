@@ -24,6 +24,7 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local app = package.loaded.app
+local util = package.loaded.util
 local capture_errors = package.loaded.capture_errors
 local respond_to = package.loaded.respond_to
 
@@ -33,10 +34,12 @@ local Remixes = package.loaded.Remixes
 local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
 local db = package.loaded.db
-local component = package.loaded.component
+
+require 'controllers.user'
+require 'controllers.counter'
 
 -- All component actions and queries are separated into the site controller
-require 'controllers.site'
+--require 'controllers.site'
 
 app:enable('etlua')
 app.layout = require 'views.layout'
@@ -49,7 +52,7 @@ local views = {
 
     -- Simple pages
     'blog', 'change_email', 'change_password', 'delete_user', 'forgot_password',
-    'forgot_username', 'login', 'sign_up'
+    'forgot_username', 'sign_up'
 }
 
 for _, view in pairs(views) do
@@ -195,3 +198,59 @@ app:get('/user_admin', function (self)
     assert_has_one_of_roles(self, {'admin', 'moderator'})
     return { render = 'user_admin' }
 end)
+
+app:get('/login', function (self)
+    return { render = 'login' }
+end)
+
+app:get('/counter', function (self)
+    if self.session.value == nil then self.session.value = 0 end
+    self.component = { template = 'counter', controller = 'counter' }
+    return { render = 'component' }
+end)
+
+
+-- controller calls
+
+local controller_dispatch = function (self)
+    -- 'user' →  'UserController'
+    local controller_name =
+        self.params.controller:gsub("^%l", string.upper) .. 'Controller'
+    return _G[controller_name][self.params.selector](self)
+end
+
+app:post(
+    '/call_lua/:controller/:selector',
+    -- run the action associated to this particular component and selector,
+    -- from the specified controller
+    function (self)
+        return {
+            controller_dispatch(self),
+            content_type = 'text/plain',
+            layout = false
+        }
+    end
+)
+
+-- component updater
+app:post(
+    '/update_component/:component_id/:template/:controller/:selector',
+    function (self)
+        -- run the action associated to this particular component and selector,
+        -- from the actions table
+
+        self.component = {
+            id = self.params.component_id,
+            controller = self.params.controller
+        }
+        -- ignore return value, as we'll just re-render the component
+        controller_dispatch(self)
+
+        return { 
+            render = self.params.template,
+            layout = false
+        }
+    end
+)
+
+

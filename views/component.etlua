@@ -1,0 +1,27 @@
+<%
+    local socket = require('socket')
+    component.id = 'lps_' .. socket.gettime() * 10000 .. '_' .. math.floor(math.random() * 10000)
+%>
+<script>
+    function update_<%= component.id %>(controller, selector, params) {
+        var req = new XMLHttpRequest();
+        req.open(
+            'POST',
+            '/update_component/<%= component.id %>/<%= component.template %>/' +
+                '<%= component.controller %>/' + selector +
+                encodeParams(params),
+            true
+        );
+        req.onreadystatechange = function () {
+            if (req.readyState == 4 && req.status == 200) {
+                document.querySelector('#<%= component.id %>').innerHTML =
+                    req.responseText;
+            }
+        };
+        req.send();
+    };
+</script>
+
+<div id="<%= component.id %>">
+    <% render('views.' .. component.template) %>
+</div>
