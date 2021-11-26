@@ -271,6 +271,13 @@ UserController = {
                     return user_page(user)
                 end
             )
+        end,
+
+        logout = function (self)
+            self.session.username = ''
+            self.session.user_id = nil
+            self.cookies.persist_session = 'false'
+            return { redirect_to = self:build_url('/') }
         end
     },
 
@@ -287,7 +294,7 @@ UserController = {
                 if self.params.role then
                     assert_can_set_role(self, self.params.role)
                 end
-                if not self.queried_user then 
+                if not self.queried_user then
                     self.queried_user = Users:find(
                         { username = self.params.username })
                 end
@@ -605,7 +612,7 @@ UserController = {
                     yield_error(err.nonexistent_user)
                 end
             else
-                if not self.queried_user then 
+                if not self.queried_user then
                     self.queried_user = Users:find(
                         { username = self.params.username })
                 end
@@ -634,8 +641,6 @@ UserController = {
         end
     }
 }
-
-UserController.GET.logout = UserController.POST.logout
 
 -- Zombies
 UserController.GET.zombies = function (self)
