@@ -23,5 +23,10 @@
 </script>
 
 <div id="<%= component.id %>">
-    <% render('views.' .. component.template) %>
+    <% 
+        render(
+            'views.' .. component.template,
+            { data = data, component = component }
+        )
+    %>
 </div>

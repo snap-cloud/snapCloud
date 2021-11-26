@@ -36,6 +36,8 @@ local FlaggedProjects = package.loaded.FlaggedProjects
 local db = package.loaded.db
 
 require 'controllers.user'
+require 'controllers.project'
+require 'controllers.collection'
 require 'controllers.counter'
 
 -- All component actions and queries are separated into the site controller
@@ -75,8 +77,7 @@ end)
 local index = function (self)
     self.Collections = Collections
     self.db = db
-    self.user_id = Users:find({ username = 'snapcloud' }).id
-    self.new_component = component.new
+    self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
 end
 
@@ -248,7 +249,7 @@ app:post(
 
         return { 
             render = self.params.template,
-            layout = false
+            layout = false,
         }
     end
 )

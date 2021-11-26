@@ -48,44 +48,45 @@ for i = 1, 3, 1 do
     table.insert(collections, { collection_name = choice, title = choice })
 end
 
-for _, descriptor in pairs(collections) do 
-    local projects = new_component('grid')
-    -- take only the first word, and lowercase it. Prepend 'c-' because classes
-    -- need to start with a letter, and '3d' does not...
-    projects.data.class = 'col-' .. math.random(1000000)
-    projects.data.title = descriptor.title
-    projects.data.collection_name = descriptor.collection_name
-    projects.data.item_type = 'project'
-    projects.data.query = 'collection_projects'
-    -- store for use in querying for next pages
-    projects.data.user_id = user_id
 
+for _, descriptor in pairs(collections) do 
     render(
-        'views.components.component',
+        'views.component',
         {
-            path = 'grid',
-            component = projects
+            component = { template = 'grid', controller = 'collection' },
+            data = {
+                -- take only the first word, and lowercase it.
+                -- prepend 'c-' because classes need to start with a letter,
+                -- and '3d' does not...
+                class = 'col-' .. math.random(1000000),
+                title = descriptor.title,
+                collection_name = descriptor.collection_name,
+                item_type = 'project',
+                query = 'collection_projects',
+                -- store for use in querying for next pages
+                user_id = snapcloud_id
+            }
         }
     )
 end
 
 -- Show latest projects next
 
-local projects = new_component('grid')
-projects.data.total_pages = 20
-projects.data.per_page = 5
-projects.data.class = 'projects'
-projects.data.title = 'Latest Projects'
-projects.data.item_type = 'project'
-projects.data.query = 'explore_projects'
-
+--[[
 render(
-    'views.components.component',
+    'views.component', 
     {
-        path = 'grid',
-        component = projects
+        component = { template = 'grid', controller = 'project' },
+        data = {
+            total_pages = 20,
+            per_page = 5,
+            class = 'projects',
+            title = 'Latest Projects',
+            item_type = 'project',
+            query = 'explore_projects'
+        }
     }
 )
-
+]]--
 %>
 

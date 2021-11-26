@@ -1,8 +1,40 @@
 TODO
 ====
+[ ] remake component-using pages:
+    [ ] grid
+    [ ] user
+    [ ] examples
+    [ ] index
+    [ ] explore
+    [ ] search
+    [ ] my_projects
+    [ ] user_admin
+        [ ] make filters work
+    [ ] collection
+        [ ] edit description
+        [ ] edit name
+        [ ] select thumbnail
+        [ ] remove project
+        [ ] remove editor
+        [ ] add editor
+        [ ] mark as free-for-all
+        [ ] remove myself
+        [ ] share / unshare
+        [ ] publish / unpublish
+        [ ] delete
+    [ ] project
+        [ ] share / unshare
+        [ ] publish / unpublish
+        [ ] delete
+        [ ] flag
+        [ ] embed
+        [ ] add to collection
+        [x] download
+    [ ] my_collections
+        [ ] "New Collection" button
 [ ] make sure thumbnails are working
 [ ] zombie_admin
-[-] profile partial (should become a component?)
+[-] profile partial
     [x] add project count
     [ ] become
     [ ] change email
@@ -10,32 +42,8 @@ TODO
     [ ] ban
     [ ] delete
     [ ] role selector
-[-] user_admin
-    [ ] make filters work
 [-] flag_details
     [ ] remove flag
-[-] collection
-    [ ] edit description
-    [ ] edit name
-    [ ] select thumbnail
-    [ ] remove project
-    [ ] remove editor
-    [ ] add editor
-    [ ] mark as free-for-all
-    [ ] remove myself
-    [ ] share / unshare
-    [ ] publish / unpublish
-    [ ] delete
-[-] project
-    [ ] share / unshare
-    [ ] publish / unpublish
-    [ ] delete
-    [ ] flag
-    [ ] embed
-    [ ] add to collection
-    [x] download
-[-] my_collections
-    [ ] "New Collection" button
 [-] change_email
     [ ] actually do it
 [-] change_password
@@ -49,7 +57,8 @@ TODO
 [-] sign_up
     [ ] actually do it
 [-] login
-    [ ] actually do it
+    [x] actually do it
+    [ ] error handling
 
 TODO AFTER DEPLOYING
 ====================
@@ -65,25 +74,19 @@ DONE
 [x] admin
 [x] bjc
 [x] blog
-[x] carousel
 [x] coc
 [x] contact
 [x] credits
 [x] dmca
 [x] embed
-[x] examples
-[x] explore
 [x] extensions
 [x] footer
 [x] go back to page 1 on search
-[x] grid
 [x] include dates and fix their format
 [x] include share status icons
-[x] index
 [x] layout
 [x] materials
 [x] mirrors
-[x] my_projects
 [x] navigation_bar
 [x] offline
 [x] one single query per page
@@ -91,15 +94,13 @@ DONE
 [x] partners
 [x] privacy
 [x] profile
-[x] project_collections
-[x] project_remixes
 [x] requirements
 [x] research
-[x] search
 [x] slideshow
 [x] snapinator
 [x] snapp
 [x] source
 [x] tos
 [x] update page count on search
-[x] user
+
+

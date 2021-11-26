@@ -27,7 +27,6 @@ local Collections = package.loaded.Collections
 local Users = package.loaded.Users
 local db = package.loaded.db
 local disk = package.loaded.disk
-local component = package.loaded.component
 
 component.queries = {
     explore_projects = {
