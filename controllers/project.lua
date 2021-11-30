@@ -26,11 +26,34 @@ local Users = package.loaded.Users
 local db = package.loaded.db
 local disk = package.loaded.disk
 
-
 ProjectController = {
     fetch = function (self)
-        print(require('inspect')(self.params.data))
-        self.data = self.params.data
+        local data = self.params.data
+        local query = [[WHERE ispublished AND NOT EXISTS(
+            SELECT 1 FROM deleted_users WHERE
+            username = active_projects.username LIMIT 1)]] ..
+            db.interpolate_query(course_name_filter())
+
+        -- query can hold a paginator or an SQL query
+        local paginator = Projects:paginated(
+                 query ..
+                    (data.search_term and (db.interpolate_query(
+                        ' AND (projectname ILIKE ? OR notes ILIKE ?)',
+                        '%' .. data.search_term .. '%',
+                        '%' .. data.search_term .. '%')
+                    ) or '') ..
+                    (data.order and (' ORDER BY ' .. data.order) or ''),
+                {
+                    per_page = data.per_page or 15,
+                    fields = data.fields or '*'
+                }
+            )
+        if not data.ignore_page_count then
+            data.num_pages = paginator:num_pages()
+        end
+        data.items = paginator:get_page(data.page_number)
+        disk:process_thumbnails(data.items)
+        self.data = data
     end,
     page = function (self)
     end

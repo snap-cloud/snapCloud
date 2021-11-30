@@ -1,10 +1,11 @@
 TODO
 ====
 [ ] remake component-using pages:
-    [ ] grid
+    [-] grid
+        [ ] make paginators work
     [ ] user
     [ ] examples
-    [ ] index
+    [x] index
     [ ] explore
     [ ] search
     [ ] my_projects

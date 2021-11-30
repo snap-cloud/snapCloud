@@ -28,7 +28,6 @@ local disk = package.loaded.disk
 
 CollectionController = {
     fetch = function (self)
-        print(require('inspect')(self.params.data))
         local data = self.params.data
         local collection = Collections:find(data.user_id, data.collection_name)
         local paginator = collection:get_projects()
