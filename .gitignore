@@ -1,5 +1,7 @@
 store/*/
 
+torbulkexitlist
+
 .env
 setenv
 logs

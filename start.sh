@@ -1,5 +1,6 @@
 #!/bin/bash
 source .env
+wget https://check.torproject.org/torbulkexitlist -O lib/torbulkexitlist
 
 # If this is the first run, let's build the Snap! site and link the needed Snap!
 # Javascript modules.
