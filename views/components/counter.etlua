@@ -1,3 +1,0 @@
-<button onclick="<%=run%>('change_by', [-1])">-</button>
-<span><%= data.number %></span>
-<button onclick="<%=run%>('change_by', [1])">+</button>

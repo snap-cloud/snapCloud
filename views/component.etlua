@@ -5,6 +5,7 @@
 <script>
     function update_<%= component.id %>(controller, selector, params) {
         var req = new XMLHttpRequest();
+        if (!params.data) { params.data = '{}'; }
         req.open(
             'POST',
             '/update_component/<%= component.id %>/<%= component.template %>/' +

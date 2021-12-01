@@ -39,6 +39,16 @@ CollectionController = {
         disk:process_thumbnails(data.items)
         self.data = data
     end,
-    page = function (self)
+    change_page = function (self)
+        local data = self.params.data
+        if self.params.amount == 'first' then
+            data.page_number = 1
+        elseif self.params.amount == 'last' then
+            data.page_number = data.num_pages
+        else
+            data.page_number = data.page_number + self.params.amount
+        end
+        self.data = data
+        CollectionController.fetch(self)
     end
 }

@@ -45,6 +45,17 @@ end
             <i class="fa fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
             </div>`;
     };
+    function change_page_<%= component.id %>(element, offset, data) {
+        loader(element);
+        update_<%=component.id%>(
+            '<%=component.controller%>',
+            'change_page',
+            {
+                offset: offset,
+                data: data
+            }
+        );
+    };
     </script>
 
 <% if ((data.num_pages > 0) or data.show_if_empty) then %>
@@ -83,13 +94,13 @@ end
         <% end end  -- filters %>
 
         <nav class="paginator">
-            <a class="clickable" onclick="loader(this); update_<%=component.id%>('<%=component.controller%>', 'page', {amount: 'first'});"><i class="fas fa-caret-left"></i></a>
-            <a class="clickable" onclick="loader(this); update_<%=component.id%>('<%=component.controller%>', 'page', {amount: -5});"><i class="fas fa-angle-double-left"></i></a>
-            <a class="clickable" onclick="loader(this); update_<%=component.id%>('<%=component.controller%>', 'page', {amount: -1});"><i class="fas fa-angle-left"></i></a>
+            <a class="clickable" onclick="change_page_<%= component.id %>(this, 'first', '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-caret-left"></i></a>
+            <a class="clickable" onclick="change_page_<%= component.id %>(this, -5, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-double-left"></i></a>
+            <a class="clickable" onclick="change_page_<%= component.id %>(this, -1, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-left"></i></a>
             <span class="page"><%= data.page_number %></span> / <span class="total-pages"><%= data.num_pages %></span>
-            <a class="clickable" onclick="loader(this); update_<%=component.id%>('<%=component.controller%>', 'page', {amount: 1});"><i class="fas fa-angle-right"></i></a>
-            <a class="clickable" onclick="loader(this); update_<%=component.id%>('<%=component.controller%>', 'page', {amount: 5});"><i class="fas fa-angle-double-right"></i></a>
-            <a class="clickable" onclick="loader(this); update_<%=component.id%>('<%=component.controller%>', 'page', {amount: 'last'});"><i class="fas fa-caret-right"></i></a>
+            <a class="clickable" onclick="change_page_<%= component.id %>(this, 1, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-right"></i></a>
+            <a class="clickable" onclick="change_page_<%= component.id %>(this, 5, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-double-right"></i></a>
+            <a class="clickable" onclick="change_page_<%= component.id %>(this, 'last', '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-caret-right"></i></a>
         </nav>
     </div>
 
@@ -114,12 +125,10 @@ end
     <% end -- show items, if there are any %>
 <% end -- show if empty %>
     <script>
-        <% -- INSANITY!!! Turn Lua data into JS data using JSON as a bridge %>
-        var data = {
-        <% for k, v in pairs(data) do %>
-            <%-k%>: JSON.parse('<%- package.loaded.util.to_json(v) %>'),
-        <% end %>
-        };
-        update_<%=component.id%>('<%=component.controller%>', 'fetch', { data: data });
+        update_<%=component.id%>(
+            '<%=component.controller%>',
+            'fetch',
+            { data: '<%- package.loaded.util.to_json(data) %>'}
+        );
     </script>
 </div>

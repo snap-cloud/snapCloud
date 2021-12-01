@@ -222,9 +222,10 @@ end
 
 app:post(
     '/call_lua/:controller/:selector',
-    -- run the action associated to this particular component and selector,
-    -- from the specified controller
     function (self)
+        -- run the action associated to this particular component and selector,
+        -- from the specified controller
+        self.params.data = package.loaded.util.from_json(self.params.data)
         return {
             controller_dispatch(self),
             content_type = 'text/plain',
@@ -240,12 +241,16 @@ app:post(
         -- run the action associated to this particular component and selector,
         -- from the actions table
 
+        self.params.data = package.loaded.util.from_json(self.params.data)
+
         self.component = {
             id = self.params.component_id,
             controller = self.params.controller
         }
         -- ignore return value, as we'll just re-render the component
         controller_dispatch(self)
+
+        self.data = self.params.data
 
         return { 
             render = self.params.template,
