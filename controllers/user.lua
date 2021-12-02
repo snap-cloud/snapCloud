@@ -42,12 +42,17 @@ UserController = {
         local filters = ''
         if self.params.data.filters then
             for k, v in pairs(self.params.data.filters) do
-                if v ~= '' then
-                    local value = v
-                    if (type(v) == 'string') then
-                        value = "'" .. value .. "'"
+                if (v ~= '') then
+                    value = v
+                    -- recast booleans
+                    -- TODO NOT WORKING
+                    if (v == "'true'") then
+                        value = true
+                    elseif (v == "'false'") then
+                        value = false
                     end
-                    filters = filters .. ' AND ' .. k .. ' = ' .. value
+                    filters = filters ..
+                        db.interpolate_query(' AND ' .. k .. ' = ?', value)
                 end
             end
         end
@@ -58,7 +63,7 @@ UserController = {
                     '%' .. self.params.data.search_term .. '%',
                     '%' .. self.params.data.search_term .. '%')
                 ) or '') ..
-                db.interpolate_query(filters) ..
+                filters ..
             ' ORDER BY ' .. (self.params.data.order or 'created_at'),
             {
                 per_page = self.params.data.per_page or 15,
