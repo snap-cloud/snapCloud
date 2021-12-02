@@ -1,0 +1,14 @@
+<div class="buttons">
+    <a localizable="" class="pure-button open" target="_blank" href="<%= project:url_for('open', params.devVersion) %>">See Code</a>
+    <a localizable="" class="pure-button download" href="<%= project:url_for('download', params.devVersion) %>" download>Download</a>
+    <a localizable="" class="pure-button embed-button" target="_blank">Embed</a>
+    <a localizable="" class="pure-button collect" target="_blank">Add to Collection</a>
+<% if ((project.username == current_user.username) or admin_controls) then %>
+    <a localizable="" class="pure-button pure-button-warning delete" target="_blank">Delete</a>
+<% end %>
+<% if admin_controls then %>
+    <span class="flag-container">
+        <i class="warning fas fa-exclamation-triangle"></i>
+        <a localizable="" class="clickable warning flag" target="_blank">Report this project</a>
+    </span>
+<% end %>

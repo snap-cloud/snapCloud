@@ -1,0 +1,27 @@
+<div class="details pure-u-11-24">
+    <!-- Notes -->
+    <pre class="notes" title="Press Shift + Enter to enter a newline"><%= project.notes %><%- project.notes and '' or '<small>This project has no notes</small>' %></pre>
+    <!-- Dates and project meta -->
+    <div class="dates">
+        <p class="created"><strong localizable="">Created:</strong><span><%= string.from_sql_date(project.created) %></span></p>
+        <p class="updated"><strong localizable="">Last updated:</strong><span><%= string.from_sql_date(project.lastupdated) %></span></p>
+    <% if project.ispublished then %>
+        <p class="published"><strong localizable="">Published:</strong><span><%= string.from_sql_date(project.firstpublished) %></span></p>
+    <% elseif project.ispublic then %>
+        <p class="shared"><strong localizable="">Shared:</strong><span><%= string.from_sql_date(project.lastshared) %></span></p>
+    <% end %>
+    <% if ((project.username == current_user.username) or reviewer_controls) then %>
+        <% if project.ispublished then %>
+        <a localizable="" class="pure-button unpublish" target="_blank">Unpublish</a>
+        <a localizable="" class="pure-button unshare" target="_blank">Unshare</a>
+        <% elseif project.ispublic then %>
+        <a localizable="" class="pure-button publish" target="_blank">Publish</a>
+        <a localizable="" class="pure-button unshare" target="_blank">Unshare</a>
+        <% else %>
+        <a localizable="" class="pure-button share" target="_blank">Share</a>
+        <a localizable="" class="pure-button publish" target="_blank">Publish</a>
+        <% end %>
+    <% end %>
+    </div>
+    <% if reviewer_controls then render('views.partials.flag-list') end %>
+</div>

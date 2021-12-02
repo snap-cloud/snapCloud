@@ -3,31 +3,32 @@ TODO
 [ ] remake component-using pages:
     [-] grid
         [ ] search
-    [ ] search
     [ ] user_admin
         [ ] make filters work
-    [x] collection
-        [ ] edit description
-        [ ] edit name
-        [ ] select thumbnail
-        [ ] remove project
-        [ ] remove editor
-        [ ] add editor
-        [ ] mark as free-for-all
-        [ ] remove myself
-        [ ] share / unshare
-        [ ] publish / unpublish
-        [ ] delete
-    [x] project
-        [ ] share / unshare
-        [ ] publish / unpublish
-        [ ] delete
-        [ ] flag
-        [ ] embed
-        [ ] add to collection
-        [x] download
-    [x] my_collections
-        [ ] "New Collection" button
+[ ] caching
+[x] collection
+    [ ] edit description
+    [ ] edit name
+    [ ] select thumbnail
+    [ ] remove project
+    [ ] remove editor
+    [ ] add editor
+    [ ] mark as free-for-all
+    [ ] remove myself
+    [ ] share / unshare
+    [ ] publish / unpublish
+    [ ] delete
+[ ] project buttons
+    [ ] delete
+    [ ] flag
+    [ ] embed
+    [ ] add to collection
+[-] project details
+    [ ] share / unshare
+    [ ] publish / unpublish
+    [x] download
+[ ] my_collections
+    [ ] "New Collection" button
 [ ] make sure thumbnails are working
 [ ] zombie_admin
 [-] profile partial
@@ -94,8 +95,10 @@ DONE
 [x] partners
 [x] privacy
 [x] profile
+[x] project
 [x] requirements
 [x] research
+[x] search
 [x] slideshow
 [x] snapinator
 [x] snapp

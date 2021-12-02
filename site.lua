@@ -142,13 +142,8 @@ app:get('/collection', function (self)
 end)
 
 app:get('/search', function (self)
-    self.Projects = Projects
-    self.Collections = Collections
-    self.Users = Users
-    self.db = db
     self.reviewer_controls =
         self.current_user:has_one_of_roles({'admin', 'moderator', 'reviewer'})
-    self.new_component = component.new
     return { render = 'search' }
 end)
 

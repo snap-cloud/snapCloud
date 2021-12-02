@@ -38,6 +38,47 @@ require 'validation'
 require 'passwords'
 
 UserController = {
+    run_query = function (self, query)
+        local paginator = Users:paginated(
+            query ..
+                (self.params.data.search_term and (db.interpolate_query(
+                    ' AND username ILIKE ? OR email ILIKE ?',
+                    '%' .. self.params.data.search_term .. '%',
+                    '%' .. self.params.data.search_term .. '%')
+                ) or '') ..
+            ' ORDER BY ' .. (self.params.data.order or 'created_at'),
+            {
+                per_page = self.params.data.per_page or 15,
+                fields = self.params.data.fields or '*'
+            }
+        )
+
+        if not self.params.data.ignore_page_count then
+            self.params.data.num_pages = paginator:num_pages()
+        end
+
+        self.items = paginator:get_page(self.params.data.page_number)
+        self.data = self.params.data
+    end,
+    change_page = function (self)
+        if self.params.offset == 'first' then
+            self.params.data.page_number = 1
+        elseif self.params.offset == 'last' then
+            self.params.data.page_number = self.params.data.num_pages
+        else
+            self.params.data.page_number = 
+                math.min(
+                    math.max(
+                        1,
+                        self.params.data.page_number + self.params.offset),
+                    self.params.data.num_pages)
+        end
+        self.data = self.params.data
+        UserController[self.component.fetch_selector](self)
+    end,
+    fetch = function (self)
+        UserController.run_query(self, 'WHERE true')
+    end,
     login = function (self)
         assert_user_exists(self)
         local password = self.params.password
