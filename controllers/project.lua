@@ -65,7 +65,6 @@ ProjectController = {
                         self.params.data.page_number + self.params.offset),
                     self.params.data.num_pages)
         end
-        self.data = self.params.data
         ProjectController[self.component.fetch_selector](self)
     end,
     fetch = function (self)
@@ -76,6 +75,10 @@ ProjectController = {
                 username = active_projects.username LIMIT 1)]] ..
                 db.interpolate_query(course_name_filter())
         )
+    end,
+    search = function (self)
+        self.params.data.search_term = self.params.search_term
+        ProjectController[self.component.fetch_selector](self)
     end,
     my_projects = function (self)
         self.params.data.order = 'lastupdated DESC'
@@ -108,5 +111,27 @@ ProjectController = {
                 self.params.data.project_id
             )
         )
+    end,
+    flagged_projects = function (self)
+        self.params.data.order = 'flag_count DESC'
+        self.params.data.fields = [[active_projects.id AS id,
+            active_projects.projectname AS projectname,
+            active_projects.username AS username,
+            count(*) AS flag_count]]
+        local query = [[INNER JOIN flagged_projects ON
+                active_projects.id = flagged_projects.project_id
+            WHERE active_projects.ispublic
+            GROUP BY active_projects.projectname,
+                active_projects.username,
+                active_projects.id]]
+        if (self.params.num_pages == nil) then
+            local total_flag_count =
+                table.getn(
+                    Projects:select(query, {fields = self.params.data.fields})
+                )
+            self.params.data.num_pages =
+                math.ceil(total_flag_count / (self.params.data.per_page or 15))
+        end
+        ProjectController.run_query(self, query)
     end,
 }

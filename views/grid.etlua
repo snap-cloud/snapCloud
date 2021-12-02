@@ -73,7 +73,11 @@ if items == nil then items = {} end
                 update_<%=component.id%>(
                     '<%= component.controller %>',
                     'search',
-                    {search_term: Object.fromEntries(new FormData(this)).query}
+                    {
+                        search_term:
+                            Object.fromEntries(new FormData(this)).query,
+                        data: '<%= package.loaded.util.to_json(data) %>'
+                    }
                 );"
             >
                 <input type="text" name="query">

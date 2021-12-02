@@ -1,8 +1,6 @@
 TODO
 ====
 [ ] remake component-using pages:
-    [-] grid
-        [ ] search
     [ ] user_admin
         [ ] make filters work
 [ ] caching
@@ -59,50 +57,6 @@ TODO
 
 TODO AFTER DEPLOYING
 ====================
-[-] flags
-    [ ] proper flag count
 [-] project
     [ ] edit notes
     [ ] edit title
-
-DONE
-====
-[x] about
-[x] admin
-[x] bjc
-[x] blog
-[x] coc
-[x] contact
-[x] credits
-[x] dmca
-[x] embed
-[x] examples
-[x] explore
-[x] extensions
-[x] footer
-[x] go back to page 1 on search
-[x] include dates and fix their format
-[x] include share status icons
-[x] index
-[x] layout
-[x] materials
-[x] mirrors
-[x] my_projects
-[x] navigation_bar
-[x] offline
-[x] one single query per page
-[x] paginator
-[x] partners
-[x] privacy
-[x] profile
-[x] project
-[x] requirements
-[x] research
-[x] search
-[x] slideshow
-[x] snapinator
-[x] snapp
-[x] source
-[x] tos
-[x] update page count on search
-[x] user

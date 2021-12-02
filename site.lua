@@ -155,8 +155,6 @@ app:get('/profile', function (self)
 end)
 
 app:get('/flags', function (self)
-    self.Projects = Projects
-    self.new_component = component.new
     assert_has_one_of_roles(self, {'admin', 'moderator', 'reviewer'})
     return { render = 'flags' }
 end)
