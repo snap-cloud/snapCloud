@@ -1,8 +1,7 @@
 TODO
 ====
-[ ] remake component-using pages:
-    [ ] user_admin
-        [ ] make filters work
+[ ] user_admin
+    [ ] make filters work
 [ ] caching
 [x] collection
     [ ] edit description

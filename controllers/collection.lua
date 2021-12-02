@@ -78,6 +78,10 @@ CollectionController = {
                 WHERE published]]
         )
     end,
+    search = function (self)
+        self.params.data.search_term = self.params.search_term
+        CollectionController[self.component.fetch_selector](self)
+    end,
     my_collections = function (self)
         self.params.data.order = 'updated_at DESC'
         CollectionController.run_query(

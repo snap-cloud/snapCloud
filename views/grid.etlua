@@ -10,11 +10,6 @@
     .items_per_page     (num) Number of items per page. Default: 5.
     .with_search        (t/f) Adds a search input. Default: false.
     .show_if_empty      (t/f) Show component if no items. Default: false.
-    .filters            (tbl) Dropdown menu filter descriptors:
-        .label          (str) Dropdown label.
-        .options        (tbl) Dropdown options.
-            .label      (str) Option label.
-            .value      (any) Option value.
     .show_author        (t/f) Show the item author, if any. Default: false.
     .show_icons         (t/f) Show item privacy icons. Default: false.
     .show_collection_controls
@@ -22,6 +17,11 @@
                               collection. Default: false.
     .fetch_selector     (str) Selector to call from controller, on subsequent
                               actions (i.e. on page switch). Default: 'fetch'.
+    filters >>          (tbl) Dropdown menu filter descriptors:
+    .label              (str) Dropdown label.
+    .options            (tbl) Dropdown options.
+        .label          (str) Option label.
+        .value          (any) Option value.
 ]]--
 
 -- set defaults
@@ -88,7 +88,7 @@ if items == nil then items = {} end
         <span class="search-term">Matching: <em><%= data.search_term %></em></span>
         <% end %>
         <% end -- show search bar, if requested %>
-        <% if data.filters then for _, filter in ipairs(data.filters) do %>
+        <% if filters then for _, filter in ipairs(filters) do %>
                 <div class="filter <%= filter.selector %>"><%= filter.label %>:
                     <select name="<%= filter.selector %>">
                         <% for _, option in pairs(filter.options) do %>

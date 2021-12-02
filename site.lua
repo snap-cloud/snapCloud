@@ -160,8 +160,6 @@ app:get('/flags', function (self)
 end)
 
 app:get('/user_admin', function (self)
-    self.Users = Users
-    self.new_component = component.new
     assert_has_one_of_roles(self, {'admin', 'moderator'})
     return { render = 'user_admin' }
 end)

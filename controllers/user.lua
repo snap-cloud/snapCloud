@@ -79,6 +79,10 @@ UserController = {
     fetch = function (self)
         UserController.run_query(self, 'WHERE true')
     end,
+    search = function (self)
+        self.params.data.search_term = self.params.search_term
+        UserController[self.component.fetch_selector](self)
+    end,
     login = function (self)
         assert_user_exists(self)
         local password = self.params.password

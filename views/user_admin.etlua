@@ -3,43 +3,43 @@
 <link rel="stylesheet" href="static/style/admin.css">
 <h1 localizable>User Administration</h1>
 <%
-    local users = new_component('grid')
-    users.data.class = 'user_admin'
-    users.data.item_type = 'profile'
-    users.data.query = 'explore_users'
-    users.data.filters = {
-        {
-            selector = 'verified',
-            label = 'Verified',
-            options = {
-                { label = 'Any', value = '' },
-                { label = 'Verified', value = true },
-                { label = 'Unverified', value = false }
-            }
-        },
-        {
-            selector = 'role',
-            label = 'Role',
-            options = {
-                { label = 'Any', value = '' },
-                { label = 'Standard', value = 'standard' },
-                { label = 'Reviewer', value = 'reviewer' },
-                { label = 'Moderator', value = 'moderator' },
-                { label = 'Administrator', value = 'admin' },
-                { label = 'Banned', value = 'banned' },
-            }
+filters = {
+    {
+        selector = 'verified',
+        label = 'Verified',
+        options = {
+            { label = 'Any', value = '' },
+            { label = 'Verified', value = true },
+            { label = 'Unverified', value = false }
+        }
+    },
+    {
+        selector = 'role',
+        label = 'Role',
+        options = {
+            { label = 'Any', value = '' },
+            { label = 'Standard', value = 'standard' },
+            { label = 'Reviewer', value = 'reviewer' },
+            { label = 'Moderator', value = 'moderator' },
+            { label = 'Administrator', value = 'admin' },
+            { label = 'Banned', value = 'banned' },
         }
     }
-    users.data.items_per_row = 2
-    users.data.per_page = 150
-    users.data.with_search = true
-    users.data.show_if_empty = true
+}
 
-    render(
-        'views.components.component',
-        {
-            path = 'grid',
-            component = users
+render(
+    'views.component',
+    {
+        component = { template = 'grid', controller = 'user' },
+        data = {
+            class = 'user_admin',
+            item_type = 'profile',
+            items_per_row = 2,
+            per_page = 150,
+            with_search = true,
+            show_if_empty = true,
+            order = 'username'
         }
-    ) 
+    }
+)
 %>
