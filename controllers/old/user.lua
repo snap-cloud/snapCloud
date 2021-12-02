@@ -288,6 +288,7 @@ UserController = {
             --              pre-hashed with SHA512.
             -- Parameters:  username, password, password_repeat, email, role
             rate_limit(self)
+            prevent_tor_access(self)
             if (self.current_user) then
                 -- user is updating profile, or an admin is updating somebody
                 -- else's profile

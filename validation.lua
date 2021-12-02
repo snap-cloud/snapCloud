@@ -31,6 +31,7 @@ local Tokens = package.loaded.Tokens
 local url = require 'socket.url'
 local exceptions = require 'lib.exceptions'
 local socket = require('socket')
+local http = require('lapis.nginx.http')
 
 require 'responses'
 require 'email'
@@ -111,6 +112,8 @@ err = {
         { msg = 'Please wait a few seconds and try again.', status = 429 },
     session_reused =
         { msg = 'Please use the Snap! site, not scripts.', status = 409 },
+    tor_not_allowed =
+        { msg = 'Sorry. We cannot let you use Tor for that.', status = 403 },
 }
 
 assert_all = function (assertions, self)
@@ -489,5 +492,15 @@ rate_limit = function (self)
         exceptions.rvn:captureMessage(err.too_fast)
     else
         self.session.allowed_time_difference = 2
+    end
+end
+
+-- Block certain requests from being made using Tor
+prevent_tor_access = function (self)
+    local file = io.open('lib/torbulkexitlist', 'r')
+    local tor_ips = file:read('all')
+    local ip = ngx.var.remote_addr
+    if tor_ips:find(ip) then
+        yield_error(err.tor_not_allowed)
     end
 end
