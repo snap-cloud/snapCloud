@@ -17,9 +17,9 @@
                               collection. Default: false.
     .fetch_selector     (str) Selector to call from controller, on subsequent
                               actions (i.e. on page switch). Default: 'fetch'.
-    filters >>          (tbl) Dropdown menu filter descriptors:
-    .label              (str) Dropdown label.
-    .options            (tbl) Dropdown options.
+    .filter_descriptors (tbl) Dropdown menu filter descriptors:
+      .label            (str) Dropdown label.
+      .options          (tbl) Dropdown options.
         .label          (str) Option label.
         .value          (any) Option value.
 ]]--
@@ -39,25 +39,6 @@ if items == nil then items = {} end
 
 <link rel="stylesheet" href="static/style/project.css">
 <div class="<%= data.class %> container">
-    <script>
-    function loader (element) {
-        var list = element.closest('div.container').querySelector('.list');
-        list.innerHTML = `<div class="loader">
-            <i class="fa fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
-            </div>`;
-    };
-    function change_page_<%= component.id %>(element, offset, data) {
-        loader(element);
-        update_<%=component.id%>(
-            '<%=component.controller%>',
-            'change_page',
-            {
-                offset: offset,
-                data: data
-            }
-        );
-    };
-    </script>
 
 <% if ((data.num_pages > 0) or data.show_if_empty) then %>
     <% if (data.title) then %>
@@ -66,47 +47,25 @@ if items == nil then items = {} end
     </h2>
     <% end %>
     <div class="bar">
-        <% if data.with_search then %>
-        <div class="<%= data.class %> search">
-            <form onsubmit="
-                event.preventDefault();
-                update_<%=component.id%>(
-                    '<%= component.controller %>',
-                    'search',
-                    {
-                        search_term:
-                            Object.fromEntries(new FormData(this)).query,
-                        data: '<%= package.loaded.util.to_json(data) %>'
-                    }
-                );"
-            >
-                <input type="text" name="query">
-                <i class="fas fa-search"></i>
-            </form>
-        </div>
-        <% if data.search_term then %>
-        <span class="search-term">Matching: <em><%= data.search_term %></em></span>
-        <% end %>
-        <% end -- show search bar, if requested %>
-        <% if filters then for _, filter in ipairs(filters) do %>
-                <div class="filter <%= filter.selector %>"><%= filter.label %>:
-                    <select name="<%= filter.selector %>">
-                        <% for _, option in pairs(filter.options) do %>
-                        <option value="<%= option.value %>"><%= option.label %></option>
-                        <% end %>
-                    </select>
-                </div>
-        <% end end  -- filters %>
+        <%
+        if data.with_search then
+            render(
+                'views.partials.grid-search',
+                { component = component, data = data }
+            )
+        end
+        if data.filter_descriptors then
+            render(
+                'views.partials.grid-filters',
+                { component = component, data = data }
+            )
+        end
+        render('views.partials.grid-paginator',
+            { component = component, data = data }
+        )
+        %>
 
-        <nav class="paginator">
-            <a class="clickable" onclick="change_page_<%= component.id %>(this, 'first', '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-caret-left"></i></a>
-            <a class="clickable" onclick="change_page_<%= component.id %>(this, -5, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-double-left"></i></a>
-            <a class="clickable" onclick="change_page_<%= component.id %>(this, -1, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-left"></i></a>
-            <span class="page"><%= data.page_number %></span> / <span class="total-pages"><%= data.num_pages %></span>
-            <a class="clickable" onclick="change_page_<%= component.id %>(this, 1, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-right"></i></a>
-            <a class="clickable" onclick="change_page_<%= component.id %>(this, 5, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-double-right"></i></a>
-            <a class="clickable" onclick="change_page_<%= component.id %>(this, 'last', '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-caret-right"></i></a>
-        </nav>
+
     </div>
 
     <% if (data.num_pages > 0) then %>

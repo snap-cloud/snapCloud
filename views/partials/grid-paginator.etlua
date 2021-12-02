@@ -1,0 +1,29 @@
+<script>
+    function loader (element) {
+        var list = element.closest('div.container').querySelector('.list');
+        list.innerHTML = `<div class="loader">
+            <i class="fa fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
+            </div>`;
+    };
+    function change_page_<%= component.id %>(element, offset, data) {
+        loader(element);
+        update_<%=component.id%>(
+            '<%=component.controller%>',
+            'change_page',
+            {
+                offset: offset,
+                data: data
+            }
+        );
+    };
+</script>
+
+<nav class="paginator">
+    <a class="clickable" onclick="change_page_<%= component.id %>(this, 'first', '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-caret-left"></i></a>
+    <a class="clickable" onclick="change_page_<%= component.id %>(this, -5, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-double-left"></i></a>
+    <a class="clickable" onclick="change_page_<%= component.id %>(this, -1, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-left"></i></a>
+    <span class="page"><%= data.page_number %></span> / <span class="total-pages"><%= data.num_pages %></span>
+    <a class="clickable" onclick="change_page_<%= component.id %>(this, 1, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-right"></i></a>
+    <a class="clickable" onclick="change_page_<%= component.id %>(this, 5, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-double-right"></i></a>
+    <a class="clickable" onclick="change_page_<%= component.id %>(this, 'last', '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-caret-right"></i></a>
+</nav>

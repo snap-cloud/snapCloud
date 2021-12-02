@@ -3,30 +3,6 @@
 <link rel="stylesheet" href="static/style/admin.css">
 <h1 localizable>User Administration</h1>
 <%
-filters = {
-    {
-        selector = 'verified',
-        label = 'Verified',
-        options = {
-            { label = 'Any', value = '' },
-            { label = 'Verified', value = true },
-            { label = 'Unverified', value = false }
-        }
-    },
-    {
-        selector = 'role',
-        label = 'Role',
-        options = {
-            { label = 'Any', value = '' },
-            { label = 'Standard', value = 'standard' },
-            { label = 'Reviewer', value = 'reviewer' },
-            { label = 'Moderator', value = 'moderator' },
-            { label = 'Administrator', value = 'admin' },
-            { label = 'Banned', value = 'banned' },
-        }
-    }
-}
-
 render(
     'views.component',
     {
@@ -38,7 +14,30 @@ render(
             per_page = 150,
             with_search = true,
             show_if_empty = true,
-            order = 'username'
+            order = 'username',
+            filter_descriptors = {
+                {
+                    selector = 'verified',
+                    label = 'Verified',
+                    options = {
+                        { label = 'Any', value = '' },
+                        { label = 'Verified', value = true },
+                        { label = 'Unverified', value = false }
+                    }
+                },
+                {
+                    selector = 'role',
+                    label = 'Role',
+                    options = {
+                        { label = 'Any', value = '' },
+                        { label = 'Standard', value = 'standard' },
+                        { label = 'Reviewer', value = 'reviewer' },
+                        { label = 'Moderator', value = 'moderator' },
+                        { label = 'Administrator', value = 'admin' },
+                        { label = 'Banned', value = 'banned' },
+                    }
+                }
+            }
         }
     }
 )

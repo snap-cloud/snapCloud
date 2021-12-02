@@ -39,6 +39,18 @@ require 'passwords'
 
 UserController = {
     run_query = function (self, query)
+        local filters = ''
+        if self.params.data.filters then
+            for k, v in pairs(self.params.data.filters) do
+                if v ~= '' then
+                    local value = v
+                    if (type(v) == 'string') then
+                        value = "'" .. value .. "'"
+                    end
+                    filters = filters .. ' AND ' .. k .. ' = ' .. value
+                end
+            end
+        end
         local paginator = Users:paginated(
             query ..
                 (self.params.data.search_term and (db.interpolate_query(
@@ -46,6 +58,7 @@ UserController = {
                     '%' .. self.params.data.search_term .. '%',
                     '%' .. self.params.data.search_term .. '%')
                 ) or '') ..
+                db.interpolate_query(filters) ..
             ' ORDER BY ' .. (self.params.data.order or 'created_at'),
             {
                 per_page = self.params.data.per_page or 15,
@@ -81,6 +94,22 @@ UserController = {
     end,
     search = function (self)
         self.params.data.search_term = self.params.search_term
+        UserController[self.component.fetch_selector](self)
+    end,
+    filter = function (self)
+        if (self.params.data.filters == nil) then
+            self.params.data.filters = {}
+        end
+        self.params.data.filters[self.params.filter] = self.params.value
+        for _, descriptor in pairs(self.params.data.filter_descriptors) do
+            if (descriptor.selector == self.params.filter) then 
+                for _, option in pairs(descriptor.options) do
+                    if (option.value == self.params.value) then
+                        option.selected = true
+                    end
+                end
+            end
+        end
         UserController[self.component.fetch_selector](self)
     end,
     login = function (self)
