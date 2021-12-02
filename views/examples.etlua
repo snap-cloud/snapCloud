@@ -13,21 +13,17 @@ for _, name in pairs({
         'Computer Science',
         }) do
 
-    local projects = new_component('grid')
-    -- take only the first word, and lowercase it:
-    projects.data.class = name:match("(%w+)"):lower()
-    projects.data.title = name
-    projects.data.collection_name = name
-    projects.data.item_type = 'project'
-    projects.data.query = 'collection_projects'
-    -- store for use in querying for next pages
-    projects.data.user_id = user_id
-
     render(
-        'views.components.component',
+        'views.component',
         {
-            path = 'grid',
-            component = projects
+            component = { template = 'grid', controller = 'collection' },
+            data = {
+                class = name:match("(%w+)"):lower(),
+                title = name,
+                collection_name = name,
+                item_type = 'project',
+                user_id = snapcloud_id
+            }
         }
     )
 end

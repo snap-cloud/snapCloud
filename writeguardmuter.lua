@@ -43,7 +43,7 @@ local selectors = {
     'assert_can_remove_project_from_collection',
     'assert_project_not_in_collection', 'assert_can_create_colletion',
     'course_name_filter', 'hash_password', 'create_signature', 'find_token',
-    'rate_limit'
+    'rate_limit', 'prevent_tor_access'
 }
 
 for _, selector in pairs(selectors) do

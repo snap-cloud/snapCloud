@@ -75,8 +75,6 @@ end)
 -- Pages that use AJAX-enabled components
 
 local index = function (self)
-    self.Collections = Collections
-    self.db = db
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
 end
@@ -139,10 +137,7 @@ app:get('/project', function (self)
 end)
 
 app:get('/examples', function (self)
-    self.Collections = Collections
-    self.user_id = Users:find({ username = 'snapcloud' }).id
-    self.db = db
-    self.new_component = component.new
+    self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'examples' }
 end)
 

@@ -55,9 +55,6 @@ for _, descriptor in pairs(collections) do
         {
             component = { template = 'grid', controller = 'collection' },
             data = {
-                -- take only the first word, and lowercase it.
-                -- prepend 'c-' because classes need to start with a letter,
-                -- and '3d' does not...
                 class = 'col-' .. math.random(1000000),
                 title = descriptor.title,
                 collection_name = descriptor.collection_name,

@@ -35,20 +35,24 @@ CollectionController = {
             data.num_pages = paginator:num_pages()
         end
         paginator.per_page = data.items_per_page
-        data.items = paginator:get_page(data.page_number)
-        disk:process_thumbnails(data.items)
+        self.items = paginator:get_page(data.page_number)
+        disk:process_thumbnails(self.items)
         self.data = data
     end,
     change_page = function (self)
-        local data = self.params.data
-        if self.params.amount == 'first' then
-            data.page_number = 1
-        elseif self.params.amount == 'last' then
-            data.page_number = data.num_pages
+        if self.params.offset == 'first' then
+            self.params.data.page_number = 1
+        elseif self.params.offset == 'last' then
+            self.params.data.page_number = self.params.data.num_pages
         else
-            data.page_number = data.page_number + self.params.amount
+            self.params.data.page_number = 
+                math.min(
+                    math.max(
+                        1,
+                        self.params.data.page_number + self.params.offset),
+                    self.params.data.num_pages)
         end
-        self.data = data
+        self.data = self.params.data
         CollectionController.fetch(self)
     end
 }

@@ -51,9 +51,9 @@ ProjectController = {
         if not self.params.data.ignore_page_count then
             self.params.data.num_pages = paginator:num_pages()
         end
-        self.params.data.items =
+        self.items =
             paginator:get_page(self.params.data.page_number)
-        disk:process_thumbnails(self.params.data.items)
+        disk:process_thumbnails(self.items)
         self.data = self.params.data
     end,
     change_page = function (self)
