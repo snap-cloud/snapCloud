@@ -27,12 +27,7 @@ local db = package.loaded.db
 local disk = package.loaded.disk
 
 ProjectController = {
-    fetch = function (self)
-        local query = [[WHERE ispublished AND NOT EXISTS(
-            SELECT 1 FROM deleted_users WHERE
-            username = active_projects.username LIMIT 1)]] ..
-            db.interpolate_query(course_name_filter())
-
+    run_query = function (self, query)
         -- query can hold a paginator or an SQL query
         local paginator = Projects:paginated(
                  query ..
@@ -48,11 +43,12 @@ ProjectController = {
                     fields = self.params.data.fields or '*'
                 }
             )
+
         if not self.params.data.ignore_page_count then
             self.params.data.num_pages = paginator:num_pages()
         end
-        self.items =
-            paginator:get_page(self.params.data.page_number)
+
+        self.items = paginator:get_page(self.params.data.page_number)
         disk:process_thumbnails(self.items)
         self.data = self.params.data
     end,
@@ -70,6 +66,47 @@ ProjectController = {
                     self.params.data.num_pages)
         end
         self.data = self.params.data
-        ProjectController.fetch(self)
+        ProjectController[self.component.fetch_selector](self)
+    end,
+    fetch = function (self)
+        ProjectController.run_query(
+            self,
+            [[WHERE ispublished AND NOT EXISTS(
+                SELECT 1 FROM deleted_users WHERE
+                username = active_projects.username LIMIT 1)]] ..
+                db.interpolate_query(course_name_filter())
+        )
+    end,
+    my_projects = function (self)
+        self.params.data.order = 'lastupdated DESC'
+        ProjectController.run_query(
+            self,
+            db.interpolate_query('WHERE username = ?', self.session.username)
+        )
+    end,
+    user_projects = function (self)
+        self.params.data.order = 'lastupdated DESC'
+        ProjectController.run_query(
+            self,
+            db.interpolate_query(
+                'WHERE ispublished AND username = ? ',
+                self.params.data.username
+            )
+        )
+    end,
+    remixes = function (self)
+        self.params.data.order = 'remixes.created DESC'
+        self.params.data.fields =
+            'DISTINCT username, projectname, remixes.created'
+        ProjectController.run_query(
+            self,
+            db.interpolate_query(
+                [[JOIN remixes
+                    ON active_projects.id = remixes.remixed_project_id
+                WHERE remixes.original_project_id = ?
+                AND ispublic]],
+                self.params.data.project_id
+            )
+        )
     end,
 }

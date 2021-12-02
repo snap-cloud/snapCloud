@@ -6,7 +6,10 @@
 <div class="project big">
     <div class="title">
         <h1><%- project.projectname %></h1>
-        <span class="remixed-from"></span>
+        <% if remixed_from then %>
+        <span class="remixed-from">(remixed from <span class="project-link"><a href="<%= remixed_from:url_for('site') %>"><%= remixed_from.projectname %></a></span><span class="author"> by <a href="<%= remixed_from:url_for('author') %>"><strong><%= remixed_from.username %></strong></a></span>)</span>
+        <% end %>
+
     <span class="author"> by <a href="<%= project:url_for('author') %>" target=""><strong><%- project.username %></strong></a></span></div>
     <div class="viewer pure-g">
         <!-- Project viewer -->
@@ -57,10 +60,16 @@
                 <p class="shared"><strong localizable="">Shared:</strong><span><%= string.from_sql_date(project.lastshared) %></span></p>
             <% end %>
             <% if ((project.username == current_user.username) or reviewer_controls) then %>
-                <a localizable="" class="pure-button share" target="_blank">Share</a>
-                <a localizable="" class="pure-button unshare" target="_blank">Unshare</a>
-                <a localizable="" class="pure-button publish" target="_blank">Publish</a>
+                <% if project.ispublished then %>
                 <a localizable="" class="pure-button unpublish" target="_blank">Unpublish</a>
+                <a localizable="" class="pure-button unshare" target="_blank">Unshare</a>
+                <% elseif project.ispublic then %>
+                <a localizable="" class="pure-button publish" target="_blank">Publish</a>
+                <a localizable="" class="pure-button unshare" target="_blank">Unshare</a>
+                <% else %>
+                <a localizable="" class="pure-button share" target="_blank">Share</a>
+                <a localizable="" class="pure-button publish" target="_blank">Publish</a>
+                <% end %>
             <% end %>
             </div>
             <% if reviewer_controls then render('views.partials.flag-list') end %>
@@ -68,37 +77,34 @@
     </div>
 
 <%
--- Carousel of remixes
-
-    local remixes = new_component('grid')
-    remixes.data.class = 'remixes'
-    remixes.data.title = 'Remixes'
-    remixes.data.item_type = 'project'
-    remixes.data.query = 'project_remixes'
-    -- store for use in querying for next pages
-    remixes.data.project_id = project.id
+    -- Carousel of remixes
     render(
-        'views.components.component',
+        'views.component',
         {
-            path = 'grid',
-            component = remixes
+            component = { template = 'grid', controller = 'project' },
+            data = {
+                title = 'Public remixes of this project',
+                fetch_selector = 'remixes',
+                class = 'remixes',
+                item_type = 'project',
+                project_id = project.id
+            }
         }
     )
 
--- Carousel of collections
-
-    local collections = new_component('grid')
-    collections.data.class = 'collections'
-    collections.data.title = 'Collections containing this project'
-    collections.data.item_type = 'collection'
-    collections.data.query = 'project_collections'
-    -- store for use in querying for next pages
-    collections.data.project_id = project.id
+    -- Carousel of collections
     render(
-        'views.components.component',
+        'views.component',
         {
-            path = 'grid',
-            component = collections
+            component = { template = 'grid', controller = 'collection' },
+            data = {
+                title = 'Public collections containing this project',
+                fetch_selector = 'containing_project',
+                class = 'collections',
+                item_type = 'collection',
+                project_id = project.id,
+                per_page = 5
+            }
         }
     )
 %>

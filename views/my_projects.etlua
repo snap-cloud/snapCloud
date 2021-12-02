@@ -1,19 +1,19 @@
 <h1>My Projects</h1>
 <%
-    local projects = new_component('grid')
-    projects.data.class = 'my_projects'
-    projects.data.item_type = 'project'
-    projects.data.query = 'my_projects'
-    projects.data.with_search = true
-    projects.data.show_if_empty = true
-    projects.data.show_author = false
-    projects.data.show_icons = true
-
-    render(
-        'views.components.component',
-        {
-            path = 'grid',
-            component = projects
+render(
+    'views.component',
+    {
+        component = { template = 'grid', controller = 'project' },
+        data = {
+            fetch_selector = 'my_projects',
+            class = 'my_projects',
+            item_type = 'project',
+            per_page = 15,
+            with_search = true,
+            show_if_empty = true,
+            show_author = false,
+            show_icons = true
         }
-    )
+    }
+)
 %>

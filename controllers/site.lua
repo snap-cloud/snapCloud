@@ -29,25 +29,6 @@ local db = package.loaded.db
 local disk = package.loaded.disk
 
 component.queries = {
-    explore_projects = {
-        fetch =
-            function (session, data)
-                return [[WHERE ispublished AND NOT EXISTS(
-                    SELECT 1 FROM deleted_users WHERE
-                    username = active_projects.username LIMIT 1)]] ..
-                    db.interpolate_query(course_name_filter())
-            end,
-        order = 'firstpublished DESC'
-    },
-    explore_collections = {
-        fetch =
-            function (session, data)
-                return [[JOIN active_users ON
-                    (active_users.id = collections.creator_id)
-                    WHERE published]]
-            end,
-        order = 'collections.published_at DESC'
-    },
     explore_users = {
         fetch =
             function (session, data)
@@ -55,28 +36,6 @@ component.queries = {
             end,
         order = 'username'
 
-    },
-    my_projects = {
-        fetch =
-            function (session, data)
-                return db.interpolate_query(
-                    'WHERE username = ?',
-                    session.username
-                )
-            end,
-        order = 'lastupdated DESC'
-    },
-    my_collections = {
-        fetch =
-            function (session, data)
-                return db.interpolate_query(
-                    [[JOIN active_users ON
-                        (active_users.id = collections.creator_id)
-                        WHERE (creator_id = ? OR editor_ids @> ARRAY[?])]],
-                    session.current_user.id,
-                    session.current_user.id)
-            end,
-        order = 'updated_at DESC'
     },
     collection_projects = {
         fetch = function (session, data)
@@ -86,60 +45,6 @@ component.queries = {
             paginator.per_page = data.per_page or 5
             return paginator
         end
-    },
-    user_projects = {
-        fetch = function (session, data)
-            return db.interpolate_query(
-                'WHERE ispublished AND username = ? ',
-                data.username
-            )
-        end,
-        order = 'lastupdated DESC'
-    },
-    user_collections = {
-        fetch = function (session, data)
-            return db.interpolate_query(
-                [[JOIN active_users ON
-                    (active_users.id = collections.creator_id)
-                    WHERE (creator_id = ? OR editor_ids @> ARRAY[?])
-                    AND published]],
-                data.user_id,
-                data.user_id
-            )
-        end,
-        order = 'updated_at DESC'
-    },
-    project_remixes = {
-        fetch = function (session, data)
-            return db.interpolate_query(
-                [[JOIN remixes
-                    ON active_projects.id = remixes.remixed_project_id
-                WHERE remixes.original_project_id = ?
-                AND ispublic
-                GROUP BY username, projectname, remixes.created]],
-                data.project_id
-            )
-        end,
-        order = 'remixes.created DESC',
-        fields = 'username, projectname, remixes.created'
-    },
-    project_collections = {
-        fetch = function (session, data)
-            return db.interpolate_query(
-                [[INNER JOIN collection_memberships
-                    ON collection_memberships.collection_id = collections.id
-                INNER JOIN users
-                    ON collections.creator_id = users.id
-                WHERE collection_memberships.project_id = ?
-                AND collections.published]],
-                data.project_id
-            )
-        end,
-        order = 'collections.created_at DESC',
-        fields =
-            [[collections.creator_id, collections.name,
-            collection_memberships.project_id, collections.thumbnail_id,
-            collections.shared, collections.published, users.username]]
     },
     flags = {
         fetch = function (session, data)

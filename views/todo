@@ -1,17 +1,12 @@
 TODO
 ====
 [ ] remake component-using pages:
-    [x] grid
-        [x] make paginators work
-    [ ] user
-    [x] examples
-    [x] index
-    [ ] explore
+    [-] grid
+        [ ] search
     [ ] search
-    [ ] my_projects
     [ ] user_admin
         [ ] make filters work
-    [ ] collection
+    [x] collection
         [ ] edit description
         [ ] edit name
         [ ] select thumbnail
@@ -23,7 +18,7 @@ TODO
         [ ] share / unshare
         [ ] publish / unpublish
         [ ] delete
-    [ ] project
+    [x] project
         [ ] share / unshare
         [ ] publish / unpublish
         [ ] delete
@@ -31,7 +26,7 @@ TODO
         [ ] embed
         [ ] add to collection
         [x] download
-    [ ] my_collections
+    [x] my_collections
         [ ] "New Collection" button
 [ ] make sure thumbnails are working
 [ ] zombie_admin
@@ -80,14 +75,18 @@ DONE
 [x] credits
 [x] dmca
 [x] embed
+[x] examples
+[x] explore
 [x] extensions
 [x] footer
 [x] go back to page 1 on search
 [x] include dates and fix their format
 [x] include share status icons
+[x] index
 [x] layout
 [x] materials
 [x] mirrors
+[x] my_projects
 [x] navigation_bar
 [x] offline
 [x] one single query per page
@@ -103,5 +102,4 @@ DONE
 [x] source
 [x] tos
 [x] update page count on search
-
-
+[x] user

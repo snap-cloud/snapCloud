@@ -1,18 +1,19 @@
 <h1>My Collections</h1>
 <%
-    local collections = new_component('grid')
-    collections.data.class = 'my_collections'
-    collections.data.item_type = 'collection'
-    collections.data.query = 'my_collections'
-    collections.data.with_search = true
-    collections.data.show_if_empty = true
-    collections.data.show_icons = true
-
-    render(
-        'views.components.component',
-        {
-            path = 'grid',
-            component = collections
+render(
+    'views.component',
+    {
+        component = { template = 'grid', controller = 'collection' },
+        data = {
+            fetch_selector = 'my_collections',
+            class = 'my_collections',
+            item_type = 'collection',
+            per_page = 15,
+            with_search = true,
+            show_if_empty = true,
+            show_author = false,
+            show_icons = true
         }
-    )
+    }
+)
 %>

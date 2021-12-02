@@ -5,7 +5,7 @@
     .title              (str) Grid title. Default: none.
     .page_number        (num) Current page.
     .class              (str) CSS class.
-    .item_type          (str) item template name at views/partials/[item_type]
+    .item_type          (str) item template name at views/partials/[item_type].
     .items_per_row      (num) Number of items per grid row. Default: 5.
     .items_per_page     (num) Number of items per page. Default: 5.
     .with_search        (t/f) Adds a search input. Default: false.
@@ -19,22 +19,22 @@
     .show_icons         (t/f) Show item privacy icons. Default: false.
     .show_collection_controls
                         (t/f) Show buttons to set thumbnail or remove from
-                               collection. Default: false
+                              collection. Default: false.
+    .fetch_selector     (str) Selector to call from controller, on subsequent
+                              actions (i.e. on page switch). Default: 'fetch'.
 ]]--
 
 -- set defaults
 
 if data.show_author == nil then data.show_author = true end
+if data.fetch_selector == nil then data.fetch_selector = 'fetch' end
+if data.page_number == nil then data.page_number = 1 end
 data.items_per_page = data.items_per_page or 5
 data.items_per_row = data.items_per_row or 5
 data.item_type = data.item_type or 'project'
 data.num_pages = data.num_pages or 0
-if items == nil then
-    items = {}
-end
-if data.page_number == nil then
-    data.page_number = 1
-end
+if items == nil then items = {} end
+
 %>
 
 <link rel="stylesheet" href="static/style/project.css">
@@ -127,8 +127,8 @@ end
 <% end -- show if empty %>
     <script>
         update_<%=component.id%>(
-            '<%=component.controller%>',
-            'fetch',
+            '<%= component.controller %>',
+            '<%= data.fetch_selector %>',
             { data: '<%- package.loaded.util.to_json(data) %>'}
         );
     </script>

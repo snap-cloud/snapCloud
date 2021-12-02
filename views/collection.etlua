@@ -15,29 +15,25 @@
         <i class="pure-u-1-24"></i>
         <div class="pure-u-2-3 projects">
             <%
-                local projects = new_component('grid')
-                projects.data.items_per_row = 4
-                projects.data.per_page = 12
-                -- take only the first word, and lowercase it:
-                projects.data.class = 'collection_projects'
-                projects.data.collection_name = collection.name
-                projects.data.collection_id = collection.id
-                projects.data.item_type = 'project'
-                projects.data.show_icons = true
-                projects.data.query = 'collection_projects'
-                -- store for use in querying for next pages
-                projects.data.user_id = collection.creator.id
-                projects.data.show_collection_controls = true
-
-                render(
-                        'views.components.component',
-                        {
-                            path = 'grid',
-                            component = projects
-                        }
-                      )
-
-                %>
+            render(
+                'views.component',
+                {
+                    component = {template = 'grid', controller = 'collection'},
+                    data = {
+                        class = 'collection_projects',
+                        fetch_selector = 'projects',
+                        collection_name = collection.name,
+                        collection_id = collection.id,
+                        item_type = 'project',
+                        items_per_row = 4,
+                        per_page = 12,
+                        user_id = collection.creator_id,
+                        show_icons = true,
+                        show_collection_controls = true
+                    }
+                }
+            )
+            %>
         </div>
     </div>
 </div>

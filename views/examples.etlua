@@ -22,6 +22,7 @@ for _, name in pairs({
                 title = name,
                 collection_name = name,
                 item_type = 'project',
+                selector = 'projects',
                 user_id = snapcloud_id
             }
         }

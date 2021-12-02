@@ -56,6 +56,7 @@ for _, descriptor in pairs(collections) do
             component = { template = 'grid', controller = 'collection' },
             data = {
                 class = 'col-' .. math.random(1000000),
+                fetch_selector = 'projects',
                 title = descriptor.title,
                 collection_name = descriptor.collection_name,
                 item_type = 'project',

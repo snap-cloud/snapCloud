@@ -16,7 +16,7 @@
     <script>
     <% for _, each in pairs({'created', 'updated', 'shared', 'published'}) do %>
         document.querySelector(`.dates .<%-each%> span`).innerText =
-            formatDate('<%= collection[each .. '_at'] %>');
+            '<%= string.from_sql_date(collection[each .. '_at']) %>';
     <% end %>
     </script>
 </div>

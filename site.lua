@@ -54,7 +54,10 @@ local views = {
 
     -- Simple pages
     'blog', 'change_email', 'change_password', 'delete_user', 'forgot_password',
-    'forgot_username', 'sign_up'
+    'forgot_username', 'sign_up',
+
+    -- Simple, component-based pages
+    'explore', 'my_projects', 'my_collections'
 }
 
 for _, view in pairs(views) do
@@ -87,48 +90,24 @@ app:get('/admin', function (self)
     return { render = 'admin' }
 end)
 
-app:get('/explore', function (self)
-    self.Projects = Projects
-    self.Collections = Collections
-    self.db = db
-    self.new_component = component.new
-    return { render = 'explore' }
-end)
-
-app:get('/my_projects', function (self)
-    self.Projects = Projects
-    self.db = db
-    self.username = self.session.username
-    self.new_component = component.new
-    return { render = 'my_projects' }
-end)
-
-app:get('/my_collections', function (self)
-    self.Collections = Collections
-    self.db = db
-    self.user_id = self.current_user.id
-    self.new_component = component.new
-    return { render = 'my_collections' }
-end)
-
 app:get('/user', function (self)
-    self.Projects = Projects
-    self.Collections = Collections
-    self.Users = Users
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
-    self.new_component = component.new
     return { render = 'user' }
 end)
 
 app:get('/project', function (self)
-    self.Remixes = Remixes
     -- Backwards compatibility with previous URL params
     self.project = Projects:find(
         self.params.user or self.params.username,
         self.params.project or self.params.projectname
     )
-    self.new_component = component.new
+    local remix =
+        Remixes:select('WHERE remixed_project_id = ?', self.project.id)
+    if remix[1] then
+        self.remixed_from =
+            Projects:select('WHERE id = ?', remix[1].original_project_id)[1]
+    end
     self.admin_controls =
         self.current_user:has_one_of_roles({'admin', 'moderator'})
     self.reviewer_controls =
@@ -159,7 +138,6 @@ app:get('/collection', function (self)
         { fields = 'username, id' })
     end
 
-    self.new_component = component.new
     return { render = 'collection' }
 end)
 
@@ -212,7 +190,15 @@ local controller_dispatch = function (self)
     -- 'user' →  'UserController'
     local controller_name =
         self.params.controller:gsub("^%l", string.upper) .. 'Controller'
-    return _G[controller_name][self.params.selector](self)
+    local method = _G[controller_name][self.params.selector]
+    if method then
+        method(self)
+    else
+        error(
+            'method ' .. self.params.selector ..
+            ' not found in controller ' .. controller_name
+        )
+    end
 end
 
 app:post(
@@ -220,7 +206,9 @@ app:post(
     function (self)
         -- run the action associated to this particular component and selector,
         -- from the specified controller
-        self.params.data = package.loaded.util.from_json(self.params.data)
+        if self.params.data then
+            self.params.data = package.loaded.util.from_json(self.params.data)
+        end
         return {
             controller_dispatch(self),
             content_type = 'text/plain',
@@ -240,7 +228,8 @@ app:post(
 
         self.component = {
             id = self.params.component_id,
-            controller = self.params.controller
+            controller = self.params.controller,
+            fetch_selector = self.params.data.fetch_selector or 'fetch'
         }
         -- ignore return value, as we'll just re-render the component
         controller_dispatch(self)

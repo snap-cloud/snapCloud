@@ -1,30 +1,26 @@
 <h1>Explore</h1>
 <%
-    local projects = new_component('grid')
-    projects.data.class = 'projects'
-    projects.data.title = 'Published Projects'
-    projects.data.item_type = 'project'
-    projects.data.query = 'explore_projects'
-
-    render(
-        'views.components.component',
-        {
-            path = 'grid',
-            component = projects
+render(
+    'views.component',
+    {
+        component = { template = 'grid', controller = 'project' },
+        data = {
+            class = 'projects',
+            title = 'Published Projects',
+            item_type = 'project'
         }
-    )
+    }
+)
 
-    local collections = new_component('grid')
-    collections.data.class = 'collections'
-    collections.data.title = 'Published Collections'
-    collections.data.item_type = 'collection'
-    collections.data.query = 'explore_collections'
-
-    render(
-        'views.components.component',
-        {
-            path = 'grid',
-            component = collections
+render(
+    'views.component',
+    {
+        component = { template = 'grid', controller = 'collection' },
+        data = {
+            class = 'collections',
+            title = 'Published Collections',
+            item_type = 'collection',
         }
-    )
+    }
+)
 %>

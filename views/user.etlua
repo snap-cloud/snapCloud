@@ -5,44 +5,42 @@
 <h1><%- username%>'s public page</h1>
 
 <%
-    -- PUBLIC PROJECTS
+-- PUBLIC PROJECTS
 
-    local projects = new_component('grid')
-    projects.data.class = 'projects'
-    projects.data.title = 'Public Projects'
-    projects.data.item_type = 'project'
-    projects.data.query = 'user_projects'
-    projects.data.username = queried_user.username
-    projects.data.show_author = false
-
-    render(
-        'views.components.component',
-        {
-            path = 'grid',
-            component = projects
+render(
+    'views.component',
+    {
+        component = { template = 'grid', controller = 'project' },
+        data = {
+            title = 'Public Projects',
+            fetch_selector = 'user_projects',
+            class = 'projects',
+            item_type = 'project',
+            show_author = false,
+            username = queried_user.username
         }
-    )
+    }
+)
 
-    -- PUBLIC COLLECTIONS
+-- PUBLIC COLLECTIONS
 
-    local collections = new_component('grid')
-    collections.data.class = 'collections'
-    collections.data.title = 'Public Collections'
-    collections.data.item_type = 'collection'
-    collections.data.query = 'user_collections'
-    collections.data.user_id = queried_user.id
-
-    render(
-        'views.components.component',
-        {
-            path = 'grid',
-            component = collections
+render(
+    'views.component',
+    {
+        component = { template = 'grid', controller = 'collection' },
+        data = {
+            title = 'Public Collections',
+            fetch_selector = 'user_collections',
+            class = 'collections',
+            item_type = 'collection',
+            user_id = queried_user.id
         }
-    )
+    }
+)
 
-    -- ADMIN TOOLS
+-- ADMIN TOOLS
 
-    if current_user:has_one_of_roles({'admin', 'moderator'}) then
+if current_user:has_one_of_roles({'admin', 'moderator'}) then
 %>
 <div class="profile">
     <h2>Admin tools</h2>
