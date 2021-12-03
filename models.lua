@@ -48,6 +48,10 @@ package.loaded.Users = Model:extend('active_users', {
     isbanned = function (self)
         return self.role == 'banned'
     end,
+    has_min_role = function (self, expected_role)
+        local roles = { admin = 4, moderator = 3, reviewer = 2, standard = 1 }
+        return (roles[self.role] >= roles[expected_role])
+    end,
     has_one_of_roles = function (self, roles)
         for _, role in pairs(roles) do
             if self.role == role then

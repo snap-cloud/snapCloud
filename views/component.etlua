@@ -23,7 +23,7 @@
     };
 </script>
 
-<div id="<%= component.id %>">
+<div id="<%= component.id %>" class="<%- component.class or '' %>">
     <% 
         render(
             'views.' .. component.template,

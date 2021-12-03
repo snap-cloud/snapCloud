@@ -19,11 +19,23 @@
 </script>
 
 <nav class="paginator">
-    <a class="clickable" onclick="change_page_<%= component.id %>(this, 'first', '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-caret-left"></i></a>
-    <a class="clickable" onclick="change_page_<%= component.id %>(this, -5, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-double-left"></i></a>
-    <a class="clickable" onclick="change_page_<%= component.id %>(this, -1, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-left"></i></a>
+    <a class="clickable"
+        onclick="change_page_<%= component.id %>(this, 'first', '<%= data %>');"
+    ><i class="fas fa-caret-left"></i></a>
+    <a class="clickable"
+        onclick="change_page_<%= component.id %>(this, -5, '<%= data %>');"
+        ><i class="fas fa-angle-double-left"></i></a>
+    <a class="clickable"
+        onclick="change_page_<%= component.id %>(this, -1, '<%= data %>');"
+        ><i class="fas fa-angle-left"></i></a>
     <span class="page"><%= data.page_number %></span> / <span class="total-pages"><%= data.num_pages %></span>
-    <a class="clickable" onclick="change_page_<%= component.id %>(this, 1, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-right"></i></a>
-    <a class="clickable" onclick="change_page_<%= component.id %>(this, 5, '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-angle-double-right"></i></a>
-    <a class="clickable" onclick="change_page_<%= component.id %>(this, 'last', '<%= package.loaded.util.to_json(data) %>');"><i class="fas fa-caret-right"></i></a>
+    <a class="clickable"
+        onclick="change_page_<%= component.id %>(this, 1, '<%= data %>');"
+        ><i class="fas fa-angle-right"></i></a>
+    <a class="clickable"
+        onclick="change_page_<%= component.id %>(this, 5, '<%= data %>');"
+        ><i class="fas fa-angle-double-right"></i></a>
+    <a class="clickable"
+        onclick="change_page_<%= component.id %>(this, 'last', '<%= data %>');"
+        ><i class="fas fa-caret-right"></i></a>
 </nav>

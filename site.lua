@@ -86,7 +86,7 @@ app:get('/', index)
 app:get('/index', index)
 
 app:get('/admin', function (self)
-    assert_has_one_of_roles({'admin', 'moderator', 'reviewer'})
+    assert_min_role(self, 'reviewer')
     return { render = 'admin' }
 end)
 
@@ -102,16 +102,15 @@ app:get('/project', function (self)
         self.params.user or self.params.username,
         self.params.project or self.params.projectname
     )
+    -- check whether this is a remix of another project
     local remix =
         Remixes:select('WHERE remixed_project_id = ?', self.project.id)
     if remix[1] then
         self.remixed_from =
             Projects:select('WHERE id = ?', remix[1].original_project_id)[1]
     end
-    self.admin_controls =
-        self.current_user:has_one_of_roles({'admin', 'moderator'})
-    self.reviewer_controls =
-        self.current_user:has_one_of_roles({'admin', 'moderator', 'reviewer'})
+    self.admin_controls = self.current_user:has_min_role('moderator')
+    self.reviewer_controls = self.current_user:has_min_role('reviewer')
     return { render = 'project' }
 end)
 
@@ -142,8 +141,7 @@ app:get('/collection', function (self)
 end)
 
 app:get('/search', function (self)
-    self.reviewer_controls =
-        self.current_user:has_one_of_roles({'admin', 'moderator', 'reviewer'})
+    self.reviewer_controls = self.current_user:has_min_role('reviewer')
     return { render = 'search' }
 end)
 
@@ -155,12 +153,12 @@ app:get('/profile', function (self)
 end)
 
 app:get('/flags', function (self)
-    assert_has_one_of_roles(self, {'admin', 'moderator', 'reviewer'})
+    assert_min_role(self, 'reviewer')
     return { render = 'flags' }
 end)
 
 app:get('/user_admin', function (self)
-    assert_has_one_of_roles(self, {'admin', 'moderator'})
+    assert_min_role(self, 'moderator')
     return { render = 'user_admin' }
 end)
 

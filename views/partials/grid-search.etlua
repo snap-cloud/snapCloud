@@ -7,7 +7,7 @@
             {
                 search_term:
                     Object.fromEntries(new FormData(this)).query,
-                data: '<%= package.loaded.util.to_json(data) %>'
+                data: '<%= data %>'
             }
         );"
     >

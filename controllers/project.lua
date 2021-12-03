@@ -134,4 +134,57 @@ ProjectController = {
         end
         ProjectController.run_query(self, query)
     end,
+    share = function (self)
+        local project =
+            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
+        assert_can_share(self, project)
+        project:update({
+            lastupdated = db.format_date(),
+            lastshared = db.format_date(),
+            ispublic = true,
+            ispublished = false
+        })
+        self.params.data.project = project
+        self.project = project
+        data = self.params.data
+    end,
+    unshare = function (self)
+        local project =
+            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
+        assert_can_share(self, project)
+        project:update({
+            lastupdated = db.format_date(),
+            ispublic = false,
+            ispublished = false
+        })
+        self.params.data.project = project
+        self.project = project
+        data = self.params.data
+    end,
+    publish = function (self)
+        local project =
+            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
+        assert_can_share(self, project)
+        project:update({
+            lastupdated = db.format_date(),
+            firstpublished = project.firstpublished or db.format_date(),
+            ispublic = true,
+            ispublished = true
+        })
+        self.params.data.project = project
+        self.project = project
+        data = self.params.data
+    end,
+    unpublish = function (self)
+        local project =
+            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
+        assert_can_share(self, project)
+        project:update({
+            lastupdated = db.format_date(),
+            ispublished = false
+        })
+        self.params.data.project = project
+        self.project = project
+        data = self.params.data
+    end,
 }

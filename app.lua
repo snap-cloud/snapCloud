@@ -70,6 +70,17 @@ debug = function (title, string)
     )
 end
 
+-- Print tables as JSON by default. Lets us use tables in etlua templates
+-- without having to convert them to JSON explicitly, which is nice.
+old_tostring = tostring
+tostring = function (obj)
+    if (type(obj) == 'table') then
+        return package.loaded.util.to_json(obj)
+    else
+        return old_tostring(obj)
+    end
+end
+
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})
 local lapis_capture_errors = package.loaded.app_helpers.capture_errors

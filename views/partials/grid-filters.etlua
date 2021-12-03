@@ -7,7 +7,7 @@
                     {
                         filter: '<%= filter.selector %>',
                         value: this.value,
-                        data: '<%= package.loaded.util.to_json(data) %>'
+                        data: '<%= data %>'
                     }
         );">
             <% for _, option in pairs(filter.options) do %>

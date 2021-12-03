@@ -158,11 +158,18 @@ assert_has_one_of_roles = function (self, roles)
     end
 end
 
+assert_min_role = function (self, expected_role)
+    if not self.current_user:has_min_role(expected_role) then
+        yield_error(err.auth)
+    end
+end
+
 assert_admin = function (self, message)
     assert_role(self, 'admin', message)
 end
 
 assert_can_set_role = function (self, role)
+    -- TODO use a numeric lookup table like in models >> User >> has_min_role
     local can_set = {
         admin = {
             admin =
@@ -246,6 +253,12 @@ end
 assert_project_exists = function (self, message)
     if not (Projects:find(self.params.username, self.params.projectname)) then
         yield_error(message or err.nonexistent_project)
+    end
+end
+
+assert_can_share = function (self, project)
+    if (project.username ~= self.current_user) then
+        assert_has_one_of_roles({'admin', 'moderator', 'reviewer'})
     end
 end
 

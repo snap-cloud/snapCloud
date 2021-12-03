@@ -6,27 +6,42 @@
 <div class="project big">
     <div class="title">
         <h1><%- project.projectname %></h1>
+
         <% if remixed_from then %>
-        <span class="remixed-from">(remixed from <span class="project-link"><a href="<%= remixed_from:url_for('site') %>"><%= remixed_from.projectname %></a></span><span class="author"> by <a href="<%= remixed_from:url_for('author') %>"><strong><%= remixed_from.username %></strong></a></span>)</span>
+        <span class="remixed-from">(remixed from <span class="project-link"><a
+            href="<%= remixed_from:url_for('site') %>"
+        ><%= remixed_from.projectname %></a></span>
+        <span class="author"> by <a
+            href="<%= remixed_from:url_for('author') %>"
+        ><strong><%= remixed_from.username %></strong></a></span>)</span>
         <% end %>
 
-    <span class="author"> by <a href="<%= project:url_for('author') %>" target=""><strong><%- project.username %></strong></a></span></div>
+    <span class="author"> by <a href="<%= project:url_for('author') %>"
+        target=""><strong><%- project.username %></strong></a></span></div>
     <div class="viewer pure-g">
         <!-- Project viewer -->
         <div class="embed pure-u-1-2">
             <!-- Spinner shown while embed hasn't been loaded -->
-            <i class="project-loader fas fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
+            <i class="project-loader fas fa-spinner fa-spin fa-3x"
+                aria-hidden="true"></i>
 
             <!-- Project control bar -->
             <div class="controlbar">
-                <i class="present-button fas fa-expand clickable" onclick="toggleFullScreen();"></i>
-                <i class="start-button fas fa-flag clickable" onclick="runProject(event);"></i>
-                <i class="pause-button fas fa-pause clickable" onclick="togglePauseProject();"></i>
-                <i class="stop-button fas fa-octagon clickable" onclick="stopProject();"></i>
+                <i class="present-button fas fa-expand clickable"
+                    onclick="toggleFullScreen();"></i>
+                <i class="start-button fas fa-flag clickable"
+                    onclick="runProject(event);"></i>
+                <i class="pause-button fas fa-pause clickable"
+                    onclick="togglePauseProject();"></i>
+                <i class="stop-button fas fa-octagon clickable"
+                    onclick="stopProject();"></i>
             </div>
 
             <!-- Project embed -->
-            <iframe allow="geolocation; microphone; camera" sandbox="allow-scripts allow-same-origin" src="<%= project:url_for('viewer', params.devVersion) %>" height="406"></iframe>
+            <iframe allow="geolocation; microphone; camera"
+                sandbox="allow-scripts allow-same-origin"
+                src="<%= project:url_for('viewer', params.devVersion) %>"
+                height="406"></iframe>
 
             <!-- Project Action Buttons -->
             <% render('views.partials.project-buttons') %>
@@ -35,7 +50,23 @@
         </div>
         <!-- just a separator -->
         <i class="pure-u-1-24"></i>
-        <% render('views.partials.project-details') %>
+        <%
+        -- project details are AJAX-updateable, so they need to be a component
+        render(
+            'views.component',
+            {
+                component = {
+                    template = 'partials.project-details',
+                    controller = 'project',
+                    class = 'details pure-u-11-24'
+                },
+                data = {
+                    project = project,
+                    reviewer_controls = reviewer_controls
+                }
+            }
+        )
+        %>
     </div>
 
 <%

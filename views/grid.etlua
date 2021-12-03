@@ -92,7 +92,7 @@ if items == nil then items = {} end
         update_<%=component.id%>(
             '<%= component.controller %>',
             '<%= data.fetch_selector %>',
-            { data: '<%- package.loaded.util.to_json(data) %>'}
+            { data: '<%- data %>'}
         );
     </script>
 </div>
