@@ -39,6 +39,26 @@ if items == nil then items = {} end
 
 <link rel="stylesheet" href="static/style/project.css">
 <div class="<%= data.class %> container">
+<script>
+    function loader (element) {
+        var list = element.closest('div.container').querySelector('.list');
+        list.innerHTML = `<div class="loader">
+            <i class="fa fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
+            </div>`;
+    };
+    function change_page_<%= component.id %>(element, offset, data) {
+        loader(element);
+        update_<%=component.id%>(
+            '<%=component.controller%>',
+            'change_page',
+            {
+                offset: offset,
+                data: data
+            }
+        );
+    };
+</script>
+
 
 <% if ((data.num_pages > 0) or data.show_if_empty) then %>
     <% if (data.title) then %>

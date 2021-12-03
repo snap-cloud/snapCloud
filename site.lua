@@ -26,6 +26,7 @@
 local app = package.loaded.app
 local util = package.loaded.util
 local capture_errors = package.loaded.capture_errors
+local cached = package.loaded.cached
 local respond_to = package.loaded.respond_to
 
 local Users = package.loaded.Users
@@ -212,7 +213,7 @@ app:post(
 -- component updater
 app:post(
     '/update_component/:component_id/:template/:controller/:selector',
-    function (self)
+    capture_errors(cached(function (self)
         -- run the action associated to this particular component and selector,
         -- from the actions table
 
@@ -232,7 +233,7 @@ app:post(
             render = self.params.template,
             layout = false,
         }
-    end
+    end))
 )
 
 
