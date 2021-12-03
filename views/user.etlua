@@ -1,4 +1,4 @@
-<% if current_user:has_one_of_roles({'admin', 'moderator'}) then %>
+<% if current_user and current_user:has_min_role('moderator') then %>
 <link rel="stylesheet" href="static/style/admin.css">
 <% end %>
 
@@ -40,7 +40,7 @@ render(
 
 -- ADMIN TOOLS
 
-if current_user:has_one_of_roles({'admin', 'moderator'}) then
+if current_user and current_user:has_min_role('moderator') then
 %>
 <div class="profile">
     <h2>Admin tools</h2>

@@ -39,7 +39,6 @@ require 'passwords'
 
 UserController = {
     run_query = function (self, query)
-
         local paginator = Users:paginated(
             query ..
                 (self.params.data.search_term and (db.interpolate_query(
@@ -168,7 +167,7 @@ UserController = {
             end
         else
             -- Admins can log in as other people
-            assert_admin(self, 'wrong password')
+            assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
             return 'index'
         end

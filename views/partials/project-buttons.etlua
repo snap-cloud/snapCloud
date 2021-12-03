@@ -8,7 +8,7 @@
         >Embed</a>
     <a localizable="" class="pure-button collect" target="_blank"
         onclick="">Add to Collection</a>
-<% if ((project.username == current_user.username) or admin_controls) then %>
+<% if ((current_user and (project.username == current_user.username)) or admin_controls) then %>
     <a localizable="" class="pure-button pure-button-warning delete"
         target="_blank" onclick="">Delete</a>
 <% end %>

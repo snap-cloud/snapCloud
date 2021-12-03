@@ -1,9 +1,8 @@
 <h1 localizable>Administration</h1>
-<% if current_user:has_one_of_roles({'admin', 'moderator', 'reviewer'}) then %>
+<% if current_user and current_user:has_min_role('moderator') then %>
 <a localizable class="user-admin pure-button"
     href="user_admin">User Administration</a>
 <a localizable class="zombie-admin pure-button"
     href="zombie_admin">Zombie Administration</a>
 <% end %>
-<a localizable class="pure-button"
-    href="flags">Flagged Projects</a>
+<a localizable class="pure-button" href="flags">Flagged Projects</a>

@@ -9,7 +9,8 @@
 <% elseif data.project.ispublic then %>
     <p class="shared"><strong localizable="">Shared:</strong><span><%= string.from_sql_date(data.project.lastshared) %></span></p>
 <% end %>
-<% if ((data.project.username == current_user.username) or reviewer_controls) then %>
+<% if ((current_user and (data.project.username == current_user.username)) or
+        reviewer_controls) then %>
     <% if data.project.ispublished then %>
     <a localizable="" class="pure-button unpublish" target="_blank"
         onclick="confirmAction('unpublish', '<%= data %>')">Unpublish</a>

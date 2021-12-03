@@ -41,6 +41,9 @@ err = {
     auth = {
         msg = 'You do not have permission to perform this action',
         status = 403 },
+    wrong_password = {
+        msg = 'The provided password is wrong',
+        status = 403 },
     nonexistent_user =
         { msg = 'No user with this username exists', status = 404 },
     nonexistent_email =

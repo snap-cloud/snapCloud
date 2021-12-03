@@ -1,5 +1,6 @@
 TODO
 ====
+[ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [-] collection
     [ ] edit description
@@ -44,9 +45,6 @@ TODO
     [ ] actually do it
 [-] sign_up
     [ ] actually do it
-[-] login
-    [x] actually do it
-    [ ] error handling
 
 TODO AFTER DEPLOYING
 ====================

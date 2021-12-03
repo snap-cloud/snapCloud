@@ -16,8 +16,18 @@ function run_selector (controller, selector, params) {
     );
     req.onreadystatechange = function () {
         if (req.readyState == 4 && req.status == 200) {
-            console.log(req.responseText);
             location.href = req.responseText;
+        } else if (req.readyState == 4) {
+            // handle the error
+            try {
+                var err = JSON.parse(req.responseText).errors[0];
+            } catch (e) {
+                var err = req.responseText;
+            }
+            alert(
+                err || 'Unknown error',
+                { title: req.statusText || 'Error' }
+            );
         }
     };
     req.send();

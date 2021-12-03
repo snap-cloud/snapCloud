@@ -109,8 +109,10 @@ app:get('/project', function (self)
         self.remixed_from =
             Projects:select('WHERE id = ?', remix[1].original_project_id)[1]
     end
-    self.admin_controls = self.current_user:has_min_role('moderator')
-    self.reviewer_controls = self.current_user:has_min_role('reviewer')
+    if self.current_user then
+        self.admin_controls = self.current_user:has_min_role('moderator')
+        self.reviewer_controls = self.current_user:has_min_role('reviewer')
+    end
     return { render = 'project' }
 end)
 
@@ -141,7 +143,8 @@ app:get('/collection', function (self)
 end)
 
 app:get('/search', function (self)
-    self.reviewer_controls = self.current_user:has_min_role('reviewer')
+    self.reviewer_controls =
+        self.current_user and self.current_user:has_min_role('reviewer')
     return { render = 'search' }
 end)
 
@@ -192,7 +195,7 @@ end
 
 app:post(
     '/call_lua/:controller/:selector',
-    function (self)
+    capture_errors(function (self)
         -- run the action associated to this particular component and selector,
         -- from the specified controller
         if self.params.data then
@@ -203,7 +206,7 @@ app:post(
             content_type = 'text/plain',
             layout = false
         }
-    end
+    end)
 )
 
 -- component updater
