@@ -1,9 +1,5 @@
 TODO
 ====
-[ ] user_admin
-    [ ] make filters work
-        [x] role
-        [ ] verified
 [ ] caching
 [x] collection
     [ ] edit description

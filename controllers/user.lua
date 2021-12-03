@@ -39,23 +39,7 @@ require 'passwords'
 
 UserController = {
     run_query = function (self, query)
-        local filters = ''
-        if self.params.data.filters then
-            for k, v in pairs(self.params.data.filters) do
-                if (v ~= '') then
-                    value = v
-                    -- recast booleans
-                    -- TODO NOT WORKING
-                    if (v == "'true'") then
-                        value = true
-                    elseif (v == "'false'") then
-                        value = false
-                    end
-                    filters = filters ..
-                        db.interpolate_query(' AND ' .. k .. ' = ?', value)
-                end
-            end
-        end
+
         local paginator = Users:paginated(
             query ..
                 (self.params.data.search_term and (db.interpolate_query(
@@ -63,7 +47,7 @@ UserController = {
                     '%' .. self.params.data.search_term .. '%',
                     '%' .. self.params.data.search_term .. '%')
                 ) or '') ..
-                filters ..
+                (self.filters or '') ..
             ' ORDER BY ' .. (self.params.data.order or 'created_at'),
             {
                 per_page = self.params.data.per_page or 15,
@@ -76,6 +60,7 @@ UserController = {
         end
 
         self.items = paginator:get_page(self.params.data.page_number)
+        debug('filter descriptors after:', self.params.data.filter_descriptors)
         self.data = self.params.data
     end,
     change_page = function (self)
@@ -95,6 +80,7 @@ UserController = {
         UserController[self.component.fetch_selector](self)
     end,
     fetch = function (self)
+        -- just to be able to reuse the existing run_query structure:
         UserController.run_query(self, 'WHERE true')
     end,
     search = function (self)
@@ -105,7 +91,28 @@ UserController = {
         if (self.params.data.filters == nil) then
             self.params.data.filters = {}
         end
+
+        -- recast booleans
+        if (self.params.value == 'true') then
+            self.params.value = true
+        elseif (self.params.value == 'false') then
+            self.params.value = false
+        end
+
+        -- save the value and create the filters query part
         self.params.data.filters[self.params.filter] = self.params.value
+        self.filters = ''
+        if self.params.data.filters then
+            for k, v in pairs(self.params.data.filters) do
+                if (v ~= '') then
+                    self.filters = self.filters ..
+                        db.interpolate_query(' AND ' .. k .. ' = ?', v)
+                end
+            end
+        end
+
+        -- mark the selected value so the frontend will update the view
+        debug('filter descriptors before:', self.params.data.filter_descriptors)
         for _, descriptor in pairs(self.params.data.filter_descriptors) do
             if (descriptor.selector == self.params.filter) then 
                 for _, option in pairs(descriptor.options) do

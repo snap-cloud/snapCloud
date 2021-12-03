@@ -63,6 +63,13 @@ string.from_sql_date = function (sql_date)
         actual_date:getday() ..  ', ' ..  actual_date:getyear()
 end
 
+debug = function (title, string)
+    print('\n\n----------\n' .. title .. '\n' ..
+        require('inspect').inspect(string) ..
+        '\n----------\n'
+    )
+end
+
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})
 local lapis_capture_errors = package.loaded.app_helpers.capture_errors

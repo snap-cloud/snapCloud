@@ -1,5 +1,5 @@
 <div class="user pure-u-1-2">
-    <div class="details">
+    <div class="details <%- item.verified and '' or 'unverified' %> <%- item.role %>">
         <a href="user?username=<%=item.username%>" target=""><strong><%=item.username%></strong></a>
         <span><em><a target="_blank" href="mailto:<%=item.email%>"><%=item.email%></a></em></span>
         <span><strong>ID:</strong> <%=item.id%></span>
