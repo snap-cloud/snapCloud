@@ -118,6 +118,8 @@ UserController = {
                 for _, option in pairs(descriptor.options) do
                     if (option.value == self.params.value) then
                         option.selected = true
+                    else
+                        option.selected = false
                     end
                 end
             end
