@@ -1,7 +1,5 @@
 TODO
 ====
-[ ] login
-    [ ] redirection not working?
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [-] collection

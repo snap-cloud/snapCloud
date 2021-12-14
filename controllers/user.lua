@@ -160,7 +160,7 @@ UserController = {
             self.session.username = self.queried_user.username
             self.cookies.persist_session = tostring(self.params.persist)
             if self.queried_user.verified then
-                return 'index'
+                return self:build_url('index')
             else
                 return jsonResponse(
                     { days_left = self.queried_user.days_left })
@@ -169,13 +169,13 @@ UserController = {
             -- Admins can log in as other people
             assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
-            return 'index'
+            return self:build_url('index')
         end
     end,
     logout = function (self)
         self.session.username = ''
         self.session.user_id = nil
         self.cookies.persist_session = 'false'
-        return { redirect_to = self:build_url('/') }
+        return self:build_url('index')
     end
 }

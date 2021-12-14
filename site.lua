@@ -185,7 +185,7 @@ local controller_dispatch = function (self)
         self.params.controller:gsub("^%l", string.upper) .. 'Controller'
     local method = _G[controller_name][self.params.selector]
     if method then
-        method(self)
+        return method(self)
     else
         error(
             'method ' .. self.params.selector ..
