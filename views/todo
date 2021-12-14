@@ -1,5 +1,7 @@
 TODO
 ====
+[ ] login
+    [ ] redirection not working?
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [-] collection
@@ -14,9 +16,9 @@ TODO
     [ ] share / unshare
     [ ] publish / unpublish
     [ ] delete
-[ ] project buttons
+[-] project buttons
     [ ] delete
-    [ ] flag
+    [x] flag
     [ ] embed
     [ ] add to collection
 [ ] my_collections
@@ -31,7 +33,7 @@ TODO
     [ ] ban
     [ ] delete
     [ ] role selector
-[-] flag_details
+[-] flag_list
     [ ] remove flag
 [-] change_email
     [ ] actually do it

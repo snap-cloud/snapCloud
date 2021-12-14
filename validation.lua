@@ -261,7 +261,7 @@ end
 
 assert_can_share = function (self, project)
     if (project.username ~= self.current_user) then
-        assert_has_one_of_roles({'admin', 'moderator', 'reviewer'})
+        assert_min_role(self, 'reviewer')
     end
 end
 

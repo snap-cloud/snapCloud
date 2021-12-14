@@ -128,4 +128,19 @@ function confirmTitle (title) {
         done: localizer.localize('Ok'),
         cancel: localizer.localize('Cancel')
     };
-}
+};
+
+function confirmAction(text, componentId, controller, selector, params) {
+    confirm(
+        text,
+        ok => {
+            if (ok) {
+                window['update_' + componentId](
+                    controller,
+                    selector,
+                    params
+                );
+            }
+        }
+    );
+};

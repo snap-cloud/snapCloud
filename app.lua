@@ -63,7 +63,7 @@ string.from_sql_date = function (sql_date)
         actual_date:getday() ..  ', ' ..  actual_date:getyear()
 end
 
-debug = function (title, string)
+debug_print = function (title, string)
     print('\n\n----------\n' .. title .. '\n' ..
         require('inspect').inspect(string) ..
         '\n----------\n'

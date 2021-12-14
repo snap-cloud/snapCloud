@@ -11,7 +11,32 @@
     for k, flag in pairs(flags) do
         flag.reason = reasons[flag.reason]
 %>
-    <span class="flag" title="<%= flag.notes %>"><span class="header"><span class="reason warning"><%= flag.reason %></span><a class="remove clickable"><i class="fas fa-times-circle"></i></a></span><span>Flagged</span><span class="author"> by <a href="user?username=<%= flag.username %>" target="_blank"><strong><%= flag.username %></strong></a></span><span> on </span><span><%= string.from_sql_date(flag.created_at) %></span></span>
+    <span class="flag" title="<%= flag.notes %>">
+        <span class="header">
+            <span class="reason warning" ><%= flag.reason %></span>
+            <a
+                class="remove clickable"
+                onclick="confirmAction(
+                    'Are you sure you want to remove this flag?',
+                    '<%= component.id %>',
+                    'project',
+                    'remove_flag',
+                    {
+                        data: '<%= data %>',
+                        flagger: '<%= flag.username %>'
+                    }
+                )"
+                ><i class="fas fa-times-circle"></i></a>
+        </span>
+        <span>Flagged</span>
+        <span class="author"> by <a
+            href="user?username=<%= flag.username %>"
+            target="_blank"
+            ><strong><%= flag.username %></strong></a>
+        </span>
+        <span> on </span>
+        <span><%= string.from_sql_date(flag.created_at) %></span>
+    </span>
 <%
     end 
 end

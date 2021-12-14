@@ -20,11 +20,18 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local Projects = package.loaded.Projects
-local Collections = package.loaded.Collections
-local Users = package.loaded.Users
+local util = package.loaded.util
+local validate = package.loaded.validate
+local db = package.loaded.db
+local cached = package.loaded.cached
+local yield_error = package.loaded.yield_error
 local db = package.loaded.db
 local disk = package.loaded.disk
+
+local Projects = package.loaded.Projects
+local FlaggedProjects = package.loaded.FlaggedProjects
+local Collections = package.loaded.Collections
+local Users = package.loaded.Users
 
 ProjectController = {
     run_query = function (self, query)
@@ -187,4 +194,31 @@ ProjectController = {
         self.project = project
         data = self.params.data
     end,
+    remove_flag = function (self)
+        -- Check whether we're removing someone else's flag
+        if self.params.flagger then assert_min_role(self, 'reviewer') end
+
+        local project =
+            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
+
+        local flagger =
+            self.params.flagger and
+                Users:select('WHERE username = ?', self.params.flagger)[1] or
+                self.current_user
+
+        -- flag:delete() fails with an internal Lapis error
+        if not db.delete(
+                    'flagged_projects',
+                    'project_id = ? AND flagger_id = ?',
+                    project.id,
+                    flagger.id
+                ) then
+            yield_error(err.project_never_flagged)
+        end
+
+        self.params.data.project = project
+        self.project = project
+        data = self.params.data
+    end,
+
 }

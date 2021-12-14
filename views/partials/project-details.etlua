@@ -10,35 +10,41 @@
     <p class="shared"><strong localizable="">Shared:</strong><span><%= string.from_sql_date(data.project.lastshared) %></span></p>
 <% end %>
 <% if ((current_user and (data.project.username == current_user.username)) or
-        reviewer_controls) then %>
+        current_user:has_min_role('reviewer')) then %>
     <% if data.project.ispublished then %>
     <a localizable="" class="pure-button unpublish" target="_blank"
-        onclick="confirmAction('unpublish', '<%= data %>')">Unpublish</a>
+        onclick="confirmButtonAction('unpublish', '<%= data %>')">Unpublish</a>
     <a localizable="" class="pure-button unshare" target="_blank"
-        onclick="confirmAction('unshare', '<%= data %>')">Unshare</a>
+        onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
     <% elseif data.project.ispublic then %>
     <a localizable="" class="pure-button publish" target="_blank"
-        onclick="confirmAction('publish', '<%= data %>')">Publish</a>
+        onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
     <a localizable="" class="pure-button unshare" target="_blank"
-        onclick="confirmAction('unshare', '<%= data %>')">Unshare</a>
+        onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
     <% else %>
     <a localizable="" class="pure-button share" target="_blank"
-        onclick="confirmAction('share', '<%= data %>')">Share</a>
+        onclick="confirmButtonAction('share', '<%= data %>')">Share</a>
     <a localizable="" class="pure-button publish" target="_blank"
-        onclick="confirmAction('publish', '<%= data %>')">Publish</a>
+        onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
     <% end %>
 <% end %>
 </div>
-<% if data.reviewer_controls then render('views.partials.flag-list') end %>
+<%
+    if data.reviewer_controls then
+        render(
+            'views.partials.flag-list',
+            { component = component, data = data }
+        )
+    end
+%>
 <script>
-    function confirmAction(action, data) {
-        confirm(
+    function confirmButtonAction (action, data) {
+        confirmAction(
             'Are you sure you want to ' + action + ' this project?',
-            ok => {
-                if (ok) {
-                    update_<%=component.id%>('project', action, { data: data});
-                }
-            }
+            '<%= component.id %>',
+            'project',
+            action,
+            { data: data }
         );
     };
 </script>
