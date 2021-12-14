@@ -130,8 +130,15 @@ function confirmTitle (title) {
     };
 };
 
-function confirmAction(text, componentId, controller, selector, params) {
+function confirmAction(text, controller, selector, params) {
     confirm(
+        text,
+        ok => { if (ok) { run_selector(controller, selector, params); }}
+    );
+};
+
+function confirmComponentAction(text, componentId, controller, selector, params) {
+    confirmAction(
         text,
         ok => {
             if (ok) {

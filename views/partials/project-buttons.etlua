@@ -14,7 +14,13 @@
         current_user:isadmin()) then
 %>
     <a localizable="" class="pure-button pure-button-warning delete"
-        target="_blank" onclick="">Delete</a>
+        target="_blank"
+        onclick="confirmAction(
+            '<%= package.loaded.dialogs.delete_project %>',
+            'project',
+            'delete',
+            {project: {id: <%= project.id %>}})"
+        >Delete</a>
 <% end %>
     <span class="flag-container">
         <i class="warning fas fa-exclamation-triangle"></i>

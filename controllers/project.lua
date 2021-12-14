@@ -220,5 +220,33 @@ ProjectController = {
         self.project = project
         data = self.params.data
     end,
+    delete = function (self)
+        local project =
+            Projects:select('WHERE id = ?', self.params.project.id)[1]
+        assert_can_delete(self, project)
 
+        local username = project.username -- keep it for after deleting it
+
+        if self.params.reason then
+            send_mail(
+                self.queried_user.email,
+                mail_subjects.project_deleted .. project.projectname,
+                mail_bodies.project_deleted .. self.current_user.role ..
+                    '.</p><p>' .. self.params.reason .. '</p>')
+        end
+
+        -- Do not actually delete the project; flag it as deleted.
+        if not (project:update({ deleted = db.format_date() })) then
+            yield_error('Could not delete project ' ..
+                self.params.projectname)
+        end
+
+        if username == self.current_user.username then
+            return self:build_url('my_projects')
+        else
+            return self:build_url(
+                'user?username=' .. package.loaded.util.escape(username)
+            )
+        end
+    end,
 }

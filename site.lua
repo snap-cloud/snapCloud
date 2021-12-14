@@ -41,6 +41,8 @@ require 'controllers.project'
 require 'controllers.collection'
 require 'controllers.counter'
 
+require 'dialogs'
+
 -- All component actions and queries are separated into the site controller
 --require 'controllers.site'
 

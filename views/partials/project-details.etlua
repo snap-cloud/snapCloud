@@ -40,7 +40,7 @@
 %>
 <script>
     function confirmButtonAction (action, data) {
-        confirmAction(
+        confirmComponentAction(
             'Are you sure you want to ' + action + ' this project?',
             '<%= component.id %>',
             'project',

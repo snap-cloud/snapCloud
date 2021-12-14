@@ -253,18 +253,19 @@ end
 
 -- Projects
 
-assert_project_exists = function (self, message)
-    if not (Projects:find(self.params.username, self.params.projectname)) then
-        yield_error(message or err.nonexistent_project)
-    end
-end
-
 assert_can_share = function (self, project)
-    if (project.username ~= self.current_user) then
+    if not project then yield_error(err.nonexistent_project) end
+    if (project.username ~= self.current_user.username) then
         assert_min_role(self, 'reviewer')
     end
 end
 
+assert_can_delete = function (self, project)
+    if not project then yield_error(err.nonexistent_project) end
+    if (project.username ~= self.current_user.username) then
+        assert_min_role(self, 'moderator')
+    end
+end
 -- Tokens
 
 check_token = function (token_value, purpose, on_success)

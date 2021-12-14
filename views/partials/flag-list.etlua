@@ -16,7 +16,7 @@
             <span class="reason warning" ><%= flag.reason %></span>
             <a
                 class="remove clickable"
-                onclick="confirmAction(
+                onclick="confirmComponentAction(
                     'Are you sure you want to remove this flag?',
                     '<%= component.id %>',
                     'project',
