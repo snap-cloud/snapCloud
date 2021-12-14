@@ -131,9 +131,10 @@ app:get('/collection', function (self)
 
     if self.collection.thumbnail_id then
         self.collection.thumbnail =
-        package.loaded['disk']:retrieve_thumbnail(
-            self.collection.thumbnail_id)
+            package.loaded.disk:retrieve_thumbnail(
+                self.collection.thumbnail_id)
     end
+
     if self.collection.editor_ids then
         self.collection.editors = Users:find_all(
         self.collection.editor_ids,

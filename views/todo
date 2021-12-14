@@ -2,7 +2,8 @@ TODO
 ====
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
-[-] collection
+[ ] collection
+    [ ] show thumbnail
     [ ] edit description
     [ ] edit name
     [ ] select thumbnail
@@ -14,40 +15,37 @@ TODO
     [ ] share / unshare
     [ ] publish / unpublish
     [ ] delete
-[-] project buttons
+[ ] project buttons
     [ ] delete
-    [x] flag
+    [ ] flag
     [ ] embed
     [ ] add to collection
 [ ] my_collections
     [ ] "New Collection" button
-[ ] make sure thumbnails are working
+    [ ] thumbnails
 [ ] zombie_admin
-[-] profile partial
-    [x] add project count
+[ ] profile partial
     [ ] become
     [ ] change email
     [ ] send a message
     [ ] ban
     [ ] delete
     [ ] role selector
-[-] flag_list
-    [ ] remove flag
-[-] change_email
+[ ] change_email
     [ ] actually do it
-[-] change_password
+[ ] change_password
     [ ] actually do it
-[-] delete_user
+[ ] delete_user
     [ ] actually do it
-[-] forgot_password
+[ ] forgot_password
     [ ] actually do it
-[-] forgot_username
+[ ] forgot_username
     [ ] actually do it
-[-] sign_up
+[ ] sign_up
     [ ] actually do it
 
 TODO AFTER DEPLOYING
 ====================
-[-] project
+[ ] project
     [ ] edit notes
     [ ] edit title

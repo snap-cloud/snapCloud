@@ -51,7 +51,7 @@ CollectionController = {
         end
 
         self.items = paginator:get_page(self.params.data.page_number)
-        disk:process_thumbnails(self.items)
+        disk:process_thumbnails(self.items, 'thumbnail_id')
         self.data = self.params.data
     end,
     change_page = function (self)
