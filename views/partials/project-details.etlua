@@ -9,7 +9,8 @@
 <% elseif data.project.ispublic then %>
     <p class="shared"><strong localizable="">Shared:</strong><span><%= string.from_sql_date(data.project.lastshared) %></span></p>
 <% end %>
-<% if ((current_user and (data.project.username == current_user.username)) or
+<% if current_user and
+        ((data.project.username == current_user.username) or
         current_user:has_min_role('reviewer')) then %>
     <% if data.project.ispublished then %>
     <a localizable="" class="pure-button unpublish" target="_blank"
@@ -30,7 +31,7 @@
 <% end %>
 </div>
 <%
-    if data.reviewer_controls then
+    if current_user and current_user:has_min_role('reviewer') then
         render(
             'views.partials.flag-list',
             { component = component, data = data }
