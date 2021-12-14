@@ -39,7 +39,9 @@ local curated = {
     'Art Projects',
     'Fractals',
     'Animations',
-    'Games'
+    'Games',
+    'Computer Science',
+    'Maths'
 }
 
 -- Add 3 curated collections to the front page
@@ -60,6 +62,7 @@ for _, descriptor in pairs(collections) do
                 title = descriptor.title,
                 collection_name = descriptor.collection_name,
                 item_type = 'project',
+                per_page = 5,
                 -- store for use in querying for next pages
                 user_id = snapcloud_id
             }

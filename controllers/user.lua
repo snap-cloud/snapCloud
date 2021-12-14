@@ -59,7 +59,6 @@ UserController = {
         end
 
         self.items = paginator:get_page(self.params.data.page_number)
-        debug('filter descriptors after:', self.params.data.filter_descriptors)
         self.data = self.params.data
     end,
     change_page = function (self)
@@ -111,7 +110,6 @@ UserController = {
         end
 
         -- mark the selected value so the frontend will update the view
-        debug('filter descriptors before:', self.params.data.filter_descriptors)
         for _, descriptor in pairs(self.params.data.filter_descriptors) do
             if (descriptor.selector == self.params.filter) then 
                 for _, option in pairs(descriptor.options) do
