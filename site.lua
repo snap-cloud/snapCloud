@@ -62,42 +62,42 @@ local views = {
 }
 
 for _, view in pairs(views) do
-    app:get('/' .. view, function (self)
+    app:get('/' .. view, capture_errors(function (self)
         return { render = view }
-    end)
+    end))
 end
 
-app:get('/embed', function (self)
+app:get('/embed', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     self.project = Projects:find(
         self.params.user or self.params.username,
         self.params.project or self.params.projectname
     )
     return { render = 'embed', layout = false }
-end)
+end))
 
 -- Pages that use AJAX-enabled components
 
-local index = function (self)
+local index = capture_errors(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
-end
+end)
 
 app:get('/', index)
 app:get('/index', index)
 
-app:get('/admin', function (self)
+app:get('/admin', capture_errors(function (self)
     assert_min_role(self, 'reviewer')
     return { render = 'admin' }
-end)
+end))
 
-app:get('/user', function (self)
+app:get('/user', capture_errors(function (self)
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
     return { render = 'user' }
-end)
+end))
 
-app:get('/project', function (self)
+app:get('/project', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     self.project = Projects:find(
         self.params.user or self.params.username,
@@ -115,14 +115,14 @@ app:get('/project', function (self)
         self.reviewer_controls = self.current_user:has_min_role('reviewer')
     end
     return { render = 'project' }
-end)
+end))
 
-app:get('/examples', function (self)
+app:get('/examples', capture_errors(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'examples' }
-end)
+end))
 
-app:get('/collection', function (self)
+app:get('/collection', capture_errors(function (self)
     local creator = Users:find({ username = self.params.username })
     self.collection =
         Collections:find(creator.id, self.params.collection)
@@ -142,41 +142,43 @@ app:get('/collection', function (self)
     end
 
     return { render = 'collection' }
-end)
+end))
 
-app:get('/search', function (self)
+app:get('/search', capture_errors(function (self)
     self.reviewer_controls =
         self.current_user and self.current_user:has_min_role('reviewer')
     return { render = 'search' }
-end)
+end))
 
 -- Administration and data management pages
 
-app:get('/profile', function (self)
+app:get('/profile', capture_errors(function (self)
     self.user = self.current_user
     return { render = 'profile' }
-end)
+end))
 
-app:get('/flags', function (self)
+app:get('/flags', capture_errors(function (self)
     assert_min_role(self, 'reviewer')
     return { render = 'flags' }
-end)
+end))
 
-app:get('/user_admin', function (self)
+app:get('/user_admin', capture_errors(function (self)
     assert_min_role(self, 'moderator')
     return { render = 'user_admin' }
-end)
+end))
 
-app:get('/login', function (self)
+app:get('/login', capture_errors(function (self)
     return { render = 'login' }
-end)
+end))
 
-app:get('/counter', function (self)
+--[[
+-- TEST COUNTER COMPONENT
+app:get('/counter', capture_errors(function (self)
     if self.session.value == nil then self.session.value = 0 end
     self.component = { template = 'counter', controller = 'counter' }
     return { render = 'component' }
-end)
-
+end))
+--]]
 
 -- controller calls
 

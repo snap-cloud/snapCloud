@@ -1,9 +1,9 @@
 TODO
 ====
+[ ] redo localization entirely
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [ ] collection
-    [ ] show thumbnail
     [ ] edit description
     [ ] edit name
     [ ] select thumbnail
@@ -22,7 +22,6 @@ TODO
     [ ] add to collection
 [ ] my_collections
     [ ] "New Collection" button
-    [ ] thumbnails
 [ ] zombie_admin
 [ ] profile partial
     [ ] become

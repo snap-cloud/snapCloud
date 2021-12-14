@@ -3,7 +3,7 @@
 <div class="pure-g profile">
     <div class="pure-u-1-2 fields">
         <span class="pure-u-1-1"><strong localizable>Joined in </strong>
-            <span class="created"></span>
+            <span class="created"><%= string.from_sql_date(user.created) %></span>
         </span>
         <span class="pure-u-1-1"><strong localizable>Email: </strong>
             <span class="email"><a href="mailto:<%= user.email %>"

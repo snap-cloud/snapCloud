@@ -56,7 +56,7 @@
                     <li class="pure-menu-item">
                         <a localizable class="pure-menu-link my-profile"
                             href="profile">My Profile</a></li>
-                <% if current_user.isadmin then %>
+                <% if current_user:isadmin() then %>
                     <li class="pure-menu-item admin">
                         <a localizable class="pure-menu-link"
                             href="admin">Administration</a></li>
