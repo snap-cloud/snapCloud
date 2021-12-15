@@ -1,7 +1,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title><%= project.title %></title>
+        <title><%= project.projectname %></title>
 
         <script type="text/javascript" src="static/js/locale.js"></script>
         <script type="text/javascript" src="static/js/base.js"></script>
