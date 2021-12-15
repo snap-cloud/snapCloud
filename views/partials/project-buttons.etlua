@@ -19,11 +19,51 @@
             '<%= package.loaded.dialogs.delete_project %>',
             'project',
             'delete',
-            {project: {id: <%= project.id %>}})"
+            { project: { id: <%= project.id %> } })"
         >Delete</a>
 <% end %>
+<% if project.flagged then %>
+    <span class="flag-container"
+        title="You flagged this project as inappropriate"
+    >
+        <i class="warning fas fa-exclamation-triangle"></i>
+        <a class="clickable warning flag"
+            target="_blank">Unflag this project</a>
+    </span>
+<% else %>
     <span class="flag-container">
         <i class="warning fas fa-exclamation-triangle"></i>
         <a localizable="" class="clickable warning flag" target="_blank"
-            onclick="">Report this project</a>
+            onclick="
+                confirm(
+                    '<%= package.loaded.dialogs.flag_prewarning %>',
+                    ok => {
+                        if (ok) {
+                            dialog(
+                                'Please choose a reason',
+                                '<%= package.loaded.dialogs.flag_reason %>',
+                                () => {
+                                    var form =
+                                        document.querySelector('form.reasons');
+                                    update_<%=component.id%>(
+                                        'project',
+                                        'flag',
+                                        {
+                                            project: { id: <%= project.id %> },
+                                            reason: form.querySelector(
+                                                'input[name=\'reason\']:checked'
+                                                ).value,
+                                            notes: form.querySelector(
+                                                'textarea.notes').value
+                                        }
+                                    );
+                                }
+                            );
+                        }
+                    },
+                    confirmTitle('Flag this project')
+                )"
+        >Report this project</a>
     </span>
+<% end %>
+</div>

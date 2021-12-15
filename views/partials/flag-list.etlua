@@ -16,16 +16,7 @@
             <span class="reason warning" ><%= flag.reason %></span>
             <a
                 class="remove clickable"
-                onclick="confirmComponentAction(
-                    'Are you sure you want to remove this flag?',
-                    '<%= component.id %>',
-                    'project',
-                    'remove_flag',
-                    {
-                        data: '<%= data %>',
-                        flagger: '<%= flag.username %>'
-                    }
-                )"
+                onclick="confirmRemoveFlag('<%= flag.username %>')"
                 ><i class="fas fa-times-circle"></i></a>
         </span>
         <span>Flagged</span>
@@ -37,9 +28,22 @@
         <span> on </span>
         <span><%= string.from_sql_date(flag.created_at) %></span>
     </span>
-<%
-    end 
-end
-%>
+<% end %>
+    <script>
+    function confirmRemoveFlag (flagger) {
+        confirmComponentAction(
+            'Are you sure you want to remove this flag?',
+            '<%= component.id %>',
+            'project',
+            'remove_flag',
+            {
+                data: { project: { id: <%= project.id %> } },
+                flagger: flagger
+            }
+        );
+    };
+    </script>
+<% end %>
+
 </div>
 

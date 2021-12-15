@@ -39,7 +39,8 @@ local escape_html = function (html)
 end
 
 local compact = function (text)
-    return text:gsub('\n', '')
+    -- remove newlines, and escape quotes
+    return text:gsub('\n', ''):gsub("'", '&#039;')
 end
 
 package.loaded.dialogs = {
@@ -48,5 +49,34 @@ Are you sure you want to delete this project?<br>
 <i class="warning fa fa-exclamation-triangle"></i>
  WARNING! This action cannot be undone! 
 <i class="warning fa fa-exclamation-triangle"></i>
+]]),
+    flag_prewarning = compact([[
+Are you sure you want to flag this project as inappropriate?<br><br>
+Your username will be included in the flag report.<br><br>
+Deliberately flagging legitimate projects will be considered a breach<br>
+of our Terms of Service and can get you suspended.
+]]),
+    flag_reason = compact([[
+<form class="reasons">
+    <span class="option">
+        <input type="radio" name="reason" value="hack">
+        <label for="hack">Security vulnerability</label>
+    </span>
+    <span class="option">
+        <input type="radio" name="reason" value="coc">
+        <label for="coc">Code of Conduct violation</label>
+    </span>
+    <span class="option">
+        <input type="radio" name="reason" value="dmca">
+        <label for="dmca">DMCA violation</label>
+    </span>
+    <span class="notes-title"
+        >Tell us more about why you're flagging this project:</span>
+    <textarea class="notes" placeholder="Additional notes"></textarea>
+    <script>
+        console.log(this);
+        this.dataset['form'] = document.querySelector('form.reasons');
+    </script>
+</form>
 ]])
 }

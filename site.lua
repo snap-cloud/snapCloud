@@ -105,6 +105,7 @@ app:get('/project', capture_errors(function (self)
         self.params.user or self.params.username,
         self.params.project or self.params.projectname
     )
+
     -- check whether this is a remix of another project
     local remix =
         Remixes:select('WHERE remixed_project_id = ?', self.project.id)
@@ -112,10 +113,15 @@ app:get('/project', capture_errors(function (self)
         self.remixed_from =
             Projects:select('WHERE id = ?', remix[1].original_project_id)[1]
     end
-    if self.current_user then
-        self.admin_controls = self.current_user:has_min_role('moderator')
-        self.reviewer_controls = self.current_user:has_min_role('reviewer')
-    end
+
+    -- check whether the current user has already flagged this project
+    self.project.flagged =
+        FlaggedProjects:select(
+            'WHERE project_id = ? AND flagger_id = ?',
+            self.project.id,
+            self.current_user.id
+        )[1] ~= nil
+
     return { render = 'project' }
 end))
 
@@ -204,7 +210,7 @@ app:post(
     capture_errors(function (self)
         -- run the action associated to this particular component and selector,
         -- from the specified controller
-        if self.params.data then
+        if (self.params.data and type(self.params.data) == 'string') then
             self.params.data = package.loaded.util.from_json(self.params.data)
         end
         return {
@@ -222,7 +228,9 @@ app:post(
         -- run the action associated to this particular component and selector,
         -- from the actions table
 
-        self.params.data = package.loaded.util.from_json(self.params.data)
+        if (self.params.data and type(self.params.data) == 'string') then
+            self.params.data = package.loaded.util.from_json(self.params.data)
+        end
 
         self.component = {
             id = self.params.component_id,

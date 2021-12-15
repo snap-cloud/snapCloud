@@ -138,7 +138,7 @@ function confirmAction(text, controller, selector, params) {
 };
 
 function confirmComponentAction(text, componentId, controller, selector, params) {
-    confirmAction(
+    confirm(
         text,
         ok => {
             if (ok) {

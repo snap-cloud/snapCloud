@@ -266,6 +266,11 @@ assert_can_delete = function (self, project)
         assert_min_role(self, 'moderator')
     end
 end
+
+assert_project_exists = function (self, project)
+    if not project then yield_error(err.nonexistent_project) end
+end
+
 -- Tokens
 
 check_token = function (token_value, purpose, on_success)

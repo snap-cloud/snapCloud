@@ -5,8 +5,12 @@ function dialog (title, body, onSuccess, onCancel, onOpen) {
             : document.querySelector('#customalert'),
         bodyDiv = dialogBox.querySelector('.body');
 
-    bodyDiv.innerHTML = '';
-    bodyDiv.appendChild(body);
+    if (typeof body == 'string') {
+        bodyDiv.innerHTML = body;
+    } else {
+        bodyDiv.innerHTML = '';
+        bodyDiv.appendChild(body);
+    }
 
     dialogBox.querySelector('.header').innerHTML = localizer.localize(title);
     dialogBox.querySelector('.button-done').innerHTML = localizer.localize('Ok');

@@ -142,8 +142,7 @@ ProjectController = {
         ProjectController.run_query(self, query)
     end,
     share = function (self)
-        local project =
-            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
+        local project = Projects:find({ id = self.params.data.project.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
@@ -156,8 +155,7 @@ ProjectController = {
         data = self.params.data
     end,
     unshare = function (self)
-        local project =
-            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
+        local project = Projects:find({ id = self.params.data.project.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
@@ -169,8 +167,7 @@ ProjectController = {
         data = self.params.data
     end,
     publish = function (self)
-        local project =
-            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
+        local project = Projects:find({ id = self.params.data.project.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
@@ -183,8 +180,7 @@ ProjectController = {
         data = self.params.data
     end,
     unpublish = function (self)
-        local project =
-            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
+        local project = Projects:find({ id = self.params.data.project.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
@@ -194,35 +190,8 @@ ProjectController = {
         self.project = project
         data = self.params.data
     end,
-    remove_flag = function (self)
-        -- Check whether we're removing someone else's flag
-        if self.params.flagger then assert_min_role(self, 'reviewer') end
-
-        local project =
-            Projects:select('WHERE id = ?', self.params.data.project.id)[1]
-
-        local flagger =
-            self.params.flagger and
-                Users:select('WHERE username = ?', self.params.flagger)[1] or
-                self.current_user
-
-        -- flag:delete() fails with an internal Lapis error
-        if not db.delete(
-                    'flagged_projects',
-                    'project_id = ? AND flagger_id = ?',
-                    project.id,
-                    flagger.id
-                ) then
-            yield_error(err.project_never_flagged)
-        end
-
-        self.params.data.project = project
-        self.project = project
-        data = self.params.data
-    end,
     delete = function (self)
-        local project =
-            Projects:select('WHERE id = ?', self.params.project.id)[1]
+        local project = Projects:find({ id = self.params.project.id })
         assert_can_delete(self, project)
 
         local username = project.username -- keep it for after deleting it
@@ -248,5 +217,56 @@ ProjectController = {
                 'user?username=' .. package.loaded.util.escape(username)
             )
         end
+    end,
+    flag = function (self)
+        if self.current_user:isbanned() then yield_error(err.banned) end
+        local project = Projects:find({ id = self.params.project.id })
+        assert_project_exists(self, project)
+
+        local flag =
+            FlaggedProjects:select(
+                'WHERE project_id = ? AND flagger_id = ?',
+                project.id,
+                self.current_user.id
+            )[1]
+
+        if flag then yield_error(err.project_already_flagged) end
+
+        FlaggedProjects:create({
+            flagger_id = self.current_user.id,
+            project_id = project.id,
+            reason = self.params.reason,
+            notes = self.params.notes
+        })
+
+        project.flagged = true
+        self.params.data.project = project
+        self.project = project
+        data = self.params.data
+    end,
+    remove_flag = function (self)
+        -- Check whether we're removing someone else's flag
+        if self.params.flagger then assert_min_role(self, 'reviewer') end
+
+        local project = Projects:find({ id = self.params.data.project.id })
+
+        local flagger =
+            self.params.flagger and
+                Users:select('WHERE username = ?', self.params.flagger)[1] or
+                self.current_user
+
+        -- flag:delete() fails with an internal Lapis error
+        if not db.delete(
+                    'flagged_projects',
+                    'project_id = ? AND flagger_id = ?',
+                    project.id,
+                    flagger.id
+                ) then
+            yield_error(err.project_never_flagged)
+        end
+
+        self.params.data.project = project
+        self.project = project
+        data = self.params.data
     end,
 }
