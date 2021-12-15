@@ -1,7 +1,7 @@
--- Dialog HTML strings
--- ===================
+-- Dialog body contents
+-- ====================
 --
--- Escaped HTML strings for all dialogs.
+-- Generates HTML contents for all dialog boxes using etlua.
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
@@ -22,61 +22,22 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local escape_html = function (html)
-    local escaped = html
-    local map = {}
-
-    map['&'] = '&amp;'
-    map['<'] = '&lt;'
-    map['>'] = '&gt;'
-    map['"'] = '&quot;'
-    map["'"] = '&#039;'
-
-    for k, v in pairs(map) do
-        escaped = escaped:gsub(k, v)
-    end
-    return escaped
-end
+local etlua = require('etlua')
 
 local compact = function (text)
-    -- remove newlines, and escape quotes
+    -- remove newlines, and escape single quotes
     return text:gsub('\n', ''):gsub("'", '&#039;')
 end
 
-package.loaded.dialogs = {
-    delete_project = compact([[
-Are you sure you want to delete this project?<br>
-<i class="warning fa fa-exclamation-triangle"></i>
- WARNING! This action cannot be undone! 
-<i class="warning fa fa-exclamation-triangle"></i>
-]]),
-    flag_prewarning = compact([[
-Are you sure you want to flag this project as inappropriate?<br><br>
-Your username will be included in the flag report.<br><br>
-Deliberately flagging legitimate projects will be considered a breach<br>
-of our Terms of Service and can get you suspended.
-]]),
-    flag_reason = compact([[
-<form class="reasons">
-    <span class="option">
-        <input type="radio" name="reason" value="hack">
-        <label for="hack">Security vulnerability</label>
-    </span>
-    <span class="option">
-        <input type="radio" name="reason" value="coc">
-        <label for="coc">Code of Conduct violation</label>
-    </span>
-    <span class="option">
-        <input type="radio" name="reason" value="dmca">
-        <label for="dmca">DMCA violation</label>
-    </span>
-    <span class="notes-title"
-        >Tell us more about why you're flagging this project:</span>
-    <textarea class="notes" placeholder="Additional notes"></textarea>
-    <script>
-        console.log(this);
-        this.dataset['form'] = document.querySelector('form.reasons');
-    </script>
-</form>
-]])
-}
+package.loaded.dialog = function (filename, params)
+    local file = io.open('views/dialogs/' .. filename .. '.etlua', 'r')
+    if file then
+        local contents = file:read('*all')
+        file:close()
+        local template = etlua.compile(contents)
+        return compact(template(params))
+    else
+        return '<h1>Dialog render error</h1><span>template ' .. 
+                    filename .. ' not found under views/dialogs/'
+    end
+end

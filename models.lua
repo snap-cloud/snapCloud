@@ -109,7 +109,7 @@ package.loaded.Projects = Model:extend('active_projects', {
     },
     url_for = function (self, purpose, dev_version)
         local base = 'https://snap.berkeley.edu/' ..
-            (dev_version and 'snapsource/dev/' or '/') ..
+            (dev_version and 'snapsource/dev/' or '') ..
             'snap.html'
         local urls = {
             viewer = base ..
@@ -124,7 +124,10 @@ package.loaded.Projects = Model:extend('active_projects', {
                 '/' .. escape(self.projectname),
             site = 'project?username=' .. escape(self.username) ..
                 '&projectname=' .. escape(self.projectname),
-            author = 'user?username=' .. escape(self.username)
+            author = 'user?username=' .. escape(self.username),
+            embed = 'https://snap.berkeley.edu/embed?projectname=' ..
+                escape(self.projectname) .. '&username=' ..
+                escape(self.username)
         }
         return urls[purpose]
     end,

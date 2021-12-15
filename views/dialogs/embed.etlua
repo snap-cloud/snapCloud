@@ -1,0 +1,55 @@
+<form class="embed-options pure-form pure-form-aligned">
+    <span class="info">Please select the elements you wish to include in the
+        embedded project viewer:</span>
+    <fieldset>
+        <div class="pure-control-group">
+            <label for="title" class="pure-checkbox">
+                <input type="checkbox" id="title" value="showTitle" checked="">
+                Project title
+            </label>
+        </div>
+        <div class="pure-control-group">
+            <label for="author" class="pure-checkbox">
+            <input type="checkbox" id="author" value="showAuthor" checked="">
+                Project author
+            </label></div><div class="pure-control-group">
+            <label for="edit-button" class="pure-checkbox">
+                <input type="checkbox" id="edit-button" value="editButton"
+                    checked="">
+                Edit button
+            </label></div><div class="pure-control-group">
+            <label for="pause-button" class="pure-checkbox">
+                <input type="checkbox" id="pause-button" value="pauseButton"
+                    checked="">
+                Pause button
+            </label>
+        </div>
+        <div class="copy-text-element pure-control-group">
+            <label for="embed-url">Embed URL</label>
+            <button class="pure-button copy-button far fa-clipboard"
+                type="button" aria-label="Click to copy Embed URL"
+                onclick="
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(
+                            this.parentElement.querySelector('textarea').value
+                        );
+                    }"
+            ></button>
+            <textarea id="embed-url" class="embed-code embed-url"></textarea>
+        </div>
+        <div class="copy-text-element pure-control-group">
+            <label for="embed-iframe">Embed Code</label>
+            <button class="pure-button copy-button far fa-clipboard"
+                type="button" aria-label="Click to copy Embed Code"
+                onclick="
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(
+                            this.parentElement.querySelector('textarea').value
+                        );
+                    }"
+            ></button>
+            <textarea id="embed-iframe" class="embed-code embed-iframe">
+            </textarea>
+        </div>
+    </fieldset>
+</form>

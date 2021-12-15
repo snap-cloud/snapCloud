@@ -5,9 +5,40 @@
         href="<%= project:url_for('download', params.devVersion) %>"
         download>Download</a>
     <a localizable="" class="pure-button embed-button" target="_blank"
-        >Embed</a>
+        onclick="embedDialog()" >Embed</a>
     <a localizable="" class="pure-button collect" target="_blank"
         onclick="">Add to Collection</a>
+<script>
+    function embedDialog () {
+        function update (form) {
+            var options =
+                Object.values(
+                    form.querySelectorAll('input[type="checkbox"]:checked')
+                ).map(input => '&' + input.value + '=true').join('');
+            form.querySelector('textarea#embed-url').innerText =
+                '<%- project:url_for('embed') %>' + options;
+            form.querySelector('textarea#embed-iframe').innerText =
+                '<iframe width="480" height="390" frameBorder=0 ' +
+                    'allowfullscreen allow="geolocation; microphone;' +
+                    'camera" src="' + '<%- project:url_for('embed') %>' +
+                    options + '"></iframe>';
+        };
+        dialog(
+            'Embed Options',
+            '<%- package.loaded.dialog('embed') %>',
+            nop,
+            nop,
+            // onload:
+            () => {
+                var form = document.querySelector('form.embed-options');
+                update(form);
+                form.querySelectorAll('input').forEach(input => {
+                    input.onchange = function () { update(form) };
+                });
+            }
+        );
+    };
+</script>
 <%
     if current_user and
         ((project.username == current_user.username) or
@@ -15,12 +46,18 @@
 %>
     <a localizable="" class="pure-button pure-button-warning delete"
         target="_blank"
-        onclick="confirmAction(
-            '<%= package.loaded.dialogs.delete_project %>',
+        onclick="confirmDelete()"
+        >Delete</a>
+    <script>
+    function confirmDelete () {
+        confirmAction(
+            '<%- package.loaded.dialog('delete-project') %>',
             'project',
             'delete',
-            { project: { id: <%= project.id %> } })"
-        >Delete</a>
+            { project: { id: <%= project.id %> } }
+        );
+    }
+    </script>
 <% end %>
 <% if project.flagged then %>
     <span class="flag-container"
@@ -36,12 +73,12 @@
         <a localizable="" class="clickable warning flag" target="_blank"
             onclick="
                 confirm(
-                    '<%= package.loaded.dialogs.flag_prewarning %>',
+                    '<%- package.loaded.dialog('flag-prewarning') %>',
                     ok => {
                         if (ok) {
                             dialog(
                                 'Please choose a reason',
-                                '<%= package.loaded.dialogs.flag_reason %>',
+                                '<%- package.loaded.dialog('flag_reason') %>',
                                 () => {
                                     var form =
                                         document.querySelector('form.reasons');

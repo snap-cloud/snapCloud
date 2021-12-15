@@ -1,0 +1,17 @@
+<form class="reasons">
+    <span class="option">
+        <input type="radio" name="reason" value="hack">
+        <label for="hack">Security vulnerability</label>
+    </span>
+    <span class="option">
+        <input type="radio" name="reason" value="coc">
+        <label for="coc">Code of Conduct violation</label>
+    </span>
+    <span class="option">
+        <input type="radio" name="reason" value="dmca">
+        <label for="dmca">DMCA violation</label>
+    </span>
+    <span class="notes-title"
+        >Tell us more about why you're flagging this project:</span>
+    <textarea class="notes" placeholder="Additional notes"></textarea>
+</form>
