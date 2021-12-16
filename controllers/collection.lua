@@ -22,6 +22,7 @@
 
 local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
+local CollectionMemberships = package.loaded.CollectionMemberships
 local Users = package.loaded.Users
 local db = package.loaded.db
 local disk = package.loaded.disk
@@ -138,5 +139,24 @@ CollectionController = {
                 self.params.data.project_id
             )
         )
+    end,
+    add_project = function (self)
+        local collection = Collections:find({ id = self.params.collection.id })
+        local project = Projects:find({ id = self.params.project.id })
+        assert_can_add_project_to_collection(self, project, collection)
+
+        if not collection.thumbnail_id then
+            collection:update({
+                thumbnail_id = project.id
+            })
+        end
+
+        CollectionMemberships:create({
+            collection_id = collection.id,
+            project_id = project.id,
+            user_id = self.current_user.id -- who added it to the collection
+        })
+
+        return project:url_for('site')
     end,
 }

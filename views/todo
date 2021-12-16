@@ -4,9 +4,6 @@ TODO
 [ ] rethink rate limiting, maybe using CRLF protection?
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
-[-] project buttons
-    [x] embed
-    [ ] add to collection
 [ ] collection
     [ ] edit description
     [ ] edit name

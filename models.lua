@@ -29,6 +29,17 @@ local escape = package.loaded.util.escape
 package.loaded.Users = Model:extend('active_users', {
     relations = {
         {'collections', has_many = 'Collections'},
+        {'editable_collections',
+            fetch = function (self)
+                return package.loaded.Collections:select(
+                    [[WHERE (creator_id = ? OR editor_ids @> array[?]) OR
+                        collections.free_for_all]],
+                    self.id,
+                    self.id,
+                    { fields = 'name, collections.id' }
+                )
+            end
+        },
         {'project_count',
             fetch = function (self)
                 return package.loaded.Projects:select(

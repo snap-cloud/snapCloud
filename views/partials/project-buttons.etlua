@@ -6,8 +6,10 @@
         download>Download</a>
     <a localizable="" class="pure-button embed-button" target="_blank"
         onclick="embedDialog()" >Embed</a>
+    <% if current_user then %>
     <a localizable="" class="pure-button collect" target="_blank"
-        onclick="">Add to Collection</a>
+        onclick="collectDialog()">Add to Collection</a>
+    <% end %>
 <script>
     function embedDialog () {
         function update (form) {
@@ -38,6 +40,30 @@
             }
         );
     };
+
+    <% if current_user then %>
+    function collectDialog () {
+        dialog(
+            'Add project to collection',
+            '<%- package.loaded.dialog('collect', { current_user = current_user }) %>',
+            () => {
+                var form = document.querySelector('form.collect-form');
+                run_selector(
+                    'collection',
+                    'add_project',
+                    {
+                        collection: {
+                            id: form.querySelector('select').value
+                        },
+                        project: {
+                            id: <%- project.id %>
+                        }
+                    });
+            },
+            nop
+        );
+    };
+    <% end %>
 </script>
 <%
     if current_user and
