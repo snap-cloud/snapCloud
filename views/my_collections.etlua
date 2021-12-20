@@ -1,3 +1,4 @@
+<script src="static/js/dialog.js"></script>
 <h1>My Collections</h1>
 <%
 render(
@@ -17,3 +18,16 @@ render(
     }
 )
 %>
+<div class="buttons">
+    <a class="pure-button new-collection"
+        onclick="newCollectionDialog()">New Collection</a>
+    <script>
+        function newCollectionDialog () {
+            prompt(
+                'Collection name?',
+                name => { run_selector('collection', 'new', { name: name }); },
+                nop
+            );
+        };
+    </script>
+</div>

@@ -65,4 +65,5 @@ window.prompt = function (title, onSuccess, onCancel) {
         function () { onSuccess.call(this, input.value); },
         onCancel
     );
+    input.focus();
 };

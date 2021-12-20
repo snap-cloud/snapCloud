@@ -26,6 +26,7 @@ local CollectionMemberships = package.loaded.CollectionMemberships
 local Users = package.loaded.Users
 local db = package.loaded.db
 local disk = package.loaded.disk
+local assert_error = package.loaded.app_helpers.assert_error
 
 CollectionController = {
     run_query = function (self, query)
@@ -139,6 +140,19 @@ CollectionController = {
                 self.params.data.project_id
             )
         )
+    end,
+    new = function (self)
+        assert_can_create_colletion(self)
+        local collection =
+            Collections:find(self.current_user.id, self.params.name)
+        if not collection then
+            collection = assert_error(Collections:create({
+                name = self.params.name,
+                creator_id = self.current_user.id
+            }))
+        end
+        collection.username = self.current_user.username -- needed by url_for
+        return collection:url_for('site')
     end,
     add_project = function (self)
         local collection = Collections:find({ id = self.params.collection.id })

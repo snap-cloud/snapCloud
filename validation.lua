@@ -434,7 +434,7 @@ end
 
 assert_can_create_colletion = function (self)
     -- Spammer guard.
-    -- Not validated users and users without at least a project can't create
+    -- Non-validated users and users without at least a project can't create
     -- collections.
     if not self.current_user.verified then
         yield_error(err.nonvalidated_user)
