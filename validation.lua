@@ -273,8 +273,8 @@ end
 
 -- Tokens
 
-check_token = function (token_value, purpose, on_success)
-    local token = Tokens:find(token_value)
+check_token = function (self, purpose, on_success)
+    local token = Tokens:find(self.params.token)
     if token then
         local query =
             db.select("date_part('day', now() - ?::timestamp)",
@@ -286,17 +286,17 @@ check_token = function (token_value, purpose, on_success)
             return on_success(user)
         elseif token.purpose ~= purpose then
             -- We simply ignore tokens with different purposes
-            return htmlPage('Invalid token', '<p>' ..
+            return htmlPage(self, 'Invalid token', '<p>' ..
                 err.invalid_token.msg .. '</p>')
         else
             -- We delete expired tokens with 'verify_use'do now'r' purpose
             token:delete()
-            return htmlPage('Expired token', '<p>' ..
+            return htmlPage(self, 'Expired token', '<p>' ..
                 err.expired_token.msg .. '</p>')
         end
     else
         -- This token does not exist anymore, or never existed
-        return htmlPage('Invalid token', '<p>' ..
+        return htmlPage(self, 'Invalid token', '<p>' ..
             err.invalid_token.msg .. '</p>')
     end
 end
@@ -310,12 +310,12 @@ end
 -- @param purpose string: token purpose and route name
 -- @param username string
 -- @param email string
-create_token = function (self, purpose, username, email)
+create_token = function (self, purpose, user)
     local token_value
 
     -- First check whether there's an existing token for the same user and
     -- purpose. If we find it, we'll just reset its creation date and reuse it.
-    local existing_token = find_token(username, purpose)
+    local existing_token = find_token(user.username, purpose)
 
     if existing_token then
         token_value = existing_token.value
@@ -325,22 +325,21 @@ create_token = function (self, purpose, username, email)
     else
         token_value = secure_token()
         Tokens:create({
-            username = username,
+            username = user.username,
             created = db.format_date(),
             value = token_value,
             purpose = purpose
         })
     end
-
     send_mail(
-        email,
-        mail_subjects[purpose] .. username,
+        user.email,
+        mail_subjects[purpose] .. user.username,
         mail_bodies[purpose],
         self:build_url(self:url_for(
             purpose,
             {
-                username = url.build_path({username}),
-                token = url.build_path({token_value}),
+                username = url.build_path({ user.username }),
+                token = url.build_path({ token_value })
             }
         ))
     )

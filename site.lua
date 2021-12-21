@@ -57,7 +57,7 @@ local views = {
 
     -- Simple pages
     'blog', 'change_email', 'change_password', 'delete_user', 'forgot_password',
-    'forgot_username', 'sign_up',
+    'forgot_username', 'sign_up', 'login',
 
     -- Simple, component-based pages
     'explore', 'my_projects', 'my_collections'
@@ -175,10 +175,6 @@ app:get('/user_admin', capture_errors(function (self)
     return { render = 'user_admin' }
 end))
 
-app:get('/login', capture_errors(function (self)
-    return { render = 'login' }
-end))
-
 --[[
 -- TEST COUNTER COMPONENT
 app:get('/counter', capture_errors(function (self)
@@ -248,5 +244,3 @@ app:post(
         }
     end))
 )
-
-

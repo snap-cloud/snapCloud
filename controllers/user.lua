@@ -26,6 +26,7 @@ local db = package.loaded.db
 local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
 local socket = require('socket')
+local app = package.loaded.app
 
 local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
@@ -184,7 +185,11 @@ UserController = {
             yield_error(err.wrong_password)
         end
         self.current_user:update({ email = self.params.email })
-        return self:build_url('profile')
+        return jsonResponse({
+            title = 'Email changed',
+            message = 'Your email has been updated.',
+            redirect = self:build_url('profile')
+        })
     end,
     change_password = function (self)
         assert_logged_in(self)
@@ -197,6 +202,59 @@ UserController = {
             password = 
                 hash_password(self.params.new_password, self.current_user.salt)
         })
-        return self:build_url('profile')
+        return jsonResponse({
+            title = 'Password changed',
+            message = 'Your password has been changed.',
+            redirect = self:build_url('profile')
+        })
+    end,
+    reset_password = function (self)
+        local user = Users:find({ username = self.params.username })
+        local token = find_token(self.params.username, 'password_reset')
+        if token then
+            local epoch = db.select(
+                'extract(epoch from (now()::timestamp - ?::timestamp))',
+                token.created)[1].date_part
+            local minutes = epoch / 60
+            if minutes < 15 then
+                yield_error(err.too_many_password_resets)
+            end
+        end
+        create_token(self, 'password_reset', user)
+        return jsonResponse({
+            title = 'Password reset',
+            message = 'A link to reset your password has been sent to ' .. 
+            'your email account.',
+            redirect = self:build_url('index')
+        })
     end,
 }
+
+app:match('password_reset', '/password_reset/:token', function (self)
+    -- This route is reached when a user clicks on a reset password URL
+    return check_token(
+        self,
+        'password_reset',
+        function (user)
+            local password, prehash = random_password()
+            user:update({ password = hash_password(prehash, user.salt) })
+            send_mail(
+                user.email,
+                mail_subjects.new_password .. user.username,
+                mail_bodies.new_password .. '<p><h2>' ..
+                    password .. '</h2></p>')
+
+            return htmlPage(
+                self,
+                'Password reset',
+                '<p>A new random password has been generated for ' ..
+                'your account <strong>' .. user.username ..
+                '</strong> and sent to your email address. ' ..
+                'Please check your inbox.</p>' ..
+                '<p>After logging in, please proceed to <strong>' ..
+                'change your password</strong> as soon as possible.</p>'
+            )
+        end
+    )
+end)
+

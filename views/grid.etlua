@@ -37,7 +37,7 @@ if items == nil then items = {} end
 
 %>
 
-<link rel="stylesheet" href="static/style/project.css">
+<link rel="stylesheet" href="/static/style/project.css">
 <div class="<%= data.class %> container">
 <script>
     function loader (element) {

@@ -2,7 +2,7 @@
     <div class="pure-menu-horizontal pure-menu">
         <ul class="pure-g pure-menu-list">
             <a class="pure-u-1-12" href="/" aria-label="Snap! home page">
-                <img src="static/img/topbar-logo.png" class="logo clickable"/>
+                <img src="/static/img/topbar-logo.png" class="logo clickable"/>
             </a>
             <span class="pure-u-5-12">
                 <li class="pure-menu-item">

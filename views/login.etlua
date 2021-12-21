@@ -30,7 +30,7 @@
                         onclick="">* I forgot my username</a></em></small></p>
         </div>
     </fieldset>
-    <script type="text/javascript" src="static/js/sha512.js"></script>
+    <script type="text/javascript" src="/static/js/sha512.js"></script>
     <script>
         var login = function (event) {
             var form = document.querySelector('div#login');

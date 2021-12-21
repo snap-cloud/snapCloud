@@ -23,7 +23,7 @@
                 class="pure-button red-button">Change My Email</button>
         </div>
     </fieldset>
-    <script type="text/javascript" src="static/js/sha512.js"></script>
+    <script type="text/javascript" src="/static/js/sha512.js"></script>
     <script>
         var change_email = function (event) {
             var form = document.querySelector('div#change-email'),

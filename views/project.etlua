@@ -1,7 +1,6 @@
-<script src="static/js/dialog.js"></script>
-<script src="static/js/project.js"></script>
-<script src="static/js/inplace.js"></script>
-<link rel="stylesheet" href="static/style/project.css">
+<script src="/static/js/project.js"></script>
+<script src="/static/js/inplace.js"></script>
+<link rel="stylesheet" href="/static/style/project.css">
 <div class="project big">
     <div class="title">
         <h1><%- project.projectname %></h1>

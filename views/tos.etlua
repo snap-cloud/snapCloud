@@ -10,7 +10,7 @@
 
 <h2>Use of the software</h2>
 
-<p><img src="static/img/small-logo.png" alt="Snap!" height="20px"> is free software. It is licensed under the <a href="https://www.gnu.org/licenses/agpl">GNU Affero General Public License</a>, which permits unlimited use for any purpose by anyone, but does not allow proprietary modified versions of the software; if you make a modified version of Snap<em>!</em>, you must make it available under the same terms as our version, including the provision of source code.</p>
+<p><img src="/static/img/small-logo.png" alt="Snap!" height="20px"> is free software. It is licensed under the <a href="https://www.gnu.org/licenses/agpl">GNU Affero General Public License</a>, which permits unlimited use for any purpose by anyone, but does not allow proprietary modified versions of the software; if you make a modified version of Snap<em>!</em>, you must make it available under the same terms as our version, including the provision of source code.</p>
 
 <p>(To download the Snap<em>!</em> source code, download or clone our <a href="https://github.com/jmoenig/Snap">Github repo</a>.)</p>
 

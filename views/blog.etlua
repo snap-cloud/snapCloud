@@ -1,5 +1,5 @@
-<script src="static/js/discourse.js"></script>
-<link rel="stylesheet" href="static/style/blog.css">
+<script src="/static/js/discourse.js"></script>
+<link rel="stylesheet" href="/static/style/blog.css">
 
 <h1>Blog</h1>
 <div class="blog"></div>

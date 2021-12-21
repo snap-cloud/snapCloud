@@ -1,4 +1,3 @@
-<script src="static/js/dialog.js"></script>
 <h1>My Collections</h1>
 <%
 render(

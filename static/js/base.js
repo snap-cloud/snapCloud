@@ -16,7 +16,23 @@ function run_selector (controller, selector, params) {
     );
     req.onreadystatechange = function () {
         if (req.readyState == 4 && req.status == 200) {
-            location.href = req.responseText;
+            var json;
+            try { json = JSON.parse(req.responseText); } catch (err) { }
+            if (json) {
+                // it's a response message
+                dialog(
+                    json.title,
+                    json.message,
+                    ok => {
+                        if (json.redirect) {
+                            location.href = json.redirect;
+                        }
+                    }
+                );
+            } else {
+                // it's a path
+                location.href = req.responseText;
+            }
         } else if (req.readyState == 4) {
             // handle the error
             try {

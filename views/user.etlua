@@ -1,5 +1,5 @@
 <% if current_user and current_user:has_min_role('moderator') then %>
-<link rel="stylesheet" href="static/style/admin.css">
+<link rel="stylesheet" href="/static/style/admin.css">
 <% end %>
 
 <h1><%- username%>'s public page</h1>

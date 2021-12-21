@@ -3,20 +3,20 @@
         <meta charset="UTF-8">
         <title><%= project.projectname %></title>
 
-        <script type="text/javascript" src="static/js/locale.js"></script>
-        <script type="text/javascript" src="static/js/base.js"></script>
-        <script type="text/javascript" src="static/js/project.js"></script>
+        <script type="text/javascript" src="/static/js/locale.js"></script>
+        <script type="text/javascript" src="/static/js/base.js"></script>
+        <script type="text/javascript" src="/static/js/project.js"></script>
 
         <link rel="icon" href="favicon.png">
-        <link rel="stylesheet" href="static/style/reset.css">
-        <link rel="stylesheet" href="static/style/pure-min.css">
+        <link rel="stylesheet" href="/static/style/reset.css">
+        <link rel="stylesheet" href="/static/style/pure-min.css">
         <link rel="stylesheet"
             href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
             integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
             crossorigin="anonymous">
-        <link rel="stylesheet" href="static/style/classes.css">
-        <link rel="stylesheet" href="static/style/project.css">
-        <link rel="stylesheet" href="static/style/embed.css">
+        <link rel="stylesheet" href="/static/style/classes.css">
+        <link rel="stylesheet" href="/static/style/project.css">
+        <link rel="stylesheet" href="/static/style/embed.css">
     </head>
     <body>
 

@@ -4,7 +4,8 @@ TODO
 [ ] rethink rate limiting, maybe using CRLF protection?
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
-[ ] success messages for profile editing pages
+[ ] press enter to submit "forms"
+[ ] search should reset paginator to page 1
 [ ] collection
     [ ] edit description
     [ ] edit name
@@ -26,8 +27,6 @@ TODO
     [ ] delete
     [ ] role selector
 [ ] delete_user
-    [ ] actually do it
-[ ] forgot_password
     [ ] actually do it
 [ ] forgot_username
     [ ] actually do it

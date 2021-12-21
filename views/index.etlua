@@ -1,5 +1,5 @@
-<script src="static/js/project.js"></script>
-<link rel="stylesheet" href="static/style/project.css">
+<script src="/static/js/project.js"></script>
+<link rel="stylesheet" href="/static/style/project.css">
 
 <% render('views.partials.slideshow') %>
 

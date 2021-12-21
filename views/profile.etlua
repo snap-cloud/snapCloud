@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="static/style/profile.css">
+<link rel="stylesheet" href="/static/style/profile.css">
 <h1><span class="visitor"></span></h1>
 <div class="pure-g profile">
     <div class="pure-u-1-2 fields">
