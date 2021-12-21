@@ -52,7 +52,7 @@
                             href="my_collections">My Collections</a></li>
                     <li class="pure-menu-item">
                         <a localizable class="pure-menu-link my-public-projects"
-                           href="<%= current_user:url_for('profile') %>">My Public Page</a></li>
+                           href="<%= current_user:url_for('site') %>">My Public Page</a></li>
                     <li class="pure-menu-item">
                         <a localizable class="pure-menu-link my-profile"
                             href="profile">My Profile</a></li>

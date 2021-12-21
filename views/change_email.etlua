@@ -1,5 +1,5 @@
 <h1 localizable>Change Email</h1>
-<form id="change-email" class="pure-form pure-form-aligned">
+<div id="change-email" class="pure-form pure-form-aligned">
     <fieldset>
         <div class="pure-control-group">
             <label localizable for="password">Password</label>
@@ -19,57 +19,31 @@
         </div>
 
         <div class="pure-controls">
-            <button localizable type="submit"
+            <button localizable onclick="change_email()"
                 class="pure-button red-button">Change My Email</button>
         </div>
     </fieldset>
-</form>
+    <script type="text/javascript" src="static/js/sha512.js"></script>
+    <script>
+        var change_email = function (event) {
+            var form = document.querySelector('div#change-email'),
+                password = hex_sha512(form.querySelector('#password').value),
+                email = form.querySelector('#new-email').value,
+                emailRepeat = form.querySelector('#new-email-again').value;
 
-<script>
-    setTitle(localizer.localize('Change Email') +
-        ' - Snap! Build Your Own Blocks');
-
-    document.querySelector('form#change-email').addEventListener('submit',
-        function (event) {
-            var password = this.elements['password'].value,
-                email = this.elements['new-email'].value,
-                emailRepeat = this.elements['new-email-again'].value;
-
-                event.preventDefault();
-
-                if (email !== emailRepeat) {
-                    genericError(
-                        'Please make sure that you have entered your<br>'+
-                            'email twice and that both emails match.',
-                        'Emails do not match'
-                    );
-                } else {
-                    SnapCloud.withCredentialsRequest(
-                        'POST',
-                        '/users/' + encodeURIComponent(SnapCloud.username) +
-                            '?' + SnapCloud.encodeDict({
-                                email: email,
-                                password: hex_sha512(password)
-                            }),
-                        function (response) {
-                            alert(
-                                localizer.localize(
-                                    'Your email has been updated.<br>' +
-                                    'Please log in again.'),
-                                function () {
-                                    SnapCloud.logout(
-                                        function () {
-                                            sessionStorage.clear();
-                                            location.href = 'login';
-                                        }
-                                    );
-                                }
-                            );
-                        },
-                        genericError,
-                        'Could not update email'
-                    );
-                }
+            if (email !== emailRepeat) {
+                genericError(
+                    'Please make sure that you have entered your<br>'+
+                    'email twice and that both emails match.',
+                    'Emails do not match'
+                );
+            } else {
+                run_selector(
+                    'user',
+                    'change_email',
+                    { password: password, email: email }
+                );
             }
-    );
-</script>
+        };
+    </script>
+</div>

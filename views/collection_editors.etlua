@@ -3,7 +3,7 @@
 <%
 if collection.editor_ids then
     for _, editor in pairs(collection.editors) do %>
-    <li class="editor"><a href="<%= editor:url_for('profile') %>" target=""><strong><%= editor.username %></strong></a></li>
+    <li class="editor"><a href="<%= editor:url_for('site') %>" target=""><strong><%= editor.username %></strong></a></li>
 <%
     end
 end

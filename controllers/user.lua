@@ -175,5 +175,15 @@ UserController = {
         self.session.user_id = nil
         self.cookies.persist_session = 'false'
         return self:build_url('index')
+    end,
+    change_email = function (self)
+        assert_logged_in(self)
+        if (self.current_user.password ~=
+            hash_password(self.params.password, self.current_user.salt))
+                then
+            yield_error(err.wrong_password)
+        end
+        self.current_user:update({ email = self.params.email })
+        return self:build_url('profile')
     end
 }

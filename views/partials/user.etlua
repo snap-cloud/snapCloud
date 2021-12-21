@@ -1,5 +1,5 @@
 <div class="user pure-u-1-<%= items_per_row %>">
-    <a target="_self" href="<%= item:url_for('profile') %>">
+    <a target="_self" href="<%= item:url_for('site') %>">
         <span class="username"><strong><%= item.username %></strong></span>
     </a>
 </div>

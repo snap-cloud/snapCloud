@@ -73,7 +73,7 @@ package.loaded.Users = Model:extend('active_users', {
     end,
     url_for = function (self, purpose)
         local urls = {
-            profile = 'user?username=' .. escape(self.username)
+            site = 'user?username=' .. escape(self.username)
         }
         return urls[purpose]
     end,
