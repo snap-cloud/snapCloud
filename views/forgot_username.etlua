@@ -1,37 +1,23 @@
 <h1 localizable>Find Out Your Username</h1>
-<form id="get-username" class="pure-form pure-form-aligned">
+<div id="get-username" class="pure-form pure-form-aligned">
     <fieldset>
         <div class="pure-control-group">
             <label localizable for="email">Email address</label>
             <input id="email" name="email" type="email" placeholder="Email address" required>
         </div>
         <div class="pure-controls">
-            <button localizable type="submit" class="pure-button">Email me my username(s)</button>
+            <button localizable class="pure-button"
+                onclick="remind_username()">Email me my username(s)</button>
         </div>
     </fieldset>
-</form>
-
-<script>
-    setTitle(localizer.localize('Find Out Your Username') + ' - Snap! Build Your Own Blocks');
-
-    document.querySelector('form#get-username').addEventListener('submit', function (event) {
-        var email = this.elements['email'].value;
-
-        event.preventDefault();
-
-        SnapCloud.request(
-            'GET',
-            '/users/email/' + encodeURIComponent(email),
-            function () {
-                alert(
-                    'A list of usernames associated with your<br>email has been sent to your email account.',
-                    function() {
-                        window.location.href = 'index';
-                    }
-                );
-            },
-            genericError
+    <script type="text/javascript" src="/static/js/sha512.js"></script>
+    <script>
+    var remind_username = function () {
+        run_selector(
+            'user',
+            'remind_username',
+            { email: document.querySelector('input#email').value }
         );
-    });
+    };
 </script>
-
+</div>

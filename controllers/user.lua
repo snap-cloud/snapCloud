@@ -228,6 +228,27 @@ UserController = {
             redirect = self:build_url('index')
         })
     end,
+    remind_username = function (self)
+        local users = assert_users_have_email(self)
+        local body = '<ul>'
+
+        for _, user in pairs(users) do
+            body = body .. '<li>' .. user.username .. '</li>'
+        end
+
+        body = body .. '</ul>'
+
+        send_mail(
+            self.params.email,
+            mail_subjects.users_for_email,
+            mail_bodies.users_for_email .. body)
+
+        return jsonResponse({
+            title = 'Username list sent',
+            message = 'Email with username list sent to ' .. self.params.email,
+            redirect = self:build_url('login')
+        })
+    end
 }
 
 app:match('password_reset', '/password_reset/:token', function (self)
