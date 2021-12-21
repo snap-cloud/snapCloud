@@ -26,8 +26,6 @@
     </div>
 </div>
 <script>
-    document.querySelector('.profile .fields .created').innerText =
-        formatDate('<%= user.created %>');
     function confirmDeleteMyself () {
         confirm(
             localizer.localize(

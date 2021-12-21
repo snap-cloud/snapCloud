@@ -4,6 +4,7 @@ TODO
 [ ] rethink rate limiting, maybe using CRLF protection?
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
+[ ] success messages for profile editing pages
 [ ] collection
     [ ] edit description
     [ ] edit name
@@ -24,8 +25,6 @@ TODO
     [ ] ban
     [ ] delete
     [ ] role selector
-[ ] change_password
-    [ ] actually do it
 [ ] delete_user
     [ ] actually do it
 [ ] forgot_password

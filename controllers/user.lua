@@ -185,5 +185,18 @@ UserController = {
         end
         self.current_user:update({ email = self.params.email })
         return self:build_url('profile')
-    end
+    end,
+    change_password = function (self)
+        assert_logged_in(self)
+        if (self.current_user.password ~=
+            hash_password(self.params.old_password, self.current_user.salt))
+                then
+            yield_error(err.wrong_password)
+        end
+        self.current_user:update({ 
+            password = 
+                hash_password(self.params.new_password, self.current_user.salt)
+        })
+        return self:build_url('profile')
+    end,
 }
