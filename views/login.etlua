@@ -20,19 +20,20 @@
                 <span localizable>keep me logged in</span>
             </label>
 
-            <button localizable onclick="login()"
+            <button localizable onclick="submit()"
                 class="pure-button">Log in</button>
         </div>
         <div class="pure-controls">
             <p><small><em><a localizable href="forgot_password"
-                        onclick="">* I forgot my password</a></em></small></p>
+                >* I forgot my password</a></em></small></p>
             <p><small><em><a localizable href="forgot_username"
-                        onclick="">* I forgot my username</a></em></small></p>
+                >* I forgot my username</a></em></small></p>
         </div>
     </fieldset>
     <script type="text/javascript" src="/static/js/sha512.js"></script>
     <script>
-        var login = function (event) {
+        enableEnterSubmit();
+        var submit = function (event) {
             var form = document.querySelector('div#login');
             run_selector(
                 'user',

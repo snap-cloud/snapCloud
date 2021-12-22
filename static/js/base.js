@@ -119,6 +119,17 @@ function escapeHtml (text) {
     return text ? text.replace(/[&<>"']/g, function (m) { return map[m]; }) : ''
 };
 
+function enableEnterSubmit () {
+    // Submits "forms" when enter is pressed on any of their inputs
+    document.querySelectorAll('.pure-form input').forEach(
+        input => {
+            input.onkeypress = function (evt) {
+                if (evt.keyCode == 13) { submit(); }
+            }
+        }
+    );
+};
+
 // JS additions
 
 Array.prototype.sortBy = function (parameter, reverse) {

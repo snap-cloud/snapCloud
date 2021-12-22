@@ -7,17 +7,18 @@
         </div>
         <div class="pure-controls">
             <button localizable class="pure-button"
-                onclick="remind_username()">Email me my username(s)</button>
+                onclick="submit()">Email me my username(s)</button>
         </div>
     </fieldset>
     <script type="text/javascript" src="/static/js/sha512.js"></script>
     <script>
-    var remind_username = function () {
-        run_selector(
-            'user',
-            'remind_username',
-            { email: document.querySelector('input#email').value }
-        );
-    };
+        enableEnterSubmit();
+        var submit = function () {
+            run_selector(
+                'user',
+                'remind_username',
+                { email: document.querySelector('input#email').value }
+            );
+        };
 </script>
 </div>

@@ -19,13 +19,14 @@
         </div>
 
         <div class="pure-controls">
-            <button localizable onclick="change_email()"
+            <button localizable onclick="submit()"
                 class="pure-button red-button">Change My Email</button>
         </div>
     </fieldset>
     <script type="text/javascript" src="/static/js/sha512.js"></script>
     <script>
-        var change_email = function (event) {
+        enableEnterSubmit();
+        var submit = function (event) {
             var form = document.querySelector('div#change-email'),
                 password = hex_sha512(form.querySelector('#password').value),
                 email = form.querySelector('#new-email').value,

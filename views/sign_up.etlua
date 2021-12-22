@@ -61,12 +61,13 @@
                             href="privacy">Privacy Agreement</a></span>.
             </label>
 
-            <button onclick="sign_up()"
+            <button onclick="submit()"
                 class="pure-button red-button">Sign up</button>
         </div>
     </fieldset>
     <script type="text/javascript" src="/static/js/sha512.js"></script>
     <script>
+        enableEnterSubmit();
         var form = document.querySelector('div#signup'),
             currentYear = (new Date()).getFullYear(),
             currentMonth = (new Date()).getMonth() + 1, // months are 0-based LOL
@@ -97,7 +98,7 @@
             }
         };
 
-        var sign_up = function () {
+        var submit = function () {
             var username = form.querySelector('#username').value,
                 password = form.querySelector('#password').value,
                 passwordRepeat = form.querySelector('#password-repeat').value,

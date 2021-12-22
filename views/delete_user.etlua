@@ -9,7 +9,7 @@
                 placeholder="Password">
         </div>
         <div class="pure-controls">
-            <button localizable onclick="delete_user()"
+            <button localizable onclick="submit()"
                 class="pure-button pure-button-warning">
                 Confirm and delete account
             </button>
@@ -17,7 +17,8 @@
     </fieldset>
     <script type="text/javascript" src="/static/js/sha512.js"></script>
     <script>
-        var delete_user = function () {
+        enableEnterSubmit();
+        var submit = function () {
             run_selector(
                 'user',
                 'delete',
