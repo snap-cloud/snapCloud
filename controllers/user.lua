@@ -161,8 +161,12 @@ UserController = {
             if self.queried_user.verified then
                 return self:build_url('index')
             else
-                return jsonResponse(
-                    { days_left = self.queried_user.days_left })
+                return jsonResponse({
+                    title = 'Verify your account',
+                    message = 'Please verify your account within\n' ..
+                        'the next ' .. self.queried_user.days_left .. ' days.',
+                    redirect = self:build_url('index')
+                })
             end
         else
             -- Admins can log in as other people
@@ -270,12 +274,58 @@ UserController = {
             })
         end
     end,
+    create = function (self)
+        prevent_tor_access(self)
+
+        -- strip whitespace *only* on create users.
+        self.params.username = util.trim(self.params.username)
+        validate.assert_valid(self.params, {
+            { 'username', exists = true, min_length = 4,
+                max_length = 200 },
+            { 'password', exists = true, min_length = 6 },
+            { 'email', exists = true, min_length = 5 }
+        })
+
+        local deleted_user =
+            DeletedUsers:find({ username = self.params.username })
+        if self.queried_user or deleted_user then
+            yield_error('User ' .. self.params.username .. ' already exists');
+        end
+
+        local salt = secure_salt()
+        local user = Users:create({
+            created = db.format_date(),
+            username = self.params.username,
+            salt = salt,
+            -- see validation.lua >> hash_password
+            password = hash_password(self.params.password, salt),
+            email = self.params.email,
+            verified = false,
+            role = 'standard'
+        })
+
+        -- Create a verify_user-type token and send an email to the user
+        -- asking to verify the account.
+        -- We check these on login.
+        create_token(self, 'verify_user', user)
+
+        return jsonResponse({
+            message = 'User ' .. self.params.username ..
+                ' created.\nPlease check your email and validate your\n' ..
+                'account within the next 3 days.\nYou can now log in.',
+            title = 'Account Created',
+            redirect = self:build_url('login')
+        })
+    end,
 }
 
+-- TODO move those to a separate module?
 app:match('password_reset', '/password_reset/:token', function (self)
     -- This route is reached when a user clicks on a reset password URL
+    local token = Tokens:find(self.params.token)
     return check_token(
         self,
+        token,
         'password_reset',
         function (user)
             local password, prehash = random_password()
@@ -300,3 +350,37 @@ app:match('password_reset', '/password_reset/:token', function (self)
     )
 end)
 
+app:match('verify_user', '/verify_me/:token', function (self)
+        local token = Tokens:find(self.params.token)
+        local user = Users:find({ username = token.username })
+
+        local user_page = function ()
+            return htmlPage(
+                'User verified | Welcome to Snap<em>!</em>',
+                '<p>Your account <strong>' .. user.username ..
+                '</strong> has been verified.</p>' ..
+                '<p>Thank you!</p>' ..
+                '<p><a href="https://snap.berkeley.edu/">' ..
+                'Take me to Snap<i>!</i></a></p>'
+            )
+        end
+
+        -- Check whether user had already been verified and, if so, delete the
+        -- token
+        if user.verified then
+            token:delete()
+            return user_page(user)
+        else
+            return check_token(
+                self,
+                token,
+                'verify_user',
+                function ()
+                    -- success callback
+                    user:update({ verified = true })
+                    self.session.verified = true
+                    return user_page()
+                end
+            )
+        end
+end)

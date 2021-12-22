@@ -273,8 +273,7 @@ end
 
 -- Tokens
 
-check_token = function (self, purpose, on_success)
-    local token = Tokens:find(self.params.token)
+check_token = function (self, token, purpose, on_success)
     if token then
         local query =
             db.select("date_part('day', now() - ?::timestamp)",
@@ -289,7 +288,7 @@ check_token = function (self, purpose, on_success)
             return htmlPage(self, 'Invalid token', '<p>' ..
                 err.invalid_token.msg .. '</p>')
         else
-            -- We delete expired tokens with 'verify_use'do now'r' purpose
+            -- We delete expired tokens with 'verify_user' purpose
             token:delete()
             return htmlPage(self, 'Expired token', '<p>' ..
                 err.expired_token.msg .. '</p>')

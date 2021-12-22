@@ -6,7 +6,7 @@ function dialog (title, body, onSuccess, onCancel, onOpen) {
         bodyDiv = dialogBox.querySelector('.body');
 
     if (typeof body == 'string') {
-        bodyDiv.innerHTML = body;
+        bodyDiv.innerHTML = body.replaceAll('\n', '<br>');
     } else {
         bodyDiv.innerHTML = '';
         bodyDiv.appendChild(body);

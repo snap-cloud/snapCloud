@@ -6,6 +6,7 @@ TODO
 [ ] caching
 [ ] press enter to submit "forms"
 [ ] search should reset paginator to page 1
+[ ] remake API for Snap! editor
 [ ] collection
     [ ] edit description
     [ ] edit name
@@ -26,8 +27,6 @@ TODO
     [ ] ban
     [ ] delete
     [ ] role selector
-[ ] sign_up
-    [ ] actually do it
 
 TODO AFTER DEPLOYING
 ====================
