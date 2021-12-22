@@ -81,6 +81,7 @@ CollectionController = {
         )
     end,
     search = function (self)
+        self.params.data.page_number = 1
         self.params.data.search_term = self.params.search_term
         CollectionController[self.component.fetch_selector](self)
     end,

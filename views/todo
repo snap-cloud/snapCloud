@@ -4,7 +4,6 @@ TODO
 [ ] rethink rate limiting, maybe using CRLF protection?
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
-[ ] search should reset paginator to page 1
 [ ] remake API for Snap! editor
 [ ] collection
     [ ] edit description

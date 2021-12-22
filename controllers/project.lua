@@ -85,6 +85,7 @@ ProjectController = {
     end,
     search = function (self)
         self.params.data.search_term = self.params.search_term
+        self.params.data.page_number = 1
         ProjectController[self.component.fetch_selector](self)
     end,
     my_projects = function (self)
