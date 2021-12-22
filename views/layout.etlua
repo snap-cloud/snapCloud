@@ -6,7 +6,7 @@
         <meta name="description" content="The Snap! social platform">
         <meta name="author" content="Bernat Romagosa">
         <meta name="snap-cloud-domain" location="https://snap.berkeley.edu">
-        <link rel="icon" href="/favicon.ico">
+        <link rel="icon" href="/static/img/favicon.ico">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- External libs, both stylesheets and JS -->
         <link rel="stylesheet" href="/static/style/reset.css">
