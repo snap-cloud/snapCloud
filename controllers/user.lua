@@ -248,7 +248,28 @@ UserController = {
             message = 'Email with username list sent to ' .. self.params.email,
             redirect = self:build_url('login')
         })
-    end
+    end,
+    delete = function (self)
+        if (self.current_user.password ~=
+            hash_password(self.params.password, self.current_user.salt))
+                then
+            yield_error(err.wrong_password)
+        end
+        -- Do not actually delete the user; flag it as deleted.
+        if not (self.current_user:update({ deleted = db.format_date() })) then
+            yield_error('Could not delete user ' .. self.current_user.username)
+        else
+            self.session.username = ''
+            self.session.user_id = nil
+            self.cookies.persist_session = 'false'
+            return jsonResponse({
+                title = 'User deleted',
+                message = 'User ' .. self.current_user.username ..
+                    ' has been removed.',
+                redirect = self:build_url('index')
+            })
+        end
+    end,
 }
 
 app:match('password_reset', '/password_reset/:token', function (self)
