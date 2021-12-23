@@ -12,22 +12,22 @@
 
     <div class="pure-u-1-2 dates">
         <p class="created">
-            <strong localizable>Created:</strong>
+            <strong>Created:</strong>
             <span><%= string.from_sql_date(collection.created_at) %></span>
         </p>
         <p class="updated">
-            <strong localizable>Last updated:</strong>
+            <strong>Last updated:</strong>
             <span><%= string.from_sql_date(collection.updated_at) %></span>
         </p>
     <% if collection.shared then %>
         <p class="shared">
-            <strong localizable>Shared:</strong>
+            <strong>Shared:</strong>
             <span><%= string.from_sql_date(collection.shared_at) %></span>
         </p>
     <% end %>
     <% if collection.published then %>
         <p class="published">
-            <strong localizable>Published:</strong>
+            <strong>Published:</strong>
             <span><%= string.from_sql_date(collection.published_at) %></span>
         </p>
     <% end %>
@@ -50,14 +50,19 @@
      )
 
     -- collection buttons are an AJAX-updateable component
-    render(
-        'views.component',
-        {
-            component = {
-                template = 'partials.collection_buttons',
-                controller = 'collection',
-            },
-            data = { collection = collection }
-        }
-    )
+
+    if current_user and
+            ((collection.creator == current_user) or
+            current_user:has_min_role('reviewer')) then
+        render(
+            'views.component',
+            {
+                component = {
+                    template = 'partials.collection_buttons',
+                    controller = 'collection',
+                },
+                data = { collection = collection }
+            }
+        )
+    end
 %>

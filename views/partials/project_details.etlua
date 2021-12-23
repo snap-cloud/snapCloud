@@ -2,30 +2,30 @@
 <pre class="notes" title="Press Shift + Enter to enter a newline"><%= data.project.notes %><%- data.project.notes and '' or '<small>This project has no notes</small>' %></pre>
 <!-- Dates and project meta -->
 <div class="dates">
-    <p class="created"><strong localizable="">Created:</strong><span><%= string.from_sql_date(data.project.created) %></span></p>
-    <p class="updated"><strong localizable="">Last updated:</strong><span><%= string.from_sql_date(data.project.lastupdated) %></span></p>
+    <p class="created"><strong>Created:</strong><span><%= string.from_sql_date(data.project.created) %></span></p>
+    <p class="updated"><strong>Last updated:</strong><span><%= string.from_sql_date(data.project.lastupdated) %></span></p>
 <% if data.project.ispublished then %>
-    <p class="published"><strong localizable="">Published:</strong><span><%= string.from_sql_date(data.project.firstpublished) %></span></p>
+    <p class="published"><strong>Published:</strong><span><%= string.from_sql_date(data.project.firstpublished) %></span></p>
 <% elseif data.project.ispublic then %>
-    <p class="shared"><strong localizable="">Shared:</strong><span><%= string.from_sql_date(data.project.lastshared) %></span></p>
+    <p class="shared"><strong>Shared:</strong><span><%= string.from_sql_date(data.project.lastshared) %></span></p>
 <% end %>
 <% if current_user and
         ((data.project.username == current_user.username) or
         current_user:has_min_role('reviewer')) then %>
     <% if data.project.ispublished then %>
-    <a localizable="" class="pure-button unpublish" target="_blank"
+    <a class="pure-button unpublish" target="_blank"
         onclick="confirmButtonAction('unpublish', '<%= data %>')">Unpublish</a>
-    <a localizable="" class="pure-button unshare" target="_blank"
+    <a class="pure-button unshare" target="_blank"
         onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
     <% elseif data.project.ispublic then %>
-    <a localizable="" class="pure-button publish" target="_blank"
+    <a class="pure-button publish" target="_blank"
         onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
-    <a localizable="" class="pure-button unshare" target="_blank"
+    <a class="pure-button unshare" target="_blank"
         onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
     <% else %>
-    <a localizable="" class="pure-button share" target="_blank"
+    <a class="pure-button share" target="_blank"
         onclick="confirmButtonAction('share', '<%= data %>')">Share</a>
-    <a localizable="" class="pure-button publish" target="_blank"
+    <a class="pure-button publish" target="_blank"
         onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
     <% end %>
 <% end %>

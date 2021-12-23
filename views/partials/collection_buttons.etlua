@@ -1,7 +1,22 @@
 <div class="buttons">
-    <a localizable class="pure-button share" target="_blank">Share</a>
-    <a localizable class="pure-button unshare" target="_blank">Unshare</a>
-    <a localizable class="pure-button publish" target="_blank">Publish</a>
-    <a localizable class="pure-button unpublish" target="_blank">Unpublish</a>
-    <a localizable class="pure-button pure-button-warning delete" target="_blank">Delete</a>
+    <% if data.collection.published then %>
+    <a class="pure-button unpublish" target="_blank"
+        onclick="confirmButtonAction('unpublish', '<%= data %>')">Unpublish</a>
+    <a class="pure-button unshare" target="_blank"
+        onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
+    <% elseif data.collection.shared then %>
+    <a class="pure-button publish" target="_blank"
+        onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
+    <a class="pure-button unshare" target="_blank"
+        onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
+    <% else %>
+    <a class="pure-button share" target="_blank"
+        onclick="confirmButtonAction('share', '<%= data %>')">Share</a>
+    <a class="pure-button publish" target="_blank"
+        onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
+    <% end %>
+
+    <% if current_user:isadmin() then %>
+    <a class="pure-button pure-button-warning delete" >Delete</a>
+    <% end %>
 </div>

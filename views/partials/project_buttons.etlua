@@ -10,80 +10,82 @@
     <a localizable="" class="pure-button collect" target="_blank"
         onclick="collectDialog()">Add to Collection</a>
     <% end %>
-<script>
-    function embedDialog () {
-        function update (form) {
-            var options =
-                Object.values(
-                    form.querySelectorAll('input[type="checkbox"]:checked')
-                ).map(input => '&' + input.value + '=true').join('');
-            form.querySelector('textarea#embed-url').innerText =
-                '<%- project:url_for('embed') %>' + options;
-            form.querySelector('textarea#embed-iframe').innerText =
-                '<iframe width="480" height="390" frameBorder=0 ' +
-                    'allowfullscreen allow="geolocation; microphone;' +
-                    'camera" src="' + '<%- project:url_for('embed') %>' +
-                    options + '"></iframe>';
-        };
-        dialog(
-            'Embed Options',
-            '<%- package.loaded.dialog('embed') %>',
-            nop,
-            nop,
-            // onload:
-            () => {
-                var form = document.querySelector('form.embed-options');
-                update(form);
-                form.querySelectorAll('input').forEach(input => {
-                    input.onchange = function () { update(form) };
-                });
-            }
-        );
-    };
-
-    <% if current_user then %>
-    function collectDialog () {
-        dialog(
-            'Add project to collection',
-            '<%- package.loaded.dialog('collect', { current_user = current_user }) %>',
-            () => {
-                var form = document.querySelector('form.collect-form');
-                run_selector(
-                    'collection',
-                    'add_project',
-                    {
-                        collection: {
-                            id: form.querySelector('select').value
-                        },
-                        project: {
-                            id: <%- project.id %>
-                        }
-                    }
-                );
-            },
-            nop
-        );
-    };
-    <% end %>
-</script>
-<%
-    if current_user and
-        ((project.username == current_user.username) or
-        current_user:isadmin()) then
-%>
-    <a localizable="" class="pure-button pure-button-warning delete"
-        target="_blank"
-        onclick="confirmDelete()"
-        >Delete</a>
     <script>
-    function confirmDelete () {
-        confirmAction(
-            '<%- package.loaded.dialog('delete-project') %>',
-            'project',
-            'delete',
-            { project: { id: <%= project.id %> } }
-        );
-    }
+        function embedDialog () {
+            function update (form) {
+                var options =
+                    Object.values(
+                        form.querySelectorAll('input[type="checkbox"]:checked')
+                    ).map(input => '&' + input.value + '=true').join('');
+                form.querySelector('textarea#embed-url').innerText =
+                    '<%- project:url_for('embed') %>' + options;
+                form.querySelector('textarea#embed-iframe').innerText =
+                    '<iframe width="480" height="390" frameBorder=0 ' +
+                        'allowfullscreen allow="geolocation; microphone;' +
+                        'camera" src="' + '<%- project:url_for('embed') %>' +
+                        options + '"></iframe>';
+            };
+            dialog(
+                'Embed Options',
+                '<%- package.loaded.dialog('embed') %>',
+                nop,
+                nop,
+                // onload:
+                () => {
+                    var form = document.querySelector('form.embed-options');
+                    update(form);
+                    form.querySelectorAll('input').forEach(input => {
+                        input.onchange = function () { update(form) };
+                    });
+                }
+            );
+        };
+
+        <% if current_user then %>
+        function collectDialog () {
+            dialog(
+                'Add project to collection',
+                '<%- package.loaded.dialog(
+                    'collect',
+                    { current_user = current_user }) %>',
+                () => {
+                    var form = document.querySelector('form.collect-form');
+                    run_selector(
+                        'collection',
+                        'add_project',
+                        {
+                            collection: {
+                                id: form.querySelector('select').value
+                            },
+                            project: {
+                                id: <%- project.id %>
+                            }
+                        }
+                    );
+                },
+                nop
+            );
+        };
+        <% end %>
+    </script>
+    <%
+        if current_user and
+            ((project.username == current_user.username) or
+            current_user:isadmin()) then
+    %>
+        <a localizable="" class="pure-button pure-button-warning delete"
+            target="_blank"
+            onclick="confirmDelete()"
+            >Delete</a>
+        <script>
+        function confirmDelete () {
+            confirmAction(
+                '<%- package.loaded.dialog('delete-project') %>',
+                'project',
+                'delete',
+                { project: { id: <%= project.id %> } }
+            );
+        }
     </script>
 <% end %>
 <% if project.flagged then %>
