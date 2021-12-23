@@ -376,7 +376,23 @@ UserController = {
             title = 'Role set',
             redirect = user:url_for('site')
         })
-    end
+    end,
+    send_email = function (self)
+        assert_admin(self)
+        if self.params.email and (#self.params.email.body > 0) then
+            send_mail(
+                self.queried_user.email,
+                self.params.email.subject or mail_subjects.generic,
+                self.params.email.body
+            )
+        else
+            yield_error(err.mail_body_empty)
+        end
+        return jsonResponse({
+            message = 'Message sent to user',
+            title = 'Message sent'
+        })
+    end,
 }
 
 -- TODO move those to a separate module?

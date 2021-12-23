@@ -110,7 +110,8 @@ document.onkeypress = function (event) {
     if (event.keyCode == 13) {
         if (customalert.done) {
             customalert.done();
-        } else if (customconfirm.done) {
+        } else if (customconfirm.done &&
+                (customconfirm.style.display == 'block')) {
             customconfirm.done();
         }
     }

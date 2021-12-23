@@ -29,7 +29,7 @@ function run_selector (controller, selector, params) {
                         }
                     }
                 );
-            } else {
+            } else if (req.responseText.length > 0) {
                 // it's a path
                 location.href = req.responseText;
             }

@@ -58,7 +58,8 @@
                         project: {
                             id: <%- project.id %>
                         }
-                    });
+                    }
+                );
             },
             nop
         );

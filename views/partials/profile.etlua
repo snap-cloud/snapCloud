@@ -60,7 +60,31 @@
                     nop
                     );
                 ">Change Email</a>
-            <a class="pure-button sendamessage">Send a message</a>
+            <a class="pure-button sendamessage"
+                onclick="
+                    dialog(
+                        'Compose a message',
+                        '<%= package.loaded.dialog('compose_email') %>',
+                        () => {
+                            var form =
+                                document.querySelector('form.email-compose'),
+                                subject = form.querySelector('input').value,
+                                body = form.querySelector('textarea').value;
+                            run_selector(
+                                'user',
+                                'send_email',
+                                {
+                                    email: {
+                                        subject: subject,
+                                        body: body
+                                    },
+                                    username: '<%= item.username %>'
+                                }
+                            );
+                        },
+                        nop
+                    );
+                ">Send a message</a>
             <a class="pure-button ban pure-button-warning"
                 onclick="
                     run_selector(

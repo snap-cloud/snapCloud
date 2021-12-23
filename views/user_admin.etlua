@@ -1,4 +1,3 @@
-<script src="/static/js/admin.js"></script>
 <link rel="stylesheet" href="/static/style/admin.css">
 <h1 localizable>User Administration</h1>
 <%
