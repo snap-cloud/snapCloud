@@ -62,7 +62,7 @@ CollectionController = {
         elseif self.params.offset == 'last' then
             self.params.data.page_number = self.params.data.num_pages
         else
-            self.params.data.page_number = 
+            self.params.data.page_number =
                 math.min(
                     math.max(
                         1,
@@ -125,7 +125,7 @@ CollectionController = {
     end,
     containing_project = function (self)
         self.params.data.order =  'collections.created_at DESC'
-        self.params.data.fields = 
+        self.params.data.fields =
             [[collections.creator_id, collections.name,
             collection_memberships.project_id, collections.thumbnail_id,
             collections.shared, collections.published, users.username]]

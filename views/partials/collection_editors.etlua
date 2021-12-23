@@ -14,7 +14,7 @@ end
 %>
     </ul>
 <% if current_user and (collection.creator.id == current_user.id) then %>
-    <a 
+    <a
         onclick="
             this.nextElementSibling.hidden = false;
             this.nextElementSibling.focus();"

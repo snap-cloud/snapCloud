@@ -65,7 +65,7 @@ ProjectController = {
         elseif self.params.offset == 'last' then
             self.params.data.page_number = self.params.data.num_pages
         else
-            self.params.data.page_number = 
+            self.params.data.page_number =
                 math.min(
                     math.max(
                         1,

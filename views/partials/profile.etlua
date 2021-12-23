@@ -13,7 +13,7 @@
         </span>
         <span><strong>ID:</strong> <%= item.id %></span>
         <% if show_project_count then %>
-        <span><strong>Project count:</strong> <%= 
+        <span><strong>Project count:</strong> <%=
             item:get_project_count() %></span>
         <% end %>
         <span><strong>Joined in </strong><%=
@@ -52,7 +52,7 @@
                                 'user',
                                 'change_email',
                                 {
-                                    email: email, 
+                                    email: email,
                                     username: '<%= item.username %>'
                                 }
                             );

@@ -238,7 +238,7 @@ app:post(
 
         self.data = self.params.data
 
-        return { 
+        return {
             render = self.params.template,
             layout = false,
         }

@@ -11,7 +11,7 @@
                     }
         );">
             <% for _, option in pairs(filter.options) do %>
-            <option 
+            <option
                 <%- option.selected and 'selected' or '' %>
                 value="<%= option.value %>"><%= option.label %></option>
             <% end %>

@@ -51,7 +51,7 @@ for i = 1, 3, 1 do
 end
 
 
-for _, descriptor in pairs(collections) do 
+for _, descriptor in pairs(collections) do
     render(
         'views.component',
         {

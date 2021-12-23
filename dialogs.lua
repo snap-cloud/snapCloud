@@ -37,7 +37,7 @@ package.loaded.dialog = function (filename, params)
         local template = etlua.compile(contents)
         return compact(template(params))
     else
-        return '<h1>Dialog render error</h1><span>template ' .. 
+        return '<h1>Dialog render error</h1><span>template ' ..
                     filename .. ' not found under views/dialogs/'
     end
 end
