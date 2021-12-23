@@ -21,9 +21,9 @@ TODO
 [ ] profile partial
     [x] become
     [x] role selector
+    [x] ban
     [ ] change email
     [ ] send a message
-    [ ] ban
     [ ] delete
 
 TODO AFTER DEPLOYING
@@ -31,3 +31,4 @@ TODO AFTER DEPLOYING
 [ ] project
     [ ] edit notes
     [ ] edit title
+[ ] profile partial could be made a component so it can be updated on the fly

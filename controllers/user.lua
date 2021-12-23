@@ -360,7 +360,8 @@ UserController = {
         end
         return jsonResponse({
             message = 'User ' .. user.username .. ' is now ' .. user.role,
-            title = 'Role set'
+            title = 'Role set',
+            redirect = user:url_for('site')
         })
     end
 }
