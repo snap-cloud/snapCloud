@@ -115,10 +115,10 @@ CollectionController = {
         local data = self.params.data
         local collection = Collections:find(data.user_id, data.collection_name)
         local paginator = collection:get_projects()
+        paginator.per_page = data.items_per_page
         if not data.ignore_page_count then
             data.num_pages = paginator:num_pages()
         end
-        paginator.per_page = data.per_page
         self.items = paginator:get_page(data.page_number)
         disk:process_thumbnails(self.items)
         self.data = data

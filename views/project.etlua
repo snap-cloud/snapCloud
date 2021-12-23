@@ -101,7 +101,7 @@
                 class = 'collections',
                 item_type = 'collection',
                 project_id = project.id,
-                per_page = 5
+                items_per_page = 5
             }
         }
     )

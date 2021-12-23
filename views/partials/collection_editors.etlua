@@ -3,33 +3,44 @@
 <%
 if collection.editor_ids then
     for _, editor in pairs(collection.editors) do %>
-    <li class="editor"><a href="<%= editor:url_for('site') %>" target=""><strong><%= editor.username %></strong></a></li>
+    <li class="editor">
+        <a href="<%= editor:url_for('site') %>">
+            <strong><%= editor.username %></strong>
+        </a>
+    </li>
 <%
     end
 end
 %>
     </ul>
 <% if current_user and (collection.creator.id == current_user.id) then %>
-    <a onclick="this.nextElementSibling.hidden = false; this.nextElementSibling.focus();" class="clickable add-editor"><i class="fas fa-plus-circle"></i></a>
+    <a 
+        onclick="
+            this.nextElementSibling.hidden = false;
+            this.nextElementSibling.focus();"
+        class="clickable add-editor"><i class="fas fa-plus-circle"></i>
+    </a>
     <input hidden class="new-editor"></input>
 <% end %>
 <%
-if current_user and current_user:isadmin() then
+if current_user and current_user:isadmin() and collection.published then
     if not(collection.free_for_all) then
 %>
-    <a localizable class="pure-button ffa" target="_blank">Mark as free-for-all</a>
+    <a class="pure-button ffa" target="_blank">Mark as free-for-all</a>
 <%  else %>
-    <a localizable class="pure-button un-ffa" target="_blank">Unmark as free-for-all</a>
+    <a class="pure-button un-ffa" target="_blank">Unmark as free-for-all</a>
 <%
     end
 end
 %>
 <%
-    if current_user and (collection.creator.id ~= current_user.id) and collection.editor_ids then
+    if current_user and (collection.creator.id ~= current_user.id) and
+            collection.editor_ids then
         for _, id in pairs(collection.editor_ids) do
             if id == current_user.id then
 %>
-    <a localizable class="pure-button pure-button-warning unenroll" target="_blank">Remove myself</a>
+    <a class="pure-button pure-button-warning unenroll"
+        target="_blank">Remove myself</a>
 <%
                 break
             end

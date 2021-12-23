@@ -20,3 +20,14 @@
     <a class="pure-button pure-button-warning delete" >Delete</a>
     <% end %>
 </div>
+<script>
+    function confirmButtonAction (action, data) {
+        confirmComponentAction(
+            'Are you sure you want to ' + action + ' this collection?',
+            '<%= component.id %>',
+            'collection',
+            action,
+            { data: data }
+        );
+    };
+</script>

@@ -62,7 +62,7 @@ for _, descriptor in pairs(collections) do
                 title = descriptor.title,
                 collection_name = descriptor.collection_name,
                 item_type = 'project',
-                per_page = 5,
+                items_per_page = 5,
                 -- store for use in querying for next pages
                 user_id = snapcloud_id
             }
@@ -80,7 +80,7 @@ render(
             class = 'latest',
             title = 'Latest Projects',
             item_type = 'project',
-            per_page = 5,
+            items_per_page = 5,
             num_pages = 20,
             ignore_page_count = true
         }
