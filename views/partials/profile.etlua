@@ -1,19 +1,49 @@
 <div class="user pure-u-1-2">
-    <div class="details <%- item.verified and '' or 'unverified' %> <%- item.role %>">
-        <a href="user?username=<%=item.username%>" target=""><strong><%=item.username%></strong></a>
-        <span><em><a target="_blank" href="mailto:<%=item.email%>"><%=item.email%></a></em></span>
-        <span><strong>ID:</strong> <%=item.id%></span>
+    <div class="details <%-
+        item.verified and '' or 'unverified' %> <%- item.role %>">
+        <a href="<%= item:url_for('site') %>" target="">
+            <strong><%= item.username %></strong>
+        </a>
+        <span>
+            <em>
+                <a target="_blank" href="mailto:<%= item.email %>">
+                    <%= item.email %>
+                </a>
+            </em>
+        </span>
+        <span><strong>ID:</strong> <%= item.id %></span>
         <% if show_project_count then %>
-        <span><strong>Project count:</strong> <%= item:get_project_count() %></span>
+        <span><strong>Project count:</strong> <%= 
+            item:get_project_count() %></span>
         <% end %>
-        <span><strong localizable="">Joined in </strong><%= string.from_sql_date(item.created) %></span>
-        <span><strong localizable="">Role</strong>:<select><option value="<%=item.role%>"><%=item.role%></option><option value="reviewer">reviewer</option><option value="moderator">moderator</option><option value="admin">admin</option><option value="banned" disabled="">banned</option></select></span>
+        <span><strong>Joined in </strong><%=
+            string.from_sql_date(item.created) %></span>
+        <span>
+            <strong>Role</strong>:<select>
+                <option value="<%= item.role %>"><%= item.role %></option>
+                <option value="reviewer">reviewer</option>
+                <option value="moderator">moderator</option>
+                <option value="admin">admin</option>
+                <option value="banned" disabled="">banned</option>
+            </select>
+        </span>
         <div class="buttons">
-            <a localizable="true" class="pure-button become">Become</a>
-            <a localizable="true" class="pure-button changeemail">Change Email</a>
-            <a localizable="true" class="pure-button sendamessage">Send a message</a>
-            <a localizable="true" class="pure-button ban pure-button-warning">Ban</a>
-            <a localizable="true" class="pure-button delete pure-button-warning">Delete</a>
+            <a class="pure-button become"
+                onclick="
+                    run_selector(
+                        'user',
+                        'become',
+                        { username: '<%= item.username %>'}
+                    )">Become</a>
+            <a class="pure-button changeemail">Change Email</a>
+            <a class="pure-button sendamessage">Send a message</a>
+            <a class="pure-button ban pure-button-warning">Ban</a>
+            <a class="pure-button delete pure-button-warning">Delete</a>
         </div>
     </div>
+    <script>
+        function become (username) {
+            run_selector('user', 'become', { username: username });
+        };
+    </script>
 </div>

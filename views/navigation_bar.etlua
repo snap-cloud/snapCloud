@@ -38,11 +38,12 @@
                     href="sign_up">Join</a></li>
             <li class="sign-in pure-menu-item pure-u-1-12">
                 <a localizable class="pure-menu-link"
-                               href="login">Log In</a></li>
+                   href="login">Log In</a></li>
         <% else %>
             <li class="pure-menu-item pure-u-1-6
                 pure-menu-has-children pure-menu-allow-hover user-menu">
-                <a id="menuLink1" class="pure-menu-link visitor clickable"><%= current_user.username%></a>
+                <a id="menuLink1" class="pure-menu-link visitor clickable">
+                    <%= current_user.username%></a>
                 <ul class="pure-menu-children">
                     <li class="pure-menu-item">
                         <a localizable class="pure-menu-link my-projects"
@@ -52,7 +53,8 @@
                             href="my_collections">My Collections</a></li>
                     <li class="pure-menu-item">
                         <a localizable class="pure-menu-link my-public-projects"
-                           href="<%= current_user:url_for('site') %>">My Public Page</a></li>
+                           href="<%= current_user:url_for('site') %>"
+                           >My Public Page</a></li>
                     <li class="pure-menu-item">
                         <a localizable class="pure-menu-link my-profile"
                             href="profile">My Profile</a></li>
@@ -60,12 +62,18 @@
                     <li class="pure-menu-item admin">
                         <a localizable class="pure-menu-link"
                             href="admin">Administration</a></li>
-                    <hr>
                 <% end %>
+                    <hr>
                     <li class="pure-menu-item">
                         <a localizable class="pure-menu-link clickable"
                             onclick="run_selector('user', 'logout');"
                         >Log Out</a></li>
+                    <% if session.impersonator then %>
+                    <li class="pure-menu-item">
+                        <a localizable class="pure-menu-link clickable"
+                            onclick="run_selector('user', 'unbecome');"
+                        >Unbecome</a></li>
+                    <% end %>
                 </ul>
             </li>
         <% end %>

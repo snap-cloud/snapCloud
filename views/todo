@@ -19,7 +19,7 @@ TODO
     [ ] delete
 [ ] zombie_admin
 [ ] profile partial
-    [ ] become
+    [x] become
     [ ] change email
     [ ] send a message
     [ ] ban

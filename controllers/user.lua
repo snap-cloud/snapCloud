@@ -318,6 +318,39 @@ UserController = {
             redirect = self:build_url('login')
         })
     end,
+    become = function (self)
+        assert_min_role(self, 'moderator')
+        local new_user = Users:find({ username = self.params.username })
+        if new_user then
+            -- you can't become someone with a higher role than yours
+            if Users.roles[self.current_user.role] <
+                    Users.roles[new_user.role] then
+                yield_error(err.auth)
+            else
+                self.session.impersonator = self.current_user.username
+                self.current_user = new_user
+                self.session.username = new_user.username
+            end
+        end
+        return jsonResponse({
+            message = 'You are now ' .. new_user.username,
+            title = 'Impersonation',
+            redirect = self:build_url('profile')
+        })
+    end,
+    unbecome = function (self)
+        if self.session.impersonator then
+            self.session.username = self.session.impersonator
+            self.current_user =
+                Users:find({ username = self.session.impersonator})
+            self.session.impersonator = nil
+            return jsonResponse({
+                message = 'You are now ' .. self.session.username .. ' again',
+                title = 'Unimpersonation',
+                redirect = self:build_url('user_admin')
+            })
+        end
+    end,
 }
 
 -- TODO move those to a separate module?

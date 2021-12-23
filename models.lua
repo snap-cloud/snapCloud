@@ -60,8 +60,8 @@ package.loaded.Users = Model:extend('active_users', {
         return self.role == 'banned'
     end,
     has_min_role = function (self, expected_role)
-        local roles = { admin = 4, moderator = 3, reviewer = 2, standard = 1 }
-        return (roles[self.role] >= roles[expected_role])
+        return package.loaded.Users.roles[self.role] >=
+            package.loaded.Users.roles[expected_role]
     end,
     has_one_of_roles = function (self, roles)
         for _, role in pairs(roles) do
@@ -106,6 +106,13 @@ package.loaded.Users = Model:extend('active_users', {
         return self:isbanned() or self.validated == false
     end
 })
+
+package.loaded.Users.roles = {
+    admin = 4,
+    moderator = 3,
+    reviewer = 2,
+    standard = 1
+}
 
 package.loaded.DeletedUsers = Model:extend('deleted_users')
 
