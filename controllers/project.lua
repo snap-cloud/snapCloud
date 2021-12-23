@@ -146,6 +146,7 @@ ProjectController = {
     share = function (self)
         local project = Projects:find({ id = self.params.data.project.id })
         assert_can_share(self, project)
+        debug_print('type', project.type)
         project:update({
             lastupdated = db.format_date(),
             lastshared = db.format_date(),
@@ -154,7 +155,7 @@ ProjectController = {
         })
         self.params.data.project = project
         self.project = project
-        data = self.params.data
+        self.data = self.params.data
     end,
     unshare = function (self)
         local project = Projects:find({ id = self.params.data.project.id })
@@ -166,7 +167,7 @@ ProjectController = {
         })
         self.params.data.project = project
         self.project = project
-        data = self.params.data
+        self.data = self.params.data
     end,
     publish = function (self)
         local project = Projects:find({ id = self.params.data.project.id })
@@ -179,7 +180,7 @@ ProjectController = {
         })
         self.params.data.project = project
         self.project = project
-        data = self.params.data
+        self.data = self.params.data
     end,
     unpublish = function (self)
         local project = Projects:find({ id = self.params.data.project.id })
@@ -190,7 +191,7 @@ ProjectController = {
         })
         self.params.data.project = project
         self.project = project
-        data = self.params.data
+        self.data = self.params.data
     end,
     delete = function (self)
         local project = Projects:find({ id = self.params.project.id })
@@ -244,7 +245,7 @@ ProjectController = {
         project.flagged = true
         self.params.data.project = project
         self.project = project
-        data = self.params.data
+        self.data = self.params.data
     end,
     remove_flag = function (self)
         -- Check whether we're removing someone else's flag
@@ -269,6 +270,6 @@ ProjectController = {
 
         self.params.data.project = project
         self.project = project
-        data = self.params.data
+        self.data = self.params.data
     end,
 }

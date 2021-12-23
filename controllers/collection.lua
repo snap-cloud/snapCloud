@@ -174,4 +174,57 @@ CollectionController = {
 
         return project:url_for('site')
     end,
+    share = function (self)
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        assert_can_share(self, collection)
+        collection:update({
+            updated_at = db.format_date(),
+            shared_at = db.format_date(),
+            shared = true,
+            published = false
+        })
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
+    end,
+    unshare = function (self)
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        assert_can_share(self, collection)
+        collection:update({
+            updated_at = db.format_date(),
+            shared = false,
+            published = false
+        })
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
+    end,
+    publish = function (self)
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        assert_can_share(self, collection)
+        collection:update({
+            updated_at = db.format_date(),
+            published_at = collection.published_at or db.format_date(),
+            shared = true,
+            published = true
+        })
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
+    end,
+    unpublish = function (self)
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        assert_can_share(self, collection)
+        collection:update({
+            updated_at = db.format_date(),
+            published = false
+        })
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
+    end,
 }

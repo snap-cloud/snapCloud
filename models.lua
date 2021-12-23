@@ -27,6 +27,7 @@ local Model = package.loaded.Model
 local escape = package.loaded.util.escape
 
 package.loaded.Users = Model:extend('active_users', {
+    type = 'user',
     relations = {
         {'collections', has_many = 'Collections'},
         {'editable_collections',
@@ -118,6 +119,7 @@ package.loaded.Users.roles = {
 package.loaded.DeletedUsers = Model:extend('deleted_users')
 
 package.loaded.Projects = Model:extend('active_projects', {
+    type = 'project',
     primary_key = {'username', 'projectname'},
     constraints = {
         projectname = function (_self, name)
@@ -210,6 +212,7 @@ package.loaded.Remixes = Model:extend('remixes', {
 })
 
 package.loaded.Collections = Model:extend('collections', {
+    type = 'collection',
     primary_key = {'creator_id', 'name'},
     timestamp = true,
     url_for = function (self, purpose)

@@ -251,12 +251,17 @@ assert_users_have_email = function (self, message)
 end
 
 
--- Projects
+-- Projects and Collections
 
-assert_can_share = function (self, project)
-    if not project then yield_error(err.nonexistent_project) end
-    if (project.username ~= self.current_user.username) then
-        assert_min_role(self, 'reviewer')
+assert_can_share = function (self, item)
+    if item.type == 'project' then
+        if (item.username ~= self.current_user.username) then
+            assert_min_role(self, 'reviewer')
+        end
+    elseif item.type == 'collection' then
+        if (item.creator_id ~= self.current_user.id) then
+            assert_min_role(self, 'reviewer')
+        end
     end
 end
 

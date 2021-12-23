@@ -14,9 +14,10 @@ TODO
     [ ] add editor
     [ ] mark as free-for-all
     [ ] remove myself
-    [ ] share / unshare
-    [ ] publish / unpublish
+    [x] share / unshare
+    [x] publish / unpublish
     [ ] delete
+    [ ] update collection_info component when collection_button updates
 [ ] zombie_admin
 
 TODO AFTER DEPLOYING
