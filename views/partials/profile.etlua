@@ -100,7 +100,26 @@
                     );"
                 ><%= item.role == 'banned' and 'Unban' or 'Ban' %></a>
 
-            <a class="pure-button delete pure-button-warning">Delete</a>
+            <a class="pure-button delete pure-button-warning"
+                onclick="
+                    confirm(
+                        '<%=
+                            package.loaded.dialog(
+                                'delete_user',
+                                { username = item.username })
+                        %>',
+                        ok => {
+                            if (ok) {
+                                run_selector(
+                                    'user',
+                                    'delete',
+                                    { username: '<%= item.username %>' }
+                                );
+                            }
+                        }
+                    )
+                "
+                >Delete</a>
         </div>
     </div>
 </div>

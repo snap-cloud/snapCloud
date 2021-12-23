@@ -18,13 +18,6 @@ TODO
     [ ] publish / unpublish
     [ ] delete
 [ ] zombie_admin
-[ ] profile partial
-    [x] become
-    [x] role selector
-    [x] ban
-    [x] change email
-    [x] send a message
-    [ ] delete
 
 TODO AFTER DEPLOYING
 ====================

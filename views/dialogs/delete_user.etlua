@@ -1,0 +1,4 @@
+Are you sure you want to delete user <strong><%= username %></strong>?<br>
+<i class="warning fa fa-exclamation-triangle"></i>
+ WARNING! This action cannot be undone! 
+<i class="warning fa fa-exclamation-triangle"></i>

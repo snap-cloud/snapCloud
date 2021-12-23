@@ -187,7 +187,7 @@ UserController = {
 
         local user = self.queried_user or self.current_user
 
-        if self.params.username then
+        if self.queried_user then
             -- we're trying to change someone else's email
             assert_min_role(self, 'moderator')
         elseif (user.password ~=
@@ -264,22 +264,29 @@ UserController = {
         })
     end,
     delete = function (self)
-        if (self.current_user.password ~=
+        local user = self.queried_user or self.current_user
+
+        if self.queried_user then
+            -- we're trying to delete someone else
+            assert_admin(self)
+        elseif (self.current_user.password ~=
             hash_password(self.params.password, self.current_user.salt))
                 then
             yield_error(err.wrong_password)
         end
         -- Do not actually delete the user; flag it as deleted.
-        if not (self.current_user:update({ deleted = db.format_date() })) then
-            yield_error('Could not delete user ' .. self.current_user.username)
+        if not (user:update({ deleted = db.format_date() })) then
+            yield_error('Could not delete user ' .. user.username)
         else
-            self.session.username = ''
-            self.session.user_id = nil
-            self.cookies.persist_session = 'false'
+            if not self.queried_user then
+                -- we've deleted ourselves, let's log out
+                self.session.username = ''
+                self.session.user_id = nil
+                self.cookies.persist_session = 'false'
+            end
             return jsonResponse({
                 title = 'User deleted',
-                message = 'User ' .. self.current_user.username ..
-                    ' has been removed.',
+                message = 'User ' .. user.username .. ' has been removed.',
                 redirect = self:build_url('index')
             })
         end
