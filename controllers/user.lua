@@ -185,10 +185,7 @@ UserController = {
     change_email = function (self)
         assert_logged_in(self)
 
-        local user =
-            self.params.username and 
-                Users:find({ username = self.params.username }) or
-                self.current_user
+        local user = self.queried_user or self.current_user
 
         if self.params.username then
             -- we're trying to change someone else's email
@@ -227,7 +224,6 @@ UserController = {
         })
     end,
     reset_password = function (self)
-        local user = Users:find({ username = self.params.username })
         local token = find_token(self.params.username, 'password_reset')
         if token then
             local epoch = db.select(
@@ -238,7 +234,7 @@ UserController = {
                 yield_error(err.too_many_password_resets)
             end
         end
-        create_token(self, 'password_reset', user)
+        create_token(self, 'password_reset', self.queried_user)
         return jsonResponse({
             title = 'Password reset',
             message = 'A link to reset your password has been sent to ' .. 
@@ -333,20 +329,19 @@ UserController = {
     end,
     become = function (self)
         assert_min_role(self, 'moderator')
-        local new_user = Users:find({ username = self.params.username })
-        if new_user then
+        if self.queried_user then
             -- you can't become someone with a higher role than yours
             if Users.roles[self.current_user.role] <
-                    Users.roles[new_user.role] then
+                    Users.roles[self.queried_user.role] then
                 yield_error(err.auth)
             else
                 self.session.impersonator = self.current_user.username
-                self.current_user = new_user
-                self.session.username = new_user.username
+                self.current_user = self.queried_user
+                self.session.username = self.queried_user.username
             end
         end
         return jsonResponse({
-            message = 'You are now ' .. new_user.username,
+            message = 'You are now ' .. self.queried_user.username,
             title = 'Impersonation',
             redirect = self:build_url('profile')
         })
@@ -366,15 +361,16 @@ UserController = {
     end,
     set_role = function (self)
         assert_min_role(self, 'moderator')
-        local user = Users:find({ username = self.params.username })
-        if user then
+        if self.queried_user then
             assert_can_set_role(self, self.params.role)
-            user:update({ role = self.params.role })
+            self.queried_user:update({ role = self.params.role })
         end
         return jsonResponse({
-            message = 'User ' .. user.username .. ' is now ' .. user.role,
+            message =
+                'User ' .. self-queried_user.username .. 
+                ' is now ' .. self.queried_user.role,
             title = 'Role set',
-            redirect = user:url_for('site')
+            redirect = self.queried_user:url_for('site')
         })
     end,
     send_email = function (self)
@@ -428,12 +424,11 @@ end)
 
 app:match('verify_user', '/verify_me/:token', function (self)
         local token = Tokens:find(self.params.token)
-        local user = Users:find({ username = token.username })
 
         local user_page = function ()
             return htmlPage(
                 'User verified | Welcome to Snap<em>!</em>',
-                '<p>Your account <strong>' .. user.username ..
+                '<p>Your account <strong>' .. self.queried_user.username ..
                 '</strong> has been verified.</p>' ..
                 '<p>Thank you!</p>' ..
                 '<p><a href="https://snap.berkeley.edu/">' ..
@@ -443,9 +438,9 @@ app:match('verify_user', '/verify_me/:token', function (self)
 
         -- Check whether user had already been verified and, if so, delete the
         -- token
-        if user.verified then
+        if self.queried_user.verified then
             token:delete()
-            return user_page(user)
+            return user_page(self.queried_user)
         else
             return check_token(
                 self,
@@ -453,7 +448,7 @@ app:match('verify_user', '/verify_me/:token', function (self)
                 'verify_user',
                 function ()
                     -- success callback
-                    user:update({ verified = true })
+                    self.queried_user:update({ verified = true })
                     self.session.verified = true
                     return user_page()
                 end

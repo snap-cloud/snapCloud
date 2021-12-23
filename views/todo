@@ -5,7 +5,6 @@ TODO
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [ ] remake API for Snap! editor
-[ ] use queried_user where using User:find({ username = self.params.username})
 [ ] collection
     [ ] edit description
     [ ] edit name
