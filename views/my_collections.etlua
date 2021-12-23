@@ -12,7 +12,8 @@ render(
             with_search = true,
             show_if_empty = true,
             show_author = false,
-            show_icons = true
+            show_icons = true,
+            show_author = true
         }
     }
 )

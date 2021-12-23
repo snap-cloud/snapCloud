@@ -1,0 +1,7 @@
+<div class="buttons">
+    <a localizable class="pure-button share" target="_blank">Share</a>
+    <a localizable class="pure-button unshare" target="_blank">Unshare</a>
+    <a localizable class="pure-button publish" target="_blank">Publish</a>
+    <a localizable class="pure-button unpublish" target="_blank">Unpublish</a>
+    <a localizable class="pure-button pure-button-warning delete" target="_blank">Delete</a>
+</div>
