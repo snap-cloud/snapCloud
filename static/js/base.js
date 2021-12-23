@@ -144,37 +144,3 @@ Array.prototype.sortBy = function (parameter, reverse) {
     );
 };
 
-// CustomAlert helpers
-
-function confirmTitle (title) {
-    // there's a bug in customalert.js preventing us from
-    // using a custom title unless we also specify text for
-    // the ok and cancel buttons
-    return {
-        title: localizer.localize(title),
-        done: localizer.localize('Ok'),
-        cancel: localizer.localize('Cancel')
-    };
-};
-
-function confirmAction(text, controller, selector, params) {
-    confirm(
-        text,
-        ok => { if (ok) { run_selector(controller, selector, params); }}
-    );
-};
-
-function confirmComponentAction(text, componentId, controller, selector, params) {
-    confirm(
-        text,
-        ok => {
-            if (ok) {
-                window['update_' + componentId](
-                    controller,
-                    selector,
-                    params
-                );
-            }
-        }
-    );
-};
