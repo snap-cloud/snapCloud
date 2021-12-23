@@ -41,21 +41,40 @@
                         'user',
                         'become',
                         { username: '<%= item.username %>'}
-                    );">Become</a>
-            <a class="pure-button changeemail">Change Email</a>
+                    );"
+                >Become</a>
+            <a class="pure-button changeemail"
+                onclick="
+                    prompt(
+                        'New email?',
+                        email => {
+                            run_selector(
+                                'user',
+                                'change_email',
+                                {
+                                    email: email, 
+                                    username: '<%= item.username %>'
+                                }
+                            );
+                        },
+                    nop
+                    );
+                ">Change Email</a>
             <a class="pure-button sendamessage">Send a message</a>
-            <a class="pure-button ban pure-button-warning" onclick="
-                run_selector(
-                    'user',
-                    'set_role',
-                    {
-                        username: '<%= item.username %>',
-                        role: <%-
-                            item.role == 'banned'
-                                and "'standard'"
-                                or "'banned'" %>
-                    }
-               );"><%= item.role == 'banned' and 'Unban' or 'Ban' %></a>
+            <a class="pure-button ban pure-button-warning"
+                onclick="
+                    run_selector(
+                        'user',
+                        'set_role',
+                        {
+                            username: '<%= item.username %>',
+                            role: <%-
+                                item.role == 'banned'
+                                    and "'standard'"
+                                    or "'banned'" %>
+                        }
+                    );"
+                ><%= item.role == 'banned' and 'Unban' or 'Ban' %></a>
 
             <a class="pure-button delete pure-button-warning">Delete</a>
         </div>

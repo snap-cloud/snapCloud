@@ -184,16 +184,29 @@ UserController = {
     end,
     change_email = function (self)
         assert_logged_in(self)
-        if (self.current_user.password ~=
-            hash_password(self.params.password, self.current_user.salt))
-                then
+
+        local user =
+            self.params.username and 
+                Users:find({ username = self.params.username }) or
+                self.current_user
+
+        if self.params.username then
+            -- we're trying to change someone else's email
+            assert_min_role(self, 'moderator')
+        elseif (user.password ~=
+                hash_password(self.params.password, user.salt)) then
             yield_error(err.wrong_password)
         end
-        self.current_user:update({ email = self.params.email })
+
+        user:update({ email = self.params.email })
+
         return jsonResponse({
             title = 'Email changed',
-            message = 'Your email has been updated.',
-            redirect = self:build_url('profile')
+            message = 'Email has been updated.',
+            redirect =
+                self.params.username and
+                    user:url_for('site') or
+                    self:build_url('profile')
         })
     end,
     change_password = function (self)
