@@ -20,11 +20,11 @@ TODO
 [ ] zombie_admin
 [ ] profile partial
     [x] become
+    [x] role selector
     [ ] change email
     [ ] send a message
     [ ] ban
     [ ] delete
-    [ ] role selector
 
 TODO AFTER DEPLOYING
 ====================

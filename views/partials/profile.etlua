@@ -19,7 +19,13 @@
         <span><strong>Joined in </strong><%=
             string.from_sql_date(item.created) %></span>
         <span>
-            <strong>Role</strong>:<select>
+            <strong>Role</strong>:
+            <select onchange="
+                run_selector(
+                    'user',
+                    'set_role',
+                    { username: '<%= item.username %>', role: this.value }
+                );">
                 <% for role, _ in pairs(package.loaded.Users.roles) do %>
                 <option value="<%= role %>"
                     <%- role == item.role and 'selected' or '' %>>
@@ -35,16 +41,11 @@
                         'user',
                         'become',
                         { username: '<%= item.username %>'}
-                    )">Become</a>
+                    );">Become</a>
             <a class="pure-button changeemail">Change Email</a>
             <a class="pure-button sendamessage">Send a message</a>
             <a class="pure-button ban pure-button-warning">Ban</a>
             <a class="pure-button delete pure-button-warning">Delete</a>
         </div>
     </div>
-    <script>
-        function become (username) {
-            run_selector('user', 'become', { username: username });
-        };
-    </script>
 </div>

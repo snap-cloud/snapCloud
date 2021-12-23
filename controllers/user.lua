@@ -351,6 +351,18 @@ UserController = {
             })
         end
     end,
+    set_role = function (self)
+        assert_min_role(self, 'moderator')
+        local user = Users:find({ username = self.params.username })
+        if user then
+            assert_can_set_role(self, self.params.role)
+            user:update({ role = self.params.role })
+        end
+        return jsonResponse({
+            message = 'User ' .. user.username .. ' is now ' .. user.role,
+            title = 'Role set'
+        })
+    end
 }
 
 -- TODO move those to a separate module?
