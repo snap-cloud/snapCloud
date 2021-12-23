@@ -70,17 +70,17 @@ if items == nil then items = {} end
         <%
         if data.with_search then
             render(
-                'views.partials.grid-search',
+                'views.partials.grid_search',
                 { component = component, data = data }
             )
         end
         if data.filter_descriptors then
             render(
-                'views.partials.grid-filters',
+                'views.partials.grid_filters',
                 { component = component, data = data }
             )
         end
-        render('views.partials.grid-paginator',
+        render('views.partials.grid_paginator',
             { component = component, data = data }
         )
         %>

@@ -1,1 +1,0 @@
-<iframe allow="geolocation; microphone; camera" sandbox="allow-scripts allow-same-origin" src="<%= project.url-for-viewer %>" height="406"></iframe>

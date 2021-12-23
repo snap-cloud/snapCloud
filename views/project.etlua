@@ -48,7 +48,7 @@
                 'views.component',
                 {
                     component = {
-                        template = 'partials.project-buttons',
+                        template = 'partials.project_buttons',
                         controller = 'project',
                     },
                     data = { project = project }
@@ -64,7 +64,7 @@
             'views.component',
             {
                 component = {
-                    template = 'partials.project-details',
+                    template = 'partials.project_details',
                     controller = 'project',
                     class = 'details pure-u-11-24'
                 },
