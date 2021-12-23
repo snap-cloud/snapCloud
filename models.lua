@@ -111,7 +111,8 @@ package.loaded.Users.roles = {
     admin = 4,
     moderator = 3,
     reviewer = 2,
-    standard = 1
+    standard = 1,
+    banned = 0
 }
 
 package.loaded.DeletedUsers = Model:extend('deleted_users')

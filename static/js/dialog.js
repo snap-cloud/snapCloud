@@ -50,7 +50,7 @@ window.prompt = function (title, onSuccess, onCancel) {
             : document.querySelector('#customalert');
 
     // Kind of a hack to have Enter trigger the onSuccess action and close the dialog
-    input.addEventListener('keyup', function(event) {
+    input.addEventListener('keypress', function(event) {
         if (event.keyCode === 13) {
             dialogBox.style.display = null;
             document.querySelector('#customalert-overlay').style.display = null;
@@ -65,6 +65,7 @@ window.prompt = function (title, onSuccess, onCancel) {
         function () { onSuccess.call(this, input.value); },
         onCancel
     );
+
     input.focus();
 };
 

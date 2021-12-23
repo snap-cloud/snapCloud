@@ -20,11 +20,12 @@
             string.from_sql_date(item.created) %></span>
         <span>
             <strong>Role</strong>:<select>
-                <option value="<%= item.role %>"><%= item.role %></option>
-                <option value="reviewer">reviewer</option>
-                <option value="moderator">moderator</option>
-                <option value="admin">admin</option>
-                <option value="banned" disabled="">banned</option>
+                <% for role, _ in pairs(package.loaded.Users.roles) do %>
+                <option value="<%= role %>"
+                    <%- role == item.role and 'selected' or '' %>>
+                    <%= role %>
+                </option>
+                <% end %>
             </select>
         </span>
         <div class="buttons">
