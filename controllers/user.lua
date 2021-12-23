@@ -68,7 +68,7 @@ UserController = {
         elseif self.params.offset == 'last' then
             self.params.data.page_number = self.params.data.num_pages
         else
-            self.params.data.page_number = 
+            self.params.data.page_number =
                 math.min(
                     math.max(
                         1,
@@ -113,7 +113,7 @@ UserController = {
 
         -- mark the selected value so the frontend will update the view
         for _, descriptor in pairs(self.params.data.filter_descriptors) do
-            if (descriptor.selector == self.params.filter) then 
+            if (descriptor.selector == self.params.filter) then
                 for _, option in pairs(descriptor.options) do
                     if (option.value == self.params.value) then
                         option.selected = true
@@ -213,8 +213,8 @@ UserController = {
                 then
             yield_error(err.wrong_password)
         end
-        self.current_user:update({ 
-            password = 
+        self.current_user:update({
+            password =
                 hash_password(self.params.new_password, self.current_user.salt)
         })
         return jsonResponse({
@@ -237,7 +237,7 @@ UserController = {
         create_token(self, 'password_reset', self.queried_user)
         return jsonResponse({
             title = 'Password reset',
-            message = 'A link to reset your password has been sent to ' .. 
+            message = 'A link to reset your password has been sent to ' ..
             'your email account.',
             redirect = self:build_url('index')
         })
@@ -374,7 +374,7 @@ UserController = {
         end
         return jsonResponse({
             message =
-                'User ' .. self-queried_user.username .. 
+                'User ' .. self.queried_user.username ..
                 ' is now ' .. self.queried_user.role,
             title = 'Role set',
             redirect = self.queried_user:url_for('site')

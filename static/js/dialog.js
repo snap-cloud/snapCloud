@@ -106,13 +106,27 @@ function confirmComponentAction(text, componentId, controller, selector, params)
 
 // Additions
 
-document.onkeypress = function (event) {
+document.onkeyup = function (event) {
+    var alert_dialog = document.querySelector('#customalert'),
+        confirm_dialog = document.querySelector('#customconfirm'),
+        dialog;
+
+    if (alert_dialog &&
+            (alert_dialog.style.display == 'block')) {
+        dialog = alert_dialog;
+    } else if (confirm_dialog &&
+            (confirm_dialog.style.display == 'block')) {
+        dialog = confirm_dialog;
+    }
+
     if (event.keyCode == 13) {
-        if (customalert.done) {
-            customalert.done();
-        } else if (customconfirm.done &&
-                (customconfirm.style.display == 'block')) {
-            customconfirm.done();
-        }
+        // enter accepts
+        dialog.querySelector('.button-done').click();
+    } if (event.keyCode == 27) {
+        // esc cancels
+        // on inform dialogs, we don't have a cancel button
+        var button = dialog.querySelector('.button-cancel') ||
+                dialog.querySelector('.button-done');
+        button.click();
     }
 };
