@@ -265,10 +265,15 @@ assert_can_share = function (self, item)
     end
 end
 
-assert_can_delete = function (self, project)
-    if not project then yield_error(err.nonexistent_project) end
-    if (project.username ~= self.current_user.username) then
-        assert_min_role(self, 'moderator')
+assert_can_delete = function (self, item)
+    if item.type == 'project' then
+        if (item.username ~= self.current_user.username) then
+            assert_min_role(self, 'moderator')
+        end
+    elseif item.type == 'collection' then
+        if (item.creator_id ~= self.current_user.id) then
+            assert_min_role(self, 'moderator')
+        end
     end
 end
 

@@ -227,4 +227,17 @@ CollectionController = {
         self.collection = collection
         self.data = self.params.data
     end,
+    delete = function (self)
+        local collection =
+            Collections:find({ id = self.params.collection.id })
+        local name = collection.name
+        assert_can_delete(self, collection)
+        db.delete('collection_memberships', { collection_id = collection.id })
+        db.delete('collections', { id = collection.id })
+        return jsonResponse({
+            message = 'Collection <em>' .. name .. '</em> has been removed.',
+            title = 'Collection removed',
+            redirect = self:build_url('my_collections')
+        })
+    end,
 }

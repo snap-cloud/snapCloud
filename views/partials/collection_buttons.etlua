@@ -1,23 +1,32 @@
 <div class="buttons">
     <% if data.collection.published then %>
-    <a class="pure-button unpublish" target="_blank"
+    <a class="pure-button unpublish"
         onclick="confirmButtonAction('unpublish', '<%= data %>')">Unpublish</a>
-    <a class="pure-button unshare" target="_blank"
+    <a class="pure-button unshare"
         onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
     <% elseif data.collection.shared then %>
-    <a class="pure-button publish" target="_blank"
+    <a class="pure-button publish"
         onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
-    <a class="pure-button unshare" target="_blank"
+    <a class="pure-button unshare"
         onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
     <% else %>
-    <a class="pure-button share" target="_blank"
+    <a class="pure-button share"
         onclick="confirmButtonAction('share', '<%= data %>')">Share</a>
-    <a class="pure-button publish" target="_blank"
+    <a class="pure-button publish"
         onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
     <% end %>
 
     <% if current_user:isadmin() then %>
-    <a class="pure-button pure-button-warning delete" >Delete</a>
+    <a class="pure-button pure-button-warning delete" onclick="
+        confirmAction(
+            '<%= package.loaded.dialog(
+                'confirm_delete',
+                { item_name = 'collection'}) %>',
+            'collection',
+            'delete',
+            { collection: { id: <%- collection.id %> }}
+        )"
+    >Delete</a>
     <% end %>
 </div>
 <script>

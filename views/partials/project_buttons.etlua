@@ -80,7 +80,9 @@
         <script>
         function confirmDelete () {
             confirmAction(
-                '<%- package.loaded.dialog('delete-project') %>',
+                '<%- package.loaded.dialog(
+                    'confirm_delete',
+                    { item_name = 'project'}) %>',
                 'project',
                 'delete',
                 { project: { id: <%= project.id %> } }
@@ -102,12 +104,12 @@
         <a localizable="" class="clickable warning flag" target="_blank"
             onclick="
                 confirm(
-                    '<%- package.loaded.dialog('flag-prewarning') %>',
+                    '<%- package.loaded.dialog('flag_prewarning') %>',
                     ok => {
                         if (ok) {
                             dialog(
                                 'Please choose a reason',
-                                '<%- package.loaded.dialog('flag_reason') %>',
+                                '<%= package.loaded.dialog('flag_reason') %>',
                                 () => {
                                     var form =
                                         document.querySelector('form.reasons');

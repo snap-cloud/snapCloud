@@ -5,7 +5,12 @@ TODO
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [ ] remake API for Snap! editor
-[ ] collection
+[-] collection buttons
+    [x] share / unshare
+    [x] publish / unpublish
+    [x] delete
+    [ ] update collection_info component when this one updates
+[ ] collection info
     [ ] edit description
     [ ] edit name
     [ ] select thumbnail
@@ -14,10 +19,6 @@ TODO
     [ ] add editor
     [ ] mark as free-for-all
     [ ] remove myself
-    [x] share / unshare
-    [x] publish / unpublish
-    [ ] delete
-    [ ] update collection_info component when collection_button updates
 [ ] zombie_admin
 
 TODO AFTER DEPLOYING
