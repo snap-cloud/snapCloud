@@ -17,6 +17,15 @@
             if (req.readyState == 4 && req.status == 200) {
                 document.querySelector('#<%= component.id %>').innerHTML =
                     req.responseText;
+                <%
+                    if component.updates then
+                        for _, dependant in pairs(component.updates) do
+                %>
+                    update_<%= dependant.id %>(controller, 'changed', params);
+                <%
+                        end
+                    end
+                %>
             } else if (req.readyState == 4) {
                 // handle the error
                 try {

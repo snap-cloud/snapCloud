@@ -1,0 +1,20 @@
+    <p class="created">
+        <strong>Created:</strong>
+        <span><%= string.from_sql_date(data.collection.created_at) %></span>
+    </p>
+    <p class="updated">
+        <strong>Last updated:</strong>
+        <span><%= string.from_sql_date(data.collection.updated_at) %></span>
+    </p>
+<% if data.collection.shared then %>
+    <p class="shared">
+        <strong>Shared:</strong>
+        <span><%= string.from_sql_date(data.collection.shared_at) %></span>
+    </p>
+<% end %>
+<% if data.collection.published then %>
+    <p class="published">
+        <strong>Published:</strong>
+        <span><%= string.from_sql_date(data.collection.published_at) %></span>
+    </p>
+<% end %>

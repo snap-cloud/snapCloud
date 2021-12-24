@@ -80,6 +80,16 @@ CollectionController = {
                 WHERE published]]
         )
     end,
+    changed = function (self)
+        -- A component knows that this collection changed, and thus needs to be
+        -- re-rendered. We just re-fetch it from the DB so that the data param
+        -- is up to date when re-rendering the component
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
+    end,
     search = function (self)
         self.params.data.page_number = 1
         self.params.data.search_term = self.params.search_term
@@ -229,7 +239,7 @@ CollectionController = {
     end,
     delete = function (self)
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.data.collection.id })
         local name = collection.name
         assert_can_delete(self, collection)
         db.delete('collection_memberships', { collection_id = collection.id })

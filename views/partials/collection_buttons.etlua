@@ -1,19 +1,25 @@
 <div class="buttons">
     <% if data.collection.published then %>
     <a class="pure-button unpublish"
-        onclick="confirmButtonAction('unpublish', '<%= data %>')">Unpublish</a>
+        onclick="confirmButtonAction('unpublish')"
+        >Unpublish</a>
     <a class="pure-button unshare"
-        onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
-    <% elseif data.collection.shared then %>
+        onclick="confirmButtonAction('unshare')"
+        >Unshare</a>
+    <% elseif collection.shared then %>
     <a class="pure-button publish"
-        onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
+        onclick="confirmButtonAction('publish')"
+        >Publish</a>
     <a class="pure-button unshare"
-        onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
+        onclick="confirmButtonAction('unshare')"
+        >Unshare</a>
     <% else %>
     <a class="pure-button share"
-        onclick="confirmButtonAction('share', '<%= data %>')">Share</a>
+        onclick="confirmButtonAction('share')"
+        >Share</a>
     <a class="pure-button publish"
-        onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
+        onclick="confirmButtonAction('publish')"
+        >Publish</a>
     <% end %>
 
     <% if current_user:isadmin() then %>
@@ -24,19 +30,19 @@
                 { item_name = 'collection'}) %>',
             'collection',
             'delete',
-            { collection: { id: <%- collection.id %> }}
+            { data: <%- data %> }
         )"
     >Delete</a>
     <% end %>
 </div>
 <script>
-    function confirmButtonAction (action, data) {
+    function confirmButtonAction (action) {
         confirmComponentAction(
             'Are you sure you want to ' + action + ' this collection?',
             '<%= component.id %>',
             'collection',
             action,
-            { data: data }
+            { data: <%- data %> }
         );
     };
 </script>

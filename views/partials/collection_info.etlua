@@ -10,28 +10,23 @@
         >
     </div>
 
-    <div class="pure-u-1-2 dates">
-        <p class="created">
-            <strong>Created:</strong>
-            <span><%= string.from_sql_date(collection.created_at) %></span>
-        </p>
-        <p class="updated">
-            <strong>Last updated:</strong>
-            <span><%= string.from_sql_date(collection.updated_at) %></span>
-        </p>
-    <% if collection.shared then %>
-        <p class="shared">
-            <strong>Shared:</strong>
-            <span><%= string.from_sql_date(collection.shared_at) %></span>
-        </p>
-    <% end %>
-    <% if collection.published then %>
-        <p class="published">
-            <strong>Published:</strong>
-            <span><%= string.from_sql_date(collection.published_at) %></span>
-        </p>
-    <% end %>
-    </div>
+<%
+    -- collection dates are an AJAX-updateable component
+    dates_component = {
+        template = 'partials.collection_dates',
+        controller = 'collection',
+        class = 'dates pure-u-1-2'
+    }
+    render(
+        'views.component',
+        {
+            component = dates_component,
+            data = { collection = collection }
+        }
+    )
+
+%>
+
 </div>
 
 <pre class="description"><%= collection.description or '' %></pre>
@@ -50,19 +45,19 @@
      )
 
     -- collection buttons are an AJAX-updateable component
-
     if current_user and
             ((collection.creator == current_user) or
             current_user:has_min_role('reviewer')) then
-        render(
+         render(
             'views.component',
             {
                 component = {
                     template = 'partials.collection_buttons',
                     controller = 'collection',
+                    updates = { dates_component }
                 },
                 data = { collection = collection }
             }
-        )
+         )
     end
 %>

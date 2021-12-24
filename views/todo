@@ -5,11 +5,11 @@ TODO
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [ ] remake API for Snap! editor
-[-] collection buttons
+[x] collection buttons
     [x] share / unshare
     [x] publish / unpublish
     [x] delete
-    [ ] update collection_info component when this one updates
+    [x] update collection_info component when this one updates
 [ ] collection info
     [ ] edit description
     [ ] edit name
