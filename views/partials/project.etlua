@@ -25,8 +25,22 @@
 
 <% if show_collection_controls then %>
     <div class="collection-controls">
-        <a title="Remove from collection" class="clickable remove" onclick="<%= run %>('remove_from_collection', [<%=item.id%>])"><i class="fas fa-times-circle"></i></a>
-        <a title="Set as collection thumbnail" class="clickable thumbnail"><i class="fas fa-image"></i></a>
+        <a title="Remove from collection" class="clickable remove" onclick="
+            confirmComponentAction(
+                'Are you sure you want to remove this project<br>' +
+                    'from this collection?',
+                '<%- component.id %>',
+                'collection',
+                'remove_project',
+                {
+                    data: <%= data %>,
+                    project: { id: <%= item.id %> }
+                }
+            )    ;
+        "><i class="fas fa-times-circle"></i></a>
+        <a title="Set as collection thumbnail" class="clickable thumbnail"
+            onclick="
+        "><i class="fas fa-image"></i></a>
     </div>
 <% end %>
 </div>

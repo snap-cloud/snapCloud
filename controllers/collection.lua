@@ -153,7 +153,7 @@ CollectionController = {
         )
     end,
     new = function (self)
-        assert_can_create_colletion(self)
+        assert_can_create_collection(self)
         local collection =
             Collections:find(self.current_user.id, self.params.name)
         if not collection then
@@ -169,6 +169,7 @@ CollectionController = {
         local collection = Collections:find({ id = self.params.collection.id })
         local project = Projects:find({ id = self.params.project.id })
         assert_can_add_project_to_collection(self, project, collection)
+        assert_project_not_in_collection(self, project, collection)
 
         if not collection.thumbnail_id then
             collection:update({
@@ -183,6 +184,25 @@ CollectionController = {
         })
 
         return project:url_for('site')
+    end,
+    remove_project = function (self)
+        local collection =
+            Collections:find({ id = self.params.data.collection_id })
+
+        -- For now, only creators can add projects to collections. Should
+        -- editors also be able to?
+        if collection.creator_id ~= self.current_user.id then
+            assert_min_role(self, 'moderator')
+        end
+
+        db.delete(
+            'collection_memberships',
+            {
+                collection_id = collection.id,
+                project_id = self.params.project.id
+            })
+
+        CollectionController[self.component.fetch_selector](self)
     end,
     share = function (self)
         local collection =

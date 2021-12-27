@@ -413,16 +413,6 @@ assert_can_add_project_to_collection = function (self, project, collection)
     yield_error(err.nonexistent_project)
 end
 
-assert_can_remove_project_from_collection =
-    function (self, collection, project)
-        -- Admins can remove any project from any collection.
-        if self.current_user:isadmin() then return end
-        if not (can_edit_collection(self, collection) or
-                project.username == self.current_user.username) then
-            yield_error(err.auth)
-        end
-end
-
 assert_project_not_in_collection = function (self, project, collection)
     -- We can't add a project twice to a collection
     if CollectionMemberships:find(collection.id, project.id) then
@@ -430,7 +420,7 @@ assert_project_not_in_collection = function (self, project, collection)
     end
 end
 
-assert_can_create_colletion = function (self)
+assert_can_create_collection = function (self)
     -- Spammer guard.
     -- Non-validated users and users without at least a project can't create
     -- collections.

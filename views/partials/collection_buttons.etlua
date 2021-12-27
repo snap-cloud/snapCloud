@@ -31,8 +31,8 @@
             'collection',
             'delete',
             { data: <%= data %> }
-        )"
-    >Delete</a>
+        );
+    ">Delete</a>
     <% end %>
 </div>
 <script>

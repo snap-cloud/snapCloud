@@ -87,7 +87,6 @@ if items == nil then items = {} end
 
 
     </div>
-
     <% if (data.num_pages > 0) then %>
     <div class="<%= data.class %> list pure-g">
         <% for _, item in pairs(items) do %>
@@ -100,7 +99,9 @@ if items == nil then items = {} end
                         show_author = data.show_author,
                         show_icons = data.show_icons,
                         show_collection_controls =
-                            data.show_collection_controls
+                            data.show_collection_controls,
+                        collection_id = (data.show_collection_controls and
+                            data.collection_id or -1)
                     }
                 )
             %>
