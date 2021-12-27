@@ -41,7 +41,7 @@ local selectors = {
     'create_token', 'can_edit_collection', 'assert_collection_exists',
     'assert_can_view_collection', 'assert_can_add_project_to_collection',
     'assert_can_remove_project_from_collection',
-    'assert_project_not_in_collection', 'assert_can_create_colletion',
+    'assert_project_not_in_collection', 'assert_can_create_collection',
     'course_name_filter', 'hash_password', 'create_signature', 'find_token',
     'rate_limit', 'prevent_tor_access', 'assert_min_role', 'assert_can_share',
     'assert_can_delete', 'is_editor', 'old_tostring', 'debug_print'
