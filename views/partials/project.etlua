@@ -43,7 +43,7 @@
             confirmComponentAction(
                 'Are you sure you want to remove this project<br>' +
                     'from this collection?',
-                '<%- component.id %>',
+                '<%= component.id %>',
                 'collection',
                 'remove_project',
                 {

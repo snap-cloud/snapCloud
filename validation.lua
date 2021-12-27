@@ -427,7 +427,7 @@ assert_can_create_collection = function (self)
     if not self.current_user.verified then
         yield_error(err.nonvalidated_user)
     end
-    project_count =
+    local project_count =
         Projects:select(
             'where username = ?',
             self.current_user.username,
