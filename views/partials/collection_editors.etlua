@@ -20,7 +20,23 @@ end
             this.nextElementSibling.focus();"
         class="clickable add-editor"><i class="fas fa-plus-circle"></i>
     </a>
-    <input hidden class="new-editor"></input>
+    <input hidden class="new-editor" onchange="
+        addEditor(this.value);
+        this.value = '';
+        flash(this, () => { this.hidden = true });
+    "></input>
+    <script>
+        addEditor = function (username) {
+            update_<%=component.id%>(
+                'collection',
+                'add_editor',
+                {
+                    editor: { username: username },
+                    data: <%- data %>
+                }
+            );
+        }
+    </script>
 <% end %>
 <%
 if current_user and current_user:has_min_role('moderator') and

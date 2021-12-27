@@ -134,6 +134,14 @@ function enableEnterSubmit () {
     );
 };
 
+function flash (element, callback) {
+    element.classList.add('flash');
+    setTimeout(() => {
+        element.classList.remove('flash');
+        if (callback) { callback.call(element); }
+    }, 500);
+};
+
 // JS additions
 
 Array.prototype.sortBy = function (parameter, reverse) {

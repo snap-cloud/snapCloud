@@ -27,6 +27,7 @@ local Users = package.loaded.Users
 local db = package.loaded.db
 local disk = package.loaded.disk
 local assert_error = package.loaded.app_helpers.assert_error
+local yield_error = package.loaded.yield_error
 
 CollectionController = {
     run_query = function (self, query)
@@ -294,8 +295,9 @@ CollectionController = {
         collection:update({ free_for_all = true })
         if collection.editor_ids then
             collection.editors = Users:find_all(
-            collection.editor_ids,
-            { fields = 'username, id' })
+                collection.editor_ids,
+                { fields = 'username, id' }
+            )
         end
         collection.creator = Users:find({ id = collection.creator_id })
         self.params.data.collection = collection
@@ -343,5 +345,34 @@ CollectionController = {
             title = 'Unenrolled',
             redirect = self:build_url('my_collections')
         })
+    end,
+    add_editor = function (self)
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        if collection.creator_id ~= self.current_user.id then
+            assert_admin(self)
+        end
+
+        local editor = Users:find(
+            { username = self.params.editor.username })
+        if not editor then yield_error(err.nonexistent_user) end
+
+        collection:update({
+            editor_ids =
+                db.raw(db.interpolate_query(
+                    'array_append(editor_ids, ?)',
+                    editor.id))
+        })
+
+        -- just so the component has all the necessary data
+        collection.creator = Users:find({ id = collection.creator_id })
+        collection.editors = Users:find_all(
+            collection.editor_ids,
+            { fields = 'username, id' }
+        )
+
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
     end,
 }

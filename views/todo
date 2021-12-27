@@ -17,7 +17,7 @@ TODO
     [ ] edit name
 [ ] collection editors
     [ ] remove editor
-    [ ] add editor
+    [x] add editor
 [-] collection project controls
     [x] select thumbnail
     [x] remove project
