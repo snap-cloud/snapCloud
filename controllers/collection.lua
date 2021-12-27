@@ -375,4 +375,31 @@ CollectionController = {
         self.collection = collection
         self.data = self.params.data
     end,
+    remove_editor = function (self)
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        if collection.creator_id == self.current_user.id or
+                is_editor(self, collection) or
+                current_user:isadmin() then
+            collection:update({
+                editor_ids =
+                    db.raw(db.interpolate_query(
+                        'array_remove(editor_ids, ?)',
+                        self.params.editor.id))
+            }) 
+        else
+            yield_error(err.auth)
+        end
+
+        -- just so the component has all the necessary data
+        collection.creator = Users:find({ id = collection.creator_id })
+        collection.editors = Users:find_all(
+            collection.editor_ids,
+            { fields = 'username, id' }
+        )
+
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
+    end,
 }

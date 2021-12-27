@@ -7,6 +7,10 @@ if collection.editor_ids then
         <a href="<%= editor:url_for('site') %>">
             <strong><%= editor.username %></strong>
         </a>
+        <a class="remove clickable" onclick="
+            removeEditor('<%= editor.id %>');
+            flash(this.parentElement, () => { this.hidden = true }, true); // warning flash
+        "><i class="fas fa-times-circle"></i></a>
     </li>
 <%
     end
@@ -20,7 +24,7 @@ end
             this.nextElementSibling.focus();"
         class="clickable add-editor"><i class="fas fa-plus-circle"></i>
     </a>
-    <input hidden class="new-editor" onchange="
+    <input placeholder='username' hidden class="new-editor" onchange="
         addEditor(this.value);
         this.value = '';
         flash(this, () => { this.hidden = true });
@@ -35,7 +39,17 @@ end
                     data: <%- data %>
                 }
             );
-        }
+        };
+        removeEditor = function (id) {
+            update_<%=component.id%>(
+                'collection',
+                'remove_editor',
+                {
+                    editor: { id: id },
+                    data: <%- data %>
+                }
+            );
+        };
     </script>
 <% end %>
 <%

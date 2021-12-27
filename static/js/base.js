@@ -134,10 +134,10 @@ function enableEnterSubmit () {
     );
 };
 
-function flash (element, callback) {
-    element.classList.add('flash');
+function flash (element, callback, warning) {
+    element.classList.add(warning ? 'warning-flash' : 'flash');
     setTimeout(() => {
-        element.classList.remove('flash');
+        element.classList.remove(warning ? 'warning-flash' : 'flash');
         if (callback) { callback.call(element); }
     }, 500);
 };
