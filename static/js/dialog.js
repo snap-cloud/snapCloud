@@ -119,14 +119,16 @@ document.onkeyup = function (event) {
         dialog = confirm_dialog;
     }
 
-    if (event.keyCode == 13) {
-        // enter accepts
-        dialog.querySelector('.button-done').click();
-    } if (event.keyCode == 27) {
-        // esc cancels
-        // on inform dialogs, we don't have a cancel button
-        var button = dialog.querySelector('.button-cancel') ||
+    if (dialog) {
+        if (event.keyCode == 13) {
+            // enter accepts
+            dialog.querySelector('.button-done').click();
+        } if (event.keyCode == 27) {
+            // esc cancels
+            // on inform dialogs, we don't have a cancel button
+            var button = dialog.querySelector('.button-cancel') ||
                 dialog.querySelector('.button-done');
-        button.click();
+            button.click();
+        }
     }
 };

@@ -46,7 +46,7 @@
 
     -- collection buttons are an AJAX-updateable component
     if current_user and
-            ((collection.creator == current_user) or
+            ((collection.creator_id == current_user.id) or
             current_user:has_min_role('reviewer')) then
          render(
             'views.component',

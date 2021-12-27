@@ -22,7 +22,7 @@
         >Publish</a>
     <% end %>
 
-    <% if current_user:isadmin() then --or owns collection!%>
+    <% if current_user:isadmin() or (current_user.id == collection.creator_id) then %>
     <a class="pure-button pure-button-warning delete" onclick="
         confirmAction(
             '<%= package.loaded.dialog(
@@ -30,7 +30,7 @@
                 { item_name = 'collection'}) %>',
             'collection',
             'delete',
-            { data: <%- data %> }
+            { data: <%= data %> }
         )"
     >Delete</a>
     <% end %>
