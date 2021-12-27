@@ -5,11 +5,10 @@ TODO
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [ ] remake API for Snap! editor
-[x] collection buttons
-    [x] share / unshare
-    [x] publish / unpublish
-    [x] delete
-    [x] update collection_info component when this one updates
+[ ] IMPORTANT! Make sure _ONLY_ the necessary data is pulled from the DB and
+    stored into the component data. As it is, pulling a collection also pulls
+    its creator, and along with the creator we get their (hashed, but still...)
+    password, email, etc. Inspecting the page source would reveal all this info.
 [ ] collection info
     [ ] edit description
     [ ] edit name

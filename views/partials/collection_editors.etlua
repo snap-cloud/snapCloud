@@ -26,9 +26,10 @@ end
 if current_user and current_user:isadmin() and data.collection.published then
     if not(data.collection.free_for_all) then
 %>
-    <a class="pure-button ffa" target="_blank">Mark as free-for-all</a>
+    <a class="pure-button ffa" onclick="
+    ">Mark as free-for-all</a>
 <%  else %>
-    <a class="pure-button un-ffa" target="_blank">Unmark as free-for-all</a>
+    <a class="pure-button un-ffa">Unmark as free-for-all</a>
 <%
     end
 end
@@ -39,8 +40,7 @@ end
         for _, id in pairs(data.collection.editor_ids) do
             if id == current_user.id then
 %>
-    <a class="pure-button pure-button-warning unenroll"
-        target="_blank">Remove myself</a>
+    <a class="pure-button pure-button-warning unenroll">Remove myself</a>
 <%
                 break
             end
