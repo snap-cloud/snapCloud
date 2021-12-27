@@ -228,7 +228,6 @@ app:post(
         local body_data = ngx.req.get_body_data()
 
         if (body_data and type(body_data) == 'string') then
-            debug_print('data', body_data)
             self.params.data = package.loaded.util.from_json(body_data)
         end
 

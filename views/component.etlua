@@ -7,7 +7,7 @@
         var req = new XMLHttpRequest(),
             data = typeof(params.data) == 'object' ?
                     JSON.stringify(params.data) :
-                    params.data ;
+                    params.data;
         if (params.data) { delete(params.data); }
         req.open(
             'POST',

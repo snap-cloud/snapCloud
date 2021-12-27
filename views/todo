@@ -13,7 +13,6 @@ TODO
 [ ] collection
     [ ] JSON encoding bug making "Featured" collection fail because of unencoded
         double quotes in description.
-    [ ] setting thumbnail destroys collection rendering for some obscure reason
 [-] collection info
     [x] mark as free-for-all
     [x] remove myself

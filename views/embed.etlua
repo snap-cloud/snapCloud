@@ -25,7 +25,7 @@
                 aria-hidden="true"></i>
             <div class="controlbar">
         <% if params.showTitle then %>
-                <span class="title"><%= project.projectname %><% if params.showAuthor then %><span class="author"> by <a href="<%= project:url_for('author') %>" target=""><strong><%- project.username %></strong></a></span><% end %></span>
+                <span class="title"><%= project.projectname %><% if params.showAuthor then %><span class="author"> by <a href="<%= project:url_for('author') %>" target=""><strong><%= project.username %></strong></a></span><% end %></span>
         <% end %>
                 <i class="start-button fas fa-flag clickable"
                     onclick="runProject(event);"></i>

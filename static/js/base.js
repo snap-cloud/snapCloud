@@ -8,7 +8,11 @@ var snapURL = location.origin + '/snap/snap.html',
         { done: { text: 'Ok', default: true }, cancel: { text: 'Cancel' } };
 
 function run_selector (controller, selector, params) {
-    var req = new XMLHttpRequest();
+    var req = new XMLHttpRequest(),
+        data = typeof(params.data) == 'object' ?
+                JSON.stringify(params.data) :
+                params.data;
+    if (params.data) { delete(params.data); }
     req.open(
         'POST',
         '/call_lua/' + controller + '/' + selector + encodeParams(params),
@@ -46,7 +50,7 @@ function run_selector (controller, selector, params) {
             );
         }
     };
-    req.send();
+    req.send(data);
 };
 
 function encodeParams (params) {

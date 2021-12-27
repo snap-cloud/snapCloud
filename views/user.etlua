@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/static/style/admin.css">
 <% end %>
 
-<h1><%- username%>'s public page</h1>
+<h1><%= username%>'s public page</h1>
 
 <%
 -- PUBLIC PROJECTS

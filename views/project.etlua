@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="/static/style/project.css">
 <div class="project big">
     <div class="title">
-        <h1><%- project.projectname %></h1>
+        <h1><%= project.projectname %></h1>
 
         <% if remixed_from then %>
         <span class="remixed-from">(remixed from <span class="project-link"><a
@@ -15,7 +15,7 @@
         <% end %>
 
     <span class="author"> by <a href="<%= project:url_for('author') %>"
-        target=""><strong><%- project.username %></strong></a></span></div>
+        target=""><strong><%= project.username %></strong></a></span></div>
     <div class="viewer pure-g">
         <!-- Project viewer -->
         <div class="embed pure-u-1-2">

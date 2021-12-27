@@ -42,7 +42,7 @@
             '<%= component.id %>',
             'collection',
             action,
-            { data: <%- data %> }
+            { data: '<%- data %>' }
         );
     };
 </script>
