@@ -22,7 +22,7 @@
         >Publish</a>
     <% end %>
 
-    <% if current_user:isadmin() then %>
+    <% if current_user:isadmin() then --or owns collection!%>
     <a class="pure-button pure-button-warning delete" onclick="
         confirmAction(
             '<%= package.loaded.dialog(

@@ -250,4 +250,44 @@ CollectionController = {
             redirect = self:build_url('my_collections')
         })
     end,
+    makeFFA = function (self)
+        assert_min_role(self, 'moderator')
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        collection:update({ free_for_all = true })
+        if collection.editor_ids then
+            collection.editors = Users:find_all(
+            collection.editor_ids,
+            { fields = 'username, id' })
+        end
+        collection.creator = Users:find({ id = collection.creator_id })
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
+        return jsonResponse({
+            message = 'Collection <em>' .. collection.name ..
+                '</em> is now free for all.',
+            title = 'Free for all'
+        })
+    end,
+    unmakeFFA = function (self)
+        assert_min_role(self, 'moderator')
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        collection:update({ free_for_all = false })
+        if collection.editor_ids then
+            collection.editors = Users:find_all(
+            collection.editor_ids,
+            { fields = 'username, id' })
+        end
+        collection.creator = Users:find({ id = collection.creator_id })
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
+        return jsonResponse({
+            message = 'Collection <em>' .. collection.name ..
+                '</em> is no longer free for all.',
+            title = 'Free for all'
+        })
+    end,
 }

@@ -23,13 +23,33 @@ end
     <input hidden class="new-editor"></input>
 <% end %>
 <%
-if current_user and current_user:isadmin() and data.collection.published then
+if current_user and current_user:has_min_role('moderator') and
+        data.collection.published then
     if not(data.collection.free_for_all) then
 %>
     <a class="pure-button ffa" onclick="
+       confirmComponentAction(
+            'Are you sure you want to mark this collection<br>' +
+                'as free-for-all and let all users add their<br>' +
+                'published projects to it?',
+            '<%= component.id %>',
+            'collection',
+            'makeFFA',
+            { data: <%= data %> }
+        );
     ">Mark as free-for-all</a>
 <%  else %>
-    <a class="pure-button un-ffa">Unmark as free-for-all</a>
+    <a class="pure-button un-ffa" onclick="
+       confirmComponentAction(
+            'Are you sure you want to unmark this collection<br>' +
+                'as free-for-all and prevent non-editors from adding<br>' +
+                'their projects to it?',
+            '<%= component.id %>',
+            'collection',
+            'unmakeFFA',
+            { data: <%= data %> }
+        );
+    ">Unmark as free-for-all</a>
 <%
     end
 end

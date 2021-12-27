@@ -9,14 +9,14 @@ TODO
     stored into the component data. As it is, pulling a collection also pulls
     its creator, and along with the creator we get their (hashed, but still...)
     password, email, etc. Inspecting the page source would reveal all this info.
-[ ] collection info
+[-] collection info
     [ ] edit description
     [ ] edit name
     [ ] select thumbnail
     [ ] remove project
     [ ] remove editor
     [ ] add editor
-    [ ] mark as free-for-all
+    [x] mark as free-for-all
     [ ] remove myself
 [ ] zombie_admin
 
