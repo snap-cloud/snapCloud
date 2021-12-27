@@ -10,14 +10,23 @@
     <div class="contents pure-g">
         <div class="pure-u-7-24 info">
             <%
+                thumbnail_component = {
+                    template = 'partials.collection_thumbnail',
+                    controller = 'collection',
+                    class = 'thumbnail-container pure-u-1-2'
+                }
+                info_component = {
+                    template = 'partials.collection_info',
+                    controller = 'collection'
+                }
                 render(
                     'views.component',
                     {
-                        component = {
-                            template = 'partials.collection_info',
-                            controller = 'collection'
-                        },
-                        data = { collection = collection }
+                        component = info_component,
+                        data = {
+                            collection = collection,
+                            thumbnail_component = thumbnail_component
+                        }
                     }
                 )
             %>
@@ -38,12 +47,15 @@
                         fetch_selector = 'projects',
                         collection_name = collection.name,
                         collection_id = collection.id,
+                        collection = collection,
                         item_type = 'project',
                         items_per_row = 4,
                         items_per_page = 12,
                         user_id = collection.creator_id,
                         show_icons = true,
-                        show_collection_controls = true
+                        show_collection_controls = true,
+                        thumbnail_component = thumbnail_component
+                        -- ↑ just so we can update it dynamically
                     }
                 }
             )

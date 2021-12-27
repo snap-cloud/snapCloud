@@ -19,7 +19,7 @@ TODO
     [ ] remove editor
     [ ] add editor
 [-] collection project controls
-    [ ] select thumbnail
+    [x] select thumbnail
     [x] remove project
 [ ] zombie_admin
 

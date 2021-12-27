@@ -204,6 +204,22 @@ CollectionController = {
 
         CollectionController[self.component.fetch_selector](self)
     end,
+    set_thumbnail = function (self)
+        local collection =
+            Collections:find({ id = self.params.data.collection_id })
+
+        if collection.creator_id ~= self.current_user.id then
+            assert_min_role(self, 'moderator')
+        end
+
+        collection:update({ thumbnail_id = self.params.project.id })
+        collection.thumbnail =
+            package.loaded.disk:retrieve_thumbnail(collection.thumbnail_id)
+
+        self.params.data.collection = collection
+        self.collection = collection
+        self.data = self.params.data
+    end,
     share = function (self)
         local collection =
             Collections:find({ id = self.params.data.collection.id })
