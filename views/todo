@@ -11,7 +11,7 @@ TODO
     password, email, etc. Inspecting the page source would reveal all this info.
 [-] collection info
     [x] mark as free-for-all
-    [ ] remove myself
+    [x] remove myself
     [ ] edit description
     [ ] edit name
     [ ] select thumbnail

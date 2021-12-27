@@ -154,13 +154,6 @@ assert_role = function (self, role, message)
     end
 end
 
-assert_has_one_of_roles = function (self, roles)
-    if not self.current_user or
-        not self.current_user:has_one_of_roles(roles) then
-        yield_error(err.auth)
-    end
-end
-
 assert_min_role = function (self, expected_role)
     if not self.current_user:has_min_role(expected_role) then
         yield_error(err.auth)
@@ -357,22 +350,19 @@ end
 -- Collections
 
 can_edit_collection = function (self, collection)
-    if self.current_user == nil then
-        return false
-    end
-
     -- Users can edit their own collections
-    local can_edit = collection.creator_id == self.current_user.id
+    return (self.current_user ~= nil) and 
+        ((collection.creator_id == self.current_user.id) or
+        is_editor(self, collection))
+end
 
-    -- Find out whether user is in the editors array
+is_editor = function (self, collection)
     if collection.editor_ids then
         for _, editor_id in pairs(collection.editor_ids) do
-            if can_edit then return true end
-            can_edit = can_edit or (editor_id == self.current_user.id)
+            if editor_id == self.current_user.id then return true end
         end
     end
-
-    return can_edit
+    return false
 end
 
 assert_collection_exists = function (self)

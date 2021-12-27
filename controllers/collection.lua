@@ -290,4 +290,21 @@ CollectionController = {
             title = 'Free for all'
         })
     end,
+    unenroll = function (self)
+        local collection =
+            Collections:find({ id = self.params.data.collection.id })
+        if is_editor(self, collection) then
+            collection:update({
+                editor_ids =
+                    db.raw(db.interpolate_query(
+                        'array_remove(editor_ids, ?)',
+                        self.current_user.id))
+            })
+        end
+        return jsonResponse({
+            message = 'You are no longer an editor of this collection.',
+            title = 'Unenrolled',
+            redirect = self:build_url('my_collections')
+        })
+    end,
 }

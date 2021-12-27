@@ -60,7 +60,14 @@ end
         for _, id in pairs(data.collection.editor_ids) do
             if id == current_user.id then
 %>
-    <a class="pure-button pure-button-warning unenroll">Remove myself</a>
+    <a class="pure-button pure-button-warning unenroll" onclick="
+        confirmAction(
+            'Are you sure you want to remove yourself from this collection?',
+            'collection',
+            'unenroll',
+            { data: <%= data %> }
+        );
+    ">Remove myself</a>
 <%
                 break
             end

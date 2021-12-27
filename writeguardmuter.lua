@@ -44,7 +44,7 @@ local selectors = {
     'assert_project_not_in_collection', 'assert_can_create_colletion',
     'course_name_filter', 'hash_password', 'create_signature', 'find_token',
     'rate_limit', 'prevent_tor_access', 'assert_min_role', 'assert_can_share',
-    'assert_can_delete', 'old_tostring', 'debug_print'
+    'assert_can_delete', 'is_editor', 'old_tostring', 'debug_print'
 }
 
 for _, selector in pairs(selectors) do
