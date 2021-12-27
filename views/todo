@@ -10,6 +10,10 @@ TODO
     its creator, and along with the creator we get their (hashed, but still...)
     password, email, etc. Inspecting the page source would reveal all this info.
     IDEA: Use an after_filter?
+[ ] collection
+    [ ] JSON encoding bug making "Featured" collection fail because of unencoded
+        double quotes in description.
+    [ ] setting thumbnail destroys collection rendering for some obscure reason
 [-] collection info
     [x] mark as free-for-all
     [x] remove myself

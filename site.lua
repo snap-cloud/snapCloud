@@ -224,8 +224,12 @@ app:post(
         -- run the action associated to this particular component and selector,
         -- from the actions table
 
-        if (self.params.data and type(self.params.data) == 'string') then
-            self.params.data = package.loaded.util.from_json(self.params.data)
+        ngx.req.read_body()
+        local body_data = ngx.req.get_body_data()
+
+        if (body_data and type(body_data) == 'string') then
+            debug_print('data', body_data)
+            self.params.data = package.loaded.util.from_json(body_data)
         end
 
         self.component = {
@@ -236,11 +240,9 @@ app:post(
         -- ignore return value, as we'll just re-render the component
         controller_dispatch(self)
 
-        self.data = self.params.data
-
         return {
             render = self.params.template,
-            layout = false,
+            layout = false
         }
     end))
 )

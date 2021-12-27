@@ -4,8 +4,11 @@
 %>
 <script>
     function update_<%= component.id %>(controller, selector, params) {
-        var req = new XMLHttpRequest();
-        if (!params.data) { params.data = '{}'; }
+        var req = new XMLHttpRequest(),
+            data = typeof(params.data) == 'object' ?
+                    JSON.stringify(params.data) :
+                    params.data ;
+        if (params.data) { delete(params.data); }
         req.open(
             'POST',
             '/update_component/<%= component.id %>/<%= component.template %>/' +
@@ -39,7 +42,7 @@
                      );
             }
         };
-        req.send();
+        req.send(data);
     };
 </script>
 

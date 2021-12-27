@@ -123,6 +123,7 @@ CollectionController = {
     end,
     projects = function (self)
         local data = self.params.data
+        debug_print('data', data)
         local collection = Collections:find(data.user_id, data.collection_name)
         local paginator = collection:get_projects()
         paginator.per_page = data.items_per_page
