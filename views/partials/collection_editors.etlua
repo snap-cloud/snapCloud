@@ -1,8 +1,8 @@
 <div class="editors">
     <ul class="editor-list">
 <%
-if data.collection.editor_ids then
-    for _, editor in pairs(data.collection.editors) do %>
+if collection.editor_ids then
+    for _, editor in pairs(collection.editors) do %>
     <li class="editor">
         <a href="<%= editor:url_for('site') %>">
             <strong><%= editor.username %></strong>
@@ -13,7 +13,7 @@ if data.collection.editor_ids then
 end
 %>
     </ul>
-<% if current_user and (data.collection.creator.id == current_user.id) then %>
+<% if current_user and (collection.creator.id == current_user.id) then %>
     <a
         onclick="
             this.nextElementSibling.hidden = false;
@@ -24,8 +24,8 @@ end
 <% end %>
 <%
 if current_user and current_user:has_min_role('moderator') and
-        data.collection.published then
-    if not(data.collection.free_for_all) then
+        collection.published then
+    if not(collection.free_for_all) then
 %>
     <a class="pure-button ffa" onclick="
        confirmComponentAction(
@@ -55,9 +55,9 @@ if current_user and current_user:has_min_role('moderator') and
 end
 %>
 <%
-    if current_user and (data.collection.creator.id ~= current_user.id) and
-            data.collection.editor_ids then
-        for _, id in pairs(data.collection.editor_ids) do
+    if current_user and (collection.creator.id ~= current_user.id) and
+            collection.editor_ids then
+        for _, id in pairs(collection.editor_ids) do
             if id == current_user.id then
 %>
     <a class="pure-button pure-button-warning unenroll" onclick="

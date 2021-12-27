@@ -1,5 +1,5 @@
 <div class="buttons">
-    <% if data.collection.published then %>
+    <% if collection.published then %>
     <a class="pure-button unpublish"
         onclick="confirmButtonAction('unpublish')"
         >Unpublish</a>

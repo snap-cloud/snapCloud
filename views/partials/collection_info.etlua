@@ -4,8 +4,8 @@
         'views.component',
         {
             component = data.thumbnail_component, -- defined in collection.etlua
-            data = { collection = collection }
-       }
+            data = data
+        }
     )
 %>
 <%
@@ -19,7 +19,7 @@
         'views.component',
         {
             component = dates_component,
-            data = { collection = collection }
+            data = data
         }
     )
 %>
@@ -37,7 +37,7 @@
                 template = 'partials.collection_editors',
                 controller = 'collection'
             },
-            data = { collection = collection }
+            data = data
         }
      )
 
@@ -53,7 +53,7 @@
                     controller = 'collection',
                     updates = { dates_component }
                 },
-                data = { collection = collection }
+                data = data
             }
          )
     end

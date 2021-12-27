@@ -24,6 +24,7 @@
                     if component.updates then
                         for _, dependant in pairs(component.updates) do
                 %>
+                    params.data = data;
                     update_<%= dependant.id %>(controller, 'changed', params);
                 <%
                         end
