@@ -23,13 +23,6 @@
 local lfs = require('lfs')
 local localizer = { locales = {} }
 
-debug_print = function (title, string)
-    print('\n\n----------\n' .. (string and title or 'DEBUG') .. '\n' ..
-        require('inspect').inspect(string) ..
-        '\n----------\n'
-    )
-end
-
 localizer.read_locales = function ()
     -- Read all locales from files under the "locales" directory
     for file in lfs.dir('locales') do
@@ -68,7 +61,6 @@ localizer.localize = function (selector, lang_code, ...)
 end
 
 localizer.get = function (selector, ...)
-    debug_print('looking for:', selector)
     -- Fetches a locale string in the current localizer language
     return localizer.localize(selector, localizer.language, ...)
 end

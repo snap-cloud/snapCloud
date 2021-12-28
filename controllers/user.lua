@@ -396,6 +396,10 @@ UserController = {
             title = 'Message sent'
         })
     end,
+    set_locale = function (self)
+        self.session.locale = self.params.locale
+        return self.params.redirect
+    end,
 }
 
 -- TODO move those to a separate module?

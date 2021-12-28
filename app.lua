@@ -136,6 +136,7 @@ app:before_filter(function (self)
     
     -- Make locale available to all routes and templates
     self.locale = package.loaded.locale
+    self.locale.language = self.session.locale or 'en'
 
     -- Set Access Control header
     local domain = domain_name(self.req.headers.origin)

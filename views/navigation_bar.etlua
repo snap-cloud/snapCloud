@@ -80,24 +80,18 @@
                     <i class="fas fa-globe"></i>
                 </a>
                 <ul class="pure-menu-children languages">
-                    <a class="pure-menu-link clickable"
-                        onclick="localizer.setLanguage('es');">Castellano</a>
-                    <a class="pure-menu-link clickable"
-                        onclick="localizer.setLanguage('ca');">Català</a>
-                    <a class="pure-menu-link clickable"
-                        onclick="localizer.setLanguage('zh');">简体中文</a>
-                    <a class="pure-menu-link clickable"
-                        onclick="localizer.setLanguage('de');">Deutsch</a>
-                    <a class="pure-menu-link clickable"
-                        onclick="localizer.setLanguage('en');">English</a>
-                    <a class="pure-menu-link clickable"
-                        onclick="localizer.setLanguage('fr');">Français</a>
-                    <a class="pure-menu-link clickable"
-                        onclick="localizer.setLanguage('it');">Italiano</a>
-                    <a class="pure-menu-link clickable"
-                        onclick="localizer.setLanguage('pt');">Português</a>
-                    <a class="pure-menu-link clickable"
-                        onclick="localizer.setLanguage('tr');">Türkçe</a>
+                    <% for _, each in pairs(locale.locales) do %>
+                    <a class="pure-menu-link clickable" onclick="
+                        run_selector(
+                            'user',
+                            'set_locale',
+                            {
+                                locale: '<%= each.lang_code %>',
+                                redirect: location.href
+                            }
+                        );
+                    "><%=each.lang_name%></a>
+                    <% end %>
                 </ul>
             </li>
         </ul>
