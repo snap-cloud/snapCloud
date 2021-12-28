@@ -6,20 +6,19 @@
             </a>
             <span class="pure-u-5-12">
                 <li class="pure-menu-item">
-                    <a localizable class="pure-menu-link run"
-                        target="_blank">Run Snap<em>!</em></a>
+                    <a class="pure-menu-link run"
+                       target="_blank"><%- locale.get('run_snap', '<em>!</em>') %></a>
                 </li>
                 <li class="pure-menu-item">
-                    <a localizable class="pure-menu-link explore"
-                        href="explore">Explore</a>
+                    <a class="pure-menu-link explore" href="explore">Explore</a>
                 </li>
                 <li class="pure-menu-item">
-                    <a localizable class="pure-menu-link forum"
+                    <a class="pure-menu-link forum"
                         href="https://forum.snap.berkeley.edu/">Forum</a>
                 </li>
                 <!--   =======   Snap!Con   =======
                 <li class="pure-menu-item">
-                    <a localizable class="pure-menu-link" target="_blank"
+                    <a class="pure-menu-link" target="_blank"
                     href="https://www.snapcon.org">Snap<em>!</em>Con</a>
                 </li>
                 -->
@@ -34,11 +33,9 @@
             <i class="pure-u-1-24"></i>
         <% if current_user == nil then %>
             <li class="join pure-menu-item pure-u-1-12">
-                <a localizable class="pure-menu-link"
-                    href="sign_up">Join</a></li>
+                <a class="pure-menu-link" href="sign_up">Join</a></li>
             <li class="sign-in pure-menu-item pure-u-1-12">
-                <a localizable class="pure-menu-link"
-                   href="login">Log In</a></li>
+                <a class="pure-menu-link" href="login">Log In</a></li>
         <% else %>
             <li class="pure-menu-item pure-u-1-6
                 pure-menu-has-children pure-menu-allow-hover user-menu">
@@ -46,31 +43,31 @@
                     <%= current_user.username%></a>
                 <ul class="pure-menu-children">
                     <li class="pure-menu-item">
-                        <a localizable class="pure-menu-link my-projects"
+                        <a class="pure-menu-link my-projects"
                             href="my_projects">My Projects</a></li>
                     <li class="pure-menu-item">
-                        <a localizable class="pure-menu-link my-collections"
+                        <a class="pure-menu-link my-collections"
                             href="my_collections">My Collections</a></li>
                     <li class="pure-menu-item">
-                        <a localizable class="pure-menu-link my-public-projects"
+                        <a class="pure-menu-link my-public-projects"
                            href="<%= current_user:url_for('site') %>"
                            >My Public Page</a></li>
                     <li class="pure-menu-item">
-                        <a localizable class="pure-menu-link my-profile"
+                        <a class="pure-menu-link my-profile"
                             href="profile">My Profile</a></li>
                 <% if current_user:isadmin() then %>
                     <li class="pure-menu-item admin">
-                        <a localizable class="pure-menu-link"
+                        <a class="pure-menu-link"
                             href="admin">Administration</a></li>
                 <% end %>
                     <hr>
                     <li class="pure-menu-item">
-                        <a localizable class="pure-menu-link clickable"
+                        <a class="pure-menu-link clickable"
                             onclick="run_selector('user', 'logout');"
                         >Log Out</a></li>
                     <% if session.impersonator then %>
                     <li class="pure-menu-item">
-                        <a localizable class="pure-menu-link clickable"
+                        <a class="pure-menu-link clickable"
                             onclick="run_selector('user', 'unbecome');"
                         >Unbecome</a></li>
                     <% end %>

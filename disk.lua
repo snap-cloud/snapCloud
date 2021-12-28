@@ -197,7 +197,9 @@ function disk:backup_project(id)
     command:close()
     if (os.time() - last_modified > 43200) then
         os.execute('mkdir -p ' .. dir .. '/d-2')
-        os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' .. dir .. '/d-2')
+        os.execute(
+            'cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
+                dir .. '/d-2')
     end
 end
 

@@ -10,10 +10,10 @@ TODO
     its creator, and along with the creator we get their (hashed, but still...)
     password, email, etc. Inspecting the page source would reveal all this info.
     IDEA: Use an after_filter?
-[ ] zombie_admin
 
 TODO AFTER DEPLOYING
 ====================
+[ ] zombie_admin
 [ ] project
     [ ] edit notes
     [ ] edit title

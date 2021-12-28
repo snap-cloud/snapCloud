@@ -37,11 +37,12 @@ package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
 package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.cached = require('lapis.cache').cached
-package.loaded.resty_sha512 = require "resty.sha512"
-package.loaded.resty_string = require "resty.string"
-package.loaded.resty_random = require "resty.random"
-package.loaded.config = require("lapis.config").get()
+package.loaded.resty_sha512 = require 'resty.sha512'
+package.loaded.resty_string = require 'resty.string'
+package.loaded.resty_random = require 'resty.random'
+package.loaded.config = require('lapis.config').get()
 package.loaded.disk = require('disk')
+package.loaded.locale = require('locale')
 
 local app = package.loaded.app
 local config = package.loaded.config
@@ -55,8 +56,9 @@ local domain_allowed = require('cors')
 local date = require("date")
 string.from_sql_date = function (sql_date)
     -- Formats an SQL date into (i.e.) November 21, 2021
-    local month_names = { 'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December' }
+    local month_names = { 'January', 'February', 'March', 'April', 'May',
+        'June', 'July', 'August', 'September', 'October', 'November', 'December'
+    }
     if (sql_date == nil) then return 'never' end
     local actual_date = date(sql_date)
     return month_names[actual_date:getmonth()] ..  ' ' ..
@@ -131,6 +133,9 @@ app:before_filter(function (self)
         )
         return
     end
+    
+    -- Make locale available to all routes and templates
+    self.locale = package.loaded.locale
 
     -- Set Access Control header
     local domain = domain_name(self.req.headers.origin)
