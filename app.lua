@@ -64,7 +64,7 @@ string.from_sql_date = function (sql_date)
 end
 
 debug_print = function (title, string)
-    print('\n\n----------\n' .. title .. '\n' ..
+    print('\n\n----------\n' .. (string and title or 'DEBUG') .. '\n' ..
         require('inspect').inspect(string) ..
         '\n----------\n'
     )

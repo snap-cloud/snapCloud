@@ -104,11 +104,9 @@ err = {
         { msg = 'You have already flagged this project.', status = 409 },
     project_never_flagged =
         { msg = 'This project was not flagged by you.', status = 404 },
-    method_not_allowed =
-        {
-            msg = 'This API endpoint does not respond to this HTTP method.',
-            status = 405
-        },
+    method_not_allowed = {
+        msg = 'This API endpoint does not respond to this HTTP method.',
+        status = 405 },
     too_fast =
         { msg = 'Too many requests. Slow down.', status = 429 },
     too_soon =

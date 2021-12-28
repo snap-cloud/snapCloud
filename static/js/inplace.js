@@ -21,7 +21,7 @@ InPlaceEditor.prototype.init = function (element, action, defaultText) {
 
     this.element.onblur = function () {
         myself.element.classList.add('flash');
-        action.call(myself.element);
+        action.call(myself.element, myself.element.innerText.trim());
     };
     this.element.onfocus = function () { myself.startEditing() };
     this.element.onkeypress = function (event) { myself.checkKey(event); };
@@ -37,7 +37,7 @@ InPlaceEditor.prototype.checkKey = function (event) {
 
 InPlaceEditor.prototype.startEditing = function () {
     this.element.classList.remove('flash');
-    if (this.element.textContent == localizer.localize(this.defaultText)) {
-        this.element.textContent = '';
+    if (this.element.innerText == localizer.localize(this.defaultText)) {
+        this.element.innerText = '';
     }
 };

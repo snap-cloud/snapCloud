@@ -4,6 +4,21 @@
 <div class="collection">
     <div class="title">
         <h1><%= collection.name %></h1>
+        <script>
+            new InPlaceEditor(
+                document.querySelector('div.title h1'),
+                (value) => {
+                    run_selector(
+                        'collection',
+                        'rename',
+                        {
+                            collection: { id: <%- collection.id %> },
+                            new_name: value
+                        }
+                    );
+                }
+            );
+        </script>
         <span class="author">by <a href="<%= collection:url_for('author') %>"
             ><strong><%= collection.creator.username %></strong></a></span>
     </div>

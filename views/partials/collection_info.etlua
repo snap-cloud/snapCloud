@@ -27,6 +27,21 @@
 </div>
 
 <pre class="description"><%= collection.description or '' %></pre>
+<script>
+    new InPlaceEditor(
+        document.querySelector('pre.description'),
+        (value) => {
+            run_selector(
+                'collection',
+                'set_description',
+                {
+                    collection: { id: <%- collection.id %> },
+                    new_description: value
+                }
+            );
+        }
+    );
+</script>
 
 <%
     -- collection editors are an AJAX-updateable component

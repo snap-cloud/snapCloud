@@ -124,7 +124,6 @@ CollectionController = {
     end,
     projects = function (self)
         local data = self.params.data
-        debug_print('data', data)
         local collection = Collections:find(data.user_id, data.collection_name)
         local paginator = collection:get_projects()
         paginator.per_page = data.items_per_page
@@ -402,4 +401,30 @@ CollectionController = {
         self.collection = collection
         self.data = self.params.data
     end,
+    rename = function (self)
+        local collection =
+            Collections:find({ id = self.params.collection.id })
+        if collection.creator_id ~= self.current_user.id then
+            assert_admin(self)
+        end
+        -- assign the creator so we can redirect to the new collection URL
+        collection.creator = Users:find({ id = collection.creator_id })
+        if not (collection:update({ name = self.params.new_name })) then
+            return errorResponse('Collection could not be renamed')
+        else
+            return collection:url_for('site')
+        end
+    end,
+    set_description = function (self)
+        local collection =
+            Collections:find({ id = self.params.collection.id })
+        if collection.creator_id ~= self.current_user.id then
+            assert_admin(self)
+        end
+        if not 
+            (collection:update({ description = self.params.new_description }))
+                then
+            return errorResponse('Collection description could not be updated')
+        end
+    end
 }
