@@ -30,11 +30,13 @@ local compact = function (text)
 end
 
 package.loaded.dialog = function (filename, params)
+    local params = params or {}
     local file = io.open('views/dialogs/' .. filename .. '.etlua', 'r')
     if file then
         local contents = file:read('*all')
         file:close()
         local template = etlua.compile(contents)
+        params.locale = package.loaded.locale
         return compact(template(params))
     else
         return '<h1>Dialog render error</h1><span>template ' ..

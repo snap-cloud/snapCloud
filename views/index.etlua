@@ -3,14 +3,21 @@
 
 <% render('views.partials.slideshow') %>
 
-<h1><span localizable>Welcome to Snap</span><em>!</em></h1>
+<h1><span><% if current_user then %>
+    <%= locale.get('welcome_logged_in', current_user.username) %>
+    <% else %>
+    <%- locale.get('welcome', '<em>!</em>') %>
+    <% end %></span></h1>
 
-<div class="indent bigger" localizable>Snap<em>!</em> is a broadly inviting programming language for kids and adults that's also a platform for serious study of computer science.</div>
+<div class="indent bigger"
+    ><%- locale.get('snap_description', '<em>!</em>') %></div>
 
 <div class="indent v-spaced">
-    <a href="/snap" class="pure-button" localizable>Run Snap<em>!</em> Now</a>
-    <a href="/examples" class="pure-button" localizable>Example Projects</a>
-    <a href="/snap/help/SnapManual.pdf" class="pure-button" localizable>Reference Manual</a>
+    <a href="/snap" class="pure-button"
+        ><%- locale.get('run_now', '<em>!</em>') %></a>
+    <a href="/examples" class="pure-button"><%- locale.get('examples') %></a>
+    <a href="/snap/help/SnapManual.pdf" class="pure-button"
+        ><%- locale.get('manual') %></a>
 </div>
 
 <br class="v-spaced">
@@ -19,11 +26,11 @@
 local collections = {
     {
         collection_name = 'Featured',
-        title = 'Featured Projects'
+        title = locale.get('featured')
     },
     {
         collection_name = 'Snap! Olympics',
-        title = 'Topic of the Month, August: Snap! Olympics'
+        title = locale.get('totm', 'Snap! Olympics')
     },
     {
         collection_name = 'Snap!Con 2021',

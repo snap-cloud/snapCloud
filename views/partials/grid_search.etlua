@@ -16,5 +16,6 @@
     </form>
 </div>
 <% if (data.search_term and data.search_term ~= '') then %>
-<span class="search-term">Matching: <em><%= data.search_term %></em></span>
+<span class="search-term"
+    ><%= locale.get('matching', '"' .. data.search_term .. '"') %></span>
 <% end %>

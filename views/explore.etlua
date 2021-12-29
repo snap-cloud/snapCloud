@@ -1,4 +1,4 @@
-<h1>Explore</h1>
+<h1><%- locale.get('explore') %></h1>
 <%
 render(
     'views.component',
@@ -6,8 +6,9 @@ render(
         component = { template = 'grid', controller = 'project' },
         data = {
             class = 'projects',
-            title = 'Published Projects',
-            item_type = 'project'
+            title = locale.get('published_projects'),
+            item_type = 'project',
+            items_per_page = 15
         }
     }
 )
@@ -18,8 +19,9 @@ render(
         component = { template = 'grid', controller = 'collection' },
         data = {
             class = 'collections',
-            title = 'Published Collections',
+            title =  locale.get('published_collections'),
             item_type = 'collection',
+            items_per_page = 15
         }
     }
 )

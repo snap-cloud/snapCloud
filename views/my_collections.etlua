@@ -1,4 +1,4 @@
-<h1>My Collections</h1>
+<h1><%- locale.get('my_collections') %></h1>
 <%
 render(
     'views.component',
@@ -20,11 +20,11 @@ render(
 %>
 <div class="buttons">
     <a class="pure-button new-collection"
-        onclick="newCollectionDialog()">New Collection</a>
+       onclick="newCollectionDialog()"><%- locale.get('new_collection') %></a>
     <script>
         function newCollectionDialog () {
             prompt(
-                'Collection name?',
+                "<%- locale.get('collection_name') %>",
                 name => { run_selector('collection', 'new', { name: name }); },
                 nop
             );

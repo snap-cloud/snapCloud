@@ -1,26 +1,27 @@
-<h1 localizable>Change Email</h1>
+<h1><%- locale.get('change_my_email') %></h1>
 <div id="change-email" class="pure-form pure-form-aligned">
     <fieldset>
         <div class="pure-control-group">
-            <label localizable for="password">Password</label>
+            <label for="password"><%- locale.get('password') %></label>
             <input id="password" name="password" type="password" required>
         </div>
 
         <div class="pure-control-group">
-            <label localizable for="new-email">New Email</label>
+            <label for="new-email"><%- locale.get('new_email') %></label>
             <input id="new-email" name="new-email" type="email" required>
         </div>
 
         <div class="pure-control-group">
-            <label localizable for="new-password-again">Repeat New Email</label>
+            <label for="new-password-again"
+                ><%- locale.get('new_email_2') %></label>
             <input
                 id="new-email-again" name="new-email-again"
                 type="email" required>
         </div>
 
         <div class="pure-controls">
-            <button localizable onclick="submit()"
-                class="pure-button red-button">Change My Email</button>
+            <button onclick="submit()" class="pure-button red-button"
+                ><%- locale.get('change_my_email') %></button>
         </div>
     </fieldset>
     <script type="text/javascript" src="/static/js/sha512.js"></script>

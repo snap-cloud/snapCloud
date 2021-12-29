@@ -1,3 +1,3 @@
 <% warning = '<i class="warning fa fa-exclamation-triangle"></i>' %>
-Are you sure you want to delete user <strong><%= username %></strong>?<br>
-<%- warning %> WARNING! This action cannot be undone! <%- warning %>
+<%= locale.get('confirm_delete_usr', username) %><br>
+<%- warning %> <%- locale.get('warning_no_return') %> <%- warning %>

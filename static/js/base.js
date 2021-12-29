@@ -9,10 +9,12 @@ var snapURL = location.origin + '/snap/snap.html',
 
 function run_selector (controller, selector, params) {
     var req = new XMLHttpRequest(),
-        data = typeof(params.data) == 'object' ?
+        data = params ?
+            (typeof(params.data) == 'object' ?
                 JSON.stringify(params.data) :
-                params.data;
-    if (params.data) { delete(params.data); }
+                params.data) :
+            null;
+    if (params && params.data) { delete(params.data); }
     req.open(
         'POST',
         '/call_lua/' + controller + '/' + selector + encodeParams(params),

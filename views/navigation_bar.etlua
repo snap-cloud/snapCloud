@@ -6,15 +6,17 @@
             </a>
             <span class="pure-u-5-12">
                 <li class="pure-menu-item">
-                    <a class="pure-menu-link run"
-                       target="_blank"><%- locale.get('run_snap', '<em>!</em>') %></a>
+                    <a class="pure-menu-link run" target="_blank"
+                       ><%- locale.get('run_snap', '<em>!</em>') %></a>
                 </li>
                 <li class="pure-menu-item">
-                    <a class="pure-menu-link explore" href="explore">Explore</a>
+                    <a class="pure-menu-link explore" href="explore"
+                        ><%- locale.get('explore') %></a>
                 </li>
                 <li class="pure-menu-item">
                     <a class="pure-menu-link forum"
-                        href="https://forum.snap.berkeley.edu/">Forum</a>
+                        href="https://forum.snap.berkeley.edu/"
+                        ><%- locale.get('forum') %></a>
                 </li>
                 <!--   =======   Snap!Con   =======
                 <li class="pure-menu-item">
@@ -33,9 +35,11 @@
             <i class="pure-u-1-24"></i>
         <% if current_user == nil then %>
             <li class="join pure-menu-item pure-u-1-12">
-                <a class="pure-menu-link" href="sign_up">Join</a></li>
+                <a class="pure-menu-link" href="sign_up"
+                    ><%- locale.get('join') %></a></li>
             <li class="sign-in pure-menu-item pure-u-1-12">
-                <a class="pure-menu-link" href="login">Log In</a></li>
+                <a class="pure-menu-link" href="login"
+                    ><%- locale.get('login') %></a></li>
         <% else %>
             <li class="pure-menu-item pure-u-1-6
                 pure-menu-has-children pure-menu-allow-hover user-menu">
@@ -44,32 +48,34 @@
                 <ul class="pure-menu-children">
                     <li class="pure-menu-item">
                         <a class="pure-menu-link my-projects"
-                            href="my_projects">My Projects</a></li>
+                            href="my_projects"
+                            ><%- locale.get('my_projects') %></a></li>
                     <li class="pure-menu-item">
                         <a class="pure-menu-link my-collections"
-                            href="my_collections">My Collections</a></li>
+                            href="my_collections"
+                            ><%- locale.get('my_collections') %></a></li>
                     <li class="pure-menu-item">
                         <a class="pure-menu-link my-public-projects"
                            href="<%= current_user:url_for('site') %>"
-                           >My Public Page</a></li>
+                           ><%- locale.get('my_public_page') %></a></li>
                     <li class="pure-menu-item">
-                        <a class="pure-menu-link my-profile"
-                            href="profile">My Profile</a></li>
+                        <a class="pure-menu-link my-profile" href="profile"
+                            ><%- locale.get('my_profile') %></a></li>
                 <% if current_user:isadmin() then %>
                     <li class="pure-menu-item admin">
-                        <a class="pure-menu-link"
-                            href="admin">Administration</a></li>
+                        <a class="pure-menu-link" href="admin"
+                            ><%- locale.get('administration') %></a></li>
                 <% end %>
                     <hr>
                     <li class="pure-menu-item">
                         <a class="pure-menu-link clickable"
                             onclick="run_selector('user', 'logout');"
-                        >Log Out</a></li>
+                        ><%- locale.get('logout') %></a></li>
                     <% if session.impersonator then %>
                     <li class="pure-menu-item">
                         <a class="pure-menu-link clickable"
                             onclick="run_selector('user', 'unbecome');"
-                        >Unbecome</a></li>
+                        ><%- locale.get('unbecome') %></a></li>
                     <% end %>
                 </ul>
             </li>

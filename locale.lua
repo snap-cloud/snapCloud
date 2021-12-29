@@ -20,6 +20,8 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local yield_error = package.loaded.yield_error
+
 local lfs = require('lfs')
 local localizer = { locales = {} }
 
@@ -53,10 +55,9 @@ localizer.localize = function (selector, lang_code, ...)
         )
     else
         -- This string is not localized. Let's return the English one
-        return localizer.apply_params(
-            localizer.locales.en[selector],
-            ...
-        )
+        string = localizer.locales.en[selector]
+        if not string then yield_error('Missing string for ' .. selector) end
+        return localizer.apply_params(string, ...)
     end
 end
 

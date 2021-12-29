@@ -1,4 +1,4 @@
-<h1>My Projects</h1>
+<h1><%- locale.get('my_projects') %></h1>
 <%
 render(
     'views.component',

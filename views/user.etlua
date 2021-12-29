@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/static/style/admin.css">
 <% end %>
 
-<h1><%= username%>'s public page</h1>
+<h1><%= locale.get('public_page', username) %></h1>
 
 <%
 -- PUBLIC PROJECTS
@@ -12,10 +12,11 @@ render(
     {
         component = { template = 'grid', controller = 'project' },
         data = {
-            title = 'Public Projects',
+            title = locale.get('published_projects'),
             fetch_selector = 'user_projects',
             class = 'projects',
             item_type = 'project',
+            items_per_page = 15,
             show_author = false,
             username = queried_user.username
         }
@@ -29,10 +30,11 @@ render(
     {
         component = { template = 'grid', controller = 'collection' },
         data = {
-            title = 'Public Collections',
+            title = locale.get('published_collections'),
             fetch_selector = 'user_collections',
             class = 'collections',
             item_type = 'collection',
+            items_per_page = 15,
             user_id = queried_user.id
         }
     }
@@ -43,7 +45,7 @@ render(
 if current_user and current_user:has_min_role('moderator') then
 %>
 <div class="profile">
-    <h2>Admin tools</h2>
+    <h2><%- locale.get('admin_tools') %></h2>
 <%
     render(
         'views.partials.profile',

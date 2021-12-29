@@ -11,15 +11,16 @@
                 </a>
             </em>
         </span>
-        <span><strong>ID:</strong> <%= item.id %></span>
+        <span
+            ><strong><%- locale.get('user_id') %></strong> <%= item.id %></span>
         <% if show_project_count then %>
-        <span><strong>Project count:</strong> <%=
+        <span><strong><%- locale.get('project_count') %></strong> <%=
             item:get_project_count() %></span>
         <% end %>
-        <span><strong>Joined in </strong><%=
+        <span><strong><%- locale.get('join_date') %> </strong><%=
             string.from_sql_date(item.created) %></span>
         <span>
-            <strong>Role</strong>:
+            <strong><%- locale.get('role') %></strong>:
             <select onchange="
                 run_selector(
                     'user',
@@ -29,7 +30,7 @@
                 <% for role, _ in pairs(package.loaded.Users.roles) do %>
                 <option value="<%= role %>"
                     <%- role == item.role and 'selected' or '' %>>
-                    <%= role %>
+                    <%- locale.get(role) %>
                 </option>
                 <% end %>
             </select>
@@ -42,11 +43,11 @@
                         'become',
                         { username: '<%= item.username %>'}
                     );"
-                >Become</a>
+                ><%- locale.get('become') %></a>
             <a class="pure-button changeemail"
                 onclick="
                     prompt(
-                        'New email?',
+                        '<%- locale.get('new_email') %>',
                         email => {
                             run_selector(
                                 'user',
@@ -59,11 +60,11 @@
                         },
                     nop
                     );
-                ">Change Email</a>
+                "><%- locale.get('change_email') %></a>
             <a class="pure-button sendamessage"
                 onclick="
                     dialog(
-                        'Compose a message',
+                        '<%- locale.get('compose_email') %>',
                         '<%= package.loaded.dialog('compose_email') %>',
                         () => {
                             var form =
@@ -84,7 +85,7 @@
                         },
                         nop
                     );
-                ">Send a message</a>
+                "><%- locale.get('send_msg') %></a>
             <a class="pure-button ban pure-button-warning"
                 onclick="
                     run_selector(
@@ -98,7 +99,9 @@
                                     or "'banned'" %>
                         }
                     );"
-                ><%= item.role == 'banned' and 'Unban' or 'Ban' %></a>
+                ><%= item.role == 'banned' and
+                    locale.get('unban') or
+                    locale.get('ban') %></a>
 
             <a class="pure-button delete pure-button-warning"
                 onclick="
@@ -119,7 +122,7 @@
                         }
                     )
                 "
-                >Delete</a>
+                ><%- locale.get('delete_usr') %></a>
         </div>
     </div>
 </div>
