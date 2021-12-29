@@ -1,8 +1,8 @@
-<h1 localizable>Administration</h1>
+<h1><%- locale.get('administration') %></h1>
 <% if current_user and current_user:has_min_role('moderator') then %>
-<a localizable class="user-admin pure-button"
-    href="user_admin">User Administration</a>
-<a localizable class="zombie-admin pure-button"
-    href="zombie_admin">Zombie Administration</a>
+<a class="user-admin pure-button"
+    href="user_admin"><%- locale.get('user_admin') %></a>
+<a class="zombie-admin pure-button"
+    href="zombie_admin"><%- locale.get('zombie_admin') %></a>
 <% end %>
-<a localizable class="pure-button" href="flags">Flagged Projects</a>
+<a class="pure-button" href="flags"><%- locale.get('flagged_projects') %></a>

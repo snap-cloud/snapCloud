@@ -183,10 +183,18 @@ local locale = {
     password = "Password",
     new_email_2 = "Repeat New Email",
 
+    -- Administration page
+    -- ===================
+    user_admin = "User Administration",
+    zombie_admin = "Zombie Administration",
+    flagged_projects = "Flagged Projects",
+
     -- Error messages
     -- ==============
     err_password_mismatch = "Please make sure that you have entered your new@1password twice, and that both passwords match.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_password_mismatch_title = "Passwords do not match",
+    err_email_mismatch = "Please make sure that you have entered your@1email twice, and that both emails match.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
+    err_email_mismatch_title = "Emails do not match",
 }
 
 return locale

@@ -167,10 +167,18 @@ local locale = {
     password = "Contrasenya",
     new_email_2 = "Nou email (repetir)",
 
+    -- Administration page
+    -- ===================
+    user_admin = "Administració d'usuaris",
+    zombie_admin = "Administració de zombis",
+    flagged_projects = "Projectes denunciats",
+
     -- Error messages
     -- ==============
     err_password_mismatch = "Si us plau, assegura't que has introduït correctament@1la teva nova contrasenya dues vegades.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_password_mismatch_title = "Les contrasenyes no coincideixen",
+    err_email_mismatch = "Si us plau, assegura't que has introduït correctament@1la teva nova adreça electrònica dues vegades.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
+    err_email_mismatch_title = "Les adreces no coincideixen",
 }
 
 return locale

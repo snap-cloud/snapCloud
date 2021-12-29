@@ -35,9 +35,8 @@
 
             if (email !== emailRepeat) {
                 genericError(
-                    'Please make sure that you have entered your<br>' +
-                    'email twice, and that both emails match.',
-                    'Emails do not match'
+                    "<%- locale.get('err_email_mismatch', '<br>') %>",
+                    "<%- locale.get('err_email_mismatch_title') %>"
                 );
             } else {
                 run_selector(
