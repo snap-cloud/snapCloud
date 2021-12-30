@@ -73,6 +73,8 @@ local locale = {
     dmca = "DMCA",
     privacy = "Privacy",
     tos = "Terms of Service",
+    signup = "Sign Up",
+    or_before = "or before", -- is preceded by a year, like "1995 or before"
 
     -- Index page
     -- ==========
@@ -95,6 +97,32 @@ local locale = {
     games = "Games",
     cs = "Computer Science",
     maths = "Maths",
+
+    -- Sign up page
+    -- ============
+    signup_title = "Create a Snap@1 account", -- @1 becomes an italic exclamation mark (!)
+    username = "Username",
+    password = "Password",
+    password_2 = "Repeat Password",
+    birth_month = "Month of Birth",
+    january = "January",
+    february = "February",
+    march = "March",
+    april = "April",
+    may = "May",
+    june = "June",
+    july = "July",
+    august = "August",
+    september = "September",
+    october = "October",
+    november = "November",
+    december = "December",
+    email_parent = "Email address of parent or guardian",
+    email_user = "Email address",
+    email_2 = "Repeat email address",
+    tos_agree = "I have read and agree to the @1 and the @2", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
+    -- tos already translated in footer
+    privacy_agreement = "Privacy Agreement",
 
     -- Explore page
     -- ============
@@ -134,9 +162,9 @@ local locale = {
     -- User profile
     -- ============
     profile_title = "@1's profile", -- @1 becomes the user's username
-    join_date = "Joined in:", -- date of user creation follows
-    email = "Email:",
-    role = "Role:",
+    join_date = "Joined in", -- date of user creation follows
+    email = "Email",
+    role = "Role",
     -- User roles
     standard = "standard",
     reviewer = "reviewer",
@@ -150,8 +178,8 @@ local locale = {
 
     -- User admin component
     -- ====================
-    user_id = "ID:",
-    project_count = "Project count:",
+    user_id = "ID",
+    project_count = "Project count",
     -- Buttons
     become = "Become", -- as an admin, temporarily impersonate this user
     change_email = "Change Email",
@@ -180,7 +208,6 @@ local locale = {
 
     -- Change email page
     -- =================
-    password = "Password",
     new_email_2 = "Repeat New Email",
 
     -- Administration page
@@ -191,7 +218,7 @@ local locale = {
 
     -- Error messages
     -- ==============
-    err_password_mismatch = "Please make sure that you have entered your new@1password twice, and that both passwords match.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
+    err_password_mismatch = "Please make sure that you have entered your@1password twice, and that both passwords match.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_password_mismatch_title = "Passwords do not match",
     err_email_mismatch = "Please make sure that you have entered your@1email twice, and that both emails match.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_email_mismatch_title = "Emails do not match",

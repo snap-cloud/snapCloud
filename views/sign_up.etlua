@@ -1,68 +1,71 @@
-<h1>Create a Snap<em>!</em> account</h1>
+<h1><%- locale.get('signup_title', '<em>!</em>') %></h1>
 <div id="signup" class="pure-form pure-form-aligned">
     <fieldset>
         <div class="pure-control-group">
-            <label for="username">Username</label>
+            <label for="username"><%- locale.get('username') %></label>
             <input id="username" name="username" type="text"
-                placeholder="Username" required>
+                 placeholder="<%- locale.get('username') %>" required>
         </div>
 
         <div class="pure-control-group">
-            <label for="password">Password</label>
+            <label for="password"><%- locale.get('password') %></label>
             <input id="password" name="password" type="password"
-                placeholder="Password" required>
+                placeholder="<%- locale.get('password') %>" required>
         </div>
 
         <div class="pure-control-group">
-            <label for="password-repeat">Repeat Password</label>
+            <label for="password-repeat"><%- locale.get('password_2') %></label>
             <input id="password-repeat" name="password-repeat" type="password"
-                placeholder="Password" required>
+                placeholder="<%- locale.get('password') %>" required>
         </div>
 
         <div class="pure-control-group">
-            <label for="birth-month">Month of Birth</label>
+            <label for="birth-month"><%- locale.get('birth_month') %></label>
             <select id="birth-month" name="birth-month" onchange="checkDate()">
-                <option value="1">January</option>
-                <option value="2">February</option>
-                <option value="3">March</option>
-                <option value="4">April</option>
-                <option value="5">May</option>
-                <option value="6">June</option>
-                <option value="7">July</option>
-                <option value="8">August</option>
-                <option value="9">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
+                <option value="1"><%- locale.get('january') %></option>
+                <option value="2"><%- locale.get('february') %></option>
+                <option value="3"><%- locale.get('march') %></option>
+                <option value="4"><%- locale.get('april') %></option>
+                <option value="5"><%- locale.get('may') %></option>
+                <option value="6"><%- locale.get('june') %></option>
+                <option value="7"><%- locale.get('july') %></option>
+                <option value="8"><%- locale.get('august') %></option>
+                <option value="9"><%- locale.get('september') %></option>
+                <option value="10"><%- locale.get('october') %></option>
+                <option value="11"><%- locale.get('november') %></option>
+                <option value="12"><%- locale.get('december') %></option>
             </select>
             <select id="birth-year" name="birth-year" onchange="checkDate()">
             </select>
         </div>
 
         <div class="pure-control-group">
-            <label for="email">Email address of parent or guardian</label>
+            <label for="email"><%- locale.get('email_parent') %></label>
             <input id="email" name="email" type="email"
-                placeholder="Email address" required>
+                placeholder="<%- locale.get('email_user') %>" required>
         </div>
 
         <div class="pure-control-group">
-            <label for="email">Repeat email address</label>
+            <label for="email"><%- locale.get('email_2') %></label>
             <input id="email-repeat" name="email-repeat" type="email"
-                placeholder="Email address" required>
+                placeholder="<%- locale.get('email_user') %>" required>
         </div>
 
         <div class="pure-controls">
             <label for="tos" class="pure-checkbox">
                 <input id="tos" name="tos" type="checkbox" required>
-                    <span>I have read and agree to the <a
-                            target="_blank"
-                            href="tos">Terms of Service</a> and the <a
-                            target="_blank"
-                            href="privacy">Privacy Agreement</a></span>.
+                <span><%-
+                    locale.get(
+                        'tos_agree',
+                        '<a target="_blank" href="tos">' ..
+                            locale.get('tos'),
+                        '</a><a target="_blank" href="privacy">' ..
+                            locale.get('privacy_agreement') .. '</a>')
+                    %></span>
             </label>
 
-            <button onclick="submit()"
-                class="pure-button red-button">Sign up</button>
+            <button onclick="submit()" class="pure-button red-button"
+                ><%- locale.get('signup') %></button>
         </div>
     </fieldset>
     <script type="text/javascript" src="/static/js/sha512.js"></script>
@@ -82,7 +85,8 @@
 
         var option = document.createElement('option');
         option.value = currentYear - 20;
-        option.innerHTML = (currentYear - 20) + ' or before';
+        option.innerHTML =
+            (currentYear - 20) + ' ' + "<%- locale.get('or_before') %>";
         yearSelector.append(option);
 
         function checkDate () {
@@ -91,10 +95,10 @@
             if ((currentYear - year < 12) ||
                     ((currentYear - year === 12) && (month >= currentMonth))) {
                 form.querySelector('label[for=email]').innerHTML =
-                    'Email address of parent or guardian';
+                    "<%- locale.get('email_parent') %>";
             } else {
                 form.querySelector('label[for=email]').innerHTML =
-                    'Email address';
+                    "<%- locale.get('email_user') %>";
             }
         };
 
@@ -108,15 +112,13 @@
 
             if (email !== emailRepeat) {
                 genericError(
-                    'Please make sure that you have entered your<br>' +
-                        'email twice and that both emails match.',
-                    'Emails do not match'
+                    "<%- locale.get('err_email_mismatch', '<br>') %>",
+                    "<%- locale.get('err_email_mismatch_title') %>"
                 );
             } else if (password !== passwordRepeat) {
                 genericError(
-                    'Please make sure that you have entered your<br>' +
-                    'password twice, and that both passwords match.',
-                    'Passwords do not match'
+                    "<%- locale.get('err_password_mismatch', '<br>') %>",
+                    "<%- locale.get('err_password_mismatch_title') %>",
                 );
             } else {
                 run_selector(

@@ -80,6 +80,34 @@ local locale = {
     cs = "Ciències de la computació",
     maths = "Matemàtiques",
 
+    -- Sign up page
+    -- ============
+    signup_title = "Crea un compte d'Snap@1", -- @1 becomes an italic exclamation mark (!)
+    username = "Nom d'usuari",
+    password = "Contrasenya",
+    password_2 = "Contrasenya (repetir)",
+    birth_month = "Mes de naixement",
+    january = "Gener",
+    february = "Febrer",
+    march = "Març",
+    april = "Abril",
+    may = "Maig",
+    june = "Juny",
+    july = "Juliol",
+    august = "Agost",
+    september = "Setembre",
+    october = "Octubre",
+    november = "Novembre",
+    december = "Desembre",
+    email_parent = "Adreça electrònica de la mare, pare o tutor",
+    email_user = "Adreça electrònica",
+    email_2 = "Adreça electrònica (repetir)",
+    tos_agree = "He llegit i accepto les @1 i l'@2", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
+    -- tos already translated in footer
+    privacy_agreement = "Acord de privacitat",
+    signup = "Registra-t'hi",
+    or_before = "o abans", -- is preceded by a year, like "1995 or before"
+
     -- Explore page
     -- ============
     published_projects = "Projectes públics",
@@ -164,7 +192,6 @@ local locale = {
 
     -- Change email page
     -- =================
-    password = "Contrasenya",
     new_email_2 = "Nou email (repetir)",
 
     -- Administration page
@@ -175,9 +202,9 @@ local locale = {
 
     -- Error messages
     -- ==============
-    err_password_mismatch = "Si us plau, assegura't que has introduït correctament@1la teva nova contrasenya dues vegades.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
+    err_password_mismatch = "Si us plau, assegura't que has introduït correctament@1la teva contrasenya dues vegades.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_password_mismatch_title = "Les contrasenyes no coincideixen",
-    err_email_mismatch = "Si us plau, assegura't que has introduït correctament@1la teva nova adreça electrònica dues vegades.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
+    err_email_mismatch = "Si us plau, assegura't que has introduït correctament@1la teva adreça electrònica dues vegades.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_email_mismatch_title = "Les adreces no coincideixen",
 }
 
