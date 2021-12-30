@@ -23,6 +23,8 @@ echo
 Snippets/build.sh
 popd
 
+./renew-certs.sh
+./deploy_certs.sh
 ./deploy_snap.sh
 
 
@@ -68,7 +70,7 @@ curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394
 
 
 # Always update the letsencrypt script incase it changes.
-cp bin/deploy_certs.sh ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
+cp ./deploy_certs.sh ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
 
 # The cloud user only has the ability to restart this service.
 echo 'Restarting snapcloud daemon'
