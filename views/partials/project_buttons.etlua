@@ -1,14 +1,18 @@
 <div class="buttons">
-    <a localizable="" class="pure-button open" target="_blank"
-        href="<%= project:url_for('open', params.devVersion) %>">See Code</a>
-    <a localizable="" class="pure-button download"
-        href="<%= project:url_for('download', params.devVersion) %>"
-        download>Download</a>
-    <a localizable="" class="pure-button embed-button" target="_blank"
-        onclick="embedDialog()" >Embed</a>
+    <a class="pure-button open" target="_blank"
+        href="<%= project:url_for('open', params.devVersion) %>"
+        ><%= (current_user and current_user.username == project.username) and
+            locale.get('edit') or
+            locale.get('see_code')
+        %></a>
+    <a class="pure-button download"
+        href="<%= project:url_for('download', params.devVersion) %>" download
+        ><%= locale.get('download') %></a>
+    <a class="pure-button embed-button" target="_blank"
+        onclick="embedDialog()" ><%= locale.get('embed') %></a>
     <% if current_user then %>
-    <a localizable="" class="pure-button collect" target="_blank"
-        onclick="collectDialog()">Add to Collection</a>
+    <a class="pure-button collect" target="_blank"
+        onclick="collectDialog()"><%= locale.get('collect') %></a>
     <% end %>
     <script>
         function embedDialog () {
@@ -26,7 +30,7 @@
                         options + '"></iframe>';
             };
             dialog(
-                'Embed Options',
+                "<%= locale.get('embed_title') %>",
                 '<%- package.loaded.dialog('embed') %>',
                 nop,
                 nop,
@@ -44,7 +48,7 @@
         <% if current_user then %>
         function collectDialog () {
             dialog(
-                'Add project to collection',
+                "<%= locale.get('collect_title') %>",
                 '<%- package.loaded.dialog(
                     'collect',
                     { current_user = current_user }) %>',
@@ -73,10 +77,10 @@
             ((project.username == current_user.username) or
             current_user:isadmin()) then
     %>
-        <a localizable="" class="pure-button pure-button-warning delete"
+        <a class="pure-button pure-button-warning delete"
             target="_blank"
             onclick="confirmDelete()"
-            >Delete</a>
+            ><%= locale.get('delete_button') %></a>
         <script>
         function confirmDelete () {
             confirmAction(
@@ -92,46 +96,49 @@
 <% end %>
 <% if project.flagged then %>
     <span class="flag-container"
-        title="You flagged this project as inappropriate"
+        title="<%= locale.get('you_flagged') %>"
     >
         <i class="warning fas fa-exclamation-triangle"></i>
         <a class="clickable warning flag"
-            target="_blank">Unflag this project</a>
+            target="_blank"><%= locale.get('unflag_project') %></a>
     </span>
 <% else %>
     <span class="flag-container">
         <i class="warning fas fa-exclamation-triangle"></i>
-        <a localizable="" class="clickable warning flag" target="_blank"
-            onclick="
-                confirm(
-                    '<%- package.loaded.dialog('flag_prewarning') %>',
-                    ok => {
-                        if (ok) {
-                            dialog(
-                                'Please choose a reason',
-                                '<%= package.loaded.dialog('flag_reason') %>',
-                                () => {
-                                    var form =
-                                        document.querySelector('form.reasons');
-                                    update_<%=component.id%>(
-                                        'project',
-                                        'flag',
-                                        {
-                                            project: { id: <%= project.id %> },
-                                            reason: form.querySelector(
-                                                'input[name=\'reason\']:checked'
-                                                ).value,
-                                            notes: form.querySelector(
-                                                'textarea.notes').value
-                                        }
-                                    );
-                                }
-                            );
-                        }
-                    },
-                    confirmTitle('Flag this project')
-                )"
-        >Report this project</a>
+        <a class="clickable warning flag" target="_blank"
+            onclick="confirmFlag()"><%= locale.get('flag_project') %></a>
     </span>
+<script>
+function confirmFlag () {
+    confirm(
+        "<%- locale.get('flag_prewarning' , '<br>') %>",
+        ok => {
+            if (ok) {
+                dialog(
+                    "<%- locale.get('choose_flag_reason') %>",
+                    '<%- package.loaded.dialog('flag_reason') %>',
+                    () => {
+                        var form =
+                            document.querySelector('form.reasons');
+                        update_<%=component.id%>(
+                            'project',
+                            'flag',
+                            {
+                                project: { id: <%= project.id %> },
+                                reason: form.querySelector(
+                                    'input[name=\'reason\']:checked'
+                                    ).value,
+                                notes: form.querySelector(
+                                    'textarea.notes').value
+                            }
+                        );
+                    }
+                );
+            }
+        },
+        confirmTitle('<%= locale.get('flag_project') %>')
+    );
+}
+</script>
 <% end %>
 </div>

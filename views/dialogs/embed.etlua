@@ -1,31 +1,30 @@
 <form class="embed-options pure-form pure-form-aligned">
-    <span class="info">Please select the elements you wish to include in the
-        embedded project viewer:</span>
+    <span class="info"><%= locale.get('embed_explanation') %></span>
     <fieldset>
         <div class="pure-control-group">
             <label for="title" class="pure-checkbox">
                 <input type="checkbox" id="title" value="showTitle" checked="">
-                Project title
+                <%= locale.get('project_title') %>
             </label>
         </div>
         <div class="pure-control-group">
             <label for="author" class="pure-checkbox">
             <input type="checkbox" id="author" value="showAuthor" checked="">
-                Project author
+                <%= locale.get('project_author') %>
             </label></div><div class="pure-control-group">
             <label for="edit-button" class="pure-checkbox">
                 <input type="checkbox" id="edit-button" value="editButton"
                     checked="">
-                Edit button
+                <%= locale.get('edit_button') %>
             </label></div><div class="pure-control-group">
             <label for="pause-button" class="pure-checkbox">
                 <input type="checkbox" id="pause-button" value="pauseButton"
                     checked="">
-                Pause button
+                <%= locale.get('pause_button') %>
             </label>
         </div>
         <div class="copy-text-element pure-control-group">
-            <label for="embed-url">Embed URL</label>
+            <label for="embed-url"><%= locale.get('embed_url') %></label>
             <button class="pure-button copy-button far fa-clipboard"
                 type="button" aria-label="Click to copy Embed URL"
                 onclick="
@@ -38,7 +37,7 @@
             <textarea id="embed-url" class="embed-code embed-url"></textarea>
         </div>
         <div class="copy-text-element pure-control-group">
-            <label for="embed-iframe">Embed Code</label>
+            <label for="embed-iframe"><%= locale.get('embed_code') %></label>
             <button class="pure-button copy-button far fa-clipboard"
                 type="button" aria-label="Click to copy Embed Code"
                 onclick="

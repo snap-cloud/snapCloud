@@ -28,7 +28,7 @@
     </span>
 <% end %>
 <% if show_author then %>
-    <span class="author"> by <a href="<%= item:url_for('author') %>" target=""
+    <span class="author">by <a href="<%= item:url_for('author') %>" target=""
             ><strong><%= item.username %></strong></a></span>
 <% end %>
 

@@ -1,26 +1,28 @@
 <!-- Notes -->
 <pre class="notes"
-    title="Press Shift + Enter to enter a newline"><%= data.project.notes %><%-
-        data.project.notes and '' or '<small>This project has no notes</small>'
-    %></pre>
+    title="<%= locale.get('shift_enter_note') %>"
+        ><%= data.project.notes %><%-
+            (data.project.notes ~= '') and '' or ('<small>' .. locale.get('no_notes') ..
+            '</small>')
+        %></pre>
 <!-- Dates and project meta -->
 <div class="dates">
     <p class="created">
-        <strong>Created:</strong>
+        <strong><%= locale.get('created_date') %></strong>
         <span><%= string.from_sql_date(data.project.created) %></span>
     </p>
     <p class="updated">
-        <strong>Last updated:</strong>
+        <strong><%= locale.get('updated_date') %></strong>
         <span><%= string.from_sql_date(data.project.lastupdated) %></span>
     </p>
 <% if data.project.ispublished then %>
     <p class="published">
-        <strong>Published:</strong>
+        <strong><%= locale.get('published_date') %></strong>
         <span><%= string.from_sql_date(data.project.firstpublished) %></span>
     </p>
 <% elseif data.project.ispublic then %>
     <p class="shared">
-        <strong>Shared:</strong>
+        <strong><%= locale.get('shared_date') %></strong>
         <span><%= string.from_sql_date(data.project.lastshared) %></span>
     </p>
 <% end %>
@@ -29,19 +31,25 @@
         current_user:has_min_role('reviewer')) then %>
     <% if data.project.ispublished then %>
     <a class="pure-button unpublish" target="_blank"
-        onclick="confirmButtonAction('unpublish', '<%= data %>')">Unpublish</a>
+        onclick="confirmButtonAction('unpublish', '<%= data %>')"
+        ><%= locale.get('unpublish_button') %></a>
     <a class="pure-button unshare" target="_blank"
-        onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
+        onclick="confirmButtonAction('unshare', '<%= data %>')"
+        ><%= locale.get('unshare_button') %></a>
     <% elseif data.project.ispublic then %>
     <a class="pure-button publish" target="_blank"
-        onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
+        onclick="confirmButtonAction('publish', '<%= data %>')"
+        ><%= locale.get('publish_button') %></a>
     <a class="pure-button unshare" target="_blank"
-        onclick="confirmButtonAction('unshare', '<%= data %>')">Unshare</a>
+        onclick="confirmButtonAction('unshare', '<%= data %>')"
+        ><%= locale.get('unshare_button') %></a>
     <% else %>
     <a class="pure-button share" target="_blank"
-        onclick="confirmButtonAction('share', '<%= data %>')">Share</a>
+        onclick="confirmButtonAction('share', '<%= data %>')"
+        ><%= locale.get('share_button') %></a>
     <a class="pure-button publish" target="_blank"
-        onclick="confirmButtonAction('publish', '<%= data %>')">Publish</a>
+        onclick="confirmButtonAction('publish', '<%= data %>')"
+        ><%= locale.get('publish_button') %></a>
     <% end %>
 <% end %>
 </div>

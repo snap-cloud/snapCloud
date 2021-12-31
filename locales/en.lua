@@ -40,7 +40,7 @@ local locale = {
     my_profile = "My Profile",
     administration = "Administration",
     logout = "Log Out",
-    -- This option lets admins go back to their admin account when they"re
+    -- This option lets admins go back to their admin account when they're
     -- impersonating another user:
     unbecome = "Unbecome",
 
@@ -195,6 +195,59 @@ local locale = {
     project_by = "by @1", -- @1 is the username
     project_remixes_title = "Public remixes of this project",
     project_collections_title = "Public collections containing this project",
+    shift_enter_note = "Press Shift + Enter to enter a newline", -- in the notes field
+    no_notes = "This project has no notes",
+    created_date = "Created",
+    updated_date = "Last updated",
+    shared_date = "Shared",
+    published_date = "Published",
+    -- Buttons
+    see_code = "See Code",
+    edit = "Edit",
+    download = "Download",
+    embed = "Embed",
+    collect = "Add to Collection",
+    delete_button = "Delete",
+    publish_button = "Publish",
+    share_button = "Share",
+    unpublish_button = "Unpublish",
+    unshare_button = "Unshare",
+    -- Flagging
+    you_flagged = "You flagged this project as inappropriate",
+    unflag_project = "Unflag this project",
+    flag_project = "Report this project",
+
+    -- Embed dialog
+    -- ============
+    embed_title = "Embed Options",
+    embed_explanation = "Please select the elements you wish to include in the embedded project viewer:",
+    project_title = "Project title",
+    project_author = "Project author",
+    edit_button = "Edit button",
+    pause_button = "Pause button",
+    embed_url = "Embed URL",
+    embed_code = "Embed Code",
+
+    -- Collect dialog
+    -- ==============
+    collect_title = "Add project to collection",
+    collect_explanation = "Please select the collection to which you want to add this project:",
+
+    -- Delete project dialog
+    -- =====================
+    confirm_delete_project = "Are you sure you want to delete this project?",
+    confirm_delete_user = "Are you sure you want to delete this user?",
+    confirm_delete_collection = "Are you sure you want to delete this collection?",
+
+    -- Flag project dialogs
+    -- ====================
+    flag_prewarning = "Are you sure you want to flag this project as inappropriate?@1@1Your username will be included in the flag report.@1@1Deliberately flagging legitimate projects will be considered a breach@1of our Terms of Service and can get you suspended.", -- @1 becomes a new line. You can add as many as you need.
+    choose_flag_reason = "Please choose a reason",
+    flag_reason_hack = "Security vulnerability",
+    flag_reason_coc = "Code of Conduct violation",
+    flag_reason_dmca = "DMCA violation",
+    flag_reason_notes = "Tell us more about why you're flagging this project:",
+    flag_reason_notes_placeholder = "Additional notes",
 
     -- User admin component
     -- ====================

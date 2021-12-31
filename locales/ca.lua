@@ -24,7 +24,7 @@ local locale = {
     my_profile = "El meu perfil",
     administration = "Administració",
     logout = "Tanca la sessió",
-    -- This option lets admins go back to their admin account when they"re
+    -- This option lets admins go back to their admin account when they're
     -- impersonating another user:
     unbecome = "Des-esdevingues",
 
@@ -75,7 +75,7 @@ local locale = {
     music = "Música",
     art = "Projectes artístics",
     fractals = "Fractals",
-    animations = "Animaciions",
+    animations = "Animacions",
     games = "Jocs",
     cs = "Ciències de la computació",
     maths = "Matemàtiques",
@@ -179,6 +179,59 @@ local locale = {
     project_by = "per @1", -- @1 is the username
     project_remixes_title = "Reinvencions públiques d'aquest projecte",
     project_collections_title = "Col·leccions públiques que contenen aquest projecte",
+    shift_enter_note = "Prem Shift + Intro per introduir un salt de línia", -- in the notes field
+    no_notes = "Aquest projecte no té descripció",
+    created_date = "Creat el",
+    updated_date = "Actualitzat el",
+    shared_date = "Compartit el",
+    published_date = "Publicat el",
+    -- Buttons
+    see_code = "Examina",
+    edit = "Edita",
+    download = "Descarrega",
+    embed = "Incrusta",
+    collect = "Afegeix a col·lecció",
+    delete_button = "Elimina",
+    publish_button = "Publica",
+    share_button = "Comparteix",
+    unpublish_button = "Despublica",
+    unshare_button = "Fes privat",
+    -- Flagging
+    you_flagged = "Has denunciat aquest projecte",
+    unflag_project = "Retira la denúncia",
+    flag_project = "Denuncia aquest projecte",
+
+    -- Embed dialog
+    -- ============
+    embed_title = "Opcions d'incrustació",
+    embed_explanation = "Escull els elements que vols incloure al projecte incrustat:",
+    project_title = "Títol del projecte",
+    project_author = "Autor del projecte",
+    edit_button = "Botó d'edició",
+    pause_button = "Botó de pausa",
+    embed_url = "URL d'incrustació",
+    embed_code = "Codi d'incrustació",
+
+    -- Collect dialog
+    -- ==============
+    collect_title = "Afegeix projecte a col·lecció",
+    collect_explanation = "Selecciona la col·lecció a què vols afegir aquest projecte",
+
+    -- Delete project dialog
+    -- =====================
+    confirm_delete_project = "Segur que vols eliminar aquest projecte?",
+    confirm_delete_user = "Segur que vols eliminar aquest usuari?",
+    confirm_delete_collection = "Segur que vols eliminar aquesta col·lecció?",
+
+    -- Flag project dialogs
+    -- ====================
+    flag_prewarning = "Segur que vols denunciar aquest projecte?@1@1La denúncia inclourà el teu nom d'usuari.@1@1Denunciar projectes legítims sense motiu es considera un incompliment dels@1termes d'ús, i pot resultar en la suspensió del teu usuari.", -- @1 becomes a new line. You can add as many as you need.
+    choose_flag_reason = "Escull el motiu de la denúncia",
+    flag_reason_hack = "Abús d'un forat de seguretat",
+    flag_reason_coc = "Incompliment del codi de conducta",
+    flag_reason_dmca = "Violació de drets d'autor",
+    flag_reason_notes = "Explica'ns més coses sobre els motius de la teva denúncia:",
+    flag_reason_notes_placeholder = "Notes addicionals",
 
     -- User admin component
     -- ====================

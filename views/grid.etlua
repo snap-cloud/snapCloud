@@ -3,6 +3,7 @@
     items               (tbl) Items to show.
     data >>
     .title              (str) Grid title. Default: none.
+    .title_selector     (str) Grid title localization selector. Default: none.
     .page_number        (num) Current page.
     .class              (str) CSS class.
     .item_type          (str) item template name at views/partials/[item_type].
@@ -34,7 +35,6 @@ data.items_per_row = data.items_per_row or 5
 data.item_type = data.item_type or 'project'
 data.num_pages = data.num_pages or 0
 if items == nil then items = {} end
-
 %>
 
 <link rel="stylesheet" href="/static/style/project.css">
@@ -59,12 +59,12 @@ if items == nil then items = {} end
     };
 </script>
 
-
 <% if ((data.num_pages > 0) or data.show_if_empty) then %>
     <% if (data.title) then %>
-    <h2 class="<%= data.class %> header" localizable>
-        <%= data.title %>
-    </h2>
+    <h2 class="<%= data.class %> header"><%= data.title %></h2>
+    <% elseif data.title_selector then %>
+    <h2 class="<%= data.class %> header"
+        ><%= locale.get(data.title_selector) %></h2>
     <% end %>
     <div class="bar">
         <%

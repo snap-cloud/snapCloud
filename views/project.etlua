@@ -92,7 +92,7 @@
         {
             component = { template = 'grid', controller = 'project' },
             data = {
-                title = locale.get('project_remixes_title'),
+                title_selector = 'project_remixes_title',
                 fetch_selector = 'remixes',
                 class = 'remixes',
                 item_type = 'project',
@@ -107,7 +107,7 @@
         {
             component = { template = 'grid', controller = 'collection' },
             data = {
-                title = locale.get('project_collections_title'),
+                title_selector = 'project_collections_title',
                 fetch_selector = 'containing_project',
                 class = 'collections',
                 item_type = 'collection',

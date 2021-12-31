@@ -106,6 +106,7 @@ ProjectController = {
         )
     end,
     remixes = function (self)
+        debug_print(self.params.data)
         self.params.data.order = 'remixes.created DESC'
         self.params.data.fields =
             'DISTINCT username, projectname, remixes.created'

@@ -5,7 +5,6 @@ TODO
     [ ] translate dialog buttons (I'll need to render the dialog JS from within
         Lapis, I guess)
     [ ] translate default dialog titles (Confirm, Inform...)
-    [ ] translate dates
 [ ] rethink rate limiting, maybe using CRLF protection?
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
