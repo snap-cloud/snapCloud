@@ -87,6 +87,25 @@ local locale = {
     password = "Contrasenya",
     password_2 = "Contrasenya (repetir)",
     birth_month = "Mes de naixement",
+    email_parent = "Adreça electrònica de la mare, pare o tutor",
+    email_user = "Adreça electrònica",
+    email_2 = "Adreça electrònica (repetir)",
+    tos_agree = "He llegit i accepto les @1 i l'@2", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
+    -- tos already translated in footer
+    privacy_agreement = "Acord de privacitat",
+    signup = "Registra-t'hi",
+    or_before = "o abans", -- is preceded by a year, like "1995 or before"
+
+    -- Log in page
+    -- ===========
+    log_into_snap = "Entra a Snap@1", -- @1 becomes an italic exclamation mark (!)
+    keep_logged_in = "mantén-me connectat",
+    i_forgot_password = "He oblidat la meva contrasenya",
+    i_forgot_username = "He oblidat el meu nom d'usuari",
+
+    -- Dates
+    -- =====
+    -- Month names
     january = "Gener",
     february = "Febrer",
     march = "Març",
@@ -99,14 +118,8 @@ local locale = {
     october = "Octubre",
     november = "Novembre",
     december = "Desembre",
-    email_parent = "Adreça electrònica de la mare, pare o tutor",
-    email_user = "Adreça electrònica",
-    email_2 = "Adreça electrònica (repetir)",
-    tos_agree = "He llegit i accepto les @1 i l'@2", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
-    -- tos already translated in footer
-    privacy_agreement = "Acord de privacitat",
-    signup = "Registra-t'hi",
-    or_before = "o abans", -- is preceded by a year, like "1995 or before"
+    -- Date format
+    date = "@1 de @2 de @3", -- @1 is the day, @2 is the month name, @3 is the year
 
     -- Explore page
     -- ============
@@ -159,6 +172,13 @@ local locale = {
     change_my_password = "Canvia la contrasenya",
     change_my_email = "Canvia el correu electrònic",
     delete_my_user = "Esborra el meu usuari",
+
+    -- Project page
+    -- ============
+    remixed_from = "(reinvenció de @1, de @2)", -- @1 is the original project name, @2 is its author's username
+    project_by = "per @1", -- @1 is the username
+    project_remixes_title = "Reinvencions públiques d'aquest projecte",
+    project_collections_title = "Col·leccions públiques que contenen aquest projecte",
 
     -- User admin component
     -- ====================

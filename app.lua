@@ -56,13 +56,17 @@ local domain_allowed = require('cors')
 local date = require("date")
 string.from_sql_date = function (sql_date)
     -- Formats an SQL date into (i.e.) November 21, 2021
-    local month_names = { 'January', 'February', 'March', 'April', 'May',
-        'June', 'July', 'August', 'September', 'October', 'November', 'December'
+    local month_names = { 'january', 'february', 'march', 'april', 'may',
+        'june', 'july', 'august', 'september', 'october', 'november', 'december'
     }
     if (sql_date == nil) then return 'never' end
     local actual_date = date(sql_date)
-    return month_names[actual_date:getmonth()] ..  ' ' ..
-        actual_date:getday() ..  ', ' ..  actual_date:getyear()
+    return package.loaded.locale.get(
+        'date',
+        actual_date:getday(),
+        package.loaded.locale.get(month_names[actual_date:getmonth()]),
+        actual_date:getyear()
+    )
 end
 
 debug_print = function (title, string)

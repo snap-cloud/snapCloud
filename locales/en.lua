@@ -105,6 +105,23 @@ local locale = {
     password = "Password",
     password_2 = "Repeat Password",
     birth_month = "Month of Birth",
+    email_parent = "Email address of parent or guardian",
+    email_user = "Email address",
+    email_2 = "Repeat email address",
+    tos_agree = "I have read and agree to the @1 and the @2", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
+    -- tos already translated in footer
+    privacy_agreement = "Privacy Agreement",
+
+    -- Log in page
+    -- ===========
+    log_into_snap = "Log into Snap@1", -- @1 becomes an italic exclamation mark (!)
+    keep_logged_in = "keep me logged in",
+    i_forgot_password = "I forgot my password",
+    i_forgot_username = "I forgot my username",
+
+    -- Dates
+    -- =====
+    -- Month names
     january = "January",
     february = "February",
     march = "March",
@@ -117,12 +134,8 @@ local locale = {
     october = "October",
     november = "November",
     december = "December",
-    email_parent = "Email address of parent or guardian",
-    email_user = "Email address",
-    email_2 = "Repeat email address",
-    tos_agree = "I have read and agree to the @1 and the @2", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
-    -- tos already translated in footer
-    privacy_agreement = "Privacy Agreement",
+    -- Date format
+    date = "@2 @1, @3", -- @1 is the day, @2 is the month name, @3 is the year
 
     -- Explore page
     -- ============
@@ -175,6 +188,13 @@ local locale = {
     change_my_password = "Change My Password",
     change_my_email = "Change My Email",
     delete_my_user = "Delete my Account",
+
+    -- Project page
+    -- ============
+    remixed_from = "(remixed from @1, by @2)", -- @1 is the original project name, @2 is its author's username
+    project_by = "by @1", -- @1 is the username
+    project_remixes_title = "Public remixes of this project",
+    project_collections_title = "Public collections containing this project",
 
     -- User admin component
     -- ====================
