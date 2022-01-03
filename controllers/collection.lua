@@ -287,7 +287,7 @@ CollectionController = {
             redirect = self:build_url('my_collections')
         })
     end,
-    makeFFA = function (self)
+    make_ffa = function (self)
         assert_min_role(self, 'moderator')
         local collection =
             Collections:find({ id = self.params.data.collection.id })
@@ -308,7 +308,7 @@ CollectionController = {
             title = 'Free for all'
         })
     end,
-    unmakeFFA = function (self)
+    unmake_ffa = function (self)
         assert_min_role(self, 'moderator')
         local collection =
             Collections:find({ id = self.params.data.collection.id })

@@ -9,7 +9,11 @@ if collection.editor_ids then
         </a>
         <a class="remove clickable" onclick="
             removeEditor('<%= editor.id %>');
-            flash(this.parentElement, () => { this.hidden = true }, true); // warning flash
+            flash(
+                this.parentElement,
+                () => { this.hidden = true },
+                true // warning flash
+            );
         "><i class="fas fa-times-circle"></i></a>
     </li>
 <%
@@ -52,34 +56,38 @@ end
         };
     </script>
 <% end %>
-<%
+<% if current_user and current_user:has_min_role('moderator') then %>
+    <script>
+        function confirmFFA (data) {
+           confirmComponentAction(
+                "<%- locale.get('confirm_ffa' , '<br>') %>",
+                '<%= component.id %>',
+                'collection',
+                'make_ffa',
+                { data: data }
+            );
+        };
+        function confirmUnFFA (data) {
+           confirmComponentAction(
+                "<%- locale.get('confirm_unffa' , '<br>') %>",
+                '<%= component.id %>',
+                'collection',
+                'unmake_ffa',
+                { data: data }
+            );
+
+        };
+    </script>
+<% end
 if current_user and current_user:has_min_role('moderator') and
         collection.published then
     if not(collection.free_for_all) then
 %>
-    <a class="pure-button ffa" onclick="
-       confirmComponentAction(
-            'Are you sure you want to mark this collection<br>' +
-                'as free-for-all and let all users add their<br>' +
-                'published projects to it?',
-            '<%= component.id %>',
-            'collection',
-            'makeFFA',
-            { data: <%= data %> }
-        );
-    ">Mark as free-for-all</a>
+    <a class="pure-button ffa" onclick="confirmFFA(<%= data %>)
+    "><%= locale.get('make_ffa') %></a>
 <%  else %>
-    <a class="pure-button un-ffa" onclick="
-       confirmComponentAction(
-            'Are you sure you want to unmark this collection<br>' +
-                'as free-for-all and prevent non-editors from adding<br>' +
-                'their projects to it?',
-            '<%= component.id %>',
-            'collection',
-            'unmakeFFA',
-            { data: <%= data %> }
-        );
-    ">Unmark as free-for-all</a>
+    <a class="pure-button un-ffa" onclick="confirmUnFFA(<%= data %>)
+    "><%= locale.get('unmake_ffa') %></a>
 <%
     end
 end
@@ -90,14 +98,18 @@ end
         for _, id in pairs(collection.editor_ids) do
             if id == current_user.id then
 %>
-    <a class="pure-button pure-button-warning unenroll" onclick="
+<script>
+    function confirmUnenroll (data) {
         confirmAction(
-            'Are you sure you want to remove yourself from this collection?',
+            "<%= locale.get('confirm_unenroll') %>",
             'collection',
             'unenroll',
-            { data: <%= data %> }
+            { data: data }
         );
-    ">Remove myself</a>
+    };
+</script>
+    <a class="pure-button pure-button-warning unenroll" onclick="
+        confirmUnenroll(<%= data %>);"><%= locale.get('unenroll') %></a>
 <%
                 break
             end

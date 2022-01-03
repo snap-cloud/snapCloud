@@ -1,28 +1,29 @@
 <div class="buttons">
     <% if collection.published then %>
     <a class="pure-button unpublish"
-        onclick="confirmButtonAction('unpublish')"
-        >Unpublish</a>
+        onclick="confirmUnpublish('<%= data %>')"
+        ><%= locale.get('unpublish_collection_button') %></a>
     <a class="pure-button unshare"
-        onclick="confirmButtonAction('unshare')"
-        >Unshare</a>
+        onclick="confirmUnshare('<%= data %>')"
+        ><%= locale.get('unshare_collection_button') %></a>
     <% elseif collection.shared then %>
     <a class="pure-button publish"
-        onclick="confirmButtonAction('publish')"
-        >Publish</a>
+        onclick="confirmPublish('<%= data %>')"
+        ><%= locale.get('publish_collection_button') %></a>
     <a class="pure-button unshare"
-        onclick="confirmButtonAction('unshare')"
-        >Unshare</a>
+        onclick="confirmUnshare('<%= data %>')"
+        ><%= locale.get('unshare_collection_button') %></a>
     <% else %>
     <a class="pure-button share"
-        onclick="confirmButtonAction('share')"
-        >Share</a>
+        onclick="confirmShare('<%= data %>')"
+        ><%= locale.get('share_collection_button') %></a>
     <a class="pure-button publish"
-        onclick="confirmButtonAction('publish')"
-        >Publish</a>
+        onclick="confirmPublish('<%= data %>')"
+        ><%= locale.get('publish_collection_button') %></a>
     <% end %>
 
-    <% if current_user:isadmin() or (current_user.id == collection.creator_id) then %>
+    <% if current_user:isadmin() or (current_user.id == collection.creator_id)
+        then %>
     <a class="pure-button pure-button-warning delete" onclick="
         confirmAction(
             '<%= package.loaded.dialog(
@@ -32,17 +33,49 @@
             'delete',
             { data: <%= data %> }
         );
-    ">Delete</a>
+    "><%= locale.get('delete_collection_button') %></a>
     <% end %>
 </div>
 <script>
-    function confirmButtonAction (action) {
-        confirmComponentAction(
-            'Are you sure you want to ' + action + ' this collection?',
-            '<%= component.id %>',
-            'collection',
-            action,
-            { data: '<%- data %>' }
-        );
-    };
+// We can't really refactor these much because of localization. Some languages
+// may need to change things other than just the verb depending on the action.
+
+function confirmPublish (data) {
+    confirmButtonAction(
+        "<%= locale.get('confirm_publish_collection') %>",
+        'publish',
+        data
+    )
+};
+function confirmUnpublish (data) {
+    confirmButtonAction(
+        "<%= locale.get('confirm_unpublish_collection') %>",
+        'unpublish',
+        data
+    )
+};
+function confirmShare (data) {
+    confirmButtonAction(
+        "<%= locale.get('confirm_share_collection') %>",
+        'share',
+        data
+    )
+};
+function confirmUnshare (data) {
+    confirmButtonAction(
+        "<%= locale.get('confirm_unshare_collection') %>",
+        'unshare',
+        data
+    )
+};
+
+function confirmButtonAction (text, action, data) {
+    confirmComponentAction(
+        text,
+        '<%= component.id %>',
+        'collection',
+        action,
+        { data: data }
+    );
+};
 </script>

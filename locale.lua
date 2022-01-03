@@ -40,7 +40,11 @@ localizer.apply_params = function (string, ...)
     -- Substitutes params of the type @1, @2 in strings
     local parametrized = string
     for i, v in ipairs({...}) do
-        parametrized = parametrized:gsub('@' .. i, v)
+        if tostring(v):find('%%') then
+            v = tostring(v):gsub('%%', '%%%%') -- in case string contains "%"
+        end
+        parametrized =
+            parametrized:gsub('@' .. i, v)
     end
     return parametrized
 end

@@ -165,6 +165,43 @@ local locale = {
     -- New collection dialog
     collection_name = "Collection name?",
 
+    -- Collection page
+    -- ===============
+    collection_by = "by @1", -- @1 is the author's username
+    -- Dates
+    collection_created_date = "Created",
+    collection_updated_date = "Last updated",
+    collection_shared_date = "Shared",
+    collection_published_date = "Published",
+    -- Buttons
+    share_collection_button = "Share",
+    unshare_collection_button = "Unshare",
+    publish_collection_button = "Publish",
+    unpublish_collection_button = "Unpublish",
+    delete_collection_button = "Delete",
+    make_ffa = "Mark as free-for-all",
+    unmake_ffa = "Unmark as free-for-all",
+    unenroll = "Remove myself",
+    -- Project Thumbnail
+    project_by_thumb = "by @1", -- @1 is the author's username
+    item_shared_info = "This item can be shared via URL.",
+    item_not_shared_info = "This item is private and only you can see it.",
+    item_published_info = "This item is published and can be searched and added to public collections.",
+    item_not_published_info = "This item has not been published in the community site.",
+    confirm_uncollect = "Are you sure you want to remove this project@1from this collection?", -- @1 becomes a new line. You can add as many as you need.
+    remove_from_collection_tooltip = "Remove from this collection",
+    collection_thumbnail_tooltip = "Set as collection thumbnail",
+
+    -- Collection dialogs
+    -- ==================
+    confirm_share_collection = "Are you sure you want to share this collection?",
+    confirm_unshare_collection = "Are you sure you want to unshare this collection?",
+    confirm_publish_collection = "Are you sure you want to publish this collection?",
+    confirm_unpublish_collection = "Are you sure you want to unpublish this collection?",
+    confirm_ffa = "Are you sure you want to mark this collection@1as free-for-all and let all users add their@1published projects to it?", -- @1 becomes a new line. You can add as many as you need.
+    confirm_unffa = "Are you sure you want to unmark this collection@1as free-for-all and prevent non-editors from adding@1their projects to it?", -- @1 becomes a new line. You can add as many as you need.
+    confirm_unenroll = "Are you sure you want to remove yourself from this collection?",
+
     -- User public page
     -- ================
     public_page = "@1's public page", -- @1 becomes the user's username

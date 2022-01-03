@@ -12,24 +12,30 @@
     </a>
 <% if show_icons then %>
     <span class="is-public"
-        title="This item <%=
-            item.ispublic and 'can be shared via URL' or 'is private'%>"
-        ><small><i class="fas <%= item.ispublic and 'fa-link' or 'fa-unlink' %>"
+        title="<%=
+            locale.get('item_' .. 
+                (item.ispublic and 'shared' or 'not_shared') .. '_info')
+    %>"><small><i class="fas <%= item.ispublic and 'fa-link' or 'fa-unlink' %>"
             aria-hidden="true"></i>
         </small>
     </span>
     <span class="is-published"
-        title="This item is <%=
-            item.ispublished and 'published' or 'unpublished' %>"
-        ><small><i
+        title="<%=
+            locale.get('item_' .. 
+                (item.ispublished and 'published' or 'not_published')
+                .. '_info')
+    %>" ><small><i
             class="fas <%= item.ispublished and 'fa-eye' or 'fa-eye-slash' %>"
             aria-hidden="true"></i>
         </small>
     </span>
 <% end %>
 <% if show_author then %>
-    <span class="author">by <a href="<%= item:url_for('author') %>" target=""
-            ><strong><%= item.username %></strong></a></span>
+    <span class="author"><%-
+        locale.get('project_by_thumb',
+            '<a href="' .. item:url_for('author') .. '"><strong>' ..
+                item.username .. '</strong></a>')
+    %></span>
 <% end %>
 
 <% if item.flag_count then %>
@@ -39,20 +45,12 @@
 
 <% if show_collection_controls then %>
     <div class="collection-controls">
-        <a title="Remove from collection" class="clickable remove" onclick="
-            confirmComponentAction(
-                'Are you sure you want to remove this project<br>' +
-                    'from this collection?',
-                '<%= component.id %>',
-                'collection',
-                'remove_project',
-                {
-                    data: <%= data %>,
-                    project: { id: <%= item.id %> }
-                }
-            );
-        "><i class="fas fa-times-circle"></i></a>
-        <a title="Set as collection thumbnail" class="clickable thumbnail"
+        <a title="<%= locale.get('remove_from_collection_tooltip') %>"
+            class="clickable remove"
+            onclick="confirmRemove(<%= item.id %>, <%= data %>);"
+            ><i class="fas fa-times-circle"></i></a>
+        <a title="<%= locale.get('collection_thumbnail_tooltip') %>"
+            class="clickable thumbnail"
             onclick="
                 update_<%= data.thumbnail_component.id %>(
                     'collection',
@@ -67,3 +65,4 @@
     </div>
 <% end %>
 </div>
+

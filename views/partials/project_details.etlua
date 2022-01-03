@@ -68,7 +68,7 @@ function confirmPublish (data) {
     confirmButtonAction(
         "<%= locale.get('confirm_publish_project') %>",
         'publish',
-        '<%- data %>'
+        data
     );
 };
 
@@ -76,7 +76,7 @@ function confirmUnpublish (data) {
     confirmButtonAction(
         "<%= locale.get('confirm_unpublish_project') %>",
         'unpublish',
-        '<%- data %>'
+        data
     );
 };
 
@@ -84,7 +84,7 @@ function confirmShare (data) {
     confirmButtonAction(
         "<%= locale.get('confirm_share_project') %>",
         'share',
-        '<%- data %>'
+        data
     );
 };
 
@@ -92,7 +92,7 @@ function confirmUnshare (data) {
     confirmButtonAction(
         "<%= locale.get('confirm_unshare_project') %>",
         'unshare',
-        '<%- data %>'
+        data
     );
 };
 

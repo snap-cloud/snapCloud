@@ -206,9 +206,15 @@ app:post(
     capture_errors(function (self)
         -- run the action associated to this particular component and selector,
         -- from the specified controller
-        if (self.params.data and type(self.params.data) == 'string') then
-            self.params.data = package.loaded.util.from_json(self.params.data)
+
+        ngx.req.read_body()
+        local body_data = ngx.req.get_body_data()
+
+
+        if (body_data and type(body_data) == 'string') then
+            self.params.data = package.loaded.util.from_json(body_data)
         end
+
         return {
             controller_dispatch(self),
             content_type = 'text/plain',

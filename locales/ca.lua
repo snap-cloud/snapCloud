@@ -150,6 +150,43 @@ local locale = {
     -- New collection dialog
     collection_name = "Nom de la col·lecció?",
 
+    -- Collection page
+    -- ===============
+    collection_by = "per @1", -- @1 is the author's username
+    -- Dates
+    collection_created_date = "Creada el",
+    collection_updated_date = "Actualitzada el",
+    collection_shared_date = "Compartida el",
+    collection_published_date = "Publicada el",
+    -- Buttons
+    share_collection_button = "Comparteix",
+    unshare_collection_button = "Fes privada",
+    publish_collection_button = "Publica",
+    unpublish_collection_button = "Despublica",
+    delete_collection_button = "Elimina",
+    make_ffa = "Obre a tothom",
+    unmake_ffa = "No obris a tothom",
+    unenroll = "Deixa de ser editor",
+    -- Project Thumbnail
+    project_by_thumb = "per @1", -- @1 is the author's username
+    item_shared_info = "Aquest element es pot compartir via URL.",
+    item_not_shared_info = "Aquest element és privat. Només el pots veure tu.",
+    item_published_info = "Aquest element està publicat a la web de la comunitat i pot ser cercat i afegit a col·leccions públiques.",
+    item_not_published_info = "Aquest element no ha estat publicat a la web de la comunitat.",
+    confirm_uncollect = "Segur que vols eliminar aquest projecte@1de la col·lecció?", -- @1 becomes a new line. You can add as many as you need.
+    remove_from_collection_tooltip = "Elimina de la col·lecció",
+    collection_thumbnail_tooltip = "Tria per a la imatge en miniatura de la col·lecció",
+
+    -- Collection dialogs
+    -- ===========================================
+    confirm_share_collection = "Segur que vols compartir aquesta col·lecció?",
+    confirm_unshare_collection = "Segur que vols deixar de compartir aquesta col·lecció?",
+    confirm_publish_collection = "Segur que vols publicar aquesta col·lecció?",
+    confirm_unpublish_collection = "Segur que vols despublicar aquesta col·lecció?",
+    confirm_ffa = "Segur que vols obrir aquesta col·lecció@1i que tothom hi pugui contribuir els seus@1projectes publicats?", -- @1 becomes a new line. You can add as many as you need.
+    confirm_unffa = "Segur que vols tancar aquesta col·lecció@1i que només propietari i editors hi puguin@1contribuir els seus projectes publicats?", -- @1 becomes a new line. You can add as many as you need.
+    confirm_unenroll = "Segur que vols deixar de ser editor d'aquesta col·lecció?",
+
     -- User public page
     -- ================
     public_page = "Pàgina pública de @1", -- @1 becomes the user's username

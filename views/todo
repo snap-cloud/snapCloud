@@ -9,6 +9,9 @@ TODO
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [ ] remake API for Snap! editor
+[ ] Publish then unpublish fails on Featured collection because of chars in
+    description. Idea: base64 encode (or sha512) data, always. The latter would
+    also solve the next issue:
 [ ] IMPORTANT! Make sure _ONLY_ the necessary data is pulled from the DB and
     stored into the component data. As it is, pulling a collection also pulls
     its creator, and along with the creator we get their (hashed, but still...)

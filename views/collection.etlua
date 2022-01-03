@@ -19,8 +19,13 @@
                 }
             );
         </script>
-        <span class="author">by <a href="<%= collection:url_for('author') %>"
-            ><strong><%= collection.creator.username %></strong></a></span>
+        <span class="author"><%-
+            locale.get(
+                'collection_by',
+                '<a href="' .. collection:url_for('author') .. '"><strong>' ..
+                    collection.creator.username .. '</strong></a>'
+)
+        %></span>
     </div>
     <div class="contents pure-g">
         <div class="pure-u-7-24 info">
@@ -50,14 +55,15 @@
         <!-- just a separator -->
         <i class="pure-u-1-24"></i>
         <div class="pure-u-2-3 projects">
-            <%
+        <%
+            grid_componenet = {
+                template = 'grid',
+                controller = 'collection'
+            }
             render(
                 'views.component',
                 {
-                    component = {
-                        template = 'grid',
-                        controller = 'collection'
-                    },
+                    component = grid_componenet,
                     data = {
                         class = 'collection_projects',
                         fetch_selector = 'projects',
@@ -75,6 +81,20 @@
                 }
             )
             %>
+            <script>
+            function confirmRemove (project_id, data) {
+                confirmComponentAction(
+                    "<%- locale.get('confirm_uncollect', '<br>') %>",
+                    '<%= grid_componenet.id %>',
+                    'collection',
+                    'remove_project',
+                    {
+                        data: data,
+                        project: { id: project_id }
+                    }
+                );
+            };
+            </script>
         </div>
     </div>
 </div>
