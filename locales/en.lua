@@ -136,6 +136,12 @@ local locale = {
     -- Date format
     date = "@2 @1, @3", -- @1 is the day, @2 is the month name, @3 is the year
 
+    -- Generic dialogs
+    -- ===============
+    ok = "Ok",
+    cancel = "Cancel",
+    confirm = "Confirm",
+
     -- Explore page
     -- ============
     published_projects = "Published Projects",
@@ -152,18 +158,13 @@ local locale = {
     -- =========================
     matching = "Matching: @1", -- @1 becomes the search term
 
-    -- Dialogs
-    -- =======
-    cancel = "Cancel",
-    ok = "Ok",
-    confirm = "Confirm",
-
     -- My Collections page
     -- ===================
     -- Buttons
     new_collection = "New Collection",
     -- New collection dialog
     collection_name = "Collection name?",
+    collection_by_thumb = "by @1", -- @1 is the author's username
 
     -- Collection page
     -- ===============

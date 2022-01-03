@@ -1,17 +1,15 @@
 TODO
 ====
 [ ] redo localization entirely
+    [ ] user admin
+    [ ] flagged projects
     [ ] translate titles of curated collections
-    [ ] translate dialog buttons (I'll need to render the dialog JS from within
-        Lapis, I guess)
-    [ ] translate default dialog titles (Confirm, Inform...)
 [ ] rethink rate limiting, maybe using CRLF protection?
 [ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
 [ ] remake API for Snap! editor
 [ ] Publish then unpublish fails on Featured collection because of chars in
-    description. Idea: base64 encode (or sha512) data, always. The latter would
-    also solve the next issue:
+    description. Idea: base64 encode data always.
 [ ] IMPORTANT! Make sure _ONLY_ the necessary data is pulled from the DB and
     stored into the component data. As it is, pulling a collection also pulls
     its creator, and along with the creator we get their (hashed, but still...)
@@ -25,3 +23,4 @@ TODO AFTER DEPLOYING
     [ ] edit notes
     [ ] edit title
 [ ] profile partial could be made a component so it can be updated on the fly
+[ ] localize all static pages

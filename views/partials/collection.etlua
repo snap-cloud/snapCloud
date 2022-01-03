@@ -17,7 +17,10 @@
 <% end %>
 <% if show_author then %>
     <span
-        class="author"> by <a href="<%= item:url_for('author') %>" target=""
-        ><strong><%= item.username %></strong></a></span>
+        class="author"><%-
+        locale.get('collection_by_thumb',
+            '<a href="' .. item:url_for('author') .. '"><strong>' ..
+                item.username .. '</strong></a>')
+    %></span>
 <% end %>
 </div>

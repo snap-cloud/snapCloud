@@ -26,8 +26,7 @@
         <script type="text/javascript" src="/static/js/base.js"></script>
     </head>
     <body>
-        <script type="text/javascript" src="/static/js/custom-alert.min.js"></script>
-        <script type="text/javascript" src="/static/js/dialog.js"></script>
+        <% render('views.js.dialog') %>
         <script>new customAlert();</script>
         <div id="loading">
             <i class="fas fa-spinner fa-spin fa-3x" aria-hidden="true"></i>

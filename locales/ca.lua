@@ -126,6 +126,12 @@ local locale = {
     published_projects = "Projectes públics",
     published_collections = "Col·leccions públiques",
 
+    -- Dialogs
+    -- =======
+    ok = "D'acord",
+    cancel = "Cancel·la",
+    confirm = "Confirmació",
+
     -- Search results page
     -- ===================
     search_results = "Resultats de la cerca: @1",
@@ -137,18 +143,13 @@ local locale = {
     -- =========================
     matching = "Contenen: @1", -- @1 becomes the search term
 
-    -- Dialogs
-    -- =======
-    cancel = "Cancel·la",
-    ok = "D'acord",
-    confirm = "Confirmació",
-
     -- My Collections page
     -- ===================
     -- Buttons
     new_collection = "Crear col·lecció",
     -- New collection dialog
     collection_name = "Nom de la col·lecció?",
+    collection_by_thumb = "de @1", -- @1 is the author's username
 
     -- Collection page
     -- ===============
