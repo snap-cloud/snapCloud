@@ -30,26 +30,25 @@
         ((data.project.username == current_user.username) or
         current_user:has_min_role('reviewer')) then %>
     <% if data.project.ispublished then %>
-    <a class="pure-button unpublish" target="_blank"
-        onclick="confirmButtonAction('unpublish', '<%= data %>')"
-        ><%= locale.get('unpublish_button') %></a>
-    <a class="pure-button unshare" target="_blank"
-        onclick="confirmButtonAction('unshare', '<%= data %>')"
-        ><%= locale.get('unshare_button') %></a>
+    <a class="pure-button unpublish" target="_blank" onclick="
+        confirmUnpublish('<%= data %>');
+        "><%= locale.get('unpublish_button') %></a>
+    <a class="pure-button unshare" target="_blank" onclick="
+        confirmUnshare('%= data %>');
+        "><%= locale.get('unshare_button') %></a>
     <% elseif data.project.ispublic then %>
-    <a class="pure-button publish" target="_blank"
-        onclick="confirmButtonAction('publish', '<%= data %>')"
-        ><%= locale.get('publish_button') %></a>
-    <a class="pure-button unshare" target="_blank"
-        onclick="confirmButtonAction('unshare', '<%= data %>')"
-        ><%= locale.get('unshare_button') %></a>
-    <% else %>
-    <a class="pure-button share" target="_blank"
-        onclick="confirmButtonAction('share', '<%= data %>')"
-        ><%= locale.get('share_button') %></a>
-    <a class="pure-button publish" target="_blank"
-        onclick="confirmButtonAction('publish', '<%= data %>')"
-        ><%= locale.get('publish_button') %></a>
+    <a class="pure-button publish" target="_blank" onclick="
+        confirmPublish('<%= data %>');
+        "><%= locale.get('publish_button') %></a>
+    <a class="pure-button unshare" target="_blank" onclick="
+        confirmUnshare('%= data %>');
+        "><%= locale.get('unshare_button') %></a>
+    <% else %> <a class="pure-button share" target="_blank" onclick="
+        confirmShare('<%= data %>');
+        "><%= locale.get('share_button') %></a>
+    <a class="pure-button publish" target="_blank" onclick="
+        confirmPublish('<%= data %>');
+        "><%= locale.get('publish_button') %></a>
     <% end %>
 <% end %>
 </div>
@@ -62,13 +61,48 @@
     end
 %>
 <script>
-    function confirmButtonAction (action, data) {
-        confirmComponentAction(
-            'Are you sure you want to ' + action + ' this project?',
-            '<%= component.id %>',
-            'project',
-            action,
-            { data: data }
-        );
-    };
+// We can't really refactor these much because of localization. Some languages
+// may need to change things other than just the verb depending on the action.
+
+function confirmPublish (data) {
+    confirmButtonAction(
+        "<%= locale.get('confirm_publish_project') %>",
+        'publish',
+        '<%- data %>'
+    );
+};
+
+function confirmUnpublish (data) {
+    confirmButtonAction(
+        "<%= locale.get('confirm_unpublish_project') %>",
+        'unpublish',
+        '<%- data %>'
+    );
+};
+
+function confirmShare (data) {
+    confirmButtonAction(
+        "<%= locale.get('confirm_share_project') %>",
+        'share',
+        '<%- data %>'
+    );
+};
+
+function confirmUnshare (data) {
+    confirmButtonAction(
+        "<%= locale.get('confirm_unshare_project') %>",
+        'unshare',
+        '<%- data %>'
+    );
+};
+
+function confirmButtonAction (text, action, data) {
+    confirmComponentAction(
+        text,
+        '<%= component.id %>',
+        'project',
+        action,
+        { data: data }
+    );
+};
 </script>

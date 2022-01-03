@@ -1,7 +1,7 @@
 -- Catalan localization
 -- ====================
 -- Authors: Bernat Romagosa
--- Last updated: 29 December 2021
+-- Last updated: 03 January 2021
 
 local locale = {
     -- Meta data
@@ -222,6 +222,13 @@ local locale = {
     confirm_delete_project = "Segur que vols eliminar aquest projecte?",
     confirm_delete_user = "Segur que vols eliminar aquest usuari?",
     confirm_delete_collection = "Segur que vols eliminar aquesta col·lecció?",
+
+    -- Share/unshare and publish/unpublish dialogs
+    -- ===========================================
+    confirm_share_project = "Segur que vols compartir aquest projecte?",
+    confirm_unshare_project = "Segur que vols deixar de compartir aquest projecte?",
+    confirm_publish_project = "Segur que vols publicar aquest projecte?",
+    confirm_unpublish_project = "Segur que vols despublicar aquest projecte?",
 
     -- Flag project dialogs
     -- ====================

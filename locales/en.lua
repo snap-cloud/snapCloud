@@ -1,7 +1,7 @@
 -- English localization
 -- ====================
 -- Authors: Bernat Romagosa
--- Last updated: 29 December 2021
+-- Last updated: 03 January 2021
 
 -- How to translate
 -- ----------------
@@ -9,15 +9,14 @@
 -- double quotes.
 -- Example: "Log In" should become "Entrar"
 --
--- If you need to use a double quote, either escape it with a backslash (\")
+-- If you need to use a double quote, escape it with a backslash (\")
 --
 -- The "@" symbol followed by a number represents a parameter that the system
 -- will substitute by a value, for example a username.
 -- Example: "Welcome, @1!" will become "Welcome, Mary!" when Mary is logged in.
 --
--- You need to leave "@" marks intact, but you can change its order in your
+-- You need to leave "@" marks intact, but you can change their order in your
 -- translation if your language requires so.
--- Example: "
 
 local locale = {
     -- Meta data
@@ -238,6 +237,13 @@ local locale = {
     confirm_delete_project = "Are you sure you want to delete this project?",
     confirm_delete_user = "Are you sure you want to delete this user?",
     confirm_delete_collection = "Are you sure you want to delete this collection?",
+
+    -- Share/unshare and publish/unpublish dialogs
+    -- ===========================================
+    confirm_share_project = "Are you sure you want to share this project?",
+    confirm_unshare_project = "Are you sure you want to unshare this project?",
+    confirm_publish_project = "Are you sure you want to publish this project?",
+    confirm_unpublish_project = "Are you sure you want to unpublish this project?",
 
     -- Flag project dialogs
     -- ====================
