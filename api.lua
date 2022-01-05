@@ -34,72 +34,121 @@ require 'validation'
 -- Wraps all API endpoints in standard behavior.
 -- All API routes are nested under /api/v1,
 -- which is currently an optional prefix.
-local function api_route(name, path, controller, methods)
-    tbl = { OPTIONS = cors_options }
-    -- by default, respond with a method not allowed error
-    for _, method in pairs({'GET', 'POST', 'PUT', 'DELETE'}) do
-        tbl[method] = capture_errors(function (self)
-            yield_error(err.method_not_allowed)
-        end)
-    end
-    -- methods is a table describing which REST methods this endpoint accepts
-    for _, method in pairs(methods) do
-        -- ex: tbl['GET'] =
-        --      capture_errors(UserController['GET']['current_user'])
-        -- equivalent to:
-        --      (...) GET = capture_errors(UserController.GET.current_user)
-        tbl[method] = capture_errors(controller[method][name])
-    end
-    return name, '(/api/' .. api_version .. ')' .. path, respond_to(tbl)
-end
-
-APIController = {
-    GET = {
-        init = function (self)
-            return errorResponse(
-                'It seems like you are trying to log in. ' ..
-                'Try refreshing the page and try again. This URL is internal to the Snap!Cloud.',
-                400)
-        end,
-        version = function (self)
-            return jsonResponse({
-                name = 'Snap! Cloud',
-                version = api_version
-            })
-        end
-    },
-    POST = {
-        init = function (self)
-            if not self.session.username or
-                (self.session.username and
-                    self.cookies.persist_session == 'false') then
-                self.session.username = ''
-            end
-        end
-    }
-}
+local function api_route(path) return '/(api/' .. api_version .. '/)' .. path end
 
 -- API Endpoints
 -- =============
-app:match(api_route('version', '/version', APIController, { 'GET' }))
-app:match(api_route('init', '/init', APIController, { 'GET', 'POST' }))
+app:match(api_route('version'), respond_to({
+    GET = function (self)
+        return jsonResponse({
+            name = 'Snap! Cloud',
+            version = api_version
+        })
+    end
+}))
 
--- Users
--- =====
-app:match(api_route('current_user', '/users/c', UserController, { 'GET' }))
-app:match(api_route('user', '/users/:username', UserController, { 'GET', 'POST', 'DELETE' }))
-app:match(api_route('new_password', '/users/:username/newpassword', UserController, { 'POST' }))
-app:match(api_route('resend_verification', '/users/:username/resendverification', UserController, { 'POST' }))
-app:match(api_route('password_reset', '/users/:username/password_reset(/:token)', UserController, { 'GET', 'POST' }))
-app:match(api_route('login', '/users/:username/login', UserController, { 'POST' }))
-app:match(api_route('verify_user', '/users/:username/verify_user/:token', UserController, { 'GET' }))
-app:match(api_route('logout', '/logout', UserController, { 'GET', 'POST' }))
+app:match(api_route('init'), respond_to({
+    GET = function (self)
+        return errorResponse(
+            'It seems like you are trying to log in. ' ..
+            'Try refreshing the page and try again. ' ..
+            'This URL is internal to the Snap!Cloud.',
+            400)
+    end,
+    POST = function (self)
+        if not self.session.username or
+            (self.session.username and
+                self.cookies.persist_session == 'false') then
+            self.session.username = ''
+        end
+    end
+}))
+
+-- Current user
+-- ============
+app:match(api_route('user'), respond_to({
+    GET = function (self)
+        -- get the current user
+    end,
+    DELETE = function (self)
+        -- delete the current user
+    end
+}))
+
+app:match(api_route('logout'), respond_to({
+    GET = function (self)
+    end,
+    POST = function (self)
+    end
+}))
+
+
+-- Other users
+-- ===========
+app:match(api_route('signup'), respond_to({
+    POST = function (self)
+        -- create a new user
+    end,
+}))
+
+app:match(api_route('users/:username/newpassword'), respond_to({
+    POST = function (self)
+    end
+}))
+
+app:match(api_route('users/:username/password_reset'), respond_to({
+    GET = function (self)
+    end,
+}))
+
+app:match(api_route('users/:username/login'), respond_to({
+    POST = function (self)
+    end
+}))
+
+app:match(api_route('users/:username/resendverification'), respond_to({
+    POST = function (self)
+    end
+}))
 
 -- Projects
 -- ========
-app:match(api_route('projects', '/projects', ProjectController, { 'GET' }))
-app:match(api_route('user_projects', '/projects/:username', ProjectController, { 'GET' }))
-app:match(api_route('project', '/projects/:username/:projectname', ProjectController, { 'GET', 'POST', 'DELETE' }))
-app:match(api_route('project_meta', '/projects/:username/:projectname/metadata', ProjectController, { 'GET', 'POST' }))
-app:match(api_route('project_versions', '/projects/:username/:projectname/versions', ProjectController, { 'GET' }))
-app:match(api_route('project_thumbnail', '/projects/:username/:projectname/thumbnail', ProjectController, { 'GET' }))
+app:match(api_route('projects'), respond_to({
+    -- get my projects
+    GET = function (self)
+    end
+}))
+
+app:match(api_route('projects/:username/:projectname'), respond_to({
+    GET = function (self)
+        -- get a public project
+    end
+}))
+
+app:match(api_route('projects/:projectname'), respond_to({
+    POST = function (self)
+        -- create a project, owned by the current user
+    end,
+    DELETE = function (self)
+    end
+}))
+
+app:match(api_route('projects/:username/:projectname/metadata'), respond_to({
+    -- Needed? I don't think so.
+    -- Let's instead make simpler routes for publish, unpublish, etc.
+    GET = function (self)
+    end,
+    POST = function (self)
+    end
+}))
+
+app:match(api_route('projects/:username/:projectname/versions'), respond_to({
+    GET = function (self)
+    end
+}))
+
+app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
+    GET = function (self)
+        -- Get the thumbnail for a project of mine
+    end
+}))

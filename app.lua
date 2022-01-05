@@ -220,8 +220,8 @@ if config.maintenance_mode == 'true' then
     return app
 end
 
--- The API is implemented in the api.lua file
---require 'api'
+-- The API for the Snap! editor is implemented in the api.lua file
+require 'api'
 require 'discourse'
 
 -- We don't keep spam/exploit paths in the API
