@@ -30,9 +30,6 @@ local cjson = require('cjson')
 local Projects = package.loaded.Projects
 local Users = package.loaded.Users
 local DeletedProjects = package.loaded.DeletedProjects
-local Remixes = package.loaded.Remixes
-local CollectionMemberships = package.loaded.CollectionMemberships
-local FlaggedProjects = package.loaded.FlaggedProjects
 
 local disk = package.loaded.disk
 
@@ -181,56 +178,6 @@ ProjectController = {
                         disk:generate_thumbnail(project.id))
             end
         }),
-
-        flag = function (self)
-            -- GET /projects/:username/:projectname/flag
-            -- Description: Get flagging information for a specific project.
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if not project then yield_error(err.nonexistent_project) end
-
-            assert_has_one_of_roles(self, { 'admin', 'moderator', 'reviewer' })
-
-            return jsonResponse(
-                FlaggedProjects:select(
-                    'JOIN active_users ON active_users.id = flagger_id '..
-                    'WHERE project_id = ? ' ..
-                    'GROUP BY reason, username, created_at, notes',
-                    project.id,
-                    { fields = 'username, created_at, reason, notes' }
-                )
-            )
-        end,
-
-        flags = function (self)
-            -- GET /flagged_projects
-            -- Description: Get a list of all flagged projects and their flag
-            --              count.
-
-            assert_has_one_of_roles(self, { 'admin', 'moderator', 'reviewer' })
-
-            local projects =
-                Projects:select(
-                    'INNER JOIN flagged_projects ON ' ..
-                        'active_projects.id = flagged_projects.project_id ' ..
-                    'WHERE active_projects.ispublic ' ..
-                    'GROUP BY active_projects.projectname, ' ..
-                        'active_projects.username, ' ..
-                        'active_projects.id ' ..
-                    'ORDER BY flag_count DESC',
-                    {
-                        fields = 'active_projects.id as id, ' ..
-                            'active_projects.projectname as projectname, ' ..
-                            'active_projects.username as username, ' ..
-                            'count(*) AS flag_count',
-                    }
-                )
-
-            disk:process_thumbnails(projects)
-
-            return jsonResponse({ projects = projects })
-        end
     },
 
     POST = {
@@ -407,38 +354,6 @@ ProjectController = {
             )
         end,
 
-        flag = function (self)
-            -- POST /projects/:username/:projectname/flag
-            -- Description: Flag a project and provide a reason for doing so.
-            -- Parameters:  reason, notes
-
-            rate_limit(self)
-
-            if self.current_user:isbanned() then yield_error(err.banned) end
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-            if not project then yield_error(err.nonexistent_project) end
-
-            local flag =
-                FlaggedProjects:select(
-                    'where project_id = ? and flagger_id = ?',
-                    project.id,
-                    self.current_user.id
-                )[1]
-
-            if flag then yield_error(err.project_already_flagged) end
-
-            FlaggedProjects:create({
-                flagger_id = self.current_user.id,
-                project_id = project.id,
-                reason = self.params.reason,
-                notes = self.params.notes
-            })
-
-            return okResponse(
-                'project ' .. self.params.projectname .. ' has been flagged'
-            )
-        end
     },
 
     DELETE = {
@@ -475,40 +390,5 @@ ProjectController = {
                     .. ' has been removed.')
             end
         end,
-
-        flag = function (self)
-            -- DELETE /projects/:username/:projectname/flag
-            -- Description: Unflag a project that the current user, or someone
-            --              else if query issuer has permissions, has previously
-            --              flagged.
-            -- Parameters:  flagger
-
-            if self.params.flagger then
-                -- We're removing someone else's flag
-                assert_has_one_of_roles(
-                    self, { 'admin', 'moderator', 'reviewer' }
-                )
-            end
-
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-            if not project then yield_error(err.nonexistent_project) end
-
-            local flag =
-                FlaggedProjects:select(
-                    'where project_id = ? and flagger_id in ' ..
-                    '(select id from users where username = ?)',
-                    project.id,
-                    self.params.flagger or self.current_user.username
-                )[1]
-
-            if not flag then yield_error(err.project_never_flagged) end
-
-            flag:delete()
-
-            return okResponse(
-                'project ' .. self.params.projectname .. ' has been unflagged'
-            )
-        end
     }
 }

@@ -22,16 +22,12 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local api_version = 'v1'
+local api_version = 'v2'
 
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local respond_to = package.loaded.respond_to
 local yield_error = package.loaded.yield_error
-
-require 'controllers.user'
-require 'controllers.project'
-require 'controllers.collection'
 
 require 'validation'
 
@@ -91,20 +87,13 @@ app:match(api_route('init', '/init', APIController, { 'GET', 'POST' }))
 -- Users
 -- =====
 app:match(api_route('current_user', '/users/c', UserController, { 'GET' }))
-app:match(api_route('user_list', '/users', UserController, { 'GET' }))
 app:match(api_route('user', '/users/:username', UserController, { 'GET', 'POST', 'DELETE' }))
-app:match(api_route('with_email', '/users/email/:email', UserController, { 'GET' }))
 app:match(api_route('new_password', '/users/:username/newpassword', UserController, { 'POST' }))
 app:match(api_route('resend_verification', '/users/:username/resendverification', UserController, { 'POST' }))
 app:match(api_route('password_reset', '/users/:username/password_reset(/:token)', UserController, { 'GET', 'POST' }))
 app:match(api_route('login', '/users/:username/login', UserController, { 'POST' }))
 app:match(api_route('verify_user', '/users/:username/verify_user/:token', UserController, { 'GET' }))
 app:match(api_route('logout', '/logout', UserController, { 'GET', 'POST' }))
-app:match(api_route('send_message', '/users/:username/message', UserController, { 'POST' }))
--- Zombie users
-app:match(api_route('zombies', '/zombies', UserController, { 'GET' }))
-app:match(api_route('revive', '/zombies/:username/revive', UserController, { 'POST' }))
-app:match(api_route('zombie', '/zombies/:username', UserController, { 'DELETE' }))
 
 -- Projects
 -- ========
@@ -113,19 +102,4 @@ app:match(api_route('user_projects', '/projects/:username', ProjectController, {
 app:match(api_route('project', '/projects/:username/:projectname', ProjectController, { 'GET', 'POST', 'DELETE' }))
 app:match(api_route('project_meta', '/projects/:username/:projectname/metadata', ProjectController, { 'GET', 'POST' }))
 app:match(api_route('project_versions', '/projects/:username/:projectname/versions', ProjectController, { 'GET' }))
-app:match(api_route('project_remixes', '/projects/:username/:projectname/remixes', ProjectController, { 'GET' }))
-app:match(api_route('project_collections', '/projects/:username/:projectname/collections', ProjectController, { 'GET' }))
 app:match(api_route('project_thumbnail', '/projects/:username/:projectname/thumbnail', ProjectController, { 'GET' }))
-app:match(api_route('flag', '/projects/:username/:projectname/flag', ProjectController, { 'GET', 'POST', 'DELETE' }))
-app:match(api_route('flags', '/flagged_projects', ProjectController, { 'GET' }))
-
--- Collections
--- ===========
-app:match(api_route('collections', '/collections', CollectionController, { 'GET' }))
-app:match(api_route('user_collections', '/users/:username/collections', CollectionController, { 'GET' }))
-app:match(api_route('collection', '/users/:username/collections/:name', CollectionController, { 'POST', 'DELETE' }))
-app:match(api_route('collection_meta', '/users/:username/collections/:name/metadata', CollectionController, { 'GET', 'POST' }))
-app:match(api_route('collection_projects', '/users/:username/collections/:name/projects', CollectionController, { 'GET', 'POST' }))
-app:match(api_route('collection_project', '/users/:username/collections/:name/projects/:project_id', CollectionController, { 'GET', 'POST', 'DELETE' }))
-app:match(api_route('collection_thumbnail', '/users/:username/collections/:name/thumbnail', CollectionController, { 'POST' }))
-app:match(api_route('collection_editors', '/users/:username/collections/:name/editors(/:editor_username)', CollectionController, { 'POST', 'DELETE' }))
