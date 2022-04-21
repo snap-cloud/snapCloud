@@ -6,8 +6,8 @@ curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394
  -d "{\"message\":\"Backup script started. $(date)\"}"
 
 server='cloud@cloud.snap.berkeley.edu'
-cloud_src="$server:/mnt/snap_cloud_project_storage/"
-local_dest='/volume1/snapcloud'
+cloud_src="$server:/mnt/snap_cloud_project_storage/store/"
+local_dest='/volume1/snapcloud/'
 
 rsync -az -e "ssh -p 22" --backup --backup-dir="rsync_bak_`date '+%F_%H-%M'`" $cloud_src $local_dest
 
