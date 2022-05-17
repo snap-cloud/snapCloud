@@ -78,6 +78,7 @@ domain_allowed['www.maketolearn.org'] = true
 domain_allowed['snap.techlit.org'] = true
 domain_allowed['bjc.techlit.org'] = true
 domain_allowed['amazingrobots.net'] = true
+domain_allowed['microblocks.fun'] = true
 -- Development
 domain_allowed['localhost'] = true
 
