@@ -71,7 +71,7 @@ end
 
 debug_print = function (title, string)
     print('\n\n----------\n' .. (string and title or 'DEBUG') .. '\n' ..
-        require('inspect').inspect(string) ..
+        require('inspect').inspect(string or title) ..
         '\n----------\n'
     )
 end

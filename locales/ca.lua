@@ -1,7 +1,7 @@
 -- Catalan localization
 -- ====================
 -- Authors: Bernat Romagosa
--- Last updated: 03 January 2021
+-- Last updated: 25 July 2022
 
 local locale = {
     -- Meta data
@@ -320,6 +320,7 @@ local locale = {
 
     -- Error messages
     -- ==============
+    err_login_failed = "Error d'autenticació",
     err_password_mismatch = "Si us plau, assegura't que has introduït correctament@1la teva contrasenya dues vegades.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_password_mismatch_title = "Les contrasenyes no coincideixen",
     err_email_mismatch = "Si us plau, assegura't que has introduït correctament@1la teva adreça electrònica dues vegades.", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.

@@ -1,6 +1,0 @@
-<h1>The Infamous Counter Example</h1>
-<%
-render(component_html('counter', { number = 10000 }))
-render(component_html('counter', { number = 10 }))
-render(component_html('counter', { number = 0 }))
-%>

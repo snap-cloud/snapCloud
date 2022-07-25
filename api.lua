@@ -31,6 +31,10 @@ local yield_error = package.loaded.yield_error
 
 require 'validation'
 
+require 'controllers.user'
+require 'controllers.project'
+require 'controllers.collection'
+
 -- Wraps all API endpoints in standard behavior.
 -- All API routes are nested under /api/v1,
 -- which is currently an optional prefix.
@@ -66,20 +70,17 @@ app:match(api_route('init'), respond_to({
 
 -- Current user
 -- ============
+app:get(api_route('users/c'), UserController.current) -- backwards compatibility
 app:match(api_route('user'), respond_to({
-    GET = function (self)
-        -- get the current user
-    end,
+    GET = UserController.current,
     DELETE = function (self)
         -- delete the current user
     end
 }))
 
 app:match(api_route('logout'), respond_to({
-    GET = function (self)
-    end,
-    POST = function (self)
-    end
+    GET = UserController.logout,
+    POST = UserController.logout
 }))
 
 
@@ -102,7 +103,10 @@ app:match(api_route('users/:username/password_reset'), respond_to({
 }))
 
 app:match(api_route('users/:username/login'), respond_to({
-    POST = function (self)
+    POST = function(self)
+        ngx.req.read_body()
+        self.params.password = ngx.req.get_body_data()
+        return UserController.login(self)
     end
 }))
 

@@ -24,6 +24,8 @@
         <!-- JS -->
         <script type="text/javascript" src="/static/js/locale.js"></script>
         <script type="text/javascript" src="/static/js/base.js"></script>
+        <script type="text/javascript" src="/snap/src/cloud.js"></script>
+        <script>cloud = new Cloud(); cloud.url = baseURL;</script>
     </head>
     <body>
         <% render('views.js.dialog') %>

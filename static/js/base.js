@@ -7,54 +7,6 @@ var snapURL = location.origin + '/snap/snap.html',
     buttonDefaults =
         { done: { text: 'Ok', default: true }, cancel: { text: 'Cancel' } };
 
-function run_selector (controller, selector, params) {
-    var req = new XMLHttpRequest(),
-        data = params ?
-            (typeof(params.data) == 'object' ?
-                JSON.stringify(params.data) :
-                params.data) :
-            null;
-    if (params && params.data) { delete(params.data); }
-    req.open(
-        'POST',
-        '/call_lua/' + controller + '/' + selector + encodeParams(params),
-        true
-    );
-    req.onreadystatechange = function () {
-        if (req.readyState == 4 && req.status == 200) {
-            var json;
-            try { json = JSON.parse(req.responseText); } catch (err) { }
-            if (json) {
-                // it's a response message
-                dialog(
-                    json.title,
-                    json.message,
-                    ok => {
-                        if (json.redirect) {
-                            location.href = json.redirect;
-                        }
-                    }
-                );
-            } else if (req.responseText.length > 0) {
-                // it's a path
-                location.href = req.responseText;
-            }
-        } else if (req.readyState == 4) {
-            // handle the error
-            try {
-                var err = JSON.parse(req.responseText).errors[0];
-            } catch (e) {
-                var err = req.responseText;
-            }
-            alert(
-                err || 'Unknown error',
-                { title: req.statusText || 'Error' }
-            );
-        }
-    };
-    req.send(data);
-};
-
 function encodeParams (params) {
     if (params) {
         return '?' +

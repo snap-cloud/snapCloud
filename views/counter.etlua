@@ -1,3 +1,0 @@
-<a onclick="update_<%=component.id%>('counter', 'increment', { increment: -1 })">-</a>
-<%= session.value %>
-<a onclick="update_<%=component.id%>('counter', 'increment', { increment: 1 })">+</a>

@@ -39,12 +39,8 @@ local db = package.loaded.db
 require 'controllers.user'
 require 'controllers.project'
 require 'controllers.collection'
-require 'controllers.counter'
 
 require 'dialogs'
-
--- All component actions and queries are separated into the site controller
---require 'controllers.site'
 
 app:enable('etlua')
 app.layout = require 'views.layout'
@@ -78,7 +74,7 @@ app:get('/embed', capture_errors(function (self)
     return { render = 'embed', layout = false }
 end))
 
--- Pages that use AJAX-enabled components
+-- Pages that need redoing (used AJAX before)
 
 local index = capture_errors(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
@@ -174,80 +170,3 @@ app:get('/user_admin', capture_errors(function (self)
     assert_min_role(self, 'moderator')
     return { render = 'user_admin' }
 end))
-
---[[
--- TEST COUNTER COMPONENT
-app:get('/counter', capture_errors(function (self)
-    if self.session.value == nil then self.session.value = 0 end
-    self.component = { template = 'counter', controller = 'counter' }
-    return { render = 'component' }
-end))
---]]
-
--- controller calls
-
-local controller_dispatch = function (self)
-    -- 'user' →  'UserController'
-    local controller_name =
-        self.params.controller:gsub("^%l", string.upper) .. 'Controller'
-    local method = _G[controller_name][self.params.selector]
-    if method then
-        return method(self)
-    else
-        error(
-            'method ' .. self.params.selector ..
-            ' not found in controller ' .. controller_name
-        )
-    end
-end
-
-app:post(
-    '/call_lua/:controller/:selector',
-    capture_errors(function (self)
-        -- run the action associated to this particular component and selector,
-        -- from the specified controller
-
-        ngx.req.read_body()
-        local body_data = ngx.req.get_body_data()
-
-
-        if (body_data and type(body_data) == 'string') then
-            self.params.data = package.loaded.util.from_json(body_data)
-        end
-
-        return {
-            controller_dispatch(self),
-            content_type = 'text/plain',
-            layout = false
-        }
-    end)
-)
-
--- component updater
-app:post(
-    '/update_component/:component_id/:template/:controller/:selector',
-    capture_errors(cached(function (self)
-        -- run the action associated to this particular component and selector,
-        -- from the actions table
-
-        ngx.req.read_body()
-        local body_data = ngx.req.get_body_data()
-
-        if (body_data and type(body_data) == 'string') then
-            self.params.data = package.loaded.util.from_json(body_data)
-        end
-
-        self.component = {
-            id = self.params.component_id,
-            controller = self.params.controller,
-            fetch_selector = self.params.data.fetch_selector or 'fetch'
-        }
-        -- ignore return value, as we'll just re-render the component
-        controller_dispatch(self)
-
-        return {
-            render = self.params.template,
-            layout = false
-        }
-    end))
-)

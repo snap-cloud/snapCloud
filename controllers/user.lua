@@ -125,6 +125,33 @@ UserController = {
         end
         UserController[self.component.fetch_selector](self)
     end,
+    current = function (self)
+        if self.current_user then
+            self.session.verified = self.current_user.verified
+            self.session.user_id = self.current_user.id
+        elseif self.session.username == '' then
+            self.session.role = nil
+            self.session.verified = false
+            self.session.user_id = nil
+        end
+
+        if (self.session.first_access == nil) then
+            self.session.first_access = os.time()
+        end
+
+        if (self.session.access_id == nil) then
+            -- just to uniquely identify the session
+            self.session.access_id =
+                socket.gettime() .. '-' .. math.random()
+        end
+
+        return jsonResponse({
+            username = self.session.username,
+            role = self.session.role,
+            verified = self.session.verified,
+            id = self.session.user_id
+        })
+    end,
     login = function (self)
         assert_user_exists(self)
         local password = self.params.password
@@ -160,7 +187,8 @@ UserController = {
             self.session.username = self.queried_user.username
             self.cookies.persist_session = tostring(self.params.persist)
             if self.queried_user.verified then
-                return self:build_url('index')
+                return okResponse('User ' .. self.queried_user.username
+                        .. ' logged in')
             else
                 return jsonResponse({
                     title = 'Verify your account',
@@ -434,35 +462,35 @@ app:match('password_reset', '/password_reset/:token', function (self)
 end)
 
 app:match('verify_user', '/verify_me/:token', function (self)
-        local token = Tokens:find(self.params.token)
+    local token = Tokens:find(self.params.token)
 
-        local user_page = function ()
-            return htmlPage(
-                'User verified | Welcome to Snap<em>!</em>',
-                '<p>Your account <strong>' .. self.queried_user.username ..
-                '</strong> has been verified.</p>' ..
-                '<p>Thank you!</p>' ..
-                '<p><a href="https://snap.berkeley.edu/">' ..
-                'Take me to Snap<i>!</i></a></p>'
-            )
-        end
+    local user_page = function ()
+        return htmlPage(
+            'User verified | Welcome to Snap<em>!</em>',
+            '<p>Your account <strong>' .. self.queried_user.username ..
+            '</strong> has been verified.</p>' ..
+            '<p>Thank you!</p>' ..
+            '<p><a href="https://snap.berkeley.edu/">' ..
+            'Take me to Snap<i>!</i></a></p>'
+        )
+    end
 
-        -- Check whether user had already been verified and, if so, delete the
-        -- token
-        if self.queried_user.verified then
-            token:delete()
-            return user_page(self.queried_user)
-        else
-            return check_token(
-                self,
-                token,
-                'verify_user',
-                function ()
-                    -- success callback
-                    self.queried_user:update({ verified = true })
-                    self.session.verified = true
-                    return user_page()
-                end
-            )
-        end
+    -- Check whether user had already been verified and, if so, delete the
+    -- token
+    if self.queried_user.verified then
+        token:delete()
+        return user_page(self.queried_user)
+    else
+        return check_token(
+            self,
+            token,
+            'verify_user',
+            function ()
+                -- success callback
+                self.queried_user:update({ verified = true })
+                self.session.verified = true
+                return user_page()
+            end
+        )
+    end
 end)

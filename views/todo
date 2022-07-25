@@ -1,21 +1,44 @@
 TODO
 ====
+[ ] scrap AJAX components entirely: make everything static
+    [ ] change_email
+    [ ] change_password
+    [ ] collection
+    [ ] collection_info
+    [ ] delete_user
+    [ ] dialog
+    [ ] examples
+    [ ] explore
+    [ ] flags
+    [ ] forgot_password
+    [ ] forgot_username
+    [ ] index
+    [ ] login
+    [ ] my_collections
+    [ ] my_projects
+    [ ] navigation_bar
+    [ ] profile
+    [ ] project
+    [ ] project_buttons
+    [ ] search
+    [ ] sign_up
+    [ ] user
+    [ ] user_admin
+
+    [ ] redo carousels
+        [ ] load 4 pages always on the server, then do scrolling on the client
+    [ ] show only projects in explore page
+    [ ] add "more collections" link to bottom of index
+
+[ ] remake API
+
 [ ] redo localization entirely
     [ ] user admin
     [ ] flagged projects
     [ ] translate titles of curated collections
     [ ] errors
 [ ] rethink rate limiting, maybe using CRLF protection?
-[ ] refactor run_selector (base.js) and update_[...]() (component.etlua)
 [ ] caching
-[ ] remake API for Snap! editor
-[ ] Publish then unpublish fails on Featured collection because of chars in
-    description. Idea: base64 encode data always.
-[ ] IMPORTANT! Make sure _ONLY_ the necessary data is pulled from the DB and
-    stored into the component data. As it is, pulling a collection also pulls
-    its creator, and along with the creator we get their (hashed, but still...)
-    password, email, etc. Inspecting the page source would reveal all this info.
-    IDEA: Use an after_filter?
 
 TODO AFTER DEPLOYING
 ====================
@@ -23,5 +46,4 @@ TODO AFTER DEPLOYING
 [ ] project
     [ ] edit notes
     [ ] edit title
-[ ] profile partial could be made a component so it can be updated on the fly
 [ ] localize all static pages

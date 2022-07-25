@@ -35,13 +35,16 @@
         enableEnterSubmit();
         var submit = function (event) {
             var form = document.querySelector('div#login');
-            run_selector(
-                'user',
-                'login',
-                {
-                    username: form.querySelector('#username').value,
-                    password: hex_sha512(form.querySelector('#password').value),
-                    persist: form.querySelector('#persist').checked
+            cloud.login(
+                form.querySelector('#username').value, // username
+                form.querySelector('#password').value,// password
+                form.querySelector('#persist').checked, // persist
+                () => { location.href = 'index'; }, // onSuccess
+                response => {
+                    genericError(
+                        response,
+                        '<%= locale.get('err_login_failed') %>'
+                    );
                 }
             );
         }
