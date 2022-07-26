@@ -13,10 +13,11 @@ TODO
     [ ] forgot_password
     [ ] forgot_username
     [ ] index
-    [ ] login
+    [x] login
     [ ] my_collections
     [ ] my_projects
     [ ] navigation_bar
+        [ ] test unbecome
     [ ] profile
     [ ] project
     [ ] project_buttons
@@ -28,6 +29,7 @@ TODO
     [ ] redo carousels
         [ ] load 4 pages always on the server, then do scrolling on the client
     [ ] show only projects in explore page
+    [ ] new "published collections" page
     [ ] add "more collections" link to bottom of index
 
 [ ] remake API

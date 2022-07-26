@@ -83,6 +83,9 @@ app:match(api_route('logout'), respond_to({
     POST = UserController.logout
 }))
 
+app:match(api_route('unbecome'), respond_to({
+    POST = UserController.unbecome
+}))
 
 -- Other users
 -- ===========

@@ -69,12 +69,26 @@
                     <hr>
                     <li class="pure-menu-item">
                         <a class="pure-menu-link clickable"
-                            onclick="run_selector('user', 'logout');"
+                            onclick="
+                                cloud.logout(
+                                    response => {
+                                        location.href = response.redirect;
+                                    },
+                                    genericError
+                                );"
                         ><%- locale.get('logout') %></a></li>
                     <% if session.impersonator then %>
                     <li class="pure-menu-item">
                         <a class="pure-menu-link clickable"
-                            onclick="run_selector('user', 'unbecome');"
+                            onclick="
+                                cloud.request(
+                                    'POST',
+                                    '/unbecome',
+                                    response => {
+                                        location.href = response.redirect;
+                                    },
+                                    genericError
+                                );
                         ><%- locale.get('unbecome') %></a></li>
                     <% end %>
                 </ul>

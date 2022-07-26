@@ -208,7 +208,7 @@ UserController = {
         self.session.username = ''
         self.session.user_id = nil
         self.cookies.persist_session = 'false'
-        return self:build_url('index')
+        return jsonResponse({ redirect = self:build_url('index') })
     end,
     change_email = function (self)
         assert_logged_in(self)
