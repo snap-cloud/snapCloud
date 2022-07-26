@@ -38,44 +38,44 @@ ProjectController = {
         -- query can hold a paginator or an SQL query
         local paginator = Projects:paginated(
                  query ..
-                    (self.params.data.search_term and (db.interpolate_query(
+                    (self.params.search_term and (db.interpolate_query(
                         ' AND (projectname ILIKE ? OR notes ILIKE ?)',
-                        '%' .. self.params.data.search_term .. '%',
-                        '%' .. self.params.data.search_term .. '%')
+                        '%' .. self.params.search_term .. '%',
+                        '%' .. self.params.search_term .. '%')
                     ) or '') ..
                     ' ORDER BY ' ..
-                        (self.params.data.order or 'firstpublished DESC'),
+                        (self.params.order or 'firstpublished DESC'),
                 {
-                    per_page = self.params.data.items_per_page or 15,
-                    fields = self.params.data.fields or '*'
+                    per_page = self.params.items_per_page or 15,
+                    fields = self.params.fields or '*'
                 }
             )
 
-        if not self.params.data.ignore_page_count then
-            self.params.data.num_pages = paginator:num_pages()
+        if not self.params.ignore_page_count then
+            self.num_pages = paginator:num_pages()
         end
 
-        self.items = paginator:get_page(self.params.data.page_number)
-        disk:process_thumbnails(self.items)
-        self.data = self.params.data
+        local items = paginator:get_page(self.params.page_number)
+        disk:process_thumbnails(items)
+        return items
     end,
     change_page = function (self)
         if self.params.offset == 'first' then
-            self.params.data.page_number = 1
+            self.params.page_number = 1
         elseif self.params.offset == 'last' then
-            self.params.data.page_number = self.params.data.num_pages
+            self.params.page_number = self.params.num_pages
         else
-            self.params.data.page_number =
+            self.params.page_number =
                 math.min(
                     math.max(
                         1,
-                        self.params.data.page_number + self.params.offset),
-                    self.params.data.num_pages)
+                        self.params.page_number + self.params.offset),
+                    self.params.num_pages)
         end
         ProjectController[self.component.fetch_selector](self)
     end,
     fetch = function (self)
-        ProjectController.run_query(
+        return ProjectController.run_query(
             self,
             [[WHERE ispublished AND NOT EXISTS(
                 SELECT 1 FROM deleted_users WHERE
@@ -84,31 +84,30 @@ ProjectController = {
         )
     end,
     search = function (self)
-        self.params.data.search_term = self.params.search_term
-        self.params.data.page_number = 1
+        self.params.search_term = self.params.search_term
+        self.params.page_number = 1
         ProjectController[self.component.fetch_selector](self)
     end,
     my_projects = function (self)
-        self.params.data.order = 'lastupdated DESC'
+        self.params.order = 'lastupdated DESC'
         ProjectController.run_query(
             self,
             db.interpolate_query('WHERE username = ?', self.session.username)
         )
     end,
     user_projects = function (self)
-        self.params.data.order = 'lastupdated DESC'
+        self.params.order = 'lastupdated DESC'
         ProjectController.run_query(
             self,
             db.interpolate_query(
                 'WHERE ispublished AND username = ? ',
-                self.params.data.username
+                self.params.username
             )
         )
     end,
     remixes = function (self)
-        debug_print(self.params.data)
-        self.params.data.order = 'remixes.created DESC'
-        self.params.data.fields =
+        self.params.order = 'remixes.created DESC'
+        self.params.fields =
             'DISTINCT username, projectname, remixes.created'
         ProjectController.run_query(
             self,
@@ -117,13 +116,13 @@ ProjectController = {
                     ON active_projects.id = remixes.remixed_project_id
                 WHERE remixes.original_project_id = ?
                 AND ispublic]],
-                self.params.data.project_id
+                self.params.project_id
             )
         )
     end,
     flagged_projects = function (self)
-        self.params.data.order = 'flag_count DESC'
-        self.params.data.fields = [[active_projects.id AS id,
+        self.params.order = 'flag_count DESC'
+        self.params.fields = [[active_projects.id AS id,
             active_projects.projectname AS projectname,
             active_projects.username AS username,
             count(*) AS flag_count]]
@@ -136,16 +135,16 @@ ProjectController = {
         if (self.params.num_pages == nil) then
             local total_flag_count =
                 table.getn(
-                    Projects:select(query, {fields = self.params.data.fields})
+                    Projects:select(query, {fields = self.params.fields})
                 )
-            self.params.data.num_pages =
+            self.params.num_pages =
                 math.ceil(total_flag_count /
-                    (self.params.data.items_per_page or 15))
+                    (self.params.items_per_page or 15))
         end
         ProjectController.run_query(self, query)
     end,
     share = function (self)
-        local project = Projects:find({ id = self.params.data.project.id })
+        local project = Projects:find({ id = self.params.project.id })
         assert_can_share(self, project)
         debug_print('type', project.type)
         project:update({
@@ -154,24 +153,22 @@ ProjectController = {
             ispublic = true,
             ispublished = false
         })
-        self.params.data.project = project
+        self.params.project = project
         self.project = project
-        self.data = self.params.data
     end,
     unshare = function (self)
-        local project = Projects:find({ id = self.params.data.project.id })
+        local project = Projects:find({ id = self.params.project.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
             ispublic = false,
             ispublished = false
         })
-        self.params.data.project = project
+        self.params.project = project
         self.project = project
-        self.data = self.params.data
     end,
     publish = function (self)
-        local project = Projects:find({ id = self.params.data.project.id })
+        local project = Projects:find({ id = self.params.project.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
@@ -179,20 +176,18 @@ ProjectController = {
             ispublic = true,
             ispublished = true
         })
-        self.params.data.project = project
+        self.params.project = project
         self.project = project
-        self.data = self.params.data
     end,
     unpublish = function (self)
-        local project = Projects:find({ id = self.params.data.project.id })
+        local project = Projects:find({ id = self.params.project.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
             ispublished = false
         })
-        self.params.data.project = project
+        self.params.project = project
         self.project = project
-        self.data = self.params.data
     end,
     delete = function (self)
         local project = Projects:find({ id = self.params.project.id })
@@ -244,15 +239,14 @@ ProjectController = {
         })
 
         project.flagged = true
-        self.params.data.project = project
+        self.params.project = project
         self.project = project
-        self.data = self.params.data
     end,
     remove_flag = function (self)
         -- Check whether we're removing someone else's flag
         if self.params.flagger then assert_min_role(self, 'reviewer') end
 
-        local project = Projects:find({ id = self.params.data.project.id })
+        local project = Projects:find({ id = self.params.project.id })
 
         local flagger =
             self.params.flagger and
@@ -269,8 +263,7 @@ ProjectController = {
             yield_error(err.project_never_flagged)
         end
 
-        self.params.data.project = project
+        self.params.project = project
         self.project = project
-        self.data = self.params.data
     end,
 }

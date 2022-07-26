@@ -68,6 +68,15 @@ app:match(api_route('init'), respond_to({
     end
 }))
 
+-- Session
+-- =======
+app:match(api_route('set_locale'), respond_to({
+    POST = function (self)
+        self.session.locale = self.params.locale
+        return jsonResponse({ redirect = self.params.redirect })
+    end
+}))
+
 -- Current user
 -- ============
 app:get(api_route('users/c'), UserController.current) -- backwards compatibility

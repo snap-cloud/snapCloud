@@ -1,28 +1,13 @@
 <h1><%- locale.get('explore') %></h1>
 <%
 render(
-    'views.component',
+    'views.grid',
     {
-        component = { template = 'grid', controller = 'project' },
-        data = {
-            class = 'projects',
-            title = locale.get('published_projects'),
-            item_type = 'project',
-            items_per_page = 15
-        }
-    }
-)
-
-render(
-    'views.component',
-    {
-        component = { template = 'grid', controller = 'collection' },
-        data = {
-            class = 'collections',
-            title =  locale.get('published_collections'),
-            item_type = 'collection',
-            items_per_page = 15
-        }
+        class = 'projects',
+        title = locale.get('published_projects'),
+        item_type = 'project',
+        items_per_page = 15,
+        items_per_row = 5
     }
 )
 %>

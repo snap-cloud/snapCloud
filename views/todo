@@ -8,17 +8,21 @@ TODO
     [ ] delete_user
     [ ] dialog
     [ ] examples
-    [ ] explore
+    [x] explore
     [ ] flags
     [ ] forgot_password
     [ ] forgot_username
+    [ ] grid
+    [ ] partials
+        [x] grid_paginator
+        [ ] project
     [ ] index
     [x] login
     [ ] my_collections
     [ ] my_projects
-    [ ] navigation_bar
+    [x] navigation_bar
         [ ] test unbecome
-    [ ] profile
+    [x] profile
     [ ] project
     [ ] project_buttons
     [ ] search

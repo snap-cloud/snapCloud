@@ -56,7 +56,7 @@ local views = {
     'forgot_username', 'sign_up', 'login',
 
     -- Simple, component-based pages
-    'explore', 'my_projects', 'my_collections'
+    'my_projects', 'my_collections'
 }
 
 for _, view in pairs(views) do
@@ -72,6 +72,14 @@ app:get('/embed', capture_errors(function (self)
         self.params.project or self.params.projectname
     )
     return { render = 'embed', layout = false }
+end))
+
+-- Redone
+
+app:get('/explore', capture_errors(function (self)
+    self.items = ProjectController.fetch(self)
+    if not self.params.page_number then self.params.page_number = 1 end
+    return { render = 'explore' }
 end))
 
 -- Pages that need redoing (used AJAX before)

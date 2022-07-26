@@ -70,13 +70,15 @@
                     <li class="pure-menu-item">
                         <a class="pure-menu-link clickable"
                             onclick="
-                                cloud.logout(
+                                cloud.request(
+                                    'POST',
+                                    '/logout?&redirect=' + location.href,
                                     response => {
                                         location.href = response.redirect;
                                     },
                                     genericError
-                                );"
-                        ><%- locale.get('logout') %></a></li>
+                                );
+                        "><%- locale.get('logout') %></a></li>
                     <% if session.impersonator then %>
                     <li class="pure-menu-item">
                         <a class="pure-menu-link clickable"
@@ -89,7 +91,7 @@
                                     },
                                     genericError
                                 );
-                        ><%- locale.get('unbecome') %></a></li>
+                        "><%- locale.get('unbecome') %></a></li>
                     <% end %>
                 </ul>
             </li>
@@ -101,15 +103,17 @@
                 </a>
                 <ul class="pure-menu-children languages">
                     <% for _, each in pairs(locale.locales) do %>
-                    <a class="pure-menu-link clickable" onclick="
-                        run_selector(
-                            'user',
-                            'set_locale',
-                            {
-                                locale: '<%= each.lang_code %>',
-                                redirect: location.href
-                            }
-                        );
+                    <a class="pure-menu-link clickable"
+                        onclick="
+                            cloud.request(
+                                'POST',
+                                '/set_locale?locale=<%= each.lang_code %>' +
+                                    '&redirect=' + location.href,
+                                response => {
+                                    location.href = response.redirect;
+                                },
+                                genericError
+                            );
                     "><%=each.lang_name%></a>
                     <% end %>
                 </ul>
