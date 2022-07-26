@@ -20,9 +20,9 @@
         ><i class="fas fa-caret-right"></i></a>
 </nav>
 <script>
-    var url = new URL(location.href);
     function change_page(offset) {
-        var destination_page_number;
+        var url = new URL(location.href),
+            destination_page_number;
         if (offset == 'first') {
             destination_page_number = 1;
         } else if (offset == 'last') {

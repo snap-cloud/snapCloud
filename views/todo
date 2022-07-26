@@ -15,8 +15,8 @@ TODO
     [ ] grid
     [ ] partials
         [x] grid_paginator
-        [ ] grid_search
-        [ ] project
+        [x] grid_search
+        [x] project
     [ ] index
     [x] login
     [ ] my_collections

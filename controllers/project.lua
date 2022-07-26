@@ -69,11 +69,6 @@ ProjectController = {
                 db.interpolate_query(course_name_filter())
         )
     end,
-    search = function (self)
-        self.params.search_term = self.params.search_term
-        self.params.page_number = 1
-        ProjectController[self.component.fetch_selector](self)
-    end,
     my_projects = function (self)
         self.params.order = 'lastupdated DESC'
         return ProjectController.run_query(

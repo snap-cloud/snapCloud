@@ -11,3 +11,11 @@
 <span class="search-term"
     ><%= locale.get('matching', '"' .. search_term .. '"') %></span>
 <% end %>
+<script>
+    function search(term) {
+        var url = new URL(location.href);
+        url.searchParams.set('search_term', term);
+        url.searchParams.set('page_number', 1);
+        location.href = url.href;
+    };
+</script>
