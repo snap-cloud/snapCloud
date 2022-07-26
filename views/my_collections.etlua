@@ -21,7 +21,19 @@ render(
         function newCollectionDialog () {
             prompt(
                 "<%- locale.get('collection_name') %>",
-                name => { run_selector('collection', 'new', { name: name }); },
+                name => {
+                    cloud.request(
+                        'POST',
+                        '/collections/<%= session.username %>',
+                        response => {
+                            location.href = response.redirect;
+                        },
+                        genericError,
+                        null,
+                        false,
+                        { name: name }
+                    );
+                },
                 nop
             );
         };

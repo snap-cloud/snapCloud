@@ -116,8 +116,7 @@ app:match(api_route('users/:username/password_reset'), respond_to({
 
 app:match(api_route('users/:username/login'), respond_to({
     POST = function(self)
-        ngx.req.read_body()
-        self.params.password = ngx.req.get_body_data()
+        self.params.password = self.params.body
         return UserController.login(self)
     end
 }))
@@ -166,5 +165,14 @@ app:match(api_route('projects/:username/:projectname/versions'), respond_to({
 app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
     GET = function (self)
         -- Get the thumbnail for a project of mine
+    end
+}))
+
+-- Collections
+-- ===========
+app:match(api_route('collections/:username'), respond_to({
+    POST = function (self)
+        -- create a collection, owned by the current user
+        return CollectionController.new(self)
     end
 }))

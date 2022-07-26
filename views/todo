@@ -12,7 +12,7 @@ TODO
     [ ] flags
     [ ] forgot_password
     [ ] forgot_username
-    [ ] grid
+    [x] grid
     [ ] partials
         [x] grid_paginator
         [x] grid_search
@@ -20,6 +20,7 @@ TODO
     [ ] index
     [x] login
     [x] my_collections
+        [x] new collection
     [x] my_projects
     [x] navigation_bar
         [ ] test unbecome
@@ -45,7 +46,7 @@ TODO
     [ ] translate titles of curated collections
     [ ] errors
 [ ] rethink rate limiting, maybe using CRLF protection?
-[ ] caching
+[ ] caching, how to cache JUST db results
 
 TODO AFTER DEPLOYING
 ====================

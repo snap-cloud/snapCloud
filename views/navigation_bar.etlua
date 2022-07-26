@@ -107,12 +107,17 @@
                         onclick="
                             cloud.request(
                                 'POST',
-                                '/set_locale?locale=<%= each.lang_code %>' +
-                                    '&redirect=' + location.href,
+                                '/set_locale',
                                 response => {
                                     location.href = response.redirect;
                                 },
-                                genericError
+                                genericError,
+                                null,
+                                false,
+                                {
+                                    locale: '<%= each.lang_code %>',
+                                    redirect: location.href
+                                }
                             );
                     "><%=each.lang_name%></a>
                     <% end %>

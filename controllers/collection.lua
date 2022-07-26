@@ -133,7 +133,7 @@ CollectionController = {
             }))
         end
         collection.username = self.current_user.username -- needed by url_for
-        return collection:url_for('site')
+        return jsonResponse({ redirect = collection:url_for('site') })
     end,
     add_project = function (self)
         local collection = Collections:find({ id = self.params.collection.id })

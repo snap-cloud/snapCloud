@@ -155,6 +155,21 @@ app:before_filter(function (self)
         return -- avoid any unnecessary work for CORS pre-flight requests
     end
 
+    if ngx.req.get_method() == 'POST' then
+        -- read body params for all POST requests
+        ngx.req.read_body()
+        local body = ngx.req.get_body_data()
+        -- try to decode it, if it fails it's not proper JSON
+        if pcall(function () package.loaded.util.from_json(body) end) then
+            local post_params = package.loaded.util.from_json(body)
+            for k, v in pairs(post_params) do
+                self.params[k] = v
+            end
+        else
+            self.params.body = body
+        end
+    end
+
     -- unescape all parameters and JSON-decode them
     for k, v in pairs(self.params) do
         -- try to decode it, if it fails it's not proper JSON

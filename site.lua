@@ -73,27 +73,27 @@ end))
 
 -- Redone
 
-app:get('/explore', capture_errors(cached(function (self)
+app:get('/explore', capture_errors(function (self)
     self.items = ProjectController.fetch(self)
     return { render = 'explore' }
-end)))
+end))
 
-app:get('/my_projects', capture_errors(cached(function (self)
+app:get('/my_projects', capture_errors(function (self)
     self.items = ProjectController.my_projects(self)
     return { render = 'my_projects' }
-end)))
+end))
 
-app:get('/my_collections', capture_errors(cached(function (self)
+app:get('/my_collections', capture_errors(function (self)
     self.items = CollectionController.my_collections(self)
     return { render = 'my_collections' }
-end)))
+end))
 
 -- Pages that need redoing (used AJAX before)
 
-local index = capture_errors(cached(function (self)
+local index = capture_errors(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
-end))
+end)
 
 app:get('/', index)
 app:get('/index', index)
