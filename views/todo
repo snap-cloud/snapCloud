@@ -19,7 +19,7 @@ TODO
         [x] project
     [ ] index
     [x] login
-    [ ] my_collections
+    [x] my_collections
     [x] my_projects
     [x] navigation_bar
         [ ] test unbecome

@@ -54,9 +54,6 @@ local views = {
     -- Simple pages
     'blog', 'change_email', 'change_password', 'delete_user', 'forgot_password',
     'forgot_username', 'sign_up', 'login',
-
-    -- Simple, component-based pages
-    'my_collections'
 }
 
 for _, view in pairs(views) do
@@ -84,6 +81,11 @@ end)))
 app:get('/my_projects', capture_errors(cached(function (self)
     self.items = ProjectController.my_projects(self)
     return { render = 'my_projects' }
+end)))
+
+app:get('/my_collections', capture_errors(cached(function (self)
+    self.items = CollectionController.my_collections(self)
+    return { render = 'my_collections' }
 end)))
 
 -- Pages that need redoing (used AJAX before)

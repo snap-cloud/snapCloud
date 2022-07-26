@@ -7,9 +7,9 @@
         <i class="fas fa-search"></i>
     </form>
 </div>
-<% if (search_term and search_term ~= '') then %>
+<% if (params.search_term and params.search_term ~= '') then %>
 <span class="search-term"
-    ><%= locale.get('matching', '"' .. search_term .. '"') %></span>
+    ><%= locale.get('matching', '"' .. params.search_term .. '"') %></span>
 <% end %>
 <script>
     function search(term) {

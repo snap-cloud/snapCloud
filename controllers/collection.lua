@@ -31,17 +31,18 @@ local yield_error = package.loaded.yield_error
 
 CollectionController = {
     run_query = function (self, query)
-       local paginator = Collections:paginated(
+        if not self.params.page_number then self.params.page_number = 1 end
+        local paginator = Collections:paginated(
             query ..
-                (self.params.data.search_term and (db.interpolate_query(
+                (self.params.search_term and (db.interpolate_query(
                     ' AND (name ILIKE ? OR description ILIKE ?)',
-                    '%' .. self.params.data.search_term .. '%',
-                    '%' .. self.params.data.search_term .. '%')
+                    '%' .. self.params.search_term .. '%',
+                    '%' .. self.params.search_term .. '%')
                 ) or '') ..
-            ' ORDER BY ' .. (self.params.data.order or 'published_at DESC'),
+            ' ORDER BY ' .. (self.params.order or 'published_at DESC'),
             {
-                per_page = self.params.data.per_page or 15,
-                fields = self.params.data.fields or
+                per_page = self.params.per_page or 15,
+                fields = self.params.fields or
                     [[collections.id, creator_id, collections.created_at,
                     published, collections.published_at, shared,
                     collections.shared_at, collections.updated_at, name,
@@ -49,56 +50,25 @@ CollectionController = {
             }
         )
 
-        if not self.params.data.ignore_page_count then
-            self.params.data.num_pages = paginator:num_pages()
+        if not self.params.ignore_page_count then
+            self.num_pages = paginator:num_pages()
         end
 
-        self.items = paginator:get_page(self.params.data.page_number)
-        disk:process_thumbnails(self.items, 'thumbnail_id')
-        self.data = self.params.data
-    end,
-    change_page = function (self)
-        if self.params.offset == 'first' then
-            self.params.data.page_number = 1
-        elseif self.params.offset == 'last' then
-            self.params.data.page_number = self.params.data.num_pages
-        else
-            self.params.data.page_number =
-                math.min(
-                    math.max(
-                        1,
-                        self.params.data.page_number + self.params.offset),
-                    self.params.data.num_pages)
-        end
-        self.data = self.params.data
-        CollectionController[self.component.fetch_selector](self)
+        local items = paginator:get_page(self.params.page_number)
+        disk:process_thumbnails(items, 'thumbnail_id')
+        return items
     end,
     fetch = function (self)
-        CollectionController.run_query(
+        return CollectionController.run_query(
             self,
             [[JOIN active_users ON
                 (active_users.id = collections.creator_id)
                 WHERE published]]
         )
     end,
-    changed = function (self)
-        -- A component knows that this collection changed, and thus needs to be
-        -- re-rendered. We just re-fetch it from the DB so that the data param
-        -- is up to date when re-rendering the component
-        local collection =
-            Collections:find({ id = self.params.data.collection.id })
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
-    end,
-    search = function (self)
-        self.params.data.page_number = 1
-        self.params.data.search_term = self.params.search_term
-        CollectionController[self.component.fetch_selector](self)
-    end,
     my_collections = function (self)
-        self.params.data.order = 'updated_at DESC'
-        CollectionController.run_query(
+        self.params.order = 'updated_at DESC'
+        return CollectionController.run_query(
             self,
             db.interpolate_query(
                 [[JOIN active_users ON
@@ -109,38 +79,37 @@ CollectionController = {
         )
     end,
     user_collections = function (self)
-        self.params.data.order = 'updated_at DESC'
-        CollectionController.run_query(
+        self.params.order = 'updated_at DESC'
+        return CollectionController.run_query(
             self,
             db.interpolate_query(
                 [[JOIN active_users ON
                     (active_users.id = collections.creator_id)
                     WHERE (creator_id = ? OR editor_ids @> ARRAY[?])
                     AND published]],
-                self.params.data.user_id,
-                self.params.data.user_id
+                self.params.user_id,
+                self.params.user_id
             )
         )
     end,
     projects = function (self)
-        local data = self.params.data
-        local collection = Collections:find(data.user_id, data.collection_name)
+        local collection = Collections:find(user_id, collection_name)
         local paginator = collection:get_projects()
-        paginator.per_page = data.items_per_page
-        if not data.ignore_page_count then
-            data.num_pages = paginator:num_pages()
+        paginator.per_page = items_per_page
+        if not ignore_page_count then
+            num_pages = paginator:num_pages()
         end
-        self.items = paginator:get_page(data.page_number)
+        local items = paginator:get_page(page_number)
         disk:process_thumbnails(self.items)
-        self.data = data
+        return items
     end,
     containing_project = function (self)
-        self.params.data.order =  'collections.created_at DESC'
-        self.params.data.fields =
+        self.params.order =  'collections.created_at DESC'
+        self.params.fields =
             [[collections.creator_id, collections.name,
             collection_memberships.project_id, collections.thumbnail_id,
             collections.shared, collections.published, users.username]]
-        CollectionController.run_query(
+        return CollectionController.run_query(
             self,
             db.interpolate_query(
                 [[INNER JOIN collection_memberships
@@ -149,7 +118,7 @@ CollectionController = {
                     ON collections.creator_id = users.id
                 WHERE collection_memberships.project_id = ?
                 AND collections.published]],
-                self.params.data.project_id
+                self.params.project_id
             )
         )
     end,
@@ -188,7 +157,7 @@ CollectionController = {
     end,
     remove_project = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection_id })
+            Collections:find({ id = self.params.collection_id })
 
         -- For now, only creators can add projects to collections. Should
         -- editors also be able to?
@@ -202,12 +171,10 @@ CollectionController = {
                 collection_id = collection.id,
                 project_id = self.params.project.id
             })
-
-        CollectionController[self.component.fetch_selector](self)
     end,
     set_thumbnail = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection_id })
+            Collections:find({ id = self.params.collection_id })
 
         if collection.creator_id ~= self.current_user.id then
             assert_min_role(self, 'moderator')
@@ -216,14 +183,10 @@ CollectionController = {
         collection:update({ thumbnail_id = self.params.project.id })
         collection.thumbnail =
             package.loaded.disk:retrieve_thumbnail(collection.thumbnail_id)
-
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
     end,
     share = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         assert_can_share(self, collection)
         collection:update({
             updated_at = db.format_date(),
@@ -231,26 +194,20 @@ CollectionController = {
             shared = true,
             published = false
         })
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
     end,
     unshare = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         assert_can_share(self, collection)
         collection:update({
             updated_at = db.format_date(),
             shared = false,
             published = false
         })
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
     end,
     publish = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         assert_can_share(self, collection)
         collection:update({
             updated_at = db.format_date(),
@@ -258,25 +215,19 @@ CollectionController = {
             shared = true,
             published = true
         })
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
     end,
     unpublish = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         assert_can_share(self, collection)
         collection:update({
             updated_at = db.format_date(),
             published = false
         })
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
     end,
     delete = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         local name = collection.name
         assert_can_delete(self, collection)
         db.delete('collection_memberships', { collection_id = collection.id })
@@ -290,7 +241,7 @@ CollectionController = {
     make_ffa = function (self)
         assert_min_role(self, 'moderator')
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         collection:update({ free_for_all = true })
         if collection.editor_ids then
             collection.editors = Users:find_all(
@@ -299,9 +250,6 @@ CollectionController = {
             )
         end
         collection.creator = Users:find({ id = collection.creator_id })
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
         return jsonResponse({
             message = 'Collection <em>' .. collection.name ..
                 '</em> is now free for all.',
@@ -311,7 +259,7 @@ CollectionController = {
     unmake_ffa = function (self)
         assert_min_role(self, 'moderator')
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         collection:update({ free_for_all = false })
         if collection.editor_ids then
             collection.editors = Users:find_all(
@@ -319,9 +267,6 @@ CollectionController = {
             { fields = 'username, id' })
         end
         collection.creator = Users:find({ id = collection.creator_id })
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
         return jsonResponse({
             message = 'Collection <em>' .. collection.name ..
                 '</em> is no longer free for all.',
@@ -330,7 +275,7 @@ CollectionController = {
     end,
     unenroll = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         if is_editor(self, collection) then
             collection:update({
                 editor_ids =
@@ -347,7 +292,7 @@ CollectionController = {
     end,
     add_editor = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         if collection.creator_id ~= self.current_user.id then
             assert_admin(self)
         end
@@ -362,21 +307,10 @@ CollectionController = {
                     'array_append(editor_ids, ?)',
                     editor.id))
         })
-
-        -- just so the component has all the necessary data
-        collection.creator = Users:find({ id = collection.creator_id })
-        collection.editors = Users:find_all(
-            collection.editor_ids,
-            { fields = 'username, id' }
-        )
-
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
     end,
     remove_editor = function (self)
         local collection =
-            Collections:find({ id = self.params.data.collection.id })
+            Collections:find({ id = self.params.collection.id })
         if collection.creator_id == self.current_user.id or
                 is_editor(self, collection) or
                 current_user:isadmin() then
@@ -389,17 +323,6 @@ CollectionController = {
         else
             yield_error(err.auth)
         end
-
-        -- just so the component has all the necessary data
-        collection.creator = Users:find({ id = collection.creator_id })
-        collection.editors = Users:find_all(
-            collection.editor_ids,
-            { fields = 'username, id' }
-        )
-
-        self.params.data.collection = collection
-        self.collection = collection
-        self.data = self.params.data
     end,
     rename = function (self)
         local collection =
