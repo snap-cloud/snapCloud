@@ -1,19 +1,15 @@
 <h1><%- locale.get('my_projects') %></h1>
 <%
 render(
-    'views.component',
+    'views.grid',
     {
-        component = { template = 'grid', controller = 'project' },
-        data = {
-            fetch_selector = 'my_projects',
-            class = 'my_projects',
-            item_type = 'project',
-            items_per_page = 15,
-            with_search = true,
-            show_if_empty = true,
-            show_author = false,
-            show_icons = true
-        }
+        class = 'my_projects',
+        item_type = 'project',
+        items_per_page = 15,
+        with_search = true,
+        show_if_empty = true,
+        show_author = false,
+        show_icons = true
     }
 )
 %>

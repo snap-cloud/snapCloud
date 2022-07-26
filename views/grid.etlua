@@ -14,8 +14,6 @@
     show_collection_controls
                         (t/f) Show buttons to set thumbnail or remove from
                               collection. Default: false.
-    fetch_selector      (str) Selector to call from controller, on subsequent
-                              actions (i.e. on page switch). Default: 'fetch'.
     filter_descriptors  (tbl) Dropdown menu filter descriptors:
       .label            (str) Dropdown label.
       .options          (tbl) Dropdown options.
@@ -26,7 +24,6 @@
 -- set defaults
 
 if show_author == nil then show_author = true end
-if fetch_selector == nil then fetch_selector = 'fetch' end
 items_per_page = items_per_page or 5
 items_per_row = items_per_row or 5
 item_type = item_type or 'project'
@@ -36,15 +33,6 @@ if items == nil then items = {} end
 
 <link rel="stylesheet" href="/static/style/project.css">
 <div class="<%= class %> container">
-<script>
-    function loader (element) {
-        var list = element.closest('div.container').querySelector('.list');
-        list.innerHTML = `<div class="loader">
-            <i class="fa fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
-            </div>`;
-    };
-</script>
-
 
 <%
 if ((num_pages > 0) or show_if_empty) then %>
@@ -57,8 +45,10 @@ if ((num_pages > 0) or show_if_empty) then %>
     <div class="bar">
         <%
         if with_search then
-         debug_print(1)
-            render('views.partials.grid_search')
+            render(
+                'views.partials.grid_search',
+                 { class = class }
+            )
         end
         if filter_descriptors then
          debug_print(2)

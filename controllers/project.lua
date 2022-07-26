@@ -36,6 +36,7 @@ local Users = package.loaded.Users
 ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
+        if not self.params.page_number then self.params.page_number = 1 end
         local paginator = Projects:paginated(
                  query ..
                     (self.params.search_term and (db.interpolate_query(
@@ -59,21 +60,6 @@ ProjectController = {
         disk:process_thumbnails(items)
         return items
     end,
-    change_page = function (self)
-        if self.params.offset == 'first' then
-            self.params.page_number = 1
-        elseif self.params.offset == 'last' then
-            self.params.page_number = self.params.num_pages
-        else
-            self.params.page_number =
-                math.min(
-                    math.max(
-                        1,
-                        self.params.page_number + self.params.offset),
-                    self.params.num_pages)
-        end
-        ProjectController[self.component.fetch_selector](self)
-    end,
     fetch = function (self)
         return ProjectController.run_query(
             self,
@@ -90,7 +76,7 @@ ProjectController = {
     end,
     my_projects = function (self)
         self.params.order = 'lastupdated DESC'
-        ProjectController.run_query(
+        return ProjectController.run_query(
             self,
             db.interpolate_query('WHERE username = ?', self.session.username)
         )

@@ -15,11 +15,12 @@ TODO
     [ ] grid
     [ ] partials
         [x] grid_paginator
+        [ ] grid_search
         [ ] project
     [ ] index
     [x] login
     [ ] my_collections
-    [ ] my_projects
+    [x] my_projects
     [x] navigation_bar
         [ ] test unbecome
     [x] profile

@@ -1,21 +1,13 @@
-<div class="<%= data.class %> search">
+<div class="<%= class %> search">
     <form onsubmit="
         event.preventDefault();
-        update_<%=component.id%>(
-            '<%= component.controller %>',
-            'search',
-            {
-                search_term:
-                    Object.fromEntries(new FormData(this)).query,
-                data: '<%= data %>'
-            }
-        );"
-    >
+        search(Object.fromEntries(new FormData(this)).query);
+    ">
         <input type="text" name="query">
         <i class="fas fa-search"></i>
     </form>
 </div>
-<% if (data.search_term and data.search_term ~= '') then %>
+<% if (search_term and search_term ~= '') then %>
 <span class="search-term"
-    ><%= locale.get('matching', '"' .. data.search_term .. '"') %></span>
+    ><%= locale.get('matching', '"' .. search_term .. '"') %></span>
 <% end %>

@@ -56,7 +56,7 @@ local views = {
     'forgot_username', 'sign_up', 'login',
 
     -- Simple, component-based pages
-    'my_projects', 'my_collections'
+    'my_collections'
 }
 
 for _, view in pairs(views) do
@@ -76,18 +76,22 @@ end))
 
 -- Redone
 
-app:get('/explore', capture_errors(function (self)
+app:get('/explore', capture_errors(cached(function (self)
     self.items = ProjectController.fetch(self)
-    if not self.params.page_number then self.params.page_number = 1 end
     return { render = 'explore' }
-end))
+end)))
+
+app:get('/my_projects', capture_errors(cached(function (self)
+    self.items = ProjectController.my_projects(self)
+    return { render = 'my_projects' }
+end)))
 
 -- Pages that need redoing (used AJAX before)
 
-local index = capture_errors(function (self)
+local index = capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
-end)
+end))
 
 app:get('/', index)
 app:get('/index', index)
