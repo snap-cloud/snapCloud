@@ -110,7 +110,8 @@ app:match(api_route('users/:username/newpassword'), respond_to({
 }))
 
 app:match(api_route('users/:username/password_reset'), respond_to({
-    GET = function (self)
+    POST = function (self)
+        return UserController.reset_password(self)
     end,
 }))
 

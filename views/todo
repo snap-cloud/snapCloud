@@ -3,32 +3,15 @@ TODO
 [ ] scrap AJAX components entirely: make everything static
     [ ] change_email
     [ ] change_password
-    [x] collection
-        [x] collection_buttons
-        [x] collection_dates
-        [x] collection_info
-        [x] collection_editors
-        [x] collection_thumbnail
-        [x] remove project from collection
-        [x] set project thumbnail to collection
     [ ] delete_user
     [ ] dialog
     [ ] examples
-    [x] explore
     [ ] flags
     [ ] forgot_password
     [ ] forgot_username
-    [x] grid
-        [x] grid_paginator
-        [x] grid_search
     [ ] index
-    [x] login
-    [x] my_collections
-        [x] new collection
-    [x] my_projects
     [x] navigation_bar
         [ ] test unbecome
-    [x] profile
     [ ] project
     [ ] project_buttons
     [ ] search
