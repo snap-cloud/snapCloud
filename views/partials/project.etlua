@@ -51,7 +51,11 @@
             ><i class="fas fa-times-circle"></i></a>
         <a title="<%= locale.get('collection_thumbnail_tooltip') %>"
             class="clickable thumbnail"
-            onclick="set_thumbnail(<%= item.id %>);"
+            onclick="cloud.post(
+                '/collection/<%= collection.id %>/thumbnail',
+                Cloud.redirect,
+                { project_id: <%= item.id %> }
+            );"
         ><i class="fas fa-image"></i></a>
     </div>
 <% end %>

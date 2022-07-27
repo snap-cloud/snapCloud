@@ -136,7 +136,7 @@ CollectionController = {
         return jsonResponse({ redirect = collection:url_for('site') })
     end,
     add_project = function (self)
-        local collection = Collections:find({ id = self.params.collection.id })
+        local collection = Collections:find({ id = self.params.id })
         local project = Projects:find({ id = self.params.project.id })
         assert_can_add_project_to_collection(self, project, collection)
         assert_project_not_in_collection(self, project, collection)
@@ -157,7 +157,7 @@ CollectionController = {
     end,
     remove_project = function (self)
         local collection =
-            Collections:find({ id = self.params.collection_id })
+            Collections:find({ id = self.params.id })
 
         -- For now, only creators can add projects to collections. Should
         -- editors also be able to?
@@ -169,24 +169,26 @@ CollectionController = {
             'collection_memberships',
             {
                 collection_id = collection.id,
-                project_id = self.params.project.id
+                project_id = self.params.project_id
             })
+        return okResponse()
     end,
     set_thumbnail = function (self)
         local collection =
-            Collections:find({ id = self.params.collection_id })
+            Collections:find({ id = self.params.id })
 
         if collection.creator_id ~= self.current_user.id then
             assert_min_role(self, 'moderator')
         end
 
-        collection:update({ thumbnail_id = self.params.project.id })
+        collection:update({ thumbnail_id = self.params.project_id })
         collection.thumbnail =
             package.loaded.disk:retrieve_thumbnail(collection.thumbnail_id)
+        return okResponse()
     end,
     share = function (self)
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         assert_can_share(self, collection)
         collection:update({
             updated_at = db.format_date(),
@@ -194,20 +196,22 @@ CollectionController = {
             shared = true,
             published = false
         })
+        return okResponse()
     end,
     unshare = function (self)
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         assert_can_share(self, collection)
         collection:update({
             updated_at = db.format_date(),
             shared = false,
             published = false
         })
+        return okResponse()
     end,
     publish = function (self)
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         assert_can_share(self, collection)
         collection:update({
             updated_at = db.format_date(),
@@ -215,33 +219,31 @@ CollectionController = {
             shared = true,
             published = true
         })
+        return okResponse()
     end,
     unpublish = function (self)
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         assert_can_share(self, collection)
         collection:update({
             updated_at = db.format_date(),
             published = false
         })
+        return okResponse()
     end,
     delete = function (self)
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         local name = collection.name
         assert_can_delete(self, collection)
         db.delete('collection_memberships', { collection_id = collection.id })
         db.delete('collections', { id = collection.id })
-        return jsonResponse({
-            message = 'Collection <em>' .. name .. '</em> has been removed.',
-            title = 'Collection removed',
-            redirect = self:build_url('my_collections')
-        })
+        return jsonResponse({ redirect = self:build_url('my_collections') })
     end,
     make_ffa = function (self)
         assert_min_role(self, 'moderator')
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         collection:update({ free_for_all = true })
         if collection.editor_ids then
             collection.editors = Users:find_all(
@@ -259,7 +261,7 @@ CollectionController = {
     unmake_ffa = function (self)
         assert_min_role(self, 'moderator')
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         collection:update({ free_for_all = false })
         if collection.editor_ids then
             collection.editors = Users:find_all(
@@ -275,7 +277,7 @@ CollectionController = {
     end,
     unenroll = function (self)
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         if is_editor(self, collection) then
             collection:update({
                 editor_ids =
@@ -284,21 +286,16 @@ CollectionController = {
                         self.current_user.id))
             })
         end
-        return jsonResponse({
-            message = 'You are no longer an editor of this collection.',
-            title = 'Unenrolled',
-            redirect = self:build_url('my_collections')
-        })
+        return jsonResponse({ redirect = self:build_url('my_collections') })
     end,
     add_editor = function (self)
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         if collection.creator_id ~= self.current_user.id then
             assert_admin(self)
         end
 
-        local editor = Users:find(
-            { username = self.params.editor.username })
+        local editor = Users:find({ username = self.params.username })
         if not editor then yield_error(err.nonexistent_user) end
 
         collection:update({
@@ -307,19 +304,25 @@ CollectionController = {
                     'array_append(editor_ids, ?)',
                     editor.id))
         })
+
+        return okResponse('Editor added')
     end,
     remove_editor = function (self)
         local collection =
-            Collections:find({ id = self.params.collection.id })
+            Collections:find({ id = self.params.id })
         if collection.creator_id == self.current_user.id or
                 is_editor(self, collection) or
                 current_user:isadmin() then
-            collection:update({
+            if (collection:update({
                 editor_ids =
                     db.raw(db.interpolate_query(
                         'array_remove(editor_ids, ?)',
-                        self.params.editor.id))
-            }) 
+                        self.params.editor_id))
+            })) then
+                return okResponse('Editor removed')
+            else
+                yield_error()
+            end
         else
             yield_error(err.auth)
         end

@@ -1,28 +1,17 @@
 <div class="pure-g">
-<%
-    render('views.partials.collection_thumbnail')
-    render('views.partials.collection_dates', { class = 'dates pure-u-1-2' })
-%>
-
+    <% render('views.partials.collection_thumbnail') %>
+    <div class="dates pure-u-1-2">
+        <% render('views.partials.collection_dates') %>
+    </div>
 </div>
 <pre class="description"><%= collection.description or '' %></pre>
 <script>
     new InPlaceEditor(
         document.querySelector('pre.description'),
         (value) => {
-            cloud.request(
-                'POST',
-                '/update_collection/<%= collection.id %>/description',
+            cloud.post(
+                '/collection/<%= collection.id %>/description',
                 nop,
-                error => {
-                    alert(
-                        error,
-                        { title: localizer.localize('Error') },
-                        () => { location.reload(); }
-                    )
-                },
-                null,
-                false,
                 { new_description: value }
             );
         }
@@ -30,33 +19,11 @@
 </script>
 
 <%
-    --[[ collection editors are an AJAX-updateable component
-     render(
-        'views.component',
-        {
-            component = {
-                template = 'partials.collection_editors',
-                controller = 'collection'
-            },
-            data = data
-        }
-     )
+     render('views.partials.collection_editors')
 
-    -- collection buttons are an AJAX-updateable component
     if current_user and
             ((collection.creator_id == current_user.id) or
             current_user:has_min_role('reviewer')) then
-         render(
-            'views.component',
-            {
-                component = {
-                    template = 'partials.collection_buttons',
-                    controller = 'collection',
-                    updates = { dates_component }
-                },
-                data = data
-            }
-         )
+         render('views.partials.collection_buttons')
     end
-    ]]--
 %>

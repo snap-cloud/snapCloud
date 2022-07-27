@@ -177,7 +177,16 @@ app:match(api_route('collections/:username'), respond_to({
     end
 }))
 
-app:match(api_route('update_collection/:id/name'),
+app:match(api_route('collection/:id'),
+    respond_to({
+        DELETE = function (self)
+            return CollectionController.delete(self)
+        end
+    })
+)
+
+
+app:match(api_route('collection/:id/name'),
     respond_to({
         POST = function (self)
             return CollectionController.rename(self)
@@ -185,10 +194,84 @@ app:match(api_route('update_collection/:id/name'),
     })
 )
 
-app:match(api_route('update_collection/:id/description'),
+app:match(api_route('collection/:id/description'),
     respond_to({
         POST = function (self)
             return CollectionController.set_description(self)
         end
     })
 )
+
+app:match(api_route('collection/:id/editor'),
+    respond_to({
+        POST = function (self)
+            -- add an editor
+            return CollectionController.add_editor(self)
+        end,
+        DELETE = function (self)
+            -- remove an editor
+            return CollectionController.remove_editor(self)
+        end
+    })
+)
+
+app:match(api_route('collection/:id/enrollment'),
+    respond_to({
+        DELETE = function (self)
+            -- unenroll
+            return CollectionController.unenroll(self)
+        end
+    })
+)
+
+app:match(api_route('collection/:id/ffa'),
+    respond_to({
+        POST = function (self)
+            return CollectionController.make_ffa(self)
+        end,
+        DELETE = function (self)
+            return CollectionController.unmake_ffa(self)
+        end
+    })
+)
+
+app:match(api_route('collection/:id/sharing'),
+    respond_to({
+        POST = function (self)
+            return CollectionController.share(self)
+        end,
+        DELETE = function (self)
+            return CollectionController.unshare(self)
+        end
+    })
+)
+
+app:match(api_route('collection/:id/publishing'),
+    respond_to({
+        POST = function (self)
+            return CollectionController.publish(self)
+        end,
+        DELETE = function (self)
+            return CollectionController.unpublish(self)
+        end
+    })
+)
+
+app:match(api_route('collection/:id/thumbnail'),
+    respond_to({
+        POST = function (self)
+            return CollectionController.set_thumbnail(self)
+        end
+    })
+)
+
+app:match(api_route('collection/:id/project/:project_id'),
+    respond_to({
+        POST = function (self)
+        end,
+        DELETE = function (self)
+            return CollectionController.remove_project(self)
+        end
+    })
+)
+

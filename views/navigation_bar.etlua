@@ -68,30 +68,14 @@
                 <% end %>
                     <hr>
                     <li class="pure-menu-item">
-                        <a class="pure-menu-link clickable"
-                            onclick="
-                                cloud.request(
-                                    'POST',
-                                    '/logout?&redirect=' + location.href,
-                                    response => {
-                                        location.href = response.redirect;
-                                    },
-                                    genericError
-                                );
+                        <a class="pure-menu-link clickable" onclick="
+                            cloud.post('/logout?&redirect=' + location.href);
                         "><%- locale.get('logout') %></a></li>
                     <% if session.impersonator then %>
                     <li class="pure-menu-item">
                         <a class="pure-menu-link clickable"
-                            onclick="
-                                cloud.request(
-                                    'POST',
-                                    '/unbecome',
-                                    response => {
-                                        location.href = response.redirect;
-                                    },
-                                    genericError
-                                );
-                        "><%- locale.get('unbecome') %></a></li>
+                            onclick="cloud.post('/unbecome');"
+                        ><%- locale.get('unbecome') %></a></li>
                     <% end %>
                 </ul>
             </li>
@@ -105,15 +89,9 @@
                     <% for _, each in pairs(locale.locales) do %>
                     <a class="pure-menu-link clickable"
                         onclick="
-                            cloud.request(
-                                'POST',
+                            cloud.post(
                                 '/set_locale',
-                                response => {
-                                    location.href = response.redirect;
-                                },
-                                genericError,
-                                null,
-                                false,
+                                Cloud.redirect,
                                 {
                                     locale: '<%= each.lang_code %>',
                                     redirect: location.href

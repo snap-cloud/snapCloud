@@ -8,13 +8,9 @@
             new InPlaceEditor(
                 document.querySelector('div.title h1'),
                 (value) => {
-                    cloud.request(
-                        'POST',
-                        '/update_collection/<%= collection.id %>/name',
-                        response => { location.href = response.redirect; },
-                        genericError,
-                        null,
-                        false,
+                    cloud.post(
+                        '/collection/<%= collection.id %>/name',
+                        Cloud.redirect,
                         { new_name: value }
                     );
                 }
@@ -56,10 +52,11 @@
             function confirmRemove (project_id) {
                 confirm(
                     "<%- locale.get('confirm_uncollect', '<br>') %>",
-                    'collection',
-                    'remove_project',
-                    {
-                        project: { id: project_id }
+                    () => {
+                        cloud.delete(
+                            '/collection/<%= collection.id %>/project/' +
+                                project_id
+                        );
                     }
                 );
             };

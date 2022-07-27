@@ -116,7 +116,7 @@ function confirmFlag () {
             if (ok) {
                 dialog(
                     "<%- locale.get('choose_flag_reason') %>",
-                    '<%- package.loaded.dialog('flag_reason') %>',
+                    '<%= package.loaded.dialog('flag_reason') %>',
                     () => {
                         var form =
                             document.querySelector('form.reasons');

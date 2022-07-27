@@ -7,6 +7,11 @@ if collection.editor_ids then
         <a href="<%= editor:url_for('site') %>">
             <strong><%= editor.username %></strong>
         </a>
+
+<% if current_user and
+    ((collection.creator.id == current_user.id)
+        or current_user:isadmin())
+    then %>
         <a class="remove clickable" onclick="
             removeEditor('<%= editor.id %>');
             flash(
@@ -15,13 +20,18 @@ if collection.editor_ids then
                 true // warning flash
             );
         "><i class="fas fa-times-circle"></i></a>
+<% end %>
+
     </li>
 <%
     end
 end
 %>
     </ul>
-<% if current_user and (collection.creator.id == current_user.id) then %>
+<% if current_user and
+    ((collection.creator.id == current_user.id)
+        or current_user:isadmin())
+    then %>
     <a
         onclick="
             this.nextElementSibling.hidden = false;
@@ -35,23 +45,17 @@ end
     "></input>
     <script>
         addEditor = function (username) {
-            update_<%=component.id%>(
-                'collection',
-                'add_editor',
-                {
-                    editor: { username: username },
-                    data: <%- data %>
-                }
+            cloud.post(
+                '/collection/<%= collection.id %>/editor',
+                Cloud.redirect,
+                { username: username }
             );
         };
         removeEditor = function (id) {
-            update_<%=component.id%>(
-                'collection',
-                'remove_editor',
-                {
-                    editor: { id: id },
-                    data: <%- data %>
-                }
+            cloud.delete(
+                '/collection/<%= collection.id %>/editor',
+                Cloud.redirect,
+                { editor_id: id }
             );
         };
     </script>
@@ -59,23 +63,16 @@ end
 <% if current_user and current_user:has_min_role('moderator') then %>
     <script>
         function confirmFFA (data) {
-           confirmComponentAction(
+           confirm(
                 "<%- locale.get('confirm_ffa' , '<br>') %>",
-                '<%= component.id %>',
-                'collection',
-                'make_ffa',
-                { data: data }
+                () => cloud.post('/collection/<%= collection.id %>/ffa')
             );
         };
         function confirmUnFFA (data) {
-           confirmComponentAction(
+           confirm(
                 "<%- locale.get('confirm_unffa' , '<br>') %>",
-                '<%= component.id %>',
-                'collection',
-                'unmake_ffa',
-                { data: data }
+                () => cloud.delete('/collection/<%= collection.id %>/ffa')
             );
-
         };
     </script>
 <% end
@@ -83,10 +80,10 @@ if current_user and current_user:has_min_role('moderator') and
         collection.published then
     if not(collection.free_for_all) then
 %>
-    <a class="pure-button ffa" onclick="confirmFFA(<%= data %>)
+    <a class="pure-button ffa" onclick="confirmFFA()
     "><%= locale.get('make_ffa') %></a>
 <%  else %>
-    <a class="pure-button un-ffa" onclick="confirmUnFFA(<%= data %>)
+    <a class="pure-button un-ffa" onclick="confirmUnFFA()
     "><%= locale.get('unmake_ffa') %></a>
 <%
     end
@@ -100,16 +97,16 @@ end
 %>
 <script>
     function confirmUnenroll (data) {
-        confirmAction(
+        confirm(
             "<%= locale.get('confirm_unenroll') %>",
-            'collection',
-            'unenroll',
-            { data: data }
+            () => {
+                cloud.delete('/collection/<%= collection.id %>/enrollment');
+            }
         );
     };
 </script>
     <a class="pure-button pure-button-warning unenroll" onclick="
-        confirmUnenroll(<%= data %>);"><%= locale.get('unenroll') %></a>
+        confirmUnenroll();"><%= locale.get('unenroll') %></a>
 <%
                 break
             end

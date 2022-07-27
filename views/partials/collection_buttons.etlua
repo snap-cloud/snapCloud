@@ -25,57 +25,40 @@
     <% if current_user:isadmin() or (current_user.id == collection.creator_id)
         then %>
     <a class="pure-button pure-button-warning delete" onclick="
-        confirmAction(
+        confirm(
             '<%= package.loaded.dialog(
                 'confirm_delete',
                 { item_name = 'collection'}) %>',
-            'collection',
-            'delete',
-            { data: <%= data %> }
+            () => { cloud.delete('/collection/<%= collection.id %>'); }
         );
     "><%= locale.get('delete_collection_button') %></a>
     <% end %>
 </div>
 <script>
-// We can't really refactor these much because of localization. Some languages
-// may need to change things other than just the verb depending on the action.
 
-function confirmPublish (data) {
-    confirmButtonAction(
+function confirmPublish () {
+    confirm(
         "<%= locale.get('confirm_publish_collection') %>",
-        'publish',
-        data
-    )
-};
-function confirmUnpublish (data) {
-    confirmButtonAction(
-        "<%= locale.get('confirm_unpublish_collection') %>",
-        'unpublish',
-        data
-    )
-};
-function confirmShare (data) {
-    confirmButtonAction(
-        "<%= locale.get('confirm_share_collection') %>",
-        'share',
-        data
-    )
-};
-function confirmUnshare (data) {
-    confirmButtonAction(
-        "<%= locale.get('confirm_unshare_collection') %>",
-        'unshare',
-        data
-    )
-};
-
-function confirmButtonAction (text, action, data) {
-    confirmComponentAction(
-        text,
-        '<%= component.id %>',
-        'collection',
-        action,
-        { data: data }
+        () => { cloud.post('/collection/<%= collection.id %>/publishing'); }
     );
 };
+function confirmUnpublish () {
+    confirm(
+        "<%= locale.get('confirm_unpublish_collection') %>",
+        () => { cloud.delete('/collection/<%= collection.id %>/publishing'); }
+    );
+};
+function confirmShare () {
+    confirm(
+        "<%= locale.get('confirm_share_collection') %>",
+        () => { cloud.post('/collection/<%= collection.id %>/sharing'); }
+    );
+};
+function confirmUnshare () {
+    confirm(
+        "<%= locale.get('confirm_unshare_collection') %>",
+        () => { cloud.delete( '/collection/<%= collection.id %>/sharing'); }
+    );
+};
+
 </script>

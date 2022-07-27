@@ -23,8 +23,9 @@
         <link rel="stylesheet" href="/static/style/layout.css">
         <!-- JS -->
         <script type="text/javascript" src="/static/js/locale.js"></script>
-        <script type="text/javascript" src="/static/js/base.js"></script>
+        <script type="text/javascript">modules = [];</script>
         <script type="text/javascript" src="/snap/src/cloud.js"></script>
+        <script type="text/javascript" src="/static/js/base.js"></script>
         <script>cloud = new Cloud(); cloud.url = baseURL;</script>
     </head>
     <body>

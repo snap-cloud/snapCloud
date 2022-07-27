@@ -22,15 +22,9 @@ render(
             prompt(
                 "<%- locale.get('collection_name') %>",
                 name => {
-                    cloud.request(
-                        'POST',
+                    cloud.post(
                         '/collections/<%= session.username %>',
-                        response => {
-                            location.href = response.redirect;
-                        },
-                        genericError,
-                        null,
-                        false,
+                        Cloud.redirect,
                         { name: name }
                     );
                 },

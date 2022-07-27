@@ -1,7 +1,6 @@
 var snapURL = location.origin + '/snap/snap.html',
     snapDevURL = location.origin + '/snapsource/dev/snap.html',
     baseURL = location.href.replace(/(.*)\/.*/, '$1'),
-    modules = [], // compatibility with cloud.js
     nop = function () {},
     localizer = new Localizer(),
     buttonDefaults =
@@ -110,3 +109,53 @@ Array.prototype.sortBy = function (parameter, reverse) {
     );
 };
 
+Cloud.redirect = function (response) {
+    if (!(response && response.redirect)) {
+        location.reload();
+    } else {
+        location.href = response.redirect;
+    }
+};
+
+// Cloud additions
+Cloud.prototype.post = function (path, onSuccess, body) {
+    // By default, redirect. If you don't want to do that,
+    // set onSuccess to nop or any other value.
+    if (onSuccess == null) { onSuccess = Cloud.redirect; }
+
+    cloud.request(
+        'POST',
+        path,
+        onSuccess,
+        error => {
+            alert(
+                error,
+                { title: localizer.localize('Error') },
+                Cloud.redirect
+            )
+        },
+        null,
+        false,
+        body
+    );
+};
+
+// Cloud additions
+Cloud.prototype.delete = function (path, onSuccess, body) {
+    // By default, redirect. If you don't want to do that,
+    // set onSuccess to nop or any other value.
+    if (onSuccess == null) { onSuccess = Cloud.redirect; }
+
+    cloud.request(
+        'DELETE',
+        path + (body ? ('?' + this.encodeDict(body)) : ''),
+        onSuccess,
+        error => {
+            alert(
+                error,
+                { title: localizer.localize('Error') },
+                Cloud.redirect
+            )
+        }
+    );
+};
