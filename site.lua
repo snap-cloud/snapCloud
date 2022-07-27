@@ -88,6 +88,31 @@ app:get('/my_collections', capture_errors(function (self)
     return { render = 'my_collections' }
 end))
 
+app:get('/collection', capture_errors(function (self)
+    local creator = Users:find({ username = self.params.username })
+    self.collection =
+        Collections:find(creator.id, self.params.collection)
+    assert_can_view_collection(self, self.collection)
+    self.collection.creator = creator
+
+    if self.collection.thumbnail_id then
+        self.collection.thumbnail =
+            package.loaded.disk:retrieve_thumbnail(
+                self.collection.thumbnail_id)
+    end
+
+    if self.collection.editor_ids then
+        self.collection.editors = Users:find_all(
+        self.collection.editor_ids,
+        { fields = 'username, id' })
+    end
+
+    self.items_per_page = 12
+    self.items = CollectionController.projects(self)
+
+    return { render = 'collection' }
+end))
+
 -- Pages that need redoing (used AJAX before)
 
 local index = capture_errors(function (self)
@@ -140,27 +165,6 @@ app:get('/examples', capture_errors(function (self)
     return { render = 'examples' }
 end))
 
-app:get('/collection', capture_errors(function (self)
-    local creator = Users:find({ username = self.params.username })
-    self.collection =
-        Collections:find(creator.id, self.params.collection)
-    assert_can_view_collection(self, self.collection)
-    self.collection.creator = creator
-
-    if self.collection.thumbnail_id then
-        self.collection.thumbnail =
-            package.loaded.disk:retrieve_thumbnail(
-                self.collection.thumbnail_id)
-    end
-
-    if self.collection.editor_ids then
-        self.collection.editors = Users:find_all(
-        self.collection.editor_ids,
-        { fields = 'username, id' })
-    end
-
-    return { render = 'collection' }
-end))
 
 app:get('/search', capture_errors(function (self)
     self.reviewer_controls =

@@ -176,3 +176,19 @@ app:match(api_route('collections/:username'), respond_to({
         return CollectionController.new(self)
     end
 }))
+
+app:match(api_route('update_collection/:id/name'),
+    respond_to({
+        POST = function (self)
+            return CollectionController.rename(self)
+        end
+    })
+)
+
+app:match(api_route('update_collection/:id/description'),
+    respond_to({
+        POST = function (self)
+            return CollectionController.set_description(self)
+        end
+    })
+)

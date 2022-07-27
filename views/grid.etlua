@@ -29,6 +29,7 @@ items_per_row = items_per_row or 5
 item_type = item_type or 'project'
 num_pages = num_pages or 0
 if items == nil then items = {} end
+
 %>
 
 <link rel="stylesheet" href="/static/style/project.css">

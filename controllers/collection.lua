@@ -93,14 +93,14 @@ CollectionController = {
         )
     end,
     projects = function (self)
-        local collection = Collections:find(user_id, collection_name)
-        local paginator = collection:get_projects()
-        paginator.per_page = items_per_page
+        if not self.params.page_number then self.params.page_number = 1 end
+        local paginator = self.collection:get_projects()
+        paginator.per_page = self.items_per_page
         if not ignore_page_count then
-            num_pages = paginator:num_pages()
+            self.num_pages = paginator:num_pages()
         end
-        local items = paginator:get_page(page_number)
-        disk:process_thumbnails(self.items)
+        local items = paginator:get_page(self.params.page_number)
+        disk:process_thumbnails(items)
         return items
     end,
     containing_project = function (self)
@@ -325,8 +325,7 @@ CollectionController = {
         end
     end,
     rename = function (self)
-        local collection =
-            Collections:find({ id = self.params.collection.id })
+        local collection = Collections:find({ id = self.params.id })
         if collection.creator_id ~= self.current_user.id then
             assert_admin(self)
         end
@@ -335,12 +334,11 @@ CollectionController = {
         if not (collection:update({ name = self.params.new_name })) then
             return errorResponse('Collection could not be renamed')
         else
-            return collection:url_for('site')
+            return jsonResponse({ redirect = collection:url_for('site') })
         end
     end,
     set_description = function (self)
-        local collection =
-            Collections:find({ id = self.params.collection.id })
+        local collection = Collections:find({ id = self.params.id })
         if collection.creator_id ~= self.current_user.id then
             assert_admin(self)
         end
@@ -348,6 +346,8 @@ CollectionController = {
             (collection:update({ description = self.params.new_description }))
                 then
             return errorResponse('Collection description could not be updated')
+        else
+            return okResponse('Collection description updated')
         end
     end
 }

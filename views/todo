@@ -16,7 +16,9 @@ TODO
     [ ] partials
         [x] grid_paginator
         [x] grid_search
-        [x] project
+        [-] project
+            [ ] remove project from collection
+            [ ] set project thumbnail to collection
     [ ] index
     [x] login
     [x] my_collections

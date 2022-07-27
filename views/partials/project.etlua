@@ -47,20 +47,11 @@
     <div class="collection-controls">
         <a title="<%= locale.get('remove_from_collection_tooltip') %>"
             class="clickable remove"
-            onclick="confirmRemove(<%= item.id %>, <%= data %>);"
+            onclick="confirmRemove(<%= item.id %>);"
             ><i class="fas fa-times-circle"></i></a>
         <a title="<%= locale.get('collection_thumbnail_tooltip') %>"
             class="clickable thumbnail"
-            onclick="
-                update_<%= data.thumbnail_component.id %>(
-                    'collection',
-                    'set_thumbnail',
-                    {
-                        data: <%= data %>,
-                        project: { id: <%= item.id %> }
-                    }
-                );
-            "
+            onclick="set_thumbnail(<%= item.id %>);"
         ><i class="fas fa-image"></i></a>
     </div>
 <% end %>
