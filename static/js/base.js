@@ -119,43 +119,48 @@ Cloud.redirect = function (response) {
 
 // Cloud additions
 Cloud.prototype.post = function (path, onSuccess, body) {
+    this.apiRequest('POST', path, onSuccess, body);
+};
+
+// Cloud additions
+Cloud.prototype.delete = function (path, onSuccess, body) {
+    this.apiRequest('DELETE', path, onSuccess, body);
+};
+
+Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
     // By default, redirect. If you don't want to do that,
     // set onSuccess to nop or any other value.
     if (onSuccess == null) { onSuccess = Cloud.redirect; }
 
+    if (body && (method != 'POST')) {
+        // append params to path
+        path += '?' + this.encodeDict(body);
+    }
+
     cloud.request(
-        'POST',
+        method,
         path,
-        onSuccess,
-        error => {
+        function (okResponse) {
+            var response = JSON.parse(okResponse);
+            if (response && response.title) {
+                alert(
+                    localizer.localize(response.message),
+                    { title: localizer.localize(response.title) },
+                    function () { onSuccess.call(this, response) }
+                );
+            } else {
+                onSuccess.call(this, response)
+            }
+        },
+        errorResponse => {
             alert(
-                error,
+                JSON.parse(errorResponse).errors[0],
                 { title: localizer.localize('Error') },
                 Cloud.redirect
             )
         },
         null,
-        false,
-        body
-    );
-};
-
-// Cloud additions
-Cloud.prototype.delete = function (path, onSuccess, body) {
-    // By default, redirect. If you don't want to do that,
-    // set onSuccess to nop or any other value.
-    if (onSuccess == null) { onSuccess = Cloud.redirect; }
-
-    cloud.request(
-        'DELETE',
-        path + (body ? ('?' + this.encodeDict(body)) : ''),
-        onSuccess,
-        error => {
-            alert(
-                error,
-                { title: localizer.localize('Error') },
-                Cloud.redirect
-            )
-        }
+        true,
+        (method == 'POST') ? body : null
     );
 };
