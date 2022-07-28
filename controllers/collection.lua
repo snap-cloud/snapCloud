@@ -31,7 +31,7 @@ local yield_error = package.loaded.yield_error
 local capture_errors = package.loaded.capture_errors
 
 CollectionController = {
-    run_query = capture_errors(function (self, query)
+    run_query = function (self, query)
         if not self.params.page_number then self.params.page_number = 1 end
         local paginator = Collections:paginated(
             query ..
@@ -58,7 +58,7 @@ CollectionController = {
         local items = paginator:get_page(self.params.page_number)
         disk:process_thumbnails(items, 'thumbnail_id')
         return items
-    end),
+    end,
     fetch = capture_errors(function (self)
         return CollectionController.run_query(
             self,

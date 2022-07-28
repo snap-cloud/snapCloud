@@ -1,23 +1,19 @@
 TODO
 ====
 [ ] scrap AJAX components entirely: make everything static
-    [x] delete_user
-    [ ] dialog
+    [ ] carousel
+        [ ] partials.carousel_paginator
     [ ] examples
     [ ] flags
-    [ ] index
+    [x] index
     [x] navigation_bar
         [ ] test unbecome
     [ ] project
     [ ] project_buttons
     [ ] search
-    [x] sign_up
     [ ] user
     [ ] user_admin
-
-    [ ] redo carousels
-        [ ] load 4 pages always on the server, then do scrolling on the client
-    [ ] show only projects in explore page
+    [ ] grid_filters
     [ ] new "published collections" page
     [ ] add "more collections" link to bottom of index
 

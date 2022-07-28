@@ -1,0 +1,39 @@
+<nav class="paginator">
+    <a class="clickable"
+        onclick="change_page('first');"
+    ><i class="fas fa-caret-left"></i></a>
+    <a class="clickable"
+        onclick="change_page(-5);"
+        ><i class="fas fa-angle-double-left"></i></a>
+    <a class="clickable"
+        onclick="change_page(-1);"
+        ><i class="fas fa-angle-left"></i></a>
+    <span class="page"><%= params.page_number %></span> / <span class="total-pages"><%= num_pages %></span>
+    <a class="clickable"
+        onclick="change_page(1);"
+        ><i class="fas fa-angle-right"></i></a>
+    <a class="clickable"
+        onclick="change_page(5);"
+        ><i class="fas fa-angle-double-right"></i></a>
+    <a class="clickable"
+        onclick="change_page('last');"
+        ><i class="fas fa-caret-right"></i></a>
+</nav>
+<script>
+    function change_page(offset) {
+        if (offset == 'first') {
+            destination_page_number = 1;
+        } else if (offset == 'last') {
+            destination_page_number = <%= num_pages %>;
+        } else {
+            destination_page_number =
+                Math.min(
+                    Math.max(
+                        1,
+                        <%= params.page_number %> + offset),
+                    <%= num_pages %>
+                );
+        }
+        // actually change page!
+    };
+</script>

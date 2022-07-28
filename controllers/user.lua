@@ -40,7 +40,7 @@ require 'validation'
 require 'passwords'
 
 UserController = {
-    run_query = capture_errors(function (self, query)
+    run_query = function (self, query)
         local paginator = Users:paginated(
             query ..
                 (self.params.data.search_term and (db.interpolate_query(
@@ -62,23 +62,7 @@ UserController = {
 
         self.items = paginator:get_page(self.params.data.page_number)
         self.data = self.params.data
-    end),
-    change_page = capture_errors(function (self)
-        if self.params.offset == 'first' then
-            self.params.data.page_number = 1
-        elseif self.params.offset == 'last' then
-            self.params.data.page_number = self.params.data.num_pages
-        else
-            self.params.data.page_number =
-                math.min(
-                    math.max(
-                        1,
-                        self.params.data.page_number + self.params.offset),
-                    self.params.data.num_pages)
-        end
-        self.data = self.params.data
-        UserController[self.component.fetch_selector](self)
-    end),
+    end,
     fetch = capture_errors(function (self)
         -- just to be able to reuse the existing run_query structure:
         UserController.run_query(self, 'WHERE true')

@@ -79,6 +79,7 @@ local locale = {
     games = "Jocs",
     cs = "Ciències de la computació",
     maths = "Matemàtiques",
+    latest = "Últims projectes publicats",
 
     -- Sign up page
     -- ============

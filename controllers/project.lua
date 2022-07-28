@@ -35,7 +35,7 @@ local Collections = package.loaded.Collections
 local Users = package.loaded.Users
 
 ProjectController = {
-    run_query = capture_errors(function (self, query)
+    run_query = function (self, query)
         -- query can hold a paginator or an SQL query
         if not self.params.page_number then self.params.page_number = 1 end
         local paginator = Projects:paginated(
@@ -60,7 +60,7 @@ ProjectController = {
         local items = paginator:get_page(self.params.page_number)
         disk:process_thumbnails(items)
         return items
-    end),
+    end,
     fetch = capture_errors(function (self)
         return ProjectController.run_query(
             self,

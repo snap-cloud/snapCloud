@@ -96,6 +96,7 @@ local locale = {
     games = "Games",
     cs = "Computer Science",
     maths = "Maths",
+    latest = "Latest Projects",
 
     -- Sign up page
     -- ============

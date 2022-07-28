@@ -1,0 +1,48 @@
+<%
+--[[
+    I am a project carousel. I hold and preload data and thumbnails for a number
+    of pages of projects, but only display a smaller number of them at a time.
+]]--
+
+-- set defaults
+
+if show_author == nil then show_author = true end
+items_per_page = items_per_page or 5
+item_type = 'project'
+num_pages = num_pages or 0
+if items == nil then items = {} end
+%>
+
+<link rel="stylesheet" href="/static/style/project.css">
+<div class="<%= class %> container">
+
+<%
+if ((num_pages > 0) or show_if_empty) then %>
+    <% if (title) then %>
+    <h2 class="<%= class %> header"><%= title %></h2>
+    <% elseif title_selector then %>
+    <h2 class="<%= class %> header"
+        ><%= locale.get(title_selector) %></h2>
+    <% end %>
+    <div class="bar">
+        <% render('views.partials.carousel_paginator') %>
+    </div>
+    <% if (num_pages > 0) then %>
+    <div class="<%= class %> list pure-g">
+        <% for _, item in pairs(items) do %>
+            <%
+                render(
+                    'views.partials.' .. item_type,
+                    {
+                        item = item,
+                        items_per_row = items_per_page,
+                        show_author = show_author
+                    }
+                )
+            %>
+        <% end %>
+    </div>
+    <% end -- show items, if there are any %>
+<% end -- show if empty %>
+    </script>
+</div>
