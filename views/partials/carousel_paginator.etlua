@@ -8,7 +8,7 @@
     <a class="clickable"
         onclick="change_page(-1);"
         ><i class="fas fa-angle-left"></i></a>
-    <span class="page"><%= params.page_number %></span> / <span class="total-pages"><%= num_pages %></span>
+    <span class="page"></span> / <span class="total-pages"><%= num_pages %></span>
     <a class="clickable"
         onclick="change_page(1);"
         ><i class="fas fa-angle-right"></i></a>
@@ -20,7 +20,12 @@
         ><i class="fas fa-caret-right"></i></a>
 </nav>
 <script>
+    var items = document.querySelectorAll('div.carousel .project.small'),
+        pageElement = document.querySelector('span.page'),
+        current_page = 1;
+
     function change_page(offset) {
+        var firstIndex;
         if (offset == 'first') {
             destination_page_number = 1;
         } else if (offset == 'last') {
@@ -30,10 +35,21 @@
                 Math.min(
                     Math.max(
                         1,
-                        <%= params.page_number %> + offset),
+                        current_page + offset),
                     <%= num_pages %>
                 );
         }
-        // actually change page!
+
+        pageElement.innerHTML = current_page;
+
+        firstIndex = ((destination_page_number - 1) * 5);
+        items.forEach((item, index) => {
+            if ((index < firstIndex) || (index > (firstIndex + 4))) {
+                item.style.display = 'none';
+            } else {
+                item.style.display = 'block';    
+            }
+        });
     };
+    change_page('first');
 </script>

@@ -7,35 +7,39 @@
 -- set defaults
 
 if show_author == nil then show_author = true end
-items_per_page = items_per_page or 5
 item_type = 'project'
-num_pages = num_pages or 0
+num_pages = num_pages or 4
 if items == nil then items = {} end
 %>
 
 <link rel="stylesheet" href="/static/style/project.css">
-<div class="<%= class %> container">
+<div class="projects container carousel">
 
 <%
 if ((num_pages > 0) or show_if_empty) then %>
     <% if (title) then %>
-    <h2 class="<%= class %> header"><%= title %></h2>
+    <h2 class="projects header"><%= title %></h2>
     <% elseif title_selector then %>
-    <h2 class="<%= class %> header"
+    <h2 class="projects header"
         ><%= locale.get(title_selector) %></h2>
     <% end %>
     <div class="bar">
-        <% render('views.partials.carousel_paginator') %>
+        <%
+            render(
+                'views.partials.carousel_paginator',
+                { num_pages = num_pages }
+            )
+        %>
     </div>
     <% if (num_pages > 0) then %>
-    <div class="<%= class %> list pure-g">
+    <div class="projects list pure-g">
         <% for _, item in pairs(items) do %>
             <%
                 render(
                     'views.partials.' .. item_type,
                     {
                         item = item,
-                        items_per_row = items_per_page,
+                        items_per_row = 5,
                         show_author = show_author
                     }
                 )

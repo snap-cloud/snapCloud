@@ -69,11 +69,9 @@ for _, descriptor in pairs(collections) do
         'views.carousel',
         {
             title = descriptor.title, -- TODO localize titles
-            class = 'projects',
-            num_pages = 4,
             items = CollectionController.projects({
-                items_per_page = 5,
                 params = {},
+                items_per_page = 20,
                 collection = package.loaded.Collections:find(
                     snapcloud_id,
                     descriptor.collection_name
@@ -88,11 +86,8 @@ render(
     'views.carousel',
     {
         title = locale.get('latest'),
-        class = 'projects',
-        num_pages = 4,
         items = ProjectController.fetch({
-            items_per_page = 5,
-            params = { items_per_page = 5 }
+            params = { items_per_page = 20 }
         })
     }
 )
