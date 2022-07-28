@@ -125,6 +125,13 @@ app:match(api_route('users/:username/resendverification'), respond_to({
     end
 }))
 
+-- Emails
+-- ======
+
+app:match(api_route('emails/:email/remind_username'), respond_to({
+    POST = UserController.remind_username
+}))
+
 -- Projects
 -- ========
 app:match(api_route('projects'), respond_to({

@@ -14,10 +14,11 @@
     <script>
         enableEnterSubmit();
         var submit = function () {
-            run_selector(
-                'user',
-                'remind_username',
-                { email: document.querySelector('input#email').value }
+            cloud.post(
+                '/emails/' +
+                    encodeURIComponent(
+                        document.querySelector('input#email').value) +
+                    '/remind_username',
             );
         };
 </script>

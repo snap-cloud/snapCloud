@@ -163,7 +163,7 @@ app:before_filter(function (self)
         if pcall(function () package.loaded.util.from_json(body) end) then
             local post_params = package.loaded.util.from_json(body)
             for k, v in pairs(post_params) do
-                self.params[k] = v
+                self.params[k] = package.loaded.util.unescape(v)
             end
         else
             self.params.body = body
@@ -178,6 +178,8 @@ app:before_filter(function (self)
                 package.loaded.util.from_json(
                     package.loaded.util.unescape(v)
                 )
+        else
+            self.params[k] = package.loaded.util.unescape(v)
         end
     end
 
