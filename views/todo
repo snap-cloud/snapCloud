@@ -1,9 +1,7 @@
 TODO
 ====
 [ ] scrap AJAX components entirely: make everything static
-    [x] change_email
-    [x] change_password
-    [ ] delete_user
+    [x] delete_user
     [ ] dialog
     [ ] examples
     [ ] flags
@@ -13,7 +11,7 @@ TODO
     [ ] project
     [ ] project_buttons
     [ ] search
-    [ ] sign_up
+    [x] sign_up
     [ ] user
     [ ] user_admin
 

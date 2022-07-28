@@ -426,10 +426,6 @@ UserController = {
             message = 'Message sent to user',
             title = 'Message sent'
         })
-    end),
-    set_locale = capture_errors(function (self)
-        self.session.locale = self.params.locale
-        return self.params.redirect
     end)
 }
 

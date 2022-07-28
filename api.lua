@@ -82,9 +82,7 @@ app:match(api_route('set_locale'), respond_to({
 app:get(api_route('users/c'), UserController.current) -- backwards compatibility
 app:match(api_route('user'), respond_to({
     GET = UserController.current,
-    DELETE = function (self)
-        -- delete the current user
-    end
+    DELETE = UserController.delete
 }))
 
 app:match(api_route('logout'), respond_to({
@@ -107,9 +105,7 @@ app:match(api_route('change_my_password'), respond_to({
 -- Other users
 -- ===========
 app:match(api_route('signup'), respond_to({
-    POST = function (self)
-        -- create a new user
-    end,
+    POST = UserController.create
 }))
 
 app:match(api_route('users/:username/newpassword'), respond_to({

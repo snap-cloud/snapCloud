@@ -121,9 +121,9 @@
                     "<%- locale.get('err_password_mismatch_title') %>",
                 );
             } else {
-                run_selector(
-                    'user',
-                    'create',
+                cloud.post(
+                    '/signup',
+                    null,
                     {
                         username: username,
                         password: hex_sha512(password),

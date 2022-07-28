@@ -19,9 +19,9 @@
     <script>
         enableEnterSubmit();
         var submit = function () {
-            run_selector(
-                'user',
-                'delete',
+            cloud.delete(
+                '/user',
+                null,
                 {
                     password:
                         hex_sha512(

@@ -34,7 +34,7 @@
             '<i class="warning fa fa-exclamation-triangle"></i> ' +
             '<%- locale.get('warning_no_return') %>' +
             ' <i class="warning fa fa-exclamation-triangle"></i>',
-            function (ok) { if (ok) { location.href = 'delete_user'; }},
+            () => { location.href = 'delete_user' },
             confirmTitle('<%- locale.get('delete_my_user') %>')
         );
     };
