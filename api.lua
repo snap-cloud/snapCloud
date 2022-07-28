@@ -96,6 +96,14 @@ app:match(api_route('unbecome'), respond_to({
     POST = UserController.unbecome
 }))
 
+app:match(api_route('change_my_email'), respond_to({
+    POST = UserController.change_email
+}))
+
+app:match(api_route('change_my_password'), respond_to({
+    POST = UserController.change_password
+}))
+
 -- Other users
 -- ===========
 app:match(api_route('signup'), respond_to({

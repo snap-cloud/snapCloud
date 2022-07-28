@@ -39,9 +39,9 @@
                     "<%- locale.get('err_email_mismatch_title') %>"
                 );
             } else {
-                run_selector(
-                    'user',
-                    'change_email',
+                cloud.post(
+                    '/change_my_email',
+                    null,
                     { password: password, email: email }
                 );
             }

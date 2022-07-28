@@ -79,13 +79,21 @@ app:get('/explore', capture_errors(function (self)
 end))
 
 app:get('/my_projects', capture_errors(function (self)
-    self.items = ProjectController.my_projects(self)
-    return { render = 'my_projects' }
+    if self.current_user then
+        self.items = ProjectController.my_projects(self)
+        return { render = 'my_projects' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
 end))
 
 app:get('/my_collections', capture_errors(function (self)
-    self.items = CollectionController.my_collections(self)
-    return { render = 'my_collections' }
+    if self.current_user then
+        self.items = CollectionController.my_collections(self)
+        return { render = 'my_collections' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
 end))
 
 app:get('/collection', capture_errors(function (self)
@@ -113,6 +121,15 @@ app:get('/collection', capture_errors(function (self)
     return { render = 'collection' }
 end))
 
+app:get('/admin', capture_errors(function (self)
+    if self.current_user then
+        assert_min_role(self, 'reviewer')
+        return { render = 'admin' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
+end))
+
 -- Pages that need redoing (used AJAX before)
 
 local index = capture_errors(function (self)
@@ -123,10 +140,6 @@ end)
 app:get('/', index)
 app:get('/index', index)
 
-app:get('/admin', capture_errors(function (self)
-    assert_min_role(self, 'reviewer')
-    return { render = 'admin' }
-end))
 
 app:get('/user', capture_errors(function (self)
     self.username = self.queried_user.username
@@ -175,16 +188,28 @@ end))
 -- Administration and data management pages
 
 app:get('/profile', capture_errors(function (self)
-    self.user = self.current_user
-    return { render = 'profile' }
+    if self.current_user then
+        self.user = self.current_user
+        return { render = 'profile' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
 end))
 
 app:get('/flags', capture_errors(function (self)
-    assert_min_role(self, 'reviewer')
-    return { render = 'flags' }
+    if self.current_user then
+        assert_min_role(self, 'reviewer')
+        return { render = 'flags' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
 end))
 
 app:get('/user_admin', capture_errors(function (self)
-    assert_min_role(self, 'moderator')
-    return { render = 'user_admin' }
+    if self.current_user then
+        assert_min_role(self, 'moderator')
+        return { render = 'user_admin' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
 end))

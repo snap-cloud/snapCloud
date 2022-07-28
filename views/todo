@@ -1,14 +1,12 @@
 TODO
 ====
 [ ] scrap AJAX components entirely: make everything static
-    [ ] change_email
-    [ ] change_password
+    [x] change_email
+    [x] change_password
     [ ] delete_user
     [ ] dialog
     [ ] examples
     [ ] flags
-    [x] forgot_password
-    [x] forgot_username
     [ ] index
     [x] navigation_bar
         [ ] test unbecome
