@@ -28,9 +28,10 @@ local db = package.loaded.db
 local disk = package.loaded.disk
 local assert_error = package.loaded.app_helpers.assert_error
 local yield_error = package.loaded.yield_error
+local capture_errors = package.loaded.capture_errors
 
 CollectionController = {
-    run_query = function (self, query)
+    run_query = capture_errors(function (self, query)
         if not self.params.page_number then self.params.page_number = 1 end
         local paginator = Collections:paginated(
             query ..
@@ -57,16 +58,16 @@ CollectionController = {
         local items = paginator:get_page(self.params.page_number)
         disk:process_thumbnails(items, 'thumbnail_id')
         return items
-    end,
-    fetch = function (self)
+    end),
+    fetch = capture_errors(function (self)
         return CollectionController.run_query(
             self,
             [[JOIN active_users ON
                 (active_users.id = collections.creator_id)
                 WHERE published]]
         )
-    end,
-    my_collections = function (self)
+    end),
+    my_collections = capture_errors(function (self)
         self.params.order = 'updated_at DESC'
         return CollectionController.run_query(
             self,
@@ -77,8 +78,8 @@ CollectionController = {
                 self.current_user.id,
                 self.current_user.id)
         )
-    end,
-    user_collections = function (self)
+    end),
+    user_collections = capture_errors(function (self)
         self.params.order = 'updated_at DESC'
         return CollectionController.run_query(
             self,
@@ -91,8 +92,8 @@ CollectionController = {
                 self.params.user_id
             )
         )
-    end,
-    projects = function (self)
+    end),
+    projects = capture_errors(function (self)
         if not self.params.page_number then self.params.page_number = 1 end
         local paginator = self.collection:get_projects()
         paginator.per_page = self.items_per_page
@@ -102,8 +103,8 @@ CollectionController = {
         local items = paginator:get_page(self.params.page_number)
         disk:process_thumbnails(items)
         return items
-    end,
-    containing_project = function (self)
+    end),
+    containing_project = capture_errors(function (self)
         self.params.order =  'collections.created_at DESC'
         self.params.fields =
             [[collections.creator_id, collections.name,
@@ -121,8 +122,8 @@ CollectionController = {
                 self.params.project_id
             )
         )
-    end,
-    new = function (self)
+    end),
+    new = capture_errors(function (self)
         assert_can_create_collection(self)
         local collection =
             Collections:find(self.current_user.id, self.params.name)
@@ -134,8 +135,8 @@ CollectionController = {
         end
         collection.username = self.current_user.username -- needed by url_for
         return jsonResponse({ redirect = collection:url_for('site') })
-    end,
-    add_project = function (self)
+    end),
+    add_project = capture_errors(function (self)
         local collection = Collections:find({ id = self.params.id })
         local project = Projects:find({ id = self.params.project.id })
         assert_can_add_project_to_collection(self, project, collection)
@@ -154,8 +155,8 @@ CollectionController = {
         })
 
         return project:url_for('site')
-    end,
-    remove_project = function (self)
+    end),
+    remove_project = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
 
@@ -172,8 +173,8 @@ CollectionController = {
                 project_id = self.params.project_id
             })
         return okResponse()
-    end,
-    set_thumbnail = function (self)
+    end),
+    set_thumbnail = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
 
@@ -185,8 +186,8 @@ CollectionController = {
         collection.thumbnail =
             package.loaded.disk:retrieve_thumbnail(collection.thumbnail_id)
         return okResponse()
-    end,
-    share = function (self)
+    end),
+    share = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
         assert_can_share(self, collection)
@@ -197,8 +198,8 @@ CollectionController = {
             published = false
         })
         return okResponse()
-    end,
-    unshare = function (self)
+    end),
+    unshare = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
         assert_can_share(self, collection)
@@ -208,8 +209,8 @@ CollectionController = {
             published = false
         })
         return okResponse()
-    end,
-    publish = function (self)
+    end),
+    publish = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
         assert_can_share(self, collection)
@@ -220,8 +221,8 @@ CollectionController = {
             published = true
         })
         return okResponse()
-    end,
-    unpublish = function (self)
+    end),
+    unpublish = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
         assert_can_share(self, collection)
@@ -230,8 +231,8 @@ CollectionController = {
             published = false
         })
         return okResponse()
-    end,
-    delete = function (self)
+    end),
+    delete = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
         local name = collection.name
@@ -239,8 +240,8 @@ CollectionController = {
         db.delete('collection_memberships', { collection_id = collection.id })
         db.delete('collections', { id = collection.id })
         return jsonResponse({ redirect = self:build_url('my_collections') })
-    end,
-    make_ffa = function (self)
+    end),
+    make_ffa = capture_errors(function (self)
         assert_min_role(self, 'moderator')
         local collection =
             Collections:find({ id = self.params.id })
@@ -257,8 +258,8 @@ CollectionController = {
                 '</em> is now free for all.',
             title = 'Free for all'
         })
-    end,
-    unmake_ffa = function (self)
+    end),
+    unmake_ffa = capture_errors(function (self)
         assert_min_role(self, 'moderator')
         local collection =
             Collections:find({ id = self.params.id })
@@ -274,8 +275,8 @@ CollectionController = {
                 '</em> is no longer free for all.',
             title = 'Free for all'
         })
-    end,
-    unenroll = function (self)
+    end),
+    unenroll = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
         if is_editor(self, collection) then
@@ -287,8 +288,8 @@ CollectionController = {
             })
         end
         return jsonResponse({ redirect = self:build_url('my_collections') })
-    end,
-    add_editor = function (self)
+    end),
+    add_editor = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
         if collection.creator_id ~= self.current_user.id then
@@ -306,8 +307,8 @@ CollectionController = {
         })
 
         return okResponse('Editor added')
-    end,
-    remove_editor = function (self)
+    end),
+    remove_editor = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
         if collection.creator_id == self.current_user.id or
@@ -326,8 +327,8 @@ CollectionController = {
         else
             yield_error(err.auth)
         end
-    end,
-    rename = function (self)
+    end),
+    rename = capture_errors(function (self)
         local collection = Collections:find({ id = self.params.id })
         if collection.creator_id ~= self.current_user.id then
             assert_admin(self)
@@ -339,8 +340,8 @@ CollectionController = {
         else
             return jsonResponse({ redirect = collection:url_for('site') })
         end
-    end,
-    set_description = function (self)
+    end),
+    set_description = capture_errors(function (self)
         local collection = Collections:find({ id = self.params.id })
         if collection.creator_id ~= self.current_user.id then
             assert_admin(self)
@@ -352,5 +353,5 @@ CollectionController = {
         else
             return okResponse('Collection description updated')
         end
-    end
+    end)
 }

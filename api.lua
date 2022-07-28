@@ -43,38 +43,38 @@ local function api_route(path) return '/(api/' .. api_version .. '/)' .. path en
 -- API Endpoints
 -- =============
 app:match(api_route('version'), respond_to({
-    GET = function (self)
+    GET = capture_errors(function (self)
         return jsonResponse({
             name = 'Snap! Cloud',
             version = api_version
         })
-    end
+    end)
 }))
 
 app:match(api_route('init'), respond_to({
-    GET = function (self)
+    GET = capture_errors(function (self)
         return errorResponse(
             'It seems like you are trying to log in. ' ..
             'Try refreshing the page and try again. ' ..
             'This URL is internal to the Snap!Cloud.',
             400)
-    end,
-    POST = function (self)
+    end),
+    POST = capture_errors(function (self)
         if not self.session.username or
             (self.session.username and
                 self.cookies.persist_session == 'false') then
             self.session.username = ''
         end
-    end
+    end)
 }))
 
 -- Session
 -- =======
 app:match(api_route('set_locale'), respond_to({
-    POST = function (self)
+    POST = capture_errors(function (self)
         self.session.locale = self.params.locale
         return jsonResponse({ redirect = self.params.redirect })
-    end
+    end)
 }))
 
 -- Current user
@@ -110,9 +110,7 @@ app:match(api_route('users/:username/newpassword'), respond_to({
 }))
 
 app:match(api_route('users/:username/password_reset'), respond_to({
-    POST = function (self)
-        return UserController.reset_password(self)
-    end,
+    POST = UserController.reset_password
 }))
 
 app:match(api_route('users/:username/login'), respond_to({
@@ -172,107 +170,72 @@ app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
 -- Collections
 -- ===========
 app:match(api_route('collections/:username'), respond_to({
-    POST = function (self)
-        -- create a collection, owned by the current user
-        return CollectionController.new(self)
-    end
+    POST = CollectionController.new
 }))
 
 app:match(api_route('collection/:id'),
     respond_to({
-        DELETE = function (self)
-            return CollectionController.delete(self)
-        end
+        DELETE = CollectionController.delete
     })
 )
 
 
 app:match(api_route('collection/:id/name'),
     respond_to({
-        POST = function (self)
-            return CollectionController.rename(self)
-        end
+        POST = CollectionController.rename
     })
 )
 
 app:match(api_route('collection/:id/description'),
     respond_to({
-        POST = function (self)
-            return CollectionController.set_description(self)
-        end
+        POST = CollectionController.set_description
     })
 )
 
 app:match(api_route('collection/:id/editor'),
     respond_to({
-        POST = function (self)
-            -- add an editor
-            return CollectionController.add_editor(self)
-        end,
-        DELETE = function (self)
-            -- remove an editor
-            return CollectionController.remove_editor(self)
-        end
+        POST = CollectionController.add_editor,
+        DELETE = CollectionController.remove_editor
     })
 )
 
 app:match(api_route('collection/:id/enrollment'),
     respond_to({
-        DELETE = function (self)
-            -- unenroll
-            return CollectionController.unenroll(self)
-        end
+        DELETE = CollectionController.unenroll
     })
 )
 
 app:match(api_route('collection/:id/ffa'),
     respond_to({
-        POST = function (self)
-            return CollectionController.make_ffa(self)
-        end,
-        DELETE = function (self)
-            return CollectionController.unmake_ffa(self)
-        end
+        POST = CollectionController.make_ffa,
+        DELETE = CollectionController.unmake_ffa
     })
 )
 
 app:match(api_route('collection/:id/sharing'),
     respond_to({
-        POST = function (self)
-            return CollectionController.share(self)
-        end,
-        DELETE = function (self)
-            return CollectionController.unshare(self)
-        end
+        POST = CollectionController.share,
+        DELETE = CollectionController.unshare
     })
 )
 
 app:match(api_route('collection/:id/publishing'),
     respond_to({
-        POST = function (self)
-            return CollectionController.publish(self)
-        end,
-        DELETE = function (self)
-            return CollectionController.unpublish(self)
-        end
+        POST = CollectionController.publish,
+        DELETE = CollectionController.unpublish
     })
 )
 
 app:match(api_route('collection/:id/thumbnail'),
     respond_to({
-        POST = function (self)
-            return CollectionController.set_thumbnail(self)
-        end
+        POST = CollectionController.set_thumbnail
     })
 )
 
 app:match(api_route('collection/:id/project/:project_id'),
     respond_to({
-        POST = function (self)
-        end,
-        DELETE = function (self)
-            return CollectionController.remove_project(self)
-        end
+        POST = CollectionController.add_project,
+        DELETE = CollectionController.remove_project
     })
 )
 

@@ -25,6 +25,7 @@ local validate = package.loaded.validate
 local db = package.loaded.db
 local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
+local capture_errors = package.loaded.capture_errors
 local socket = require('socket')
 local app = package.loaded.app
 
@@ -39,7 +40,7 @@ require 'validation'
 require 'passwords'
 
 UserController = {
-    run_query = function (self, query)
+    run_query = capture_errors(function (self, query)
         local paginator = Users:paginated(
             query ..
                 (self.params.data.search_term and (db.interpolate_query(
@@ -61,8 +62,8 @@ UserController = {
 
         self.items = paginator:get_page(self.params.data.page_number)
         self.data = self.params.data
-    end,
-    change_page = function (self)
+    end),
+    change_page = capture_errors(function (self)
         if self.params.offset == 'first' then
             self.params.data.page_number = 1
         elseif self.params.offset == 'last' then
@@ -77,17 +78,17 @@ UserController = {
         end
         self.data = self.params.data
         UserController[self.component.fetch_selector](self)
-    end,
-    fetch = function (self)
+    end),
+    fetch = capture_errors(function (self)
         -- just to be able to reuse the existing run_query structure:
         UserController.run_query(self, 'WHERE true')
-    end,
-    search = function (self)
+    end),
+    search = capture_errors(function (self)
         self.params.data.page_number = 1
         self.params.data.search_term = self.params.search_term
         UserController[self.component.fetch_selector](self)
-    end,
-    filter = function (self)
+    end),
+    filter = capture_errors(function (self)
         if (self.params.data.filters == nil) then
             self.params.data.filters = {}
         end
@@ -124,8 +125,8 @@ UserController = {
             end
         end
         UserController[self.component.fetch_selector](self)
-    end,
-    current = function (self)
+    end),
+    current = capture_errors(function (self)
         if self.current_user then
             self.session.verified = self.current_user.verified
             self.session.user_id = self.current_user.id
@@ -151,8 +152,8 @@ UserController = {
             verified = self.session.verified,
             id = self.session.user_id
         })
-    end,
-    login = function (self)
+    end),
+    login = capture_errors(function (self)
         assert_user_exists(self)
         local password = self.params.password
         if (hash_password(password, self.queried_user.salt) ==
@@ -203,16 +204,16 @@ UserController = {
             self.session.username = self.queried_user.username
             return self:build_url('index')
         end
-    end,
-    logout = function (self)
+    end),
+    logout = capture_errors(function (self)
         self.session.username = ''
         self.session.user_id = nil
         self.cookies.persist_session = 'false'
         return jsonResponse(
             { redirect = self.params.redirect or self:build_url('index') }
         )
-    end,
-    change_email = function (self)
+    end),
+    change_email = capture_errors(function (self)
         assert_logged_in(self)
 
         local user = self.queried_user or self.current_user
@@ -235,8 +236,8 @@ UserController = {
                     user:url_for('site') or
                     self:build_url('profile')
         })
-    end,
-    change_password = function (self)
+    end),
+    change_password = capture_errors(function (self)
         assert_logged_in(self)
         if (self.current_user.password ~=
             hash_password(self.params.old_password, self.current_user.salt))
@@ -252,14 +253,13 @@ UserController = {
             message = 'Your password has been changed.',
             redirect = self:build_url('profile')
         })
-    end,
-    reset_password = function (self)
+    end),
+    reset_password = capture_errors(function (self)
         local token = find_token(self.params.username, 'password_reset')
         if token then
-            local epoch = db.select(
-                'extract(epoch from (now()::timestamp - ?::timestamp))',
+            local minutes = db.select(
+                'extract(minutes from (now()::timestamp - ?::timestamp))',
                 token.created)[1].date_part
-            local minutes = epoch / 60
             if minutes < 15 then
                 yield_error(err.too_many_password_resets)
             end
@@ -271,8 +271,8 @@ UserController = {
             'your email account.',
             redirect = self:build_url('index')
         })
-    end,
-    remind_username = function (self)
+    end),
+    remind_username = capture_errors(function (self)
         local users = assert_users_have_email(self)
         local body = '<ul>'
 
@@ -292,8 +292,8 @@ UserController = {
             message = 'Email with username list sent to ' .. self.params.email,
             redirect = self:build_url('login')
         })
-    end,
-    delete = function (self)
+    end),
+    delete = capture_errors(function (self)
         local user = self.queried_user or self.current_user
 
         if self.queried_user then
@@ -320,8 +320,8 @@ UserController = {
                 redirect = self:build_url('index')
             })
         end
-    end,
-    create = function (self)
+    end),
+    create = capture_errors(function (self)
         prevent_tor_access(self)
 
         -- strip whitespace *only* on create users.
@@ -363,8 +363,8 @@ UserController = {
             title = 'Account Created',
             redirect = self:build_url('login')
         })
-    end,
-    become = function (self)
+    end),
+    become = capture_errors(function (self)
         assert_min_role(self, 'moderator')
         if self.queried_user then
             -- you can't become someone with a higher role than yours
@@ -382,8 +382,8 @@ UserController = {
             title = 'Impersonation',
             redirect = self:build_url('profile')
         })
-    end,
-    unbecome = function (self)
+    end),
+    unbecome = capture_errors(function (self)
         if self.session.impersonator then
             self.session.username = self.session.impersonator
             self.current_user =
@@ -395,8 +395,8 @@ UserController = {
                 redirect = self:build_url('user_admin')
             })
         end
-    end,
-    set_role = function (self)
+    end),
+    set_role = capture_errors(function (self)
         assert_min_role(self, 'moderator')
         if self.queried_user then
             assert_can_set_role(self, self.params.role)
@@ -409,8 +409,8 @@ UserController = {
             title = 'Role set',
             redirect = self.queried_user:url_for('site')
         })
-    end,
-    send_email = function (self)
+    end),
+    send_email = capture_errors(function (self)
         assert_admin(self)
         if self.params.email and (#self.params.email.body > 0) then
             send_mail(
@@ -425,74 +425,89 @@ UserController = {
             message = 'Message sent to user',
             title = 'Message sent'
         })
-    end,
-    set_locale = function (self)
+    end),
+    set_locale = capture_errors(function (self)
         self.session.locale = self.params.locale
         return self.params.redirect
-    end,
+    end)
 }
 
 -- TODO move those to a separate module?
-app:match('password_reset', '/password_reset/:token', function (self)
-    -- This route is reached when a user clicks on a reset password URL
-    local token = Tokens:find(self.params.token)
-    return check_token(
-        self,
-        token,
-        'password_reset',
-        function (user)
-            local password, prehash = random_password()
-            user:update({ password = hash_password(prehash, user.salt) })
-            send_mail(
-                user.email,
-                mail_subjects.new_password .. user.username,
-                mail_bodies.new_password .. '<p><h2>' ..
-                    password .. '</h2></p>')
-
-            return htmlPage(
+app:match(
+    'password_reset',
+    '/password_reset/:token', 
+    capture_errors(
+        function (self)
+            -- This route is reached when a user clicks on a reset password URL
+            local token = Tokens:find(self.params.token)
+            return check_token(
                 self,
-                'Password reset',
-                '<p>A new random password has been generated for ' ..
-                'your account <strong>' .. user.username ..
-                '</strong> and sent to your email address. ' ..
-                'Please check your inbox.</p>' ..
-                '<p>After logging in, please proceed to <strong>' ..
-                'change your password</strong> as soon as possible.</p>'
+                token,
+                'password_reset',
+                function (user)
+                    local password, prehash = random_password()
+                    user:update(
+                        { password = hash_password(prehash, user.salt) }
+                    )
+                    send_mail(
+                        user.email,
+                        mail_subjects.new_password .. user.username,
+                        mail_bodies.new_password .. '<p><h2>' ..
+                        password .. '</h2></p>'
+                    )
+
+                    return htmlPage(
+                        self,
+                        'Password reset',
+                        '<p>A new random password has been generated for ' ..
+                        'your account <strong>' .. user.username ..
+                        '</strong> and sent to your email address. ' ..
+                        'Please check your inbox.</p>' ..
+                        '<p>After logging in, please proceed to <strong>' ..
+                        'change your password</strong> as soon as possible.</p>'
+                    )
+                end
             )
         end
     )
-end)
+)
 
-app:match('verify_user', '/verify_me/:token', function (self)
-    local token = Tokens:find(self.params.token)
+app:match(
+    'verify_user',
+    '/verify_me/:token',
+    capture_errors(
+        function (self)
+            local token = Tokens:find(self.params.token)
 
-    local user_page = function ()
-        return htmlPage(
-            'User verified | Welcome to Snap<em>!</em>',
-            '<p>Your account <strong>' .. self.queried_user.username ..
-            '</strong> has been verified.</p>' ..
-            '<p>Thank you!</p>' ..
-            '<p><a href="https://snap.berkeley.edu/">' ..
-            'Take me to Snap<i>!</i></a></p>'
-        )
-    end
-
-    -- Check whether user had already been verified and, if so, delete the
-    -- token
-    if self.queried_user.verified then
-        token:delete()
-        return user_page(self.queried_user)
-    else
-        return check_token(
-            self,
-            token,
-            'verify_user',
-            function ()
-                -- success callback
-                self.queried_user:update({ verified = true })
-                self.session.verified = true
-                return user_page()
+            local user_page = function ()
+                return htmlPage(
+                    'User verified | Welcome to Snap<em>!</em>',
+                    '<p>Your account <strong>' .. self.queried_user.username ..
+                    '</strong> has been verified.</p>' ..
+                    '<p>Thank you!</p>' ..
+                    '<p><a href="https://snap.berkeley.edu/">' ..
+                    'Take me to Snap<i>!</i></a></p>'
+                )
             end
-        )
-    end
-end)
+
+            -- Check whether user had already been verified and, if so, delete
+            -- the token
+            if self.queried_user.verified then
+                token:delete()
+                return user_page(self.queried_user)
+            else
+                return check_token(
+                    self,
+                    token,
+                    'verify_user',
+                    function ()
+                        -- success callback
+                        self.queried_user:update({ verified = true })
+                        self.session.verified = true
+                        return user_page()
+                    end
+                )
+            end
+        end
+    )
+)

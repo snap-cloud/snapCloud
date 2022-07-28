@@ -25,6 +25,7 @@ local validate = package.loaded.validate
 local db = package.loaded.db
 local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
+local capture_errors = package.loaded.capture_errors
 local db = package.loaded.db
 local disk = package.loaded.disk
 
@@ -34,7 +35,7 @@ local Collections = package.loaded.Collections
 local Users = package.loaded.Users
 
 ProjectController = {
-    run_query = function (self, query)
+    run_query = capture_errors(function (self, query)
         -- query can hold a paginator or an SQL query
         if not self.params.page_number then self.params.page_number = 1 end
         local paginator = Projects:paginated(
@@ -59,8 +60,8 @@ ProjectController = {
         local items = paginator:get_page(self.params.page_number)
         disk:process_thumbnails(items)
         return items
-    end,
-    fetch = function (self)
+    end),
+    fetch = capture_errors(function (self)
         return ProjectController.run_query(
             self,
             [[WHERE ispublished AND NOT EXISTS(
@@ -68,15 +69,15 @@ ProjectController = {
                 username = active_projects.username LIMIT 1)]] ..
                 db.interpolate_query(course_name_filter())
         )
-    end,
-    my_projects = function (self)
+    end),
+    my_projects = capture_errors(function (self)
         self.params.order = 'lastupdated DESC'
         return ProjectController.run_query(
             self,
             db.interpolate_query('WHERE username = ?', self.session.username)
         )
-    end,
-    user_projects = function (self)
+    end),
+    user_projects = capture_errors(function (self)
         self.params.order = 'lastupdated DESC'
         ProjectController.run_query(
             self,
@@ -85,8 +86,8 @@ ProjectController = {
                 self.params.username
             )
         )
-    end,
-    remixes = function (self)
+    end),
+    remixes = capture_errors(function (self)
         self.params.order = 'remixes.created DESC'
         self.params.fields =
             'DISTINCT username, projectname, remixes.created'
@@ -100,8 +101,8 @@ ProjectController = {
                 self.params.project_id
             )
         )
-    end,
-    flagged_projects = function (self)
+    end),
+    flagged_projects = capture_errors(function (self)
         self.params.order = 'flag_count DESC'
         self.params.fields = [[active_projects.id AS id,
             active_projects.projectname AS projectname,
@@ -123,8 +124,8 @@ ProjectController = {
                     (self.params.items_per_page or 15))
         end
         ProjectController.run_query(self, query)
-    end,
-    share = function (self)
+    end),
+    share = capture_errors(function (self)
         local project = Projects:find({ id = self.params.project.id })
         assert_can_share(self, project)
         debug_print('type', project.type)
@@ -136,8 +137,8 @@ ProjectController = {
         })
         self.params.project = project
         self.project = project
-    end,
-    unshare = function (self)
+    end),
+    unshare = capture_errors(function (self)
         local project = Projects:find({ id = self.params.project.id })
         assert_can_share(self, project)
         project:update({
@@ -147,8 +148,8 @@ ProjectController = {
         })
         self.params.project = project
         self.project = project
-    end,
-    publish = function (self)
+    end),
+    publish = capture_errors(function (self)
         local project = Projects:find({ id = self.params.project.id })
         assert_can_share(self, project)
         project:update({
@@ -159,8 +160,8 @@ ProjectController = {
         })
         self.params.project = project
         self.project = project
-    end,
-    unpublish = function (self)
+    end),
+    unpublish = capture_errors(function (self)
         local project = Projects:find({ id = self.params.project.id })
         assert_can_share(self, project)
         project:update({
@@ -169,8 +170,8 @@ ProjectController = {
         })
         self.params.project = project
         self.project = project
-    end,
-    delete = function (self)
+    end),
+    delete = capture_errors(function (self)
         local project = Projects:find({ id = self.params.project.id })
         assert_can_delete(self, project)
 
@@ -197,8 +198,8 @@ ProjectController = {
                 'user?username=' .. package.loaded.util.escape(username)
             )
         end
-    end,
-    flag = function (self)
+    end),
+    flag = capture_errors(function (self)
         if self.current_user:isbanned() then yield_error(err.banned) end
         local project = Projects:find({ id = self.params.project.id })
         assert_project_exists(self, project)
@@ -222,8 +223,8 @@ ProjectController = {
         project.flagged = true
         self.params.project = project
         self.project = project
-    end,
-    remove_flag = function (self)
+    end),
+    remove_flag = capture_errors(function (self)
         -- Check whether we're removing someone else's flag
         if self.params.flagger then assert_min_role(self, 'reviewer') end
 
@@ -246,5 +247,5 @@ ProjectController = {
 
         self.params.project = project
         self.project = project
-    end,
+    end)
 }

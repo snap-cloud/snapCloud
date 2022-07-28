@@ -140,7 +140,7 @@ Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
     cloud.request(
         method,
         path,
-        function (okResponse) {
+        okResponse => {
             var response = JSON.parse(okResponse);
             if (response && response.title) {
                 alert(
@@ -152,9 +152,9 @@ Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
                 onSuccess.call(this, response)
             }
         },
-        errorResponse => {
+        errorMessage => {
             alert(
-                JSON.parse(errorResponse).errors[0],
+                localizer.localize(errorMessage),
                 { title: localizer.localize('Error') },
                 Cloud.redirect
             )
