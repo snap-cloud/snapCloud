@@ -19,4 +19,3 @@
         onclick="change_page_<%=id%>('last');"
         ><i class="fas fa-caret-right"></i></a>
 </nav>
-

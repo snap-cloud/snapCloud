@@ -78,7 +78,7 @@ for _, descriptor in pairs(collections) do
                 items_per_page = 20,
                 collection = collection
             }),
-            href = collection:url_for(site)
+            href = collection:url_for('site')
         }
     )
 end

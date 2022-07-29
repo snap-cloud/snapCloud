@@ -217,11 +217,10 @@ package.loaded.Collections = Model:extend('collections', {
     timestamp = true,
     url_for = function (self, purpose)
         if not self.username then
-            if self.creator then
-                self.username = self.creator.username
-            else
-                self.username = ''
+            if not self.creator then
+                self.creator = package.loaded.Users:find(self.creator_id)
             end
+            self.username = self.creator.username
         end
         local urls = {
             site = 'collection?username=' .. escape(self.username) ..

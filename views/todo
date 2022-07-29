@@ -1,8 +1,8 @@
 TODO
 ====
 [ ] scrap AJAX components entirely: make everything static
-    [ ] carousel
-        [ ] partials.carousel_paginator
+    [x] carousel
+        [x] partials.carousel_paginator
     [ ] examples
     [ ] flags
     [x] index

@@ -20,7 +20,7 @@ class = 'id_' .. id
 <%
 if ((num_pages > 0) or show_if_empty) then %>
     <% if (title) then %>
-    <h2 class="projects header"><%= title %></h2>
+    <a href="<%=href%>" title="Show all"><h2 class="projects header"><%= title %></h2></a>
     <% elseif title_selector then %>
     <h2 class="projects header"
         ><%= locale.get(title_selector) %></h2>
