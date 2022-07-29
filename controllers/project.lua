@@ -53,7 +53,7 @@ ProjectController = {
                 }
             )
 
-        if not self.params.ignore_page_count then
+        if not self.ignore_page_count then
             self.num_pages = paginator:num_pages()
         end
 
@@ -114,16 +114,15 @@ ProjectController = {
             GROUP BY active_projects.projectname,
                 active_projects.username,
                 active_projects.id]]
-        if (self.params.num_pages == nil) then
+        self.ignore_page_count = true
+        if (self.num_pages == nil) then
             local total_flag_count =
-                table.getn(
-                    Projects:select(query, {fields = self.params.fields})
-                )
-            self.params.num_pages =
+                #(Projects:select(query, {fields = self.params.fields}))
+            self.num_pages =
                 math.ceil(total_flag_count /
                     (self.params.items_per_page or 15))
         end
-        ProjectController.run_query(self, query)
+        return ProjectController.run_query(self, query)
     end),
     share = capture_errors(function (self)
         local project = Projects:find({ id = self.params.project.id })

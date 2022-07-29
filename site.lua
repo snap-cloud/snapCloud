@@ -199,6 +199,7 @@ end))
 app:get('/flags', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'reviewer')
+        items = ProjectController.flagged_projects(self)
         return { render = 'flags' }
     else
         return { redirect_to = self:build_url('index') }

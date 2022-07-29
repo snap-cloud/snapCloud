@@ -13,18 +13,18 @@ for _, name in pairs({
         'Computer Science',
         }) do
 
+    local collection = package.loaded.Collections:find(snapcloud_id, name)
+
     render(
-        'views.component',
+        'views.carousel',
         {
-            component = { template = 'grid', controller = 'collection' },
-            data = {
-                class = name:match("(%w+)"):lower(),
-                title = name,
-                collection_name = name,
-                item_type = 'project',
-                selector = 'projects',
-                user_id = snapcloud_id
-            }
+            title = name, -- TODO localize titles
+            items = CollectionController.projects({
+                params = {},
+                items_per_page = 20,
+                collection = collection
+            }),
+            href = collection:url_for('site')
         }
     )
 end

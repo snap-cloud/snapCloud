@@ -3,8 +3,8 @@ TODO
 [ ] scrap AJAX components entirely: make everything static
     [x] carousel
         [x] partials.carousel_paginator
-    [ ] examples
-    [ ] flags
+    [x] examples
+    [x] flags
     [x] index
     [x] navigation_bar
         [ ] test unbecome
