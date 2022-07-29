@@ -5,12 +5,10 @@ TODO
     [ ] project_buttons
     [ ] search
     [ ] user
-    [ ] user_admin
+    [x] user_admin
     [ ] grid_filters
-    [x] new "published collections" page
-    [x] add "more collections" link to bottom of index
 
-[ ] remake API
+[ ] remake Snap! API
 
 [ ] redo localization entirely
     [ ] user admin

@@ -41,40 +41,36 @@ require 'passwords'
 
 UserController = {
     run_query = function (self, query)
+        if not self.params.page_number then self.params.page_number = 1 end
         local paginator = Users:paginated(
             query ..
-                (self.params.data.search_term and (db.interpolate_query(
+                (self.params.search_term and (db.interpolate_query(
                     ' AND username ILIKE ? OR email ILIKE ?',
-                    '%' .. self.params.data.search_term .. '%',
-                    '%' .. self.params.data.search_term .. '%')
+                    '%' .. self.params.search_term .. '%',
+                    '%' .. self.params.search_term .. '%')
                 ) or '') ..
                 (self.filters or '') ..
-            ' ORDER BY ' .. (self.params.data.order or 'created_at'),
+            ' ORDER BY ' .. (self.params.order or 'created_at'),
             {
-                per_page = self.params.data.per_page or 15,
-                fields = self.params.data.fields or '*'
+                per_page = self.params.items_per_page or 15,
+                fields = self.params.fields or '*'
             }
         )
 
-        if not self.params.data.ignore_page_count then
-            self.params.data.num_pages = paginator:num_pages()
+        if not self.ignore_page_count then
+            self.num_pages = paginator:num_pages()
         end
 
-        self.items = paginator:get_page(self.params.data.page_number)
-        self.data = self.params.data
+        return paginator:get_page(self.params.page_number)
     end,
     fetch = capture_errors(function (self)
         -- just to be able to reuse the existing run_query structure:
-        UserController.run_query(self, 'WHERE true')
-    end),
-    search = capture_errors(function (self)
-        self.params.data.page_number = 1
-        self.params.data.search_term = self.params.search_term
-        UserController[self.component.fetch_selector](self)
+        self.params.order = 'username'
+        return UserController.run_query(self, 'WHERE true')
     end),
     filter = capture_errors(function (self)
-        if (self.params.data.filters == nil) then
-            self.params.data.filters = {}
+        if (self.params.filters == nil) then
+            self.params.filters = {}
         end
 
         -- recast booleans
@@ -85,10 +81,10 @@ UserController = {
         end
 
         -- save the value and create the filters query part
-        self.params.data.filters[self.params.filter] = self.params.value
+        self.params.filters[self.params.filter] = self.params.value
         self.filters = ''
-        if self.params.data.filters then
-            for k, v in pairs(self.params.data.filters) do
+        if self.params.filters then
+            for k, v in pairs(self.params.filters) do
                 if (v ~= '') then
                     self.filters = self.filters ..
                         db.interpolate_query(' AND ' .. k .. ' = ?', v)
@@ -97,7 +93,7 @@ UserController = {
         end
 
         -- mark the selected value so the frontend will update the view
-        for _, descriptor in pairs(self.params.data.filter_descriptors) do
+        for _, descriptor in pairs(self.params.filter_descriptors) do
             if (descriptor.selector == self.params.filter) then
                 for _, option in pairs(descriptor.options) do
                     if (option.value == self.params.value) then

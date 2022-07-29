@@ -56,7 +56,10 @@ if ((num_pages > 0) or show_if_empty) then %>
             )
         end
         if filter_descriptors then
-            render('views.partials.grid_filters')
+            render(
+                'views.partials.grid_filters',
+                { filter_descriptors = filter_descriptors }
+            )
         end
         render('views.partials.grid_paginator')
         %>

@@ -1,13 +1,11 @@
-<% for _, filter in ipairs(data.filter_descriptors) do %>
+<% for _, filter in ipairs(filter_descriptors) do %>
     <div class="filter <%= filter.selector %>"><%= filter.label %>:
         <select name="<%= filter.selector %>"
-                onchange="update_<%=component.id%>(
-                    '<%= component.controller %>',
+                onchange="update(
                     'filter',
                     {
                         filter: '<%= filter.selector %>',
                         value: this.value,
-                        data: '<%= data %>'
                     }
         );">
             <% for _, option in pairs(filter.options) do %>
