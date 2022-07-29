@@ -1,8 +1,6 @@
 TODO
 ====
 [ ] scrap AJAX components entirely: make everything static
-    [x] test unbecome
-    [x] partials.profile
     [ ] project
     [ ] project_buttons
     [ ] search
@@ -20,7 +18,7 @@ TODO
     [ ] translate titles of curated collections
     [ ] errors
 [ ] rethink rate limiting, maybe using CRLF protection?
-[ ] caching, how to cache JUST db results
+[x] caching
 
 TODO AFTER DEPLOYING
 ====================

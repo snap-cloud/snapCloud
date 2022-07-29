@@ -57,9 +57,9 @@ local views = {
 }
 
 for _, view in pairs(views) do
-    app:get('/' .. view, capture_errors(function (self)
+    app:get('/' .. view, capture_errors(cached(function (self)
         return { render = view }
-    end))
+    end)))
 end
 
 app:get('/embed', capture_errors(function (self)
@@ -71,12 +71,10 @@ app:get('/embed', capture_errors(function (self)
     return { render = 'embed', layout = false }
 end))
 
--- Redone
-
-app:get('/explore', capture_errors(function (self)
+app:get('/explore', capture_errors(cached(function (self)
     self.items = ProjectController.fetch(self)
     return { render = 'explore' }
-end))
+end)))
 
 app:get('/my_projects', capture_errors(function (self)
     if self.current_user then
@@ -130,16 +128,13 @@ app:get('/admin', capture_errors(function (self)
     end
 end))
 
--- Pages that need redoing (used AJAX before)
-
-local index = capture_errors(function (self)
+local index = capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
-end)
+end))
 
 app:get('/', index)
 app:get('/index', index)
-
 
 app:get('/user', capture_errors(function (self)
     self.username = self.queried_user.username
@@ -173,10 +168,10 @@ app:get('/project', capture_errors(function (self)
     return { render = 'project' }
 end))
 
-app:get('/examples', capture_errors(function (self)
+app:get('/examples', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'examples' }
-end))
+end)))
 
 
 app:get('/search', capture_errors(function (self)

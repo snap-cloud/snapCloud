@@ -78,7 +78,7 @@ end
 
 -- Print tables as JSON by default. Lets us use tables in etlua templates
 -- without having to convert them to JSON explicitly, which is nice.
-old_tostring = tostring
+local old_tostring = tostring
 tostring = function (obj)
     if (type(obj) == 'table') then
         return package.loaded.util.to_json(obj)
@@ -126,6 +126,29 @@ local function domain_name(url)
         return
     end
     return url:gsub('https*://', ''):gsub(':%d+$', '')
+end
+
+-- Custom caching to take in account current locale
+local lapis_cached = package.loaded.cached
+package.loaded.cached = function (func, options)
+    local options = options or {}
+    local cache_key = function(path, params, request)
+        local key = path
+        local param_keys = {}
+        for k, _ in pairs(params) do table.insert(param_keys, k) end
+        table.sort(param_keys)
+        for _, v in ipairs(param_keys) do
+            key = key .. '#' .. v .. '=' .. params[v]
+        end
+        return key .. '@' .. (request.session.locale or 'en')
+    end
+    return lapis_cached({
+        dict_name = 'page_cache', -- default dictionary, unchanged
+        exptime = options.exptime or 0,
+        cache_key = cache_key,
+        when = options.when or nil,
+        func
+    })
 end
 
 -- Before filter
