@@ -42,6 +42,17 @@ require 'passwords'
 UserController = {
     run_query = function (self, query)
         if not self.params.page_number then self.params.page_number = 1 end
+
+        -- Apply filters from params. They look like filter_verified=true or
+        -- filter_role=reviewer, so we strip them from the "filter_" part.
+        local filters = ''
+        for k, v in pairs(self.params) do
+            if k:find('filter_') == 1 then
+                filters = filters ..
+                    db.interpolate_query(' AND ' .. k:sub(8) .. ' = ?', v)
+            end
+        end
+
         local paginator = Users:paginated(
             query ..
                 (self.params.search_term and (db.interpolate_query(
@@ -49,7 +60,7 @@ UserController = {
                     '%' .. self.params.search_term .. '%',
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
-                (self.filters or '') ..
+                (filters or '') ..
             ' ORDER BY ' .. (self.params.order or 'created_at'),
             {
                 per_page = self.params.items_per_page or 15,
@@ -65,46 +76,8 @@ UserController = {
     end,
     fetch = capture_errors(function (self)
         -- just to be able to reuse the existing run_query structure:
-        self.params.order = 'username'
+        if not self.params.order then self.params.order = 'username' end
         return UserController.run_query(self, 'WHERE true')
-    end),
-    filter = capture_errors(function (self)
-        if (self.params.filters == nil) then
-            self.params.filters = {}
-        end
-
-        -- recast booleans
-        if (self.params.value == 'true') then
-            self.params.value = true
-        elseif (self.params.value == 'false') then
-            self.params.value = false
-        end
-
-        -- save the value and create the filters query part
-        self.params.filters[self.params.filter] = self.params.value
-        self.filters = ''
-        if self.params.filters then
-            for k, v in pairs(self.params.filters) do
-                if (v ~= '') then
-                    self.filters = self.filters ..
-                        db.interpolate_query(' AND ' .. k .. ' = ?', v)
-                end
-            end
-        end
-
-        -- mark the selected value so the frontend will update the view
-        for _, descriptor in pairs(self.params.filter_descriptors) do
-            if (descriptor.selector == self.params.filter) then
-                for _, option in pairs(descriptor.options) do
-                    if (option.value == self.params.value) then
-                        option.selected = true
-                    else
-                        option.selected = false
-                    end
-                end
-            end
-        end
-        UserController[self.component.fetch_selector](self)
     end),
     current = capture_errors(function (self)
         if self.current_user then

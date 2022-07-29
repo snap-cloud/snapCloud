@@ -140,7 +140,7 @@ package.loaded.cached = function (func, options)
         for _, v in ipairs(param_keys) do
             key = key .. '#' .. v .. '=' .. params[v]
         end
-        return key .. '@' .. (request.session.locale or 'en')
+        return key .. '@' .. (request.session.locale or 'en') .. '~' .. (request.session.username)
     end
     return lapis_cached({
         dict_name = 'page_cache', -- default dictionary, unchanged

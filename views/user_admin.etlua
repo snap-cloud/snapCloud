@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="/static/style/admin.css">
-<h1 localizable>User Administration</h1>
+<h1>User Administration</h1>
 <%
 render(
     'views.grid',

@@ -6,7 +6,7 @@ TODO
     [ ] search
     [ ] user
     [x] user_admin
-    [ ] grid_filters
+    [x] grid_filters
 
 [ ] remake Snap! API
 

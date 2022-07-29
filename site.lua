@@ -81,7 +81,6 @@ app:get('/collections', capture_errors(cached(function (self)
     return { render = 'collections' }
 end)))
 
-
 app:get('/my_projects', capture_errors(function (self)
     if self.current_user then
         self.items = ProjectController.my_projects(self)
