@@ -20,7 +20,7 @@
         enableEnterSubmit();
         var submit = function () {
             cloud.delete(
-                '/user',
+                '/my_user',
                 null,
                 {
                     password:

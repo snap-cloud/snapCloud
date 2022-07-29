@@ -80,7 +80,7 @@ app:match(api_route('set_locale'), respond_to({
 -- Current user
 -- ============
 app:get(api_route('users/c'), UserController.current) -- backwards compatibility
-app:match(api_route('user'), respond_to({
+app:match(api_route('my_user'), respond_to({
     GET = UserController.current,
     DELETE = UserController.delete
 }))
@@ -108,6 +108,10 @@ app:match(api_route('signup'), respond_to({
     POST = UserController.create
 }))
 
+app:match(api_route('users/:username'), respond_to({
+    DELETE = UserController.delete
+}))
+
 app:match(api_route('users/:username/newpassword'), respond_to({
     POST = function (self)
     end
@@ -122,6 +126,22 @@ app:match(api_route('users/:username/login'), respond_to({
         self.params.password = self.params.body
         return UserController.login(self)
     end
+}))
+
+app:match(api_route('users/:username/set_role'), respond_to({
+    POST = UserController.set_role
+}))
+
+app:match(api_route('users/:username/change_email'), respond_to({
+    POST = UserController.change_email
+}))
+
+app:match(api_route('users/:username/send_email'), respond_to({
+    POST = UserController.send_email
+}))
+
+app:match(api_route('users/:username/become'), respond_to({
+    POST = UserController.become
 }))
 
 app:match(api_route('users/:username/resendverification'), respond_to({

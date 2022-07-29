@@ -22,9 +22,9 @@
         <span>
             <strong><%- locale.get('role') %></strong>:
             <select onchange="
-                run_selector(
-                    'user',
-                    'set_role',
+                cloud.post(
+                    '/users/<%= item.username %>/set_role',
+                    null, 
                     { username: '<%= item.username %>', role: this.value }
                 );">
                 <% for role, _ in pairs(package.loaded.Users.roles) do %>
@@ -37,21 +37,16 @@
         </span>
         <div class="buttons">
             <a class="pure-button become"
-                onclick="
-                    run_selector(
-                        'user',
-                        'become',
-                        { username: '<%= item.username %>'}
-                    );"
+                onclick="cloud.post('/users/<%= item.username %>/become');"
                 ><%- locale.get('become') %></a>
             <a class="pure-button changeemail"
                 onclick="
                     prompt(
                         '<%- locale.get('new_email') %>',
                         email => {
-                            run_selector(
-                                'user',
-                                'change_email',
+                            cloud.post(
+                                '/users/<%= item.username %>/change_email',
+                                null,
                                 {
                                     email: email,
                                     username: '<%= item.username %>'
@@ -70,16 +65,13 @@
                             var form =
                                 document.querySelector('form.email-compose'),
                                 subject = form.querySelector('input').value,
-                                body = form.querySelector('textarea').value;
-                            run_selector(
-                                'user',
-                                'send_email',
+                                contents = form.querySelector('textarea').value;
+                            cloud.post(
+                                '/users/<%= item.username %>/send_email',
+                                null,
                                 {
-                                    email: {
-                                        subject: subject,
-                                        body: body
-                                    },
-                                    username: '<%= item.username %>'
+                                    subject: subject,
+                                    contents: contents
                                 }
                             );
                         },
@@ -88,9 +80,9 @@
                 "><%- locale.get('send_msg') %></a>
             <a class="pure-button ban pure-button-warning"
                 onclick="
-                    run_selector(
-                        'user',
-                        'set_role',
+                    cloud.post(
+                        '/users/<%= item.username %>/set_role',
+                        null, 
                         {
                             username: '<%= item.username %>',
                             role: <%-
@@ -111,16 +103,8 @@
                                 'delete_user',
                                 { username = item.username })
                         %>',
-                        ok => {
-                            if (ok) {
-                                run_selector(
-                                    'user',
-                                    'delete',
-                                    { username: '<%= item.username %>' }
-                                );
-                            }
-                        }
-                    )
+                        () => { cloud.delete('/users/<%= item.username %>'); }
+                    );
                 "
                 ><%- locale.get('delete_usr') %></a>
         </div>

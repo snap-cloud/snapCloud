@@ -397,11 +397,11 @@ UserController = {
     end),
     send_email = capture_errors(function (self)
         assert_admin(self)
-        if self.params.email and (#self.params.email.body > 0) then
+        if (#self.params.contents > 0) then
             send_mail(
                 self.queried_user.email,
-                self.params.email.subject or mail_subjects.generic,
-                self.params.email.body
+                self.params.subject or mail_subjects.generic,
+                self.params.contents
             )
         else
             yield_error(err.mail_body_empty)
