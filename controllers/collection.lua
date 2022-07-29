@@ -101,6 +101,7 @@ CollectionController = {
             self.num_pages = paginator:num_pages()
         end
         local items = paginator:get_page(self.params.page_number)
+        self.page_item_count = #(items)
         disk:process_thumbnails(items)
         return items
     end),
