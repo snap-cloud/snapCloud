@@ -80,6 +80,10 @@ local locale = {
     cs = "Ciències de la computació",
     maths = "Matemàtiques",
     latest = "Últims projectes publicats",
+    more_collections = "Explora més col·leccions",
+
+    -- Collections page
+    collections_title = "Col·leccions públiques",
 
     -- Sign up page
     -- ============

@@ -97,6 +97,10 @@ local locale = {
     cs = "Computer Science",
     maths = "Maths",
     latest = "Latest Projects",
+    more_collections ="Explore More Collections",
+
+    -- Collections page
+    collections_title = "Published Collections",
 
     -- Sign up page
     -- ============

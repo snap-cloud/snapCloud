@@ -96,3 +96,5 @@ render(
 )
 %>
 
+<a href="/collections" class="pure-button"
+    ><%- locale.get('more_collections') %></a>

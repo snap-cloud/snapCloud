@@ -7,8 +7,8 @@ TODO
     [ ] user
     [ ] user_admin
     [ ] grid_filters
-    [ ] new "published collections" page
-    [ ] add "more collections" link to bottom of index
+    [x] new "published collections" page
+    [x] add "more collections" link to bottom of index
 
 [ ] remake API
 
