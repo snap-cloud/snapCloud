@@ -1,4 +1,7 @@
- #! /usr/bin/env bash
+ #! /usr/bin/env sh
+
+## NOTE: lets-encrypt renewals runs this using sh not bash.
+## pushd / popd are not available.
 
 # MUST USE -L. LetsEncrypt uses symlinks
 # TODO: Clean this up... use $RENEWED_DOMAINS?

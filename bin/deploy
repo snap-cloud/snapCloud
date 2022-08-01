@@ -23,6 +23,8 @@ echo
 Snippets/build.sh
 popd
 
+pushd ~/snapCloud/bin/;
+
 ./renew-certs.sh
 ./deploy_certs.sh
 ./deploy_snap.sh
