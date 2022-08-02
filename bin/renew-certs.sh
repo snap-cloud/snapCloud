@@ -12,4 +12,3 @@ certbot renew --config-dir lets-encrypt --logs-dir lets-encrypt --work-dir lets-
 curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY \
  -H 'Content-Type: application/json' \
  -d "{\"message\":\"Renewed Snap! Certs $LAPIS_ENVIRONMENT\"}"
-popd

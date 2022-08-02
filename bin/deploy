@@ -50,13 +50,13 @@ curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $re
 echo
 
 echo 'Tagging Deploy in Sentry'
-curl https://bugs.cs10.org/api/0/organizations/snap/releases/ \
+curl https://sentry.io/api/0/organizations/snapcloud/releases/ \
  -H "Authorization: Bearer $SENTRY_API_TOKEN" \
  -H 'Content-Type: application/json' \
- -d "{\"version\":\"$current_time\",\"ref\":\"$deploy_sha\",\"projects\":[\"snap-cloud\"]}"
+ -d "{\"version\":\"$current_time\",\"ref\":\"$deploy_sha\",\"projects\":[\"snapcloud-server\"]}"
 
 
-curl https://bugs.cs10.org/api/0/organizations/snap/releases/$current_time/deploys/ \
+curl https://sentry.io/api/0/organizations/snapcloud/releases/$current_time/deploys/ \
  -H "Authorization: Bearer $SENTRY_API_TOKEN" \
  -H 'Content-Type: application/json' \
  -d "{\"environment\":\"$LAPIS_ENVIRONMENT\"}"
