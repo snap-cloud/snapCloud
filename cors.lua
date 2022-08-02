@@ -84,5 +84,6 @@ domain_allowed['amazingrobots.net'] = true
 domain_allowed['microblocks.fun'] = true
 -- Development
 domain_allowed['localhost'] = true
+domain_allowed['jmoenig.github.io'] = true
 
 return domain_allowed
