@@ -1,12 +1,10 @@
 TODO
 ====
 [ ] scrap AJAX components entirely: make everything static
-    [ ] project
-        [ ] flag list
-        [x] visibility buttons
-        [ ] remixes
-        [ ] collections containing
-        [x] dates
+    [x] project
+        [x] flag list
+        [x] remixes
+        [x] collections containing
     [ ] search (use carousels)
     [ ] user
 
@@ -25,4 +23,7 @@ TODO AFTER DEPLOYING
 [ ] project
     [ ] edit notes
     [ ] edit title
-[ ] localize all static pages
+[ ] localization
+    [ ] all static pages
+    [ ] all errors
+    [ ] all okay messages and titles

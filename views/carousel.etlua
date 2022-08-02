@@ -1,13 +1,14 @@
 <%
 --[[
-    I am a project carousel. I hold and preload data and thumbnails for a number
-    of pages of projects, but only display a smaller number of them at a time.
+    I am a project or collection carousel. I hold and preload data and
+    thumbnails for a number of pages, but only display a smaller number of them
+    at a time.
 ]]--
 
 -- set defaults
 
 if show_author == nil then show_author = true end
-item_type = 'project'
+item_type = item_type or 'project'
 if items == nil then items = {} end
 num_pages = (math.ceil(#(items) / 5) or 0)
 id = package.loaded.util.slugify(title):gsub('-', '_')
@@ -15,16 +16,19 @@ class = 'id_' .. id
 %>
 
 <link rel="stylesheet" href="/static/style/project.css">
-<div class="projects container carousel <%= class %>">
+<div class="<%= item_type %>s container carousel <%= class %>">
 
 <%
 if ((num_pages > 0) or show_if_empty) then %>
     <% if (title) then %>
-    <a href="<%=href%>" title="Show all"><h2 class="projects header"><%= title %></h2></a>
+    <% if href then %><a href="<%=href%>" title="Show all"><% end %>
+        <h2 class="<%= item_type %>s header"><%= title %></h2>
+    <% if href then %></a><% end %>
     <% elseif title_selector then %>
-    <h2 class="projects header"
+    <h2 class="<%= item_type %>s header"
         ><%= locale.get(title_selector) %></h2>
     <% end %>
+    <% if num_pages > 1 then %>
     <div class="bar">
         <%
             render(
@@ -33,8 +37,9 @@ if ((num_pages > 0) or show_if_empty) then %>
             )
         %>
     </div>
-    <% if (num_pages > 0) then %>
-    <div class="projects list pure-g">
+    <% end %>
+    <% if num_pages > 0 then %>
+    <div class="<%= item_type %>s list pure-g">
         <% for _, item in pairs(items) do %>
             <%
                 render(
@@ -49,7 +54,7 @@ if ((num_pages > 0) or show_if_empty) then %>
         <% end %>
     </div>
     <% end -- show items, if there are any %>
-<% end -- show if empty %>
+    <% if num_pages > 1 then %>
     <script>
         <%
             -- Add id suffix to elements that may appear more than once in a
@@ -57,7 +62,7 @@ if ((num_pages > 0) or show_if_empty) then %>
             -- This could be made more elegant, but it will do for now.
          %>
         var items_<%=id%> = document.querySelectorAll(
-                'div.carousel.<%= class %> .project.small'),
+                'div.carousel.<%= class %> .<%= item_type %>.small'),
             pageElement_<%=id%> = document.querySelector(
                 'div.carousel.<%= class %> span.page'),
             current_page_<%=id%> = 1;
@@ -91,4 +96,6 @@ if ((num_pages > 0) or show_if_empty) then %>
         };
         change_page_<%=id%>('first');
     </script>
+    <% end %>
+<% end -- show if empty %>
 </div>

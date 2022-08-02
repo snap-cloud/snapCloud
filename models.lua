@@ -165,22 +165,18 @@ package.loaded.Projects = Model:extend('active_projects', {
         },
         {'public_remixes',
             fetch = function (self)
-                local query = db.interpolate_query(
-                    [[JOIN remixes
+                return package.loaded.Projects:select(
+                   [[JOIN remixes
                         ON active_projects.id = remixes.remixed_project_id
                     WHERE remixes.original_project_id = ?
                     AND ispublic]],
                     self.id
                 )
-                return package.loaded.Projects:paginated(
-                    query,
-                    { per_page = 5 }
-                )
             end
         },
         {'public_collections',
             fetch = function (self)
-                local query = db.interpolate_query(
+                return package.loaded.Collections:select(
                     [[INNER JOIN collection_memberships
                         ON collection_memberships.collection_id = collections.id
                     INNER JOIN users
@@ -188,10 +184,6 @@ package.loaded.Projects = Model:extend('active_projects', {
                     WHERE collection_memberships.project_id = ?
                     AND collections.published]],
                     self.id
-                )
-                return package.loaded.Collections:paginated(
-                    query,
-                    { per_page = 5 }
                 )
             end
         }

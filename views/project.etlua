@@ -59,45 +59,31 @@
         </div>
         <!-- just a separator -->
         <i class="pure-u-1-24"></i>
-        <%
-            render(
-                'views.partials.project_details', 
-                { project = project }
-            )
-        %>
+        <% render('views.partials.project_details', { project = project }) %>
     </div>
 
 <%
-    --[[ Carousel of remixes
+    -- Carousel of remixes
     render(
-        'views.component',
+        'views.carousel',
         {
-            component = { template = 'grid', controller = 'project' },
-            data = {
-                title_selector = 'project_remixes_title',
-                fetch_selector = 'remixes',
-                class = 'remixes',
-                item_type = 'project',
-                project_id = project.id
-            }
+            title = locale.get('project_remixes_title'),
+            items = project:get_public_remixes(),
+            class = 'remixes',
+            item_type = 'project'
         }
     )
 
     -- Carousel of collections
     render(
-        'views.component',
+        'views.carousel',
         {
-            component = { template = 'grid', controller = 'collection' },
-            data = {
-                title_selector = 'project_collections_title',
-                fetch_selector = 'containing_project',
-                class = 'collections',
-                item_type = 'collection',
-                project_id = project.id,
-                items_per_page = 5
-            }
+            title = locale.get('project_collections_title'),
+            items = project:get_public_collections(),
+            class = 'collections',
+            item_type = 'collection'
         }
-    ) ]]--
+    )
 %>
 
     <script>
