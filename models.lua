@@ -49,7 +49,7 @@ package.loaded.Users = Model:extend('active_users', {
                     { fields = 'count(*) as count' }
                 )[1].count
             end
-        }
+        },
     },
     isadmin = function (self)
         return self.role == 'admin'

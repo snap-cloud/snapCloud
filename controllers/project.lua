@@ -79,26 +79,11 @@ ProjectController = {
     end),
     user_projects = capture_errors(function (self)
         self.params.order = 'lastupdated DESC'
-        ProjectController.run_query(
+        return ProjectController.run_query(
             self,
             db.interpolate_query(
                 'WHERE ispublished AND username = ? ',
                 self.params.username
-            )
-        )
-    end),
-    remixes = capture_errors(function (self)
-        self.params.order = 'remixes.created DESC'
-        self.params.fields =
-            'DISTINCT username, projectname, remixes.created'
-        ProjectController.run_query(
-            self,
-            db.interpolate_query(
-                [[JOIN remixes
-                    ON active_projects.id = remixes.remixed_project_id
-                WHERE remixes.original_project_id = ?
-                AND ispublic]],
-                self.params.id
             )
         )
     end),

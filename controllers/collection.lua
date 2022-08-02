@@ -86,7 +86,7 @@ CollectionController = {
             db.interpolate_query(
                 [[JOIN active_users ON
                     (active_users.id = collections.creator_id)
-                    WHERE (creator_id = ? OR editor_ids @> ARRAY[?])
+                    WHERE (creator_id = ?)
                     AND published]],
                 self.params.user_id,
                 self.params.user_id

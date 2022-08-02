@@ -1,12 +1,11 @@
 TODO
 ====
 [ ] scrap AJAX components entirely: make everything static
-    [x] project
-        [x] flag list
-        [x] remixes
-        [x] collections containing
     [ ] search (use carousels)
-    [ ] user
+    [x] user
+        [x] carousels
+[ ] new user published projects page
+[ ] new user published collections page
 
 [ ] remake Snap! API
 

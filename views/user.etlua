@@ -6,37 +6,35 @@
 
 <%
 -- PUBLIC PROJECTS
-
-render(
-    'views.component',
-    {
-        component = { template = 'grid', controller = 'project' },
-        data = {
-            title = locale.get('published_projects'),
-            fetch_selector = 'user_projects',
+render (
+        'views.carousel',
+        {
+            title = locale.get('latest_published_projects'),
+            items = ProjectController.user_projects({
+                params = {
+                    username = username,
+                    items_per_page = 20
+                }
+            }),
             class = 'projects',
-            item_type = 'project',
-            items_per_page = 15,
-            show_author = false,
-            username = queried_user.username
+            show_author = false
         }
-    }
-)
+    )
 
 -- PUBLIC COLLECTIONS
 
 render(
-    'views.component',
+    'views.carousel',
     {
-        component = { template = 'grid', controller = 'collection' },
-        data = {
-            title = locale.get('published_collections'),
-            fetch_selector = 'user_collections',
-            class = 'collections',
-            item_type = 'collection',
-            items_per_page = 15,
-            user_id = queried_user.id
-        }
+        title = locale.get('latest_published_collections'),
+        items = CollectionController.user_collections({
+            params = {
+                per_page = 20,
+                user_id = queried_user.id
+            }
+        }),
+        class = 'collections',
+        item_type = 'collection'
     }
 )
 

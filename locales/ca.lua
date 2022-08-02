@@ -198,6 +198,8 @@ local locale = {
     public_page = "Pàgina pública de @1", -- @1 becomes the user's username
     -- Admin tools
     admin_tools = "Eines d'administració",
+    latest_published_projects = "Últims projectes publicats",
+    latest_published_collections = "Últimes col·leccions publicades",
 
     -- User profile
     -- ============

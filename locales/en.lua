@@ -213,6 +213,8 @@ local locale = {
     public_page = "@1's public page", -- @1 becomes the user's username
     -- Admin tools
     admin_tools = "Admin tools",
+    latest_published_projects = "Latest Published Projects",
+    latest_published_collections = "Latest Published Collections",
 
     -- User profile
     -- ============
