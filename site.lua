@@ -81,6 +81,13 @@ app:get('/collections', capture_errors(cached(function (self)
     return { render = 'collections' }
 end)))
 
+app:get('/users', capture_errors(cached(function (self)
+    self.items_per_page = 51
+    self.items = UserController.fetch(self)
+    if not self.params.search_term then self.params.search_term = '' end
+    return { render = 'users' }
+end)))
+
 app:get('/my_projects', capture_errors(function (self)
     if self.current_user then
         self.items = ProjectController.my_projects(self)
@@ -219,6 +226,7 @@ app:get('/flags', capture_errors(function (self)
 end))
 
 app:get('/user_admin', capture_errors(function (self)
+    self.items_per_page = 150
     if self.current_user then
         assert_min_role(self, 'moderator')
         self.items = UserController.fetch(self)

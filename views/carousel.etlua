@@ -10,9 +10,11 @@
 if show_author == nil then show_author = true end
 item_type = item_type or 'project'
 if items == nil then items = {} end
-num_pages = (math.ceil(#(items) / 5) or 0)
+items_per_page = items_per_page or 5
+num_pages = (math.ceil(#(items) / items_per_page) or 0)
 id = package.loaded.util.slugify(title):gsub('-', '_')
 class = 'id_' .. id
+items_per_row = items_per_row or 5
 %>
 
 <link rel="stylesheet" href="/static/style/project.css">
@@ -46,7 +48,7 @@ if ((num_pages > 0) or show_if_empty) then %>
                     'views.partials.' .. item_type,
                     {
                         item = item,
-                        items_per_row = 5,
+                        items_per_row = items_per_row,
                         show_author = show_author
                     }
                 )
@@ -62,7 +64,8 @@ if ((num_pages > 0) or show_if_empty) then %>
             -- This could be made more elegant, but it will do for now.
          %>
         var items_<%=id%> = document.querySelectorAll(
-                'div.carousel.<%= class %> .<%= item_type %>.small'),
+                'div.carousel.<%= class %> .<%= item_type %>s.list ' +
+                    '.<%= item_type %>'),
             pageElement_<%=id%> = document.querySelector(
                 'div.carousel.<%= class %> span.page'),
             current_page_<%=id%> = 1;
@@ -85,9 +88,10 @@ if ((num_pages > 0) or show_if_empty) then %>
 
             pageElement_<%=id%>.innerHTML = current_page_<%=id%>;
 
-            firstIndex = ((current_page_<%=id%> - 1) * 5);
+            firstIndex = ((current_page_<%=id%> - 1) * <%= items_per_page %>);
             items_<%=id%>.forEach((item, index) => {
-                if ((index < firstIndex) || (index > (firstIndex + 4))) {
+                if ((index < firstIndex) ||
+                        (index > (firstIndex + <%= items_per_page - 1 %>))) {
                     item.style.display = 'none';
                 } else {
                     item.style.display = 'block';

@@ -52,7 +52,6 @@ ProjectController = {
                     fields = self.params.fields or '*'
                 }
             )
-
         if not self.ignore_page_count then
             self.num_pages = paginator:num_pages()
         end
@@ -112,7 +111,6 @@ ProjectController = {
     share = capture_errors(function (self)
         local project = Projects:find({ id = self.params.id })
         assert_can_share(self, project)
-        debug_print('type', project.type)
         project:update({
             lastupdated = db.format_date(),
             lastshared = db.format_date(),

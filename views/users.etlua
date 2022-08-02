@@ -1,0 +1,15 @@
+<% if params.search_term ~= '' then %>
+<h1><%= locale.get('user_search_results', params.search_term) %></h1>
+<% else %>
+<h1><%= locale.get('last_users') %></h1>
+<% end %>
+<%
+    render(
+        'views.grid',
+        {
+            class = 'users',
+            item_type = 'user',
+            items_per_row = 3
+        }
+    )
+%>

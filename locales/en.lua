@@ -161,9 +161,15 @@ local locale = {
     -- Search results page
     -- ===================
     search_results = "Search Results: @1",
+    collection_search_results = "Collections matching: @1",
+    user_search_results = "Users Matching: @1",
     projects = "Projects",
     collections = "Collections",
     users = "Users",
+
+    -- Users page
+    -- ==========
+    last_users = "Last registered users",
 
     -- Search component in grids
     -- =========================

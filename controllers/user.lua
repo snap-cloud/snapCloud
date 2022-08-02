@@ -226,7 +226,6 @@ UserController = {
         })
     end),
     remind_username = capture_errors(function (self)
-        debug_print(self.params)
         local users = assert_users_have_email(self)
         local body = '<ul>'
 

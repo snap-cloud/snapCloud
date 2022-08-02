@@ -146,9 +146,16 @@ local locale = {
     -- Search results page
     -- ===================
     search_results = "Resultats de la cerca: @1",
+    project_search_results = "Projectes que contenen @1",
+    collection_search_results = "Col·leccions que contenen @1",
+    user_search_results = "Usuaris que contenen @1",
     projects = "Projectes",
     collections = "Col·leccions",
     users = "Usuaris",
+
+    -- Users page
+    -- ==========
+    last_users = "Últims usuaris registrats",
 
     -- Search component in grids
     -- =========================

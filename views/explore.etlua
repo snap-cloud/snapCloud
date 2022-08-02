@@ -1,5 +1,7 @@
 <% if params.username then %>
 <h1><%- locale.get('user_projects_title', params.username) %></h1>
+<% elseif params.search_term then %>
+<h1><%- locale.get('project_search_results', params.search_term) %></h1>
 <% else %>
 <h1><%- locale.get('explore') %></h1>
 <% end %>

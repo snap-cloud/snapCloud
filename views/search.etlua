@@ -1,46 +1,53 @@
 <h1><%= locale.get('search_results', params.query) %></h1>
 <%
 render(
-    'views.component',
+    'views.carousel',
     {
-        component = { template = 'grid', controller = 'project' },
-        data = {
-            class = 'projects',
-            title = locale.get('projects'),
-            item_type = 'project',
-            items_per_page = 15,
-            search_term = params.query,
-        }
+        class = 'projects',
+        title = locale.get('projects'),
+        item_type = 'project',
+        items = ProjectController.fetch({
+            params = {
+                search_term = params.query,
+                items_per_page = 20
+            },
+        }),
+        href = build_url('/explore?search_term=' .. params.query)
     }
 )
 
 render(
-    'views.component',
+    'views.carousel',
     {
-        component = { template = 'grid', controller = 'collection' },
-        data = {
-            class = 'collections',
-            title = locale.get('collections'),
-            item_type = 'collection',
-            items_per_page = 15,
-            search_term = params.query
-        }
+        class = 'collections',
+        title = locale.get('collections'),
+        item_type = 'collection',
+        items = CollectionController.fetch({
+            params = {
+                search_term = params.query,
+                per_page = 20
+            }
+        }),
+        href = build_url('/collections?search_term=' .. params.query)
     }
 )
 
 render(
-    'views.component',
+    'views.carousel',
     {
-        component = { template = 'grid', controller = 'user' },
-        data = {
-            class = 'users',
-            title = locale.get('users'),
-            item_type = 'user',
-            search_term = params.query,
-            items_per_row = 3,
-            items_per_page = 51,
-            order = 'username'
-        }
+        class = 'users',
+        title = locale.get('users'),
+        item_type = 'user',
+        items_per_row = 3,
+        items = UserController.fetch({
+            params = {
+                search_term = params.query,
+                order = 'username'
+            },
+            items_per_page = 1000 -- for query
+        }),
+        items_per_page = 51, -- for carousel
+        href = build_url('/users?search_term=' .. params.query)
     }
 )
 %>
