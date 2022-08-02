@@ -63,7 +63,7 @@ UserController = {
                 (filters or '') ..
             ' ORDER BY ' .. (self.params.order or 'created_at'),
             {
-                per_page = self.params.items_per_page or 15,
+                per_page = self.items_per_page or 15,
                 fields = self.params.fields or '*'
             }
         )
