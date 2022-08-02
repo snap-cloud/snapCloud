@@ -5,8 +5,6 @@ TODO
     [ ] project_buttons
     [ ] search
     [ ] user
-    [x] user_admin
-    [x] grid_filters
 
 [ ] remake Snap! API
 
@@ -16,7 +14,6 @@ TODO
     [ ] translate titles of curated collections
     [ ] errors
 [ ] rethink rate limiting, maybe using CRLF protection?
-[x] caching
 
 TODO AFTER DEPLOYING
 ====================

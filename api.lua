@@ -198,6 +198,17 @@ app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
     end
 }))
 
+-- Should be /project/:id/action, then DELETE, POST, etc...
+
+app:match(api_route('project/:id/flag'), respond_to({
+    POST = ProjectController.flag,
+    DELETE = ProjectController.remove_flag
+}))
+
+app:match(api_route('unflag_project/:id'), respond_to({
+    POST = ProjectController.remove_flag
+}))
+
 -- Collections
 -- ===========
 app:match(api_route('collections/:username'), respond_to({

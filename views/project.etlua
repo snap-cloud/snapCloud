@@ -54,39 +54,22 @@
 
             <!-- Project Action Buttons -->
             <%
-            -- project buttons are an AJAX-updateable component
-            render(
-                'views.component',
-                {
-                    component = {
-                        template = 'partials.project_buttons',
-                        controller = 'project',
-                    },
-                    data = { project = project }
-                }
-            )
+               render('views.partials.project_buttons', { project = project })
             %>
         </div>
         <!-- just a separator -->
         <i class="pure-u-1-24"></i>
         <%
-        -- project details are an AJAX-updateable component
-        render(
-            'views.component',
-            {
-                component = {
-                    template = 'partials.project_details',
-                    controller = 'project',
-                    class = 'details pure-u-11-24'
-                },
-                data = { project = project }
-            }
-        )
+        --[[ project details are an AJAX-updateable component
+            render(
+                'views.partials.project_details', 
+                { class = 'details pure-u-11-24', project = project }
+            ) ]]--
         %>
     </div>
 
 <%
-    -- Carousel of remixes
+    --[[ Carousel of remixes
     render(
         'views.component',
         {
@@ -115,7 +98,7 @@
                 items_per_page = 5
             }
         }
-    )
+    ) ]]--
 %>
 
     <script>

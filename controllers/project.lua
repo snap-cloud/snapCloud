@@ -98,7 +98,7 @@ ProjectController = {
                     ON active_projects.id = remixes.remixed_project_id
                 WHERE remixes.original_project_id = ?
                 AND ispublic]],
-                self.params.project_id
+                self.params.id
             )
         )
     end),
@@ -125,7 +125,7 @@ ProjectController = {
         return ProjectController.run_query(self, query)
     end),
     share = capture_errors(function (self)
-        local project = Projects:find({ id = self.params.project.id })
+        local project = Projects:find({ id = self.params.id })
         assert_can_share(self, project)
         debug_print('type', project.type)
         project:update({
@@ -134,22 +134,20 @@ ProjectController = {
             ispublic = true,
             ispublished = false
         })
-        self.params.project = project
-        self.project = project
+        return okResponse()
     end),
     unshare = capture_errors(function (self)
-        local project = Projects:find({ id = self.params.project.id })
+        local project = Projects:find({ id = self.params.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
             ispublic = false,
             ispublished = false
         })
-        self.params.project = project
-        self.project = project
+        return okResponse()
     end),
     publish = capture_errors(function (self)
-        local project = Projects:find({ id = self.params.project.id })
+        local project = Projects:find({ id = self.params.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
@@ -157,21 +155,19 @@ ProjectController = {
             ispublic = true,
             ispublished = true
         })
-        self.params.project = project
-        self.project = project
+        return okResponse()
     end),
     unpublish = capture_errors(function (self)
-        local project = Projects:find({ id = self.params.project.id })
+        local project = Projects:find({ id = self.params.id })
         assert_can_share(self, project)
         project:update({
             lastupdated = db.format_date(),
             ispublished = false
         })
-        self.params.project = project
-        self.project = project
+        return okResponse()
     end),
     delete = capture_errors(function (self)
-        local project = Projects:find({ id = self.params.project.id })
+        local project = Projects:find({ id = self.params.id })
         assert_can_delete(self, project)
 
         local username = project.username -- keep it for after deleting it
@@ -200,7 +196,7 @@ ProjectController = {
     end),
     flag = capture_errors(function (self)
         if self.current_user:isbanned() then yield_error(err.banned) end
-        local project = Projects:find({ id = self.params.project.id })
+        local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
 
         local flag =
@@ -220,14 +216,13 @@ ProjectController = {
         })
 
         project.flagged = true
-        self.params.project = project
-        self.project = project
+        return okResponse()
     end),
     remove_flag = capture_errors(function (self)
         -- Check whether we're removing someone else's flag
         if self.params.flagger then assert_min_role(self, 'reviewer') end
 
-        local project = Projects:find({ id = self.params.project.id })
+        local project = Projects:find({ id = self.params.id })
 
         local flagger =
             self.params.flagger and
@@ -244,7 +239,6 @@ ProjectController = {
             yield_error(err.project_never_flagged)
         end
 
-        self.params.project = project
-        self.project = project
+        return okResponse()
     end)
 }

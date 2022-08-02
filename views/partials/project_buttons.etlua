@@ -83,13 +83,11 @@
             ><%= locale.get('delete_button') %></a>
         <script>
         function confirmDelete () {
-            confirmAction(
+            confirm(
                 '<%- package.loaded.dialog(
                     'confirm_delete',
                     { item_name = 'project'}) %>',
-                'project',
-                'delete',
-                { project: { id: <%= project.id %> } }
+                () => { cloud.post('/delete_project/<%= project.id %>'); }
             );
         }
     </script>
@@ -99,8 +97,9 @@
         title="<%= locale.get('you_flagged') %>"
     >
         <i class="warning fas fa-exclamation-triangle"></i>
-        <a class="clickable warning flag"
-            target="_blank"><%= locale.get('unflag_project') %></a>
+        <a class="clickable warning flag" target="_blank"
+            onclick="cloud.post('/unflag_project/<%= project.id %>')"
+        ><%= locale.get('unflag_project') %></a>
     </span>
 <% else %>
     <span class="flag-container">
@@ -112,29 +111,26 @@
 function confirmFlag () {
     confirm(
         "<%- locale.get('flag_prewarning' , '<br>') %>",
-        ok => {
-            if (ok) {
-                dialog(
-                    "<%- locale.get('choose_flag_reason') %>",
-                    '<%= package.loaded.dialog('flag_reason') %>',
-                    () => {
-                        var form =
-                            document.querySelector('form.reasons');
-                        update_<%=component.id%>(
-                            'project',
-                            'flag',
-                            {
-                                project: { id: <%= project.id %> },
-                                reason: form.querySelector(
-                                    'input[name=\'reason\']:checked'
-                                    ).value,
-                                notes: form.querySelector(
-                                    'textarea.notes').value
-                            }
-                        );
-                    }
-                );
-            }
+        () => {
+            dialog(
+                "<%- locale.get('choose_flag_reason') %>",
+                '<%- package.loaded.dialog('flag_reason') %>',
+                () => {
+                    var form =
+                        document.querySelector('form.reasons');
+                    cloud.post(
+                        '/flag_project/<%= project.id %>',
+                        null,
+                        {
+                            reason: form.querySelector(
+                                'input[name=\'reason\']:checked'
+                                ).value,
+                            notes: form.querySelector(
+                                'textarea.notes').value
+                        }
+                    );
+                }
+            );
         },
         confirmTitle('<%= locale.get('flag_project') %>')
     );
