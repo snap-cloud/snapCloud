@@ -161,6 +161,7 @@ local locale = {
     -- Search results page
     -- ===================
     search_results = "Search Results: @1",
+    project_search_results = "Projects matching: @1",
     collection_search_results = "Collections matching: @1",
     user_search_results = "Users Matching: @1",
     projects = "Projects",
