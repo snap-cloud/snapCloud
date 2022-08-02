@@ -205,6 +205,16 @@ app:match(api_route('project/:id/flag'), respond_to({
     DELETE = ProjectController.remove_flag
 }))
 
+app:match(api_route('project/:id/share'), respond_to({
+    POST = ProjectController.share,
+    DELETE = ProjectController.unshare
+}))
+
+app:match(api_route('project/:id/publish'), respond_to({
+    POST = ProjectController.publish,
+    DELETE = ProjectController.unpublish
+}))
+
 app:match(api_route('project/:id'), respond_to({
     GET = ProjectController.xml,
     DELETE = ProjectController.delete

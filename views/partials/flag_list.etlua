@@ -31,14 +31,14 @@
 <% end %>
     <script>
     function confirmRemoveFlag (flagger) {
-        confirmComponentAction(
+        confirm(
             'Are you sure you want to remove this flag?',
-            '<%= component.id %>',
-            'project',
-            'remove_flag',
-            {
-                data: { project: { id: <%= project.id %> } },
-                flagger: flagger
+            () => {
+                cloud.delete(
+                    '/project/<%= project.id %>/flag',
+                    null,
+                    { flagger: flagger }
+                );
             }
         );
     };

@@ -1,108 +1,88 @@
-<!-- Notes -->
-<pre class="notes"
-    title="<%= locale.get('shift_enter_note') %>"
-        ><%= data.project.notes %><%-
-            (data.project.notes ~= '') and '' or ('<small>' .. locale.get('no_notes') ..
-            '</small>')
-        %></pre>
-<!-- Dates and project meta -->
-<div class="dates">
-    <p class="created">
-        <strong><%= locale.get('created_date') %></strong>
-        <span><%= string.from_sql_date(data.project.created) %></span>
-    </p>
-    <p class="updated">
-        <strong><%= locale.get('updated_date') %></strong>
-        <span><%= string.from_sql_date(data.project.lastupdated) %></span>
-    </p>
-<% if data.project.ispublished then %>
-    <p class="published">
-        <strong><%= locale.get('published_date') %></strong>
-        <span><%= string.from_sql_date(data.project.firstpublished) %></span>
-    </p>
-<% elseif data.project.ispublic then %>
-    <p class="shared">
-        <strong><%= locale.get('shared_date') %></strong>
-        <span><%= string.from_sql_date(data.project.lastshared) %></span>
-    </p>
-<% end %>
-<% if current_user and
-        ((data.project.username == current_user.username) or
-        current_user:has_min_role('reviewer')) then %>
-    <% if data.project.ispublished then %>
-    <a class="pure-button unpublish" target="_blank" onclick="
-        confirmUnpublish('<%= data %>');
-        "><%= locale.get('unpublish_button') %></a>
-    <a class="pure-button unshare" target="_blank" onclick="
-        confirmUnshare('%= data %>');
-        "><%= locale.get('unshare_button') %></a>
-    <% elseif data.project.ispublic then %>
-    <a class="pure-button publish" target="_blank" onclick="
-        confirmPublish('<%= data %>');
-        "><%= locale.get('publish_button') %></a>
-    <a class="pure-button unshare" target="_blank" onclick="
-        confirmUnshare('%= data %>');
-        "><%= locale.get('unshare_button') %></a>
-    <% else %> <a class="pure-button share" target="_blank" onclick="
-        confirmShare('<%= data %>');
-        "><%= locale.get('share_button') %></a>
-    <a class="pure-button publish" target="_blank" onclick="
-        confirmPublish('<%= data %>');
-        "><%= locale.get('publish_button') %></a>
+<div class="details pure-u-11-24">
+    <!-- Notes -->
+    <pre class="notes"
+        title="<%= locale.get('shift_enter_note') %>"
+            ><%= project.notes %><%-
+                (project.notes ~= '') and ''
+                    or ('<small>' .. locale.get('no_notes') ..
+                '</small>')
+            %></pre>
+    <!-- Dates and project meta -->
+    <div class="dates">
+        <p class="created">
+            <strong><%= locale.get('created_date') %></strong>
+            <span><%= string.from_sql_date(project.created) %></span>
+        </p>
+        <p class="updated">
+            <strong><%= locale.get('updated_date') %></strong>
+            <span><%= string.from_sql_date(project.lastupdated) %></span>
+        </p>
+    <% if project.ispublished then %>
+        <p class="published">
+            <strong><%= locale.get('published_date') %></strong>
+            <span><%= string.from_sql_date(project.firstpublished) %></span>
+        </p>
+    <% elseif project.ispublic then %>
+        <p class="shared">
+            <strong><%= locale.get('shared_date') %></strong>
+            <span><%= string.from_sql_date(project.lastshared) %></span>
+        </p>
     <% end %>
-<% end %>
+    <% if current_user and
+            ((project.username == current_user.username) or
+            current_user:has_min_role('reviewer')) then %>
+        <% if project.ispublished then %>
+        <a class="pure-button unpublish" target="_blank"
+            onclick="confirmUnpublish();"
+        ><%= locale.get('unpublish_button') %></a>
+        <a class="pure-button unshare" target="_blank"
+            onclick="confirmUnshare();"><%= locale.get('unshare_button') %></a>
+        <% elseif project.ispublic then %>
+        <a class="pure-button publish" target="_blank"
+            onclick="confirmPublish();"><%= locale.get('publish_button') %></a>
+        <a class="pure-button unshare" target="_blank"
+            onclick="confirmUnshare();"><%= locale.get('unshare_button') %></a>
+        <% else %> <a class="pure-button share" target="_blank"
+            onclick="confirmShare();"><%= locale.get('share_button') %></a>
+        <a class="pure-button publish" target="_blank"
+            onclick="confirmPublish();"><%= locale.get('publish_button') %></a>
+        <% end %>
+    <% end %>
+    </div>
+    <%
+        if current_user and current_user:has_min_role('reviewer') then
+            render('views.partials.flag_list', { project = project })
+        end
+    %>
+    <script>
+    // We can't really refactor these much, can we?
+
+    function confirmPublish () {
+        confirm(
+            "<%= locale.get('confirm_publish_project') %>",
+            () => { cloud.post('/project/<%= project.id %>/publish') }
+        );
+    };
+
+    function confirmUnpublish () {
+        confirm(
+            "<%= locale.get('confirm_unpublish_project') %>",
+            () => { cloud.delete('/project/<%= project.id %>/publish') }
+        );
+    };
+
+    function confirmShare () {
+        confirm(
+            "<%= locale.get('confirm_share_project') %>",
+            () => { cloud.post('/project/<%= project.id %>/share') }
+        );
+    };
+
+    function confirmUnshare () {
+        confirm(
+            "<%= locale.get('confirm_unshare_project') %>",
+            () => { cloud.delete('/project/<%= project.id %>/share') }
+        );
+    };
+    </script>
 </div>
-<%
-    if current_user and current_user:has_min_role('reviewer') then
-        render(
-            'views.partials.flag_list',
-            { component = component, data = data }
-        )
-    end
-%>
-<script>
-// We can't really refactor these much because of localization. Some languages
-// may need to change things other than just the verb depending on the action.
-
-function confirmPublish (data) {
-    confirmButtonAction(
-        "<%= locale.get('confirm_publish_project') %>",
-        'publish',
-        data
-    );
-};
-
-function confirmUnpublish (data) {
-    confirmButtonAction(
-        "<%= locale.get('confirm_unpublish_project') %>",
-        'unpublish',
-        data
-    );
-};
-
-function confirmShare (data) {
-    confirmButtonAction(
-        "<%= locale.get('confirm_share_project') %>",
-        'share',
-        data
-    );
-};
-
-function confirmUnshare (data) {
-    confirmButtonAction(
-        "<%= locale.get('confirm_unshare_project') %>",
-        'unshare',
-        data
-    );
-};
-
-function confirmButtonAction (text, action, data) {
-    confirmComponentAction(
-        text,
-        '<%= component.id %>',
-        'project',
-        action,
-        { data: data }
-    );
-};
-</script>

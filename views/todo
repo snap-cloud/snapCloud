@@ -2,7 +2,11 @@ TODO
 ====
 [ ] scrap AJAX components entirely: make everything static
     [ ] project
-    [x] project_buttons
+        [ ] flag list
+        [x] visibility buttons
+        [ ] remixes
+        [ ] collections containing
+        [x] dates
     [ ] search (use carousels)
     [ ] user
 
