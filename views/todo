@@ -2,8 +2,8 @@ TODO
 ====
 [ ] scrap AJAX components entirely: make everything static
     [ ] project
-    [ ] project_buttons
-    [ ] search
+    [x] project_buttons
+    [ ] search (use carousels)
     [ ] user
 
 [ ] remake Snap! API

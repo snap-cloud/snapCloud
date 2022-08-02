@@ -54,17 +54,9 @@
                     { current_user = current_user }) %>',
                 () => {
                     var form = document.querySelector('form.collect-form');
-                    run_selector(
-                        'collection',
-                        'add_project',
-                        {
-                            collection: {
-                                id: form.querySelector('select').value
-                            },
-                            project: {
-                                id: <%- project.id %>
-                            }
-                        }
+                    cloud.post(
+                        '/collection/' + form.querySelector('select').value +
+                            '/project/<%= project.id %>'
                     );
                 },
                 nop
@@ -87,7 +79,7 @@
                 '<%- package.loaded.dialog(
                     'confirm_delete',
                     { item_name = 'project'}) %>',
-                () => { cloud.post('/delete_project/<%= project.id %>'); }
+                () => { cloud.delete('/project/<%= project.id %>'); }
             );
         }
     </script>
@@ -98,7 +90,7 @@
     >
         <i class="warning fas fa-exclamation-triangle"></i>
         <a class="clickable warning flag" target="_blank"
-            onclick="cloud.post('/unflag_project/<%= project.id %>')"
+            onclick="cloud.delete('/project/<%= project.id %>/flag')"
         ><%= locale.get('unflag_project') %></a>
     </span>
 <% else %>
@@ -119,7 +111,7 @@ function confirmFlag () {
                     var form =
                         document.querySelector('form.reasons');
                     cloud.post(
-                        '/flag_project/<%= project.id %>',
+                        '/project/<%= project.id %>/flag',
                         null,
                         {
                             reason: form.querySelector(

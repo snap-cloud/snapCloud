@@ -139,7 +139,7 @@ CollectionController = {
     end),
     add_project = capture_errors(function (self)
         local collection = Collections:find({ id = self.params.id })
-        local project = Projects:find({ id = self.params.project.id })
+        local project = Projects:find({ id = self.params.project_id })
         assert_can_add_project_to_collection(self, project, collection)
         assert_project_not_in_collection(self, project, collection)
 
@@ -155,7 +155,7 @@ CollectionController = {
             user_id = self.current_user.id -- who added it to the collection
         })
 
-        return project:url_for('site')
+        return jsonResponse({ redirect = project:url_for('site') })
     end),
     remove_project = capture_errors(function (self)
         local collection =

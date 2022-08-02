@@ -164,10 +164,10 @@ app:match(api_route('projects'), respond_to({
     end
 }))
 
+-- By username + projectname
+
 app:match(api_route('projects/:username/:projectname'), respond_to({
-    GET = function (self)
-        -- get a public project
-    end
+    GET = ProjectController.xml
 }))
 
 app:match(api_route('projects/:projectname'), respond_to({
@@ -198,15 +198,16 @@ app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
     end
 }))
 
--- Should be /project/:id/action, then DELETE, POST, etc...
+-- By id
 
 app:match(api_route('project/:id/flag'), respond_to({
     POST = ProjectController.flag,
     DELETE = ProjectController.remove_flag
 }))
 
-app:match(api_route('unflag_project/:id'), respond_to({
-    POST = ProjectController.remove_flag
+app:match(api_route('project/:id'), respond_to({
+    GET = ProjectController.xml,
+    DELETE = ProjectController.delete
 }))
 
 -- Collections
@@ -220,7 +221,6 @@ app:match(api_route('collection/:id'),
         DELETE = CollectionController.delete
     })
 )
-
 
 app:match(api_route('collection/:id/name'),
     respond_to({

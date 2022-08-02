@@ -186,13 +186,21 @@ ProjectController = {
                 self.params.projectname)
         end
 
-        if username == self.current_user.username then
-            return self:build_url('my_projects')
-        else
-            return self:build_url(
+        local url =
+            ((username == self.current_user.username) and
+                self:build_url('my_projects')
+            or
                 'user?username=' .. package.loaded.util.escape(username)
             )
-        end
+
+        return jsonResponse(
+            {
+                title = 'Project deleted',
+                message = 'Project ' .. project.projectname ..
+                    ' has been deleted.',
+                redirect = url
+            }
+        )
     end),
     flag = capture_errors(function (self)
         if self.current_user:isbanned() then yield_error(err.banned) end
@@ -240,5 +248,36 @@ ProjectController = {
         end
 
         return okResponse()
+    end),
+    xml = capture_errors(function (self)
+        local project =
+            self.params.id and
+                Projects:find({id = self.params.id })
+            or
+                Projects:find(self.params.username, self.params.projectname)
+
+        if not project then yield_error(err.nonexistent_project) end
+        if not (project.ispublic or users_match(self)) then
+            assert_admin(self, err.nonexistent_project)
+        end
+
+        -- self.params.delta is a version indicator
+        -- delta = null will fetch the current version
+        -- delta = -1 will fetch the previous saved version
+        -- delta = -2 will fetch the last version before today
+
+        return xmlResponse(
+            -- if users don't match, this project is being remixed and we
+            -- need to attach its ID
+            '<snapdata' .. (users_match(self) and '>' or ' remixID="' ..
+                project.id .. '">') ..
+                (disk:retrieve(
+                    project.id, 'project.xml', self.params.delta) or
+                        '<project></project>') ..
+                (disk:retrieve(
+                    project.id, 'media.xml', self.params.delta) or
+                        '<media></media>') ..
+                '</snapdata>'
+        )
     end)
 }
