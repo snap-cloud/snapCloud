@@ -6,20 +6,21 @@
 
 <%
 -- PUBLIC PROJECTS
-render (
-        'views.carousel',
-        {
-            title = locale.get('latest_published_projects'),
-            items = ProjectController.user_projects({
-                params = {
-                    username = username,
-                    items_per_page = 20
-                }
-            }),
-            class = 'projects',
-            show_author = false
-        }
-    )
+render(
+    'views.carousel',
+    {
+        title = locale.get('latest_published_projects'),
+        items = ProjectController.user_projects({
+            params = {
+                username = username,
+                items_per_page = 20
+            }
+        }),
+        class = 'projects',
+        show_author = false,
+        href = build_url('/user_projects/' .. queried_user.username)
+    }
+)
 
 -- PUBLIC COLLECTIONS
 
@@ -34,7 +35,8 @@ render(
             }
         }),
         class = 'collections',
-        item_type = 'collection'
+        item_type = 'collection',
+        href = build_url('/user_collections/' .. queried_user.username)
     }
 )
 

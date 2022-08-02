@@ -102,6 +102,12 @@ local locale = {
     -- Collections page
     collections_title = "Published Collections",
 
+    -- User Collections page
+    user_collections_title = "@1's Published Collections",
+
+    -- User Projects page
+    user_projects_title = "@1's Public Projects",
+
     -- Sign up page
     -- ============
     signup_title = "Create a Snap@1 account", -- @1 becomes an italic exclamation mark (!)

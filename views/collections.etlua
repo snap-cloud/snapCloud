@@ -1,4 +1,8 @@
+<% if params.username then %>
+<h1><%- locale.get('user_collections_title', params.username) %></h1>
+<% else %>
 <h1><%- locale.get('collections_title') %></h1>
+<% end %>
 <%
 render(
     'views.grid',

@@ -10,7 +10,7 @@
                        ><%- locale.get('run_snap', '<em>!</em>') %></a>
                 </li>
                 <li class="pure-menu-item">
-                    <a class="pure-menu-link explore" href="explore"
+                    <a class="pure-menu-link explore" href="/explore"
                         ><%- locale.get('explore') %></a>
                 </li>
                 <li class="pure-menu-item">

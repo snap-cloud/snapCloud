@@ -1,6 +1,6 @@
 var snapURL = location.origin + '/snap/snap.html',
     snapDevURL = location.origin + '/snapsource/dev/snap.html',
-    baseURL = location.href.replace(/(.*)\/.*/, '$1'),
+    baseURL = location.protocol + '//' + location.host,
     nop = function () {},
     localizer = new Localizer(),
     buttonDefaults =

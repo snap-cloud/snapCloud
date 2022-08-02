@@ -1,10 +1,13 @@
+<% if params.username then %>
+<h1><%- locale.get('user_projects_title', params.username) %></h1>
+<% else %>
 <h1><%- locale.get('explore') %></h1>
+<% end %>
 <%
 render(
     'views.grid',
     {
         class = 'projects',
-        title = locale.get('published_projects'),
         item_type = 'project',
         items_per_page = 15,
         items_per_row = 5

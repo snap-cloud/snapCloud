@@ -85,6 +85,12 @@ local locale = {
     -- Collections page
     collections_title = "Col·leccions públiques",
 
+    -- User Collections page
+    user_collections_title = "Col·leccions públiques de @1",
+
+    -- User Projects page
+    user_projects_title = "Projects públics de @1",
+
     -- Sign up page
     -- ============
     signup_title = "Crea un compte d'Snap@1", -- @1 becomes an italic exclamation mark (!)

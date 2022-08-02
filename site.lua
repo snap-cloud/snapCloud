@@ -147,6 +147,18 @@ app:get('/user', capture_errors(function (self)
     return { render = 'user' }
 end))
 
+app:get('/user_collections/:username', capture_errors(cached(function (self)
+    self.params.user_id = self.queried_user.id
+    self.items = CollectionController.user_collections(self)
+    return { render = 'collections' }
+end)))
+
+app:get('/user_projects/:username', capture_errors(cached(function (self)
+    self.items = ProjectController.user_projects(self)
+    return { render = 'explore' }
+end)))
+
+
 app:get('/project', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     self.project = Projects:find(
