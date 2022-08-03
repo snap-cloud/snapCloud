@@ -1,15 +1,14 @@
 TODO
 ====
-[x] scrap AJAX components entirely: make everything static
-    [x] search (use carousels)
-
-[x] search projects page
-[x] search collections page
-[x] search users page
-
 [ ] unify self.per_page, self.items_per_page and self.params.items_per_page
 
 [ ] remake Snap! API
+    [x] login
+    [x] logout
+    [ ] sign up
+    [x] my project list
+    [ ] save project
+    [ ] load project
 
 [ ] redo localization entirely
     [ ] user admin

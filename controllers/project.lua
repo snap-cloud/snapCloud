@@ -56,9 +56,13 @@ ProjectController = {
             self.num_pages = paginator:num_pages()
         end
 
-        local items = paginator:get_page(self.params.page_number)
-        disk:process_thumbnails(items)
-        return items
+        if (self.session.app == 'snap') then
+            return jsonResponse({ projects = paginator:get_all() })
+        else
+            local items = paginator:get_page(self.params.page_number)
+            disk:process_thumbnails(items)
+            return items
+        end
     end,
     fetch = capture_errors(function (self)
         return ProjectController.run_query(

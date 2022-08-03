@@ -160,8 +160,7 @@ app:match(api_route('emails/:email/remind_username'), respond_to({
 -- ========
 app:match(api_route('projects'), respond_to({
     -- get my projects
-    GET = function (self)
-    end
+    GET = ProjectController.my_projects
 }))
 
 -- By username + projectname

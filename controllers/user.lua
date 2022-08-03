@@ -115,7 +115,7 @@ UserController = {
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
                 local message =
-                    (ngx.var.http_referer:sub(-#'snap.html') == 'snap.html')
+                    (self.session.app == 'snap')
                         and err.nonvalidated_user_plaintext
                         or err.nonvalidated_user_html
                 -- Check whether verification token is unused and valid
@@ -384,7 +384,7 @@ UserController = {
 -- TODO move those to a separate module?
 app:match(
     'password_reset',
-    '/password_reset/:token', 
+    '/password_reset/:token',
     capture_errors(
         function (self)
             -- This route is reached when a user clicks on a reset password URL
