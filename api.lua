@@ -22,7 +22,7 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local api_version = 'v2'
+local api_version = 'v1'
 
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
@@ -169,12 +169,8 @@ app:match(api_route('projects/:username/:projectname'), respond_to({
     GET = ProjectController.xml
 }))
 
-app:match(api_route('projects/:projectname'), respond_to({
-    POST = function (self)
-        -- create a project, owned by the current user
-    end,
-    DELETE = function (self)
-    end
+app:match(api_route('projects/:username'), respond_to({
+    GET = ProjectController.user_projects
 }))
 
 app:match(api_route('projects/:username/:projectname/metadata'), respond_to({

@@ -81,14 +81,18 @@ ProjectController = {
         )
     end),
     user_projects = capture_errors(function (self)
-        self.params.order = 'lastupdated DESC'
-        return ProjectController.run_query(
-            self,
-            db.interpolate_query(
-                'WHERE ispublished AND username = ? ',
-                self.params.username
+        if self.queried_user == self.current_user then
+            return ProjectController.my_projects(self)
+        else
+            self.params.order = 'lastupdated DESC'
+            return ProjectController.run_query(
+                self,
+                db.interpolate_query(
+                    'WHERE ispublished AND username = ? ',
+                    self.params.username
+                )
             )
-        )
+        end
     end),
     flagged_projects = capture_errors(function (self)
         self.params.order = 'flag_count DESC'
