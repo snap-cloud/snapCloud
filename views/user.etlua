@@ -14,7 +14,8 @@ render(
             params = {
                 username = username,
                 items_per_page = 20
-            }
+            },
+            session = session
         }),
         class = 'projects',
         show_author = false,
@@ -32,7 +33,8 @@ render(
             params = {
                 per_page = 20,
                 user_id = queried_user.id
-            }
+            },
+            session = session
         }),
         class = 'collections',
         item_type = 'collection',

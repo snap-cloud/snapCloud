@@ -11,6 +11,7 @@ render(
                 search_term = params.query,
                 items_per_page = 20
             },
+            session = session
         }),
         href = build_url('/explore?search_term=' .. params.query)
     }
@@ -26,7 +27,8 @@ render(
             params = {
                 search_term = params.query,
                 per_page = 20
-            }
+            },
+            session = session
         }),
         href = build_url('/collections?search_term=' .. params.query)
     }
@@ -44,7 +46,8 @@ render(
                 search_term = params.query,
                 order = 'username'
             },
-            items_per_page = 1000 -- for query
+            items_per_page = 1000, -- for query
+            session = session
         }),
         items_per_page = 51, -- for carousel
         href = build_url('/users?search_term=' .. params.query)

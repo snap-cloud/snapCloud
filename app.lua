@@ -140,7 +140,8 @@ package.loaded.cached = function (func, options)
         for _, v in ipairs(param_keys) do
             key = key .. '#' .. v .. '=' .. params[v]
         end
-        return key .. '@' .. (request.session.locale or 'en') .. '~' .. (request.session.username)
+        return key .. '@' .. (request.session.locale or 'en') ..
+            '~' .. (request.session.username)
     end
     return lapis_cached({
         dict_name = 'page_cache', -- default dictionary, unchanged
@@ -165,8 +166,8 @@ app:before_filter(function (self)
     self.locale = package.loaded.locale
     self.locale.language = self.session.locale or 'en'
 
-    self.session.app =
-        (ngx.var.http_referer:sub(-#'snap.html') == 'snap.html')
+    self.session.app = (ngx.var.http_referer and
+        (ngx.var.http_referer:sub(-#'snap.html') == 'snap.html'))
             and 'snap' or 'site'
 
     -- Set Access Control header

@@ -51,6 +51,15 @@ app:match(api_route('version'), respond_to({
     end)
 }))
 
+-- Session
+-- =======
+app:match(api_route('set_locale'), respond_to({
+    POST = capture_errors(function (self)
+        self.session.locale = self.params.locale
+        return jsonResponse({ redirect = self.params.redirect })
+    end)
+}))
+
 app:match(api_route('init'), respond_to({
     GET = capture_errors(function (self)
         return errorResponse(
@@ -65,15 +74,6 @@ app:match(api_route('init'), respond_to({
                 self.cookies.persist_session == 'false') then
             self.session.username = ''
         end
-    end)
-}))
-
--- Session
--- =======
-app:match(api_route('set_locale'), respond_to({
-    POST = capture_errors(function (self)
-        self.session.locale = self.params.locale
-        return jsonResponse({ redirect = self.params.redirect })
     end)
 }))
 

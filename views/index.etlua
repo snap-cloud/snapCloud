@@ -89,7 +89,8 @@ render(
     {
         title = locale.get('latest'),
         items = ProjectController.fetch({
-            params = { items_per_page = 20 }
+            params = { items_per_page = 20 },
+            session = session
         }),
         href = 'explore'
     }
