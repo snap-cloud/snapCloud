@@ -169,6 +169,10 @@ app:match(api_route('projects/:username/:projectname'), respond_to({
     GET = ProjectController.xml
 }))
 
+app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
+    GET = ProjectController.thumbnail
+}))
+
 app:match(api_route('projects/:username'), respond_to({
     GET = ProjectController.user_projects
 }))
@@ -184,12 +188,6 @@ app:match(api_route('projects/:username/:projectname/metadata'), respond_to({
 
 app:match(api_route('projects/:username/:projectname/versions'), respond_to({
     GET = function (self)
-    end
-}))
-
-app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
-    GET = function (self)
-        -- Get the thumbnail for a project of mine
     end
 }))
 

@@ -270,5 +270,26 @@ ProjectController = {
                         '<media></media>') ..
                 '</snapdata>'
         )
-    end)
+    end),
+    thumbnail = capture_errors(function (self)
+        local project =
+            Projects:find(self.params.username, self.params.projectname)
+
+        if not project then yield_error(err.nonexistent_project) end
+
+        if not users_match(self)
+            and not project.ispublic then
+            yield_error(err.nonexistent_project)
+        end
+
+        -- Lazy thumbnail generation:
+        -- * fetch the thumbnail if it exists, or
+        -- * try to generate it and fetch it, or
+        -- * fail to generate it and return an empty string
+
+        return rawResponse(
+            disk:retrieve(project.id, 'thumbnail') or
+                (disk:generate_thumbnail(project.id)) or
+                    '')
+    end),
 }

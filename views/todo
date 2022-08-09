@@ -5,10 +5,11 @@ TODO
 [ ] remake Snap! API
     [x] login
     [x] logout
-    [ ] sign up
     [x] my project list
+    [x] load project
+    [x] fetch project thumbnail
+    [ ] sign up
     [ ] save project
-    [ ] load project
 
 [ ] redo localization entirely
     [ ] user admin
