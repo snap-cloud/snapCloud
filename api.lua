@@ -117,9 +117,9 @@ app:match(api_route('signup'), respond_to({
 }))
 
 app:match(api_route('users/:username'), respond_to({
+    POST = UserController.create, -- legacy, used by editor
     DELETE = UserController.delete
 }))
-
 
 app:match(api_route('users/:username/password_reset'), respond_to({
     POST = UserController.reset_password
@@ -149,8 +149,7 @@ app:match(api_route('users/:username/become'), respond_to({
 }))
 
 app:match(api_route('users/:username/resendverification'), respond_to({
-    POST = function (self)
-    end
+    POST = UserController.resend_verification
 }))
 
 -- Emails

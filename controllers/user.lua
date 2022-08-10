@@ -379,7 +379,23 @@ UserController = {
             message = 'Message sent to user',
             title = 'Message sent'
         })
-    end)
+    end),
+    resend_verification = capture_errors(function (self)
+        rate_limit(self)
+        assert_user_exists(self)
+        if self.queried_user.verified then
+            return okResponse(
+                'User ' .. self.queried_user.username ..
+                ' is already verified.\n' ..
+                'There is no need for you to do anything.\n')
+        end
+        create_token(self, 'verify_user', self.queried_user.username,
+            self.queried_user.email)
+        return okResponse(
+            'Verification email for ' .. self.queried_user.username ..
+            ' sent.\nPlease check your email and validate your\n' ..
+            'account within the next 3 days.')
+    end),
 }
 
 -- TODO move those to a separate module?

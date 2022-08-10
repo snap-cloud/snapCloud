@@ -3,7 +3,7 @@ TODO
 [ ] unify self.per_page, self.items_per_page and self.params.items_per_page
 [ ] events page
 
-[ ] remake Snap! API
+[x] remake Snap! API
     [x] login
     [x] logout
     [x] my project list
@@ -17,9 +17,9 @@ TODO
     [x] recover
     [x] save project
     [x] change password
-    [ ] sign up
-    [ ] recover password
-    [ ] resend validation link
+    [x] reset password
+    [x] resend validation link
+    [x] sign up
 
 [ ] redo localization entirely
     [ ] user admin
