@@ -8,6 +8,7 @@ TODO
     [ ] flagged projects
     [ ] translate titles of curated collections
     [ ] errors
+    [ ] "refurbish" old locale files
 [ ] rethink rate limiting for the site, maybe using CRLF protection?
 
 TODO AFTER DEPLOYING

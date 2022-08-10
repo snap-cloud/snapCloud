@@ -182,12 +182,14 @@ app:get('/project', capture_errors(function (self)
     end
 
     -- check whether the current user has already flagged this project
-    self.project.flagged =
-        FlaggedProjects:select(
-            'WHERE project_id = ? AND flagger_id = ?',
-            self.project.id,
-            self.current_user.id
-        )[1] ~= nil
+    if self.current_user then
+        self.project.flagged =
+            FlaggedProjects:select(
+                'WHERE project_id = ? AND flagger_id = ?',
+                self.project.id,
+                self.current_user.id
+            )[1] ~= nil
+    end
 
     return { render = 'project' }
 end))
