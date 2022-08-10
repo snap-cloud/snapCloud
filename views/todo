@@ -1,6 +1,7 @@
 TODO
 ====
 [ ] unify self.per_page, self.items_per_page and self.params.items_per_page
+[ ] events page
 
 [ ] remake Snap! API
     [x] login
@@ -8,6 +9,12 @@ TODO
     [x] my project list
     [x] load project
     [x] fetch project thumbnail
+    [x] share
+    [x] unshare
+    [x] publish
+    [x] unpublish
+    [ ] recover
+    [ ] delete
     [ ] sign up
     [ ] save project
 

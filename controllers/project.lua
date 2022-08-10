@@ -81,7 +81,7 @@ ProjectController = {
         )
     end),
     user_projects = capture_errors(function (self)
-        if self.queried_user == self.current_user then
+        if users_match(self) then
             return ProjectController.my_projects(self)
         else
             self.params.order = 'lastupdated DESC'
@@ -157,6 +157,38 @@ ProjectController = {
         })
         return okResponse()
     end),
+    metadata = function (self)
+        assert_users_match(self)
+
+        if self.current_user:isbanned() and self.params.ispublished then
+            yield_error(err.banned)
+        end
+
+        local project =
+            Projects:find(self.params.username, self.params.projectname)
+        if not project then yield_error(err.nonexistent_project) end
+
+        local shouldUpdateSharedDate =
+            ((not project.lastshared and self.params.ispublic)
+            or (self.params.ispublic and not project.ispublic))
+
+        local result, error = project:update({
+            lastupdated = db.format_date(),
+            lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+            firstpublished =
+                project.firstpublished or
+                (self.params.ispublished and db.format_date()) or
+                nil,
+            ispublic = self.params.ispublic or project.ispublic,
+            ispublished = self.params.ispublished or project.ispublished
+        })
+
+        if error then yield_error({ msg = error, status = 422 }) end
+
+        return okResponse(
+            'project ' .. self.params.projectname .. ' updated'
+        )
+    end,
     delete = capture_errors(function (self)
         local project = Projects:find({ id = self.params.id })
         assert_can_delete(self, project)

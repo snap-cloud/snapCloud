@@ -177,13 +177,9 @@ app:match(api_route('projects/:username'), respond_to({
     GET = ProjectController.user_projects
 }))
 
+-- Legacy API call. Used by the editor.
 app:match(api_route('projects/:username/:projectname/metadata'), respond_to({
-    -- Needed? I don't think so.
-    -- Let's instead make simpler routes for publish, unpublish, etc.
-    GET = function (self)
-    end,
-    POST = function (self)
-    end
+    POST = ProjectController.metadata
 }))
 
 app:match(api_route('projects/:username/:projectname/versions'), respond_to({
