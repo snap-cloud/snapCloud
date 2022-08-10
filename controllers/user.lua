@@ -275,6 +275,7 @@ UserController = {
         end
     end),
     create = capture_errors(function (self)
+        rate_limit(self)
         prevent_tor_access(self)
 
         -- strip whitespace *only* on create users.

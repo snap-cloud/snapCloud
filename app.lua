@@ -43,6 +43,7 @@ package.loaded.resty_random = require 'resty.random'
 package.loaded.config = require('lapis.config').get()
 package.loaded.disk = require('disk')
 package.loaded.locale = require('locale')
+package.loaded.cjson = require('cjson')
 
 local app = package.loaded.app
 local config = package.loaded.config
@@ -206,7 +207,7 @@ app:before_filter(function (self)
                 package.loaded.util.from_json(
                     package.loaded.util.unescape(v)
                 )
-        else
+        elseif type(v) == 'string' then
             self.params[k] = package.loaded.util.unescape(v)
         end
     end

@@ -163,30 +163,6 @@ app:match(api_route('projects'), respond_to({
     GET = ProjectController.my_projects
 }))
 
--- Legacy API calls by username and projectname. Used by the editor and mods.
-app:match(api_route('projects/:username/:projectname'), respond_to({
-    GET = ProjectController.xml,
-    DELETE = ProjectController.delete
-}))
-
-app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
-    GET = ProjectController.thumbnail
-}))
-
-app:match(api_route('projects/:username'), respond_to({
-    GET = ProjectController.user_projects
-}))
-
-app:match(api_route('projects/:username/:projectname/metadata'), respond_to({
-    POST = ProjectController.metadata
-}))
-
-app:match(api_route('projects/:username/:projectname/versions'), respond_to({
-    GET = ProjectController.versions
-}))
-
--- By id
-
 app:match(api_route('project/:id/flag'), respond_to({
     POST = ProjectController.flag,
     DELETE = ProjectController.remove_flag
@@ -206,6 +182,35 @@ app:match(api_route('project/:id'), respond_to({
     GET = ProjectController.xml,
     DELETE = ProjectController.delete
 }))
+
+
+-- [LEGACY]
+-- Legacy API calls by username and projectname. Used by the editor and mods.
+
+app:match(api_route('projects/:username/:projectname'), respond_to({
+    GET = ProjectController.xml,
+    POST = ProjectController.save,
+    DELETE = ProjectController.delete
+}))
+
+app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
+    GET = ProjectController.thumbnail
+}))
+
+app:match(api_route('projects/:username'), respond_to({
+    GET = ProjectController.user_projects
+}))
+
+app:match(api_route('projects/:username/:projectname/metadata'), respond_to({
+    POST = ProjectController.metadata
+}))
+
+app:match(api_route('projects/:username/:projectname/versions'), respond_to({
+    GET = ProjectController.versions
+}))
+
+-- [/LEGACY]
+
 
 -- Collections
 -- ===========

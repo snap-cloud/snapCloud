@@ -15,7 +15,7 @@ TODO
     [x] unpublish
     [x] delete
     [x] recover
-    [ ] save project
+    [x] save project
     [ ] sign up
     [ ] recover password
     [ ] change password
@@ -26,7 +26,7 @@ TODO
     [ ] flagged projects
     [ ] translate titles of curated collections
     [ ] errors
-[ ] rethink rate limiting, maybe using CRLF protection?
+[ ] rethink rate limiting for the site, maybe using CRLF protection?
 
 TODO AFTER DEPLOYING
 ====================
