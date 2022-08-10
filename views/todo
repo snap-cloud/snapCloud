@@ -13,10 +13,13 @@ TODO
     [x] unshare
     [x] publish
     [x] unpublish
+    [x] delete
     [ ] recover
-    [ ] delete
-    [ ] sign up
     [ ] save project
+    [ ] sign up
+    [ ] recover password
+    [ ] change password
+    [ ] resend validation link
 
 [ ] redo localization entirely
     [ ] user admin

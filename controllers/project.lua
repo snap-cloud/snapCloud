@@ -179,8 +179,8 @@ ProjectController = {
                 project.firstpublished or
                 (self.params.ispublished and db.format_date()) or
                 nil,
-            ispublic = self.params.ispublic or project.ispublic,
-            ispublished = self.params.ispublished or project.ispublished
+            ispublic = self.params.ispublic,
+            ispublished = self.params.ispublished
         })
 
         if error then yield_error({ msg = error, status = 422 }) end
@@ -190,7 +190,12 @@ ProjectController = {
         )
     end,
     delete = capture_errors(function (self)
-        local project = Projects:find({ id = self.params.id })
+        local project =
+            self.params.id and
+                Projects:find({id = self.params.id })
+            or
+                Projects:find(self.params.username, self.params.projectname)
+
         assert_can_delete(self, project)
 
         local username = project.username -- keep it for after deleting it

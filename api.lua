@@ -163,10 +163,10 @@ app:match(api_route('projects'), respond_to({
     GET = ProjectController.my_projects
 }))
 
--- By username + projectname
-
+-- Legacy API calls by username and projectname. Used by the editor and mods.
 app:match(api_route('projects/:username/:projectname'), respond_to({
-    GET = ProjectController.xml
+    GET = ProjectController.xml,
+    DELETE = ProjectController.delete
 }))
 
 app:match(api_route('projects/:username/:projectname/thumbnail'), respond_to({
@@ -177,7 +177,6 @@ app:match(api_route('projects/:username'), respond_to({
     GET = ProjectController.user_projects
 }))
 
--- Legacy API call. Used by the editor.
 app:match(api_route('projects/:username/:projectname/metadata'), respond_to({
     POST = ProjectController.metadata
 }))

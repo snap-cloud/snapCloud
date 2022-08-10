@@ -38,96 +38,6 @@ require 'validation'
 
 ProjectController = {
     GET = {
-        user_projects = function (self)
-            -- GET /projects/:username
-            -- Description: Get metadata for a project list by a user.
-            --              Response will depend on parameters and query issuer
-            --              permissions.
-            -- Parameters:  ispublished, page, pagesize, matchtext,
-            --              withthumbnail, updatingnotes
-            local order = 'lastupdated'
-
-            if not (users_match(self)) then
-                if not self.current_user or not self.current_user:isadmin() then
-                    self.params.ispublished = 'true'
-                    order = 'firstpublished'
-                end
-            end
-
-            assert_user_exists(self)
-
-            local query = db.interpolate_query('where username = ?',
-                self.queried_user.username)
-
-            -- Apply where clauses
-            if self.params.ispublished ~= nil then
-                query = query ..
-                    db.interpolate_query(
-                        ' and ispublished = ?',
-                        self.params.ispublished == 'true'
-                    )
-            end
-
-            if self.params.matchtext then
-                query = query ..
-                    db.interpolate_query(
-                        ' and (projectname ILIKE ? or notes ILIKE ?)',
-                        self.params.matchtext,
-                        self.params.matchtext
-                    )
-            end
-
-            local paginator = Projects:paginated(query .. ' order by ' ..
-                order .. ' desc', { per_page = self.params.pagesize or 16 })
-            local projects = self.params.page and
-                paginator:get_page(self.params.page) or paginator:get_all()
-
-            if self.params.updatingnotes == 'true' then
-                disk:process_notes(projects)
-            end
-            if self.params.withthumbnail == 'true' then
-                disk:process_thumbnails(projects)
-            end
-
-            return jsonResponse({
-                pages = self.params.page and paginator:num_pages() or nil,
-                projects = projects
-            })
-        end,
-
-        project = function (self)
-            -- GET /projects/:username/:projectname
-            -- Description: Get a particular project.
-            --              Response will depend on query issuer permissions.
-            -- Parameters:  delta, ispublic, ispublished
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if not project then yield_error(err.nonexistent_project) end
-            if not (project.ispublic or users_match(self)) then
-                assert_admin(self, err.nonexistent_project)
-            end
-
-            -- self.params.delta is a version indicator
-            -- delta = null will fetch the current version
-            -- delta = -1 will fetch the previous saved version
-            -- delta = -2 will fetch the last version before today
-
-            return xmlResponse(
-                -- if users don't match, this project is being remixed and we
-                -- need to attach its ID
-                '<snapdata' .. (users_match(self) and '>' or ' remixID="' ..
-                    project.id .. '">') ..
-                    (disk:retrieve(
-                        project.id, 'project.xml', self.params.delta) or
-                            '<project></project>') ..
-                    (disk:retrieve(
-                        project.id, 'media.xml', self.params.delta) or
-                            '<media></media>') ..
-                    '</snapdata>'
-            )
-        end,
-
         project_versions = function (self)
             -- GET /projects/:username/:projectname/versions
             -- Description: Get info about backed up project versions.
@@ -157,27 +67,6 @@ ProjectController = {
                 disk:get_version_metadata(project.id, -2)
             })
         end,
-
-        project_thumbnail = cached({
-            -- GET /projects/:username/:projectname/thumbnail
-            -- Description: Get a project thumbnail.
-            exptime = 30, -- cache expires after 30 seconds
-            function (self)
-                local project =
-                    Projects:find(self.params.username, self.params.projectname)
-                if not project then yield_error(err.nonexistent_project) end
-
-                if not users_match(self)
-                    and not project.ispublic then
-                    yield_error(err.nonexistent_project)
-                end
-
-                -- Lazy Thumbnail generation
-                return rawResponse(
-                    disk:retrieve(project.id, 'thumbnail') or
-                        disk:generate_thumbnail(project.id))
-            end
-        }),
     },
 
     POST = {
@@ -296,64 +185,6 @@ ProjectController = {
                     ' saved')
             end
         end,
-
-        project_meta = function (self)
-            -- POST /projects/:username/:projectname/metadata
-            -- Description: Add/update a project metadata. When admins and
-            --              moderators unpublish somebody else's project, they
-            --              also provide a reason that will be emailed to the
-            --              project owner.
-            -- Parameters:  projectname, ispublic, ispublished, lastupdated,
-            --              lastshared, reason
-            -- Body:        notes, projectname
-            if not users_match(self) then assert_admin(self) end
-
-            if self.current_user:isbanned() and self.params.ispublished then
-                yield_error(err.banned)
-            end
-
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-            if not project then yield_error(err.nonexistent_project) end
-
-            if self.params.ispublished == 'false' and self.params.reason then
-                send_mail(
-                    self.queried_user.email,
-                    mail_subjects.project_unpublished .. project.projectname,
-                    mail_bodies.project_unpublished .. self.current_user.role ..
-                        '.</p><p>' .. self.params.reason .. '</p>')
-            end
-
-            local shouldUpdateSharedDate =
-                ((not project.lastshared and self.params.ispublic)
-                or (self.params.ispublic and not project.ispublic))
-
-            -- Read request body and parse it into JSON
-            -- TODO: Replace this with json_params() after updating the
-            -- projectname key.
-            ngx.req.read_body()
-            local body_data = ngx.req.get_body_data()
-            local body = body_data and util.from_json(body_data) or nil
-
-            local result, error = project:update({
-                lastupdated = db.format_date(),
-                lastshared = shouldUpdateSharedDate and db.format_date() or nil,
-                firstpublished =
-                    project.firstpublished or
-                    (self.params.ispublished and db.format_date()) or
-                    nil,
-                --notes = new_notes and body.notes or project.notes,
-                ispublic = self.params.ispublic or project.ispublic,
-                ispublished = self.params.ispublished or project.ispublished
-            })
-
-            if error then yield_error({ msg = error, status = 422 }) end
-
-            return okResponse(
-                'project ' .. self.params.projectname .. ' updated'
-            )
-        end,
-
     },
 
     DELETE = {
