@@ -197,6 +197,10 @@ app:get('/examples', capture_errors(cached(function (self)
     return { render = 'examples' }
 end)))
 
+app:get('/events', capture_errors(cached(function (self)
+    self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
+    return { render = 'events' }
+end)))
 
 app:get('/search', capture_errors(function (self)
     self.reviewer_controls =

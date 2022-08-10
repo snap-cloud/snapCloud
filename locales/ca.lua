@@ -43,6 +43,7 @@ local locale = {
     requirements = "Requeriments tècnics",
     partners = "Col·laboradors",
     source = "Codi font",
+    events = "Esdeveniments",
     examples = "Projectes d'exemple",
     manual = "Manual de referència",
     materials = "Materials",
@@ -81,6 +82,9 @@ local locale = {
     maths = "Matemàtiques",
     latest = "Últims projectes publicats",
     more_collections = "Explora més col·leccions",
+
+    -- Events page
+    events_title = "Esdeveniments d'Snap@1",
 
     -- Collections page
     collections_title = "Col·leccions públiques",

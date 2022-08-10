@@ -1,24 +1,24 @@
 <script src="/static/js/project.js"></script>
 <link rel="stylesheet" href="/static/style/project.css">
-<h1><%= locale.get('examples') %></h1>
+<h1><%- locale.get('events_title', '<em>!</em>') %></h1>
 <%
 for _, name in pairs({
-        'Art Projects',
-        'Science Projects',
-        'Fractals',
-        'Animations',
-        'Music',
-        'Maths',
-        'Games',
-        'Computer Science',
+        'Snap!Con 2022',
+        'Snap!Shot 2021',
+        'Snap!Con 2021',
+        'Snap!Shot 2020',
+        'Snap!Con 2020',
+        'Snap!Shot 2019',
+        'Snap!Con 2019',
         }) do
 
     local collection = package.loaded.Collections:find(snapcloud_id, name)
 
+                       debug_print(name)
     render(
         'views.carousel',
         {
-            title = name, -- TODO localize titles
+            title = name,
             items = CollectionController.projects({
                 params = {},
                 items_per_page = 20,
@@ -29,3 +29,4 @@ for _, name in pairs({
     )
 end
 %>
+

@@ -1,25 +1,7 @@
 TODO
 ====
 [ ] unify self.per_page, self.items_per_page and self.params.items_per_page
-[ ] events page
-
-[x] remake Snap! API
-    [x] login
-    [x] logout
-    [x] my project list
-    [x] load project
-    [x] fetch project thumbnail
-    [x] share
-    [x] unshare
-    [x] publish
-    [x] unpublish
-    [x] delete
-    [x] recover
-    [x] save project
-    [x] change password
-    [x] reset password
-    [x] resend validation link
-    [x] sign up
+[x] events page
 
 [ ] redo localization entirely
     [ ] user admin

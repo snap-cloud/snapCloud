@@ -58,6 +58,7 @@ local locale = {
     requirements = "Technical Requirements",
     partners = "Partners",
     source = "Source Code",
+    events = "Events",
     examples = "Example Projects",
     manual = "Reference Manual",
     materials = "Materials",
@@ -98,6 +99,9 @@ local locale = {
     maths = "Maths",
     latest = "Latest Projects",
     more_collections ="Explore More Collections",
+
+    -- Events page
+    events_title = "Snap@1 Events",
 
     -- Collections page
     collections_title = "Published Collections",
