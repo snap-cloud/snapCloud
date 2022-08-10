@@ -102,6 +102,14 @@ app:match(api_route('change_my_password'), respond_to({
     POST = UserController.change_password
 }))
 
+app:match(api_route('users/:username/newpassword'), respond_to({
+    POST = capture_errors(function (self)
+        self.params.old_password = self.params.oldpassword
+        self.params.new_password = self.params.newpassword
+        return UserController.change_password(self)
+    end)
+}))
+
 -- Other users
 -- ===========
 app:match(api_route('signup'), respond_to({
@@ -112,10 +120,6 @@ app:match(api_route('users/:username'), respond_to({
     DELETE = UserController.delete
 }))
 
-app:match(api_route('users/:username/newpassword'), respond_to({
-    POST = function (self)
-    end
-}))
 
 app:match(api_route('users/:username/password_reset'), respond_to({
     POST = UserController.reset_password

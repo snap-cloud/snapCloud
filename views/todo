@@ -16,9 +16,9 @@ TODO
     [x] delete
     [x] recover
     [x] save project
+    [x] change password
     [ ] sign up
     [ ] recover password
-    [ ] change password
     [ ] resend validation link
 
 [ ] redo localization entirely
