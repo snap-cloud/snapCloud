@@ -52,7 +52,7 @@ end
 localizer.localize = function (selector, lang_code, ...)
     -- Fetches a locale string and substitutes its params, if any
     local string = localizer.locales[lang_code][selector]
-    if string then
+    if string and (string ~= '') then
         return localizer.apply_params(
             localizer.locales[lang_code][selector],
             ...

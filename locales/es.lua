@@ -1,7 +1,7 @@
 -- Spanish localization
 -- ====================
 -- Authors: Bernat Romagosa
--- Last updated: 28 December 2021
+-- Last updated: 10 August 2022
 
 -- How to translate
 -- ----------------

@@ -1,7 +1,7 @@
 -- Catalan localization
 -- ====================
 -- Authors: Bernat Romagosa
--- Last updated: 25 July 2022
+-- Last updated: 10 August 2022
 
 -- How to translate
 -- ----------------
