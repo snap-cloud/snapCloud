@@ -3,6 +3,21 @@
 -- Authors: Bernat Romagosa
 -- Last updated: 25 July 2022
 
+-- How to translate
+-- ----------------
+-- Translate each text string to the target language leaving intact the two
+-- double quotes.
+-- Example: "Log In" should become "Entrar"
+--
+-- If you need to use a double quote, escape it with a backslash (\")
+--
+-- The "@" symbol followed by a number represents a parameter that the system
+-- will substitute by a value, for example a username.
+-- Example: "Welcome, @1!" will become "Welcome, Mary!" when Mary is logged in.
+--
+-- You need to leave "@" marks intact, but you can change their order in your
+-- translation if your language requires so.
+
 local locale = {
     -- Meta data
     -- =========
@@ -71,7 +86,7 @@ local locale = {
     featured = "Projectes destacats",
     totm = "Tema del mes: @1", -- @1 becomes the actual topic of the month
     science = "Projectes de ciència",
-    simulations = "Simulaciions",
+    simulations = "Simulacions",
     three_d = "3D",
     music = "Música",
     art = "Projectes artístics",
