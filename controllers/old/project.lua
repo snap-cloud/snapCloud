@@ -37,38 +37,6 @@ require 'responses'
 require 'validation'
 
 ProjectController = {
-    GET = {
-        project_versions = function (self)
-            -- GET /projects/:username/:projectname/versions
-            -- Description: Get info about backed up project versions.
-            -- Body:        versions
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then
-                assert_users_match(self, err.nonexistent_project)
-            end
-
-            -- seconds since last modification
-            local query = db.select(
-                'extract(epoch from age(now(), ?::timestamp))',
-                project.lastupdated)[1]
-
-            return jsonResponse({
-                {
-                    lastupdated = query.date_part,
-                    thumbnail = disk:retrieve(project.id, 'thumbnail') or
-                        disk:generate_thumbnail(project.id),
-                    notes = disk:parse_notes(project.id),
-                    delta = 0
-                },
-                disk:get_version_metadata(project.id, -1),
-                disk:get_version_metadata(project.id, -2)
-            })
-        end,
-    },
-
     POST = {
         project = function (self)
             -- POST /projects/:username/:projectname
@@ -186,40 +154,4 @@ ProjectController = {
             end
         end,
     },
-
-    DELETE = {
-        project = function (self)
-            -- DELETE /projects/:username/:projectname
-            -- Description: Delete a particular project. When admins and
-            --              moderators delete somebody else's project, they
-            --              also provide a reason that will be emailed to the
-            --              project owner.
-            --              Response will depend on query issuer permissions.
-            -- Parameters:  reason
-            assert_all({'project_exists', 'user_exists'}, self)
-            if not users_match(self) then
-                assert_has_one_of_roles(self, { 'admin', 'moderator' })
-            end
-
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if self.params.reason then
-                send_mail(
-                    self.queried_user.email,
-                    mail_subjects.project_deleted .. project.projectname,
-                    mail_bodies.project_deleted .. self.current_user.role ..
-                        '.</p><p>' .. self.params.reason .. '</p>')
-            end
-
-            -- Do not actually delete the project; flag it as deleted.
-            if not (project:update({ deleted = db.format_date() })) then
-                yield_error('Could not delete project ' ..
-                    self.params.projectname)
-            else
-                return okResponse('Project ' .. self.params.projectname
-                    .. ' has been removed.')
-            end
-        end,
-    }
 }

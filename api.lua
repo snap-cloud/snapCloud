@@ -182,8 +182,7 @@ app:match(api_route('projects/:username/:projectname/metadata'), respond_to({
 }))
 
 app:match(api_route('projects/:username/:projectname/versions'), respond_to({
-    GET = function (self)
-    end
+    GET = ProjectController.versions
 }))
 
 -- By id

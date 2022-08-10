@@ -157,7 +157,7 @@ ProjectController = {
         })
         return okResponse()
     end),
-    metadata = function (self)
+    metadata = capture_errors(function (self)
         assert_users_match(self)
 
         if self.current_user:isbanned() and self.params.ispublished then
@@ -188,7 +188,7 @@ ProjectController = {
         return okResponse(
             'project ' .. self.params.projectname .. ' updated'
         )
-    end,
+    end),
     delete = capture_errors(function (self)
         local project =
             self.params.id and
@@ -328,5 +328,31 @@ ProjectController = {
             disk:retrieve(project.id, 'thumbnail') or
                 (disk:generate_thumbnail(project.id)) or
                     '')
+    end),
+    versions = capture_errors(function (self)
+        local project =
+            Projects:find(self.params.username, self.params.projectname)
+
+        if not project then yield_error(err.nonexistent_project) end
+        if not project.ispublic then
+            assert_users_match(self, err.nonexistent_project)
+        end
+
+        -- seconds since last modification
+        local query = db.select(
+            'extract(epoch from age(now(), ?::timestamp))',
+            project.lastupdated)[1]
+
+        return jsonResponse({
+            {
+                lastupdated = query.date_part,
+                thumbnail = disk:retrieve(project.id, 'thumbnail') or
+                    disk:generate_thumbnail(project.id),
+                notes = disk:parse_notes(project.id),
+                delta = 0
+            },
+            disk:get_version_metadata(project.id, -1),
+            disk:get_version_metadata(project.id, -2)
+        })
     end),
 }
