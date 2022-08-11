@@ -241,3 +241,12 @@ app:get('/user_admin', capture_errors(function (self)
         return { redirect_to = self:build_url('index') }
     end
 end))
+
+
+-- Tools
+
+--[[
+app:get('/localize', capture_errors(function (self)
+    return { render = 'localize' }
+end))
+]]--

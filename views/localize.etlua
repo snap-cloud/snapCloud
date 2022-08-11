@@ -1,0 +1,35 @@
+<% local source_lang = params.source_lang or 'en' %>
+<h1>Localization tool</h1>
+<span>Source: </span>
+<script>var url = new URL(location.href);</script>
+<select onchange="
+    url.searchParams.set('source_lang', this.value);
+    location.href = url.href;
+    ">
+    <% for k, _ in pairs(locale.locales) do %>
+    <option 
+        <%= (k == source_lang) and 'selected' or '' %>
+        value="<%= k %>"><%= k %></option>
+    <% end %>
+</select>
+<br>
+<br>
+
+<% for _, entry in ipairs(locale.sorted_keys()) do %>
+    <% if entry.key then %>
+    <div class="locale-entry">
+        <h3><%= entry.key %></h3>
+        <label><%= source_lang %> : <input readonly value="<%= locale.locales[source_lang][entry.key] or '' %>"></input></label>
+        <% if entry.comment then %> <span><%= entry.comment %></span> <% end %>
+        <br>
+        <label for="<%=entry.key%>"><%=locale.language%> : </label><input for="<%= entry.key %>" value="<%= locale.at(entry.key) %>"></input>
+    </div>
+    <% elseif entry.comment then %>
+    <div class="locale-comment">
+        <p><%= entry.comment %></p>
+    </div>
+    <% end %>
+<% end %>
+
+<br>
+<a class="pure-button" onclick="alert('yes')">Download</a>

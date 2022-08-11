@@ -77,6 +77,37 @@ end
 
 -- Localization tools
 
+localizer.sorted_keys = function ()
+    local keys = {}
+    local input_file =
+        io.open('locales/en.lua', 'r')
+    for line in input_file:lines() do
+        local key = line:match('^%s*%a.*=')
+        if key and line:match('",') then
+            local comment = line:match('", %-%-.*')
+            table.insert(
+                keys,
+                {
+                    key = key:sub(1, -3):match('%a.*'),
+                    comment = comment and comment:sub(6) or nil
+                }
+            )
+        else
+            if line:match('^%s*%-') then
+                -- we found a single-line comment
+                table.insert(
+                    keys,
+                    {
+                        key = nil,
+                        comment = line:match('%-%-.*'):sub(4)
+                    }
+                )
+            end
+        end
+    end
+    return keys
+end
+
 localizer.update = function ()
     -- Takes the EN locale file and rebuilds the currently selected locale, line
     -- by line.
@@ -85,7 +116,8 @@ localizer.update = function ()
     os.execute('cp locales/' .. localizer.language .. '.lua /tmp')
 
     local input_file = io.open('locales/en.lua', 'r')
-    local output_file = io.open('locales/' .. localizer.language .. '.lua', 'w+')
+    local output_file =
+        io.open('locales/' .. localizer.language .. '.lua', 'w+')
 
     for line in input_file:lines() do
         -- try to extract the key
