@@ -24,7 +24,7 @@ local locale = {
     -- Top navigation bar
     -- ==================
     -- Buttons
-    run_snap = "", -- @1 becomes an italic exclamation mark (!)
+    run_snap = "Correr o Snap@1", -- @1 becomes an italic exclamation mark (!)
     explore = "Explorar",
     forum = "Fórum",
     join = "Aderir",
@@ -49,7 +49,7 @@ local locale = {
     t_support = "Suporte",
     t_legal = "Legal",
     -- Links
-    about = "",
+    about = "Acerca do Snap@1",
     blog = "Blogue",
     credits = "Créditos",
     requirements = "Requisitos Técnicos",
@@ -73,9 +73,9 @@ local locale = {
 
     -- Index page
     -- ==========
-    welcome = "", -- @1 becomes an italic exclamation mark (!)
+    welcome = "Bem-vindo ao Snap@1", -- @1 becomes an italic exclamation mark (!)
     welcome_logged_in = "", -- @1 becomes the current user username
-    snap_description = "",
+    snap_description = "O Snap@1 é uma linguagem de programação que apela tanto a crianças como a adultos e que é simultaneamente uma plataforma para o estudo sério da ciência da computação.",
     -- Buttons
     run_now = "",
     -- examples and manual already translated in Footer

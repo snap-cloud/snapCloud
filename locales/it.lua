@@ -24,7 +24,7 @@ local locale = {
     -- Top navigation bar
     -- ==================
     -- Buttons
-    run_snap = "", -- @1 becomes an italic exclamation mark (!)
+    run_snap = "Esegui Snap@1", -- @1 becomes an italic exclamation mark (!)
     explore = "Esplora",
     forum = "Forum",
     join = "Iscriviti",
@@ -73,7 +73,7 @@ local locale = {
 
     -- Index page
     -- ==========
-    welcome = "", -- @1 becomes an italic exclamation mark (!)
+    welcome = "Benvenuto in Snap@1", -- @1 becomes an italic exclamation mark (!)
     welcome_logged_in = "", -- @1 becomes the current user username
     snap_description = "",
     -- Buttons
