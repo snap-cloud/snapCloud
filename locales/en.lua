@@ -1,8 +1,3 @@
--- English localization
--- ====================
--- Authors: Bernat Romagosa
--- Last updated: 03 January 2021
-
 -- How to translate
 -- ----------------
 -- Translate each text string to the target language leaving intact the two
@@ -23,6 +18,8 @@ local locale = {
     -- =========
     lang_name = "English",
     lang_code = "en",
+    authors = "Bernat Romagosa",
+    last_updated = "2022/08/11", -- YYYY/MM/DD
 
     -- Top navigation bar
     -- ==================
@@ -73,8 +70,6 @@ local locale = {
     dmca = "DMCA",
     privacy = "Privacy",
     tos = "Terms of Service",
-    signup = "Sign Up",
-    or_before = "or before", -- is preceded by a year, like "1995 or before"
 
     -- Index page
     -- ==========
@@ -98,7 +93,7 @@ local locale = {
     cs = "Computer Science",
     maths = "Maths",
     latest = "Latest Projects",
-    more_collections ="Explore More Collections",
+    more_collections = "Explore More Collections",
 
     -- Events page
     events_title = "Snap@1 Events",
@@ -119,12 +114,14 @@ local locale = {
     password = "Password",
     password_2 = "Repeat Password",
     birth_month = "Month of Birth",
+    or_before = "or before", -- is preceded by a year, like "1995 or before"
     email_parent = "Email address of parent or guardian",
     email_user = "Email address",
     email_2 = "Repeat email address",
     tos_agree = "I have read and agree to the @1 and the @2", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
     -- tos already translated in footer
     privacy_agreement = "Privacy Agreement",
+    signup = "Sign Up",
 
     -- Log in page
     -- ===========

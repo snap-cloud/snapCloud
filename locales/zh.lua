@@ -16,26 +16,26 @@
 local locale = {
     -- Meta data
     -- =========
-    lang_name = "Deutsch",
-    lang_code = "de",
-    authors = "Jadga Hügle",
+    lang_name = "简体中文",
+    lang_code = "zh",
+    authors = "Simon Mong, 18001767679",
     last_updated = "2022/08/11", -- YYYY/MM/DD
 
     -- Top navigation bar
     -- ==================
     -- Buttons
-    run_snap = "Snap@1 starten", -- @1 becomes an italic exclamation mark (!)
-    explore = "Entdecken",
-    forum = "Forum",
-    join = "Mitmachen",
-    login = "Anmelden",
+    run_snap = "运行Snap@1", -- @1 becomes an italic exclamation mark (!)
+    explore = "其他人的作品",
+    forum = "论坛",
+    join = "注册",
+    login = "登录",
     -- User menu
-    my_projects = "Meine Projekte",
-    my_collections = "",
-    my_public_page = "Meine öffentliche Seite",
-    my_profile = "Mein Profil",
-    administration = "Administration",
-    logout = "Abmelden",
+    my_projects = "我的作品",
+    my_collections = "我的作品集",
+    my_public_page = "我的展示页",
+    my_profile = "我的个人主页",
+    administration = "管理",
+    logout = "退出登录",
     -- This option lets admins go back to their admin account when they're
     -- impersonating another user:
     unbecome = "",
@@ -43,57 +43,57 @@ local locale = {
     -- Footer
     -- ======
     -- Titles
-    t_about = "Über",
-    t_learning = "Lernen",
-    t_tools = "Tools",
-    t_support = "Support",
-    t_legal = "Rechtliches",
+    t_about = "关于",
+    t_learning = "学习",
+    t_tools = "工具",
+    t_support = "支持",
+    t_legal = "合法的",
     -- Links
-    about = "Über Snap<em>!</em>",
-    blog = "",
-    credits = "Credits",
-    requirements = "Technische Voraussetzungen",
-    partners = "Partner",
-    source = "Quellcode",
+    about = "关于Snap@1",
+    blog = "博客",
+    credits = "制作人员名单",
+    requirements = "技术需求",
+    partners = "合作伙伴",
+    source = "源代码",
     events = "",
     examples = "",
-    manual = "Reference Manual",
-    materials = "",
-    bjc = "The Beauty and Joy of Computing",
-    research = "",
-    offline = "",
-    extensions = "Erweiterungen",
+    manual = "参考手册",
+    materials = "素材",
+    bjc = "BJC课程",
+    research = "探索",
+    offline = "离线版本",
+    extensions = "模块/包",
     old_snap = "",
     -- forum already translated in top navigation bar
-    contact = "Kontakt",
-    mirrors = "Spiegelserver",
+    contact = "联系我们",
+    mirrors = "镜像",
     dmca = "DMCA",
-    privacy = "Datenschutz",
-    tos = "Nutzungsbedingungen",
+    privacy = "隐私",
+    tos = "服务条款",
 
     -- Index page
     -- ==========
-    welcome = "Herzliche Willkommen bei Snap@1", -- @1 becomes an italic exclamation mark (!)
-    welcome_logged_in = "Willkommen, @1!", -- @1 becomes the current user username
-    snap_description = "Snap@1 ist eine blockbasierte Programmiersprache, die Kinder und Erwachsene einlädt, spielerisch und experimentierend Informatik zu erfahren, ist aber auch eine Plattform für Informatik-Studierende sowie Forscherinnen und Forscher.",
+    welcome = "欢迎使用Snap@1", -- @1 becomes an italic exclamation mark (!)
+    welcome_logged_in = "", -- @1 becomes the current user username
+    snap_description = "Snap@1是一种对儿童和成人具有广泛吸引力的编程语言，同时也是重要的计算机科学学习平台",
     -- Buttons
     run_now = "",
     -- examples and manual already translated in Footer
     -- Curated Collections
-    featured = "",
+    featured = "精选项目",
     totm = "", -- @1 becomes the actual topic of the month
-    science = "",
+    science = "科学作品",
     simulations = "",
     three_d = "",
     music = "",
-    art = "",
-    fractals = "",
+    art = "艺术作品",
+    fractals = "分形艺术作品",
     animations = "",
-    games = "",
+    games = "游戏作品",
     cs = "",
     maths = "",
-    latest = "Neueste Projekte",
-    more_collections = "Explore More Collections",
+    latest = "最新项目",
+    more_collections = "",
 
     -- Events page
     events_title = "",
@@ -109,25 +109,25 @@ local locale = {
 
     -- Sign up page
     -- ============
-    signup_title = "Snap@1 Benutzerkonto erstellen", -- @1 becomes an italic exclamation mark (!)
-    username = "Benutzername",
-    password = "Passwort",
-    password_2 = "Passwort bestätigen",
+    signup_title = "创建Snap@1账号", -- @1 becomes an italic exclamation mark (!)
+    username = "用户名称",
+    password = "密码",
+    password_2 = "再次输入密码",
     birth_month = "",
     or_before = "", -- is preceded by a year, like "1995 or before"
     email_parent = "",
-    email_user = "E-Mail-Adresse",
-    email_2 = "",
-    tos_agree = "Ich habe die @1 und die @2 gelesen und stimme ihnen zu", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
+    email_user = "邮件地址",
+    email_2 = "再次输入邮件地址",
+    tos_agree = "", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
     -- tos already translated in footer
-    privacy_agreement = "Datenschutzerklärung",
-    signup = "Registrieren",
+    privacy_agreement = "隐私协议",
+    signup = "注册",
 
     -- Log in page
     -- ===========
-    log_into_snap = "Anmelden in Snap@1", -- @1 becomes an italic exclamation mark (!)
-    keep_logged_in = "Eingeloggt bleiben",
-    i_forgot_password = "Ich habe mein Passwort vergessen",
+    log_into_snap = "登录到Snap@1", -- @1 becomes an italic exclamation mark (!)
+    keep_logged_in = "保持登录状态",
+    i_forgot_password = "",
     i_forgot_username = "",
 
     -- Dates
@@ -150,8 +150,8 @@ local locale = {
 
     -- Generic dialogs
     -- ===============
-    ok = "Ok",
-    cancel = "Abbrechen",
+    ok = "确定",
+    cancel = "取消",
     confirm = "",
 
     -- Explore page
@@ -161,13 +161,13 @@ local locale = {
 
     -- Search results page
     -- ===================
-    search_results = "Suchergebnisse: @1",
+    search_results = "",
     project_search_results = "",
     collection_search_results = "",
     user_search_results = "",
-    projects = "",
-    collections = "",
-    users = "",
+    projects = "项目",
+    collections = "作品集",
+    users = "用户",
 
     -- Users page
     -- ==========
@@ -180,7 +180,7 @@ local locale = {
     -- My Collections page
     -- ===================
     -- Buttons
-    new_collection = "",
+    new_collection = "新的作品集",
     -- New collection dialog
     collection_name = "",
     collection_by_thumb = "", -- @1 is the author's username
@@ -194,17 +194,17 @@ local locale = {
     collection_shared_date = "",
     collection_published_date = "",
     -- Buttons
-    share_collection_button = "",
-    unshare_collection_button = "",
-    publish_collection_button = "",
-    unpublish_collection_button = "",
+    share_collection_button = "分享",
+    unshare_collection_button = "取消分享",
+    publish_collection_button = "发布",
+    unpublish_collection_button = "取消发布",
     delete_collection_button = "",
     make_ffa = "",
     unmake_ffa = "",
     unenroll = "",
     -- Project Thumbnail
-    project_by_thumb = "von @1", -- @1 is the author's username
-    item_shared_info = "Dieses Projekt kann mit der Projekt-URL geteilt werden.",
+    project_by_thumb = "", -- @1 is the author's username
+    item_shared_info = "",
     item_not_shared_info = "",
     item_published_info = "",
     item_not_published_info = "",
@@ -224,28 +224,28 @@ local locale = {
 
     -- User public page
     -- ================
-    public_page = "@1s öffentliche Seite", -- @1 becomes the user's username
+    public_page = "", -- @1 becomes the user's username
     -- Admin tools
-    admin_tools = "",
+    admin_tools = "管理工具",
     latest_published_projects = "",
     latest_published_collections = "",
 
     -- User profile
     -- ============
     profile_title = "", -- @1 becomes the user's username
-    join_date = "Mitglied seit", -- date of user creation follows
-    email = "E-Mail",
-    role = "",
+    join_date = "", -- date of user creation follows
+    email = "",
+    role = "角色",
     -- User roles
-    standard = "",
-    reviewer = "",
-    moderator = "",
-    admin = "",
-    banned = "",
+    standard = "标准的",
+    reviewer = "浏览者",
+    moderator = "版主",
+    admin = "管理员",
+    banned = "被封禁",
     -- Buttons
-    change_my_password = "Mein Passwort ändern",
-    change_my_email = "",
-    delete_my_user = "",
+    change_my_password = "更改密码",
+    change_my_email = "更改我的邮箱",
+    delete_my_user = "删除我的账号",
 
     -- Project page
     -- ============
@@ -254,22 +254,22 @@ local locale = {
     project_remixes_title = "",
     project_collections_title = "",
     shift_enter_note = "", -- in the notes field
-    no_notes = "Dieses Projekt hat keine Notizen",
+    no_notes = "这个项目没有说明",
     created_date = "",
     updated_date = "",
     shared_date = "",
     published_date = "",
     -- Buttons
     see_code = "",
-    edit = "Bearbeiten",
-    download = "Herunterladen",
-    embed = "",
-    collect = "",
-    delete_button = "Löschen",
-    publish_button = "Veröffentlichen",
-    share_button = "Teilen",
-    unpublish_button = "Veröffentlichen rückgängig machen",
-    unshare_button = "Teilen rückgängig machen",
+    edit = "编辑",
+    download = "下载",
+    embed = "嵌入",
+    collect = "添加至作品集",
+    delete_button = "",
+    publish_button = "",
+    share_button = "",
+    unpublish_button = "",
+    unshare_button = "",
     -- Flagging
     you_flagged = "",
     unflag_project = "",
@@ -277,11 +277,11 @@ local locale = {
 
     -- Embed dialog
     -- ============
-    embed_title = "",
-    embed_explanation = "",
-    project_title = "",
-    project_author = "",
-    edit_button = "",
+    embed_title = "嵌入选项",
+    embed_explanation = "请选择您想在嵌入式项目浏览器中包含的组件:",
+    project_title = "项目标题",
+    project_author = "项目作者",
+    edit_button = "编辑按钮",
     pause_button = "",
     embed_url = "",
     embed_code = "",
@@ -293,14 +293,14 @@ local locale = {
 
     -- Delete project dialog
     -- =====================
-    confirm_delete_project = "Bist du sicher, dass du dieses Projekt löschen möchtest?",
+    confirm_delete_project = "确认要删除这个项目么？",
     confirm_delete_user = "",
     confirm_delete_collection = "",
 
     -- Share/unshare and publish/unpublish dialogs
     -- ===========================================
-    confirm_share_project = "Bist du sicher, dass du dieses Projekt teilen möchtest?",
-    confirm_unshare_project = "Bist du sicher, dass dieses Projekt nicht mehr geteilt werden soll?",
+    confirm_share_project = "确认要分享这个项目么？",
+    confirm_unshare_project = "",
     confirm_publish_project = "",
     confirm_unpublish_project = "",
 
@@ -319,12 +319,12 @@ local locale = {
     user_id = "",
     project_count = "",
     -- Buttons
-    become = "", -- as an admin, temporarily impersonate this user
-    change_email = "",
+    become = "成为", -- as an admin, temporarily impersonate this user
+    change_email = "更改邮箱",
     send_msg = "",
-    ban = "",
+    ban = "封禁",
     unban = "",
-    delete_usr = "",
+    delete_usr = "删除",
     -- New email dialog
     new_email = "",
     -- Send message dialog
@@ -335,32 +335,32 @@ local locale = {
     -- Delete user dialog
     -- ==================
     confirm_delete_usr = "",
-    warning_no_return = "WARNUNG! Diese Aktion kann nicht rückgängig gemacht werden!",
+    warning_no_return = "注意！这个操作无法被撤销！",
 
     -- Change password page
     -- ====================
-    change_password_title = "Passwort ändern",
-    current_pwd = "Aktuelles Passwort",
-    new_pwd = "Neues Passwort",
-    new_pwd_2 = "Neues Passwort bestätigen",
+    change_password_title = "更改您的密码",
+    current_pwd = "当前密码",
+    new_pwd = "设置新密码",
+    new_pwd_2 = "再次输入新密码",
 
     -- Change email page
     -- =================
-    new_email_2 = "",
+    new_email_2 = "再次输入新的邮件地址",
 
     -- Administration page
     -- ===================
-    user_admin = "",
+    user_admin = "用户管理",
     zombie_admin = "",
-    flagged_projects = "",
+    flagged_projects = "被举报的项目",
 
     -- Error messages
     -- ==============
-    err_login_failed = "",
+    err_login_failed = "登录失败",
     err_password_mismatch = "", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_password_mismatch_title = "",
     err_email_mismatch = "", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
-    err_email_mismatch_title = "",
+    err_email_mismatch_title = "邮箱不匹配",
 }
 
 return locale

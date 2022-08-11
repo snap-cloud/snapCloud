@@ -16,26 +16,26 @@
 local locale = {
     -- Meta data
     -- =========
-    lang_name = "Deutsch",
-    lang_code = "de",
-    authors = "Jadga Hügle",
+    lang_name = "Português",
+    lang_code = "pt",
+    authors = "Manuel Menezes de Sequeira",
     last_updated = "2022/08/11", -- YYYY/MM/DD
 
     -- Top navigation bar
     -- ==================
     -- Buttons
-    run_snap = "Snap@1 starten", -- @1 becomes an italic exclamation mark (!)
-    explore = "Entdecken",
-    forum = "Forum",
-    join = "Mitmachen",
-    login = "Anmelden",
+    run_snap = "", -- @1 becomes an italic exclamation mark (!)
+    explore = "Explorar",
+    forum = "Fórum",
+    join = "Aderir",
+    login = "Entrar",
     -- User menu
-    my_projects = "Meine Projekte",
-    my_collections = "",
-    my_public_page = "Meine öffentliche Seite",
-    my_profile = "Mein Profil",
-    administration = "Administration",
-    logout = "Abmelden",
+    my_projects = "Os Meus Projectos",
+    my_collections = "As Minhas Colecções",
+    my_public_page = "A Minha Página Pública",
+    my_profile = "O Meu Perfil",
+    administration = "Administração",
+    logout = "Sair",
     -- This option lets admins go back to their admin account when they're
     -- impersonating another user:
     unbecome = "",
@@ -43,57 +43,57 @@ local locale = {
     -- Footer
     -- ======
     -- Titles
-    t_about = "Über",
-    t_learning = "Lernen",
-    t_tools = "Tools",
-    t_support = "Support",
-    t_legal = "Rechtliches",
+    t_about = "Acerca",
+    t_learning = "Aprendizagem",
+    t_tools = "Ferramentas",
+    t_support = "Suporte",
+    t_legal = "Legal",
     -- Links
-    about = "Über Snap<em>!</em>",
-    blog = "",
-    credits = "Credits",
-    requirements = "Technische Voraussetzungen",
-    partners = "Partner",
-    source = "Quellcode",
+    about = "",
+    blog = "Blogue",
+    credits = "Créditos",
+    requirements = "Requisitos Técnicos",
+    partners = "Parceiros",
+    source = "Código Fonte",
     events = "",
     examples = "",
-    manual = "Reference Manual",
-    materials = "",
-    bjc = "The Beauty and Joy of Computing",
-    research = "",
-    offline = "",
-    extensions = "Erweiterungen",
+    manual = "Manual de Referência",
+    materials = "Materiais",
+    bjc = "A Beleza e o Prazer da Computação",
+    research = "Investigação",
+    offline = "Versão Desconectada",
+    extensions = "Extensões",
     old_snap = "",
     -- forum already translated in top navigation bar
-    contact = "Kontakt",
-    mirrors = "Spiegelserver",
+    contact = "Contacte-nos",
+    mirrors = "Réplicas",
     dmca = "DMCA",
-    privacy = "Datenschutz",
-    tos = "Nutzungsbedingungen",
+    privacy = "Privacidade",
+    tos = "Termos do Serviço",
 
     -- Index page
     -- ==========
-    welcome = "Herzliche Willkommen bei Snap@1", -- @1 becomes an italic exclamation mark (!)
-    welcome_logged_in = "Willkommen, @1!", -- @1 becomes the current user username
-    snap_description = "Snap@1 ist eine blockbasierte Programmiersprache, die Kinder und Erwachsene einlädt, spielerisch und experimentierend Informatik zu erfahren, ist aber auch eine Plattform für Informatik-Studierende sowie Forscherinnen und Forscher.",
+    welcome = "", -- @1 becomes an italic exclamation mark (!)
+    welcome_logged_in = "", -- @1 becomes the current user username
+    snap_description = "",
     -- Buttons
     run_now = "",
     -- examples and manual already translated in Footer
     -- Curated Collections
-    featured = "",
+    featured = "Projectos em Destaque",
     totm = "", -- @1 becomes the actual topic of the month
-    science = "",
+    science = "Projectos Científicos",
     simulations = "",
     three_d = "",
     music = "",
-    art = "",
-    fractals = "",
+    art = "Projectos Artísticos",
+    fractals = "Fractais",
     animations = "",
-    games = "",
+    games = "Jogos",
     cs = "",
     maths = "",
-    latest = "Neueste Projekte",
-    more_collections = "Explore More Collections",
+    latest = "Projectos Mais Recentes",
+    more_collections = "",
 
     -- Events page
     events_title = "",
@@ -109,25 +109,25 @@ local locale = {
 
     -- Sign up page
     -- ============
-    signup_title = "Snap@1 Benutzerkonto erstellen", -- @1 becomes an italic exclamation mark (!)
-    username = "Benutzername",
-    password = "Passwort",
-    password_2 = "Passwort bestätigen",
+    signup_title = "", -- @1 becomes an italic exclamation mark (!)
+    username = "Nome de utilizador",
+    password = "Palavra-passe",
+    password_2 = "Confirmação da palavra-passe",
     birth_month = "",
     or_before = "", -- is preceded by a year, like "1995 or before"
     email_parent = "",
-    email_user = "E-Mail-Adresse",
-    email_2 = "",
-    tos_agree = "Ich habe die @1 und die @2 gelesen und stimme ihnen zu", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
+    email_user = "Endereço de correio electrónico",
+    email_2 = "Confirmação do endereço de correio electrónico",
+    tos_agree = "", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
     -- tos already translated in footer
-    privacy_agreement = "Datenschutzerklärung",
-    signup = "Registrieren",
+    privacy_agreement = "",
+    signup = "Aderir",
 
     -- Log in page
     -- ===========
-    log_into_snap = "Anmelden in Snap@1", -- @1 becomes an italic exclamation mark (!)
-    keep_logged_in = "Eingeloggt bleiben",
-    i_forgot_password = "Ich habe mein Passwort vergessen",
+    log_into_snap = "", -- @1 becomes an italic exclamation mark (!)
+    keep_logged_in = "manter-me autenticado",
+    i_forgot_password = "",
     i_forgot_username = "",
 
     -- Dates
@@ -150,8 +150,8 @@ local locale = {
 
     -- Generic dialogs
     -- ===============
-    ok = "Ok",
-    cancel = "Abbrechen",
+    ok = "OK",
+    cancel = "Cancelar",
     confirm = "",
 
     -- Explore page
@@ -161,13 +161,13 @@ local locale = {
 
     -- Search results page
     -- ===================
-    search_results = "Suchergebnisse: @1",
+    search_results = "",
     project_search_results = "",
     collection_search_results = "",
     user_search_results = "",
-    projects = "",
-    collections = "",
-    users = "",
+    projects = "Projectos",
+    collections = "Colecções",
+    users = "Utilizadores",
 
     -- Users page
     -- ==========
@@ -180,7 +180,7 @@ local locale = {
     -- My Collections page
     -- ===================
     -- Buttons
-    new_collection = "",
+    new_collection = "Nova Colecção",
     -- New collection dialog
     collection_name = "",
     collection_by_thumb = "", -- @1 is the author's username
@@ -194,17 +194,17 @@ local locale = {
     collection_shared_date = "",
     collection_published_date = "",
     -- Buttons
-    share_collection_button = "",
-    unshare_collection_button = "",
-    publish_collection_button = "",
-    unpublish_collection_button = "",
+    share_collection_button = "Partilhar",
+    unshare_collection_button = "Deixar de Partilhar",
+    publish_collection_button = "Publicar",
+    unpublish_collection_button = "Deixar de Publicar",
     delete_collection_button = "",
     make_ffa = "",
     unmake_ffa = "",
     unenroll = "",
     -- Project Thumbnail
-    project_by_thumb = "von @1", -- @1 is the author's username
-    item_shared_info = "Dieses Projekt kann mit der Projekt-URL geteilt werden.",
+    project_by_thumb = "", -- @1 is the author's username
+    item_shared_info = "",
     item_not_shared_info = "",
     item_published_info = "",
     item_not_published_info = "",
@@ -224,28 +224,28 @@ local locale = {
 
     -- User public page
     -- ================
-    public_page = "@1s öffentliche Seite", -- @1 becomes the user's username
+    public_page = "", -- @1 becomes the user's username
     -- Admin tools
-    admin_tools = "",
+    admin_tools = "Ferramentas de administração",
     latest_published_projects = "",
     latest_published_collections = "",
 
     -- User profile
     -- ============
     profile_title = "", -- @1 becomes the user's username
-    join_date = "Mitglied seit", -- date of user creation follows
-    email = "E-Mail",
-    role = "",
+    join_date = "", -- date of user creation follows
+    email = "",
+    role = "Papel",
     -- User roles
-    standard = "",
-    reviewer = "",
-    moderator = "",
-    admin = "",
-    banned = "",
+    standard = "padrão",
+    reviewer = "revisor",
+    moderator = "moderador",
+    admin = "administrador",
+    banned = "banido",
     -- Buttons
-    change_my_password = "Mein Passwort ändern",
-    change_my_email = "",
-    delete_my_user = "",
+    change_my_password = "Alterar a Minha Palavra-Passe",
+    change_my_email = "Alterar o Meu Endereço",
+    delete_my_user = "Remover a minha Conta",
 
     -- Project page
     -- ============
@@ -254,22 +254,22 @@ local locale = {
     project_remixes_title = "",
     project_collections_title = "",
     shift_enter_note = "", -- in the notes field
-    no_notes = "Dieses Projekt hat keine Notizen",
+    no_notes = "Este projecto não tem notas",
     created_date = "",
     updated_date = "",
     shared_date = "",
     published_date = "",
     -- Buttons
     see_code = "",
-    edit = "Bearbeiten",
-    download = "Herunterladen",
-    embed = "",
-    collect = "",
-    delete_button = "Löschen",
-    publish_button = "Veröffentlichen",
-    share_button = "Teilen",
-    unpublish_button = "Veröffentlichen rückgängig machen",
-    unshare_button = "Teilen rückgängig machen",
+    edit = "Editar",
+    download = "Descarregar",
+    embed = "Incorporar",
+    collect = "Adicionar a um Colecção",
+    delete_button = "",
+    publish_button = "",
+    share_button = "",
+    unpublish_button = "",
+    unshare_button = "",
     -- Flagging
     you_flagged = "",
     unflag_project = "",
@@ -277,11 +277,11 @@ local locale = {
 
     -- Embed dialog
     -- ============
-    embed_title = "",
-    embed_explanation = "",
-    project_title = "",
-    project_author = "",
-    edit_button = "",
+    embed_title = "Opções de Incorporação",
+    embed_explanation = "Por favor escolha os elementos que quer incluir no visualizador de projecto incorporado:",
+    project_title = "Título do projecto",
+    project_author = "Autor do projecto",
+    edit_button = "Botão de edição",
     pause_button = "",
     embed_url = "",
     embed_code = "",
@@ -293,14 +293,14 @@ local locale = {
 
     -- Delete project dialog
     -- =====================
-    confirm_delete_project = "Bist du sicher, dass du dieses Projekt löschen möchtest?",
+    confirm_delete_project = "Quer mesmo remover este projecto?",
     confirm_delete_user = "",
     confirm_delete_collection = "",
 
     -- Share/unshare and publish/unpublish dialogs
     -- ===========================================
-    confirm_share_project = "Bist du sicher, dass du dieses Projekt teilen möchtest?",
-    confirm_unshare_project = "Bist du sicher, dass dieses Projekt nicht mehr geteilt werden soll?",
+    confirm_share_project = "Quer mesmo partilhar este projecto?",
+    confirm_unshare_project = "",
     confirm_publish_project = "",
     confirm_unpublish_project = "",
 
@@ -319,12 +319,12 @@ local locale = {
     user_id = "",
     project_count = "",
     -- Buttons
-    become = "", -- as an admin, temporarily impersonate this user
-    change_email = "",
+    become = "Tornar-se", -- as an admin, temporarily impersonate this user
+    change_email = "Alterar Endereço de Correio Electrónico",
     send_msg = "",
-    ban = "",
+    ban = "Banir",
     unban = "",
-    delete_usr = "",
+    delete_usr = "Remover",
     -- New email dialog
     new_email = "",
     -- Send message dialog
@@ -335,24 +335,24 @@ local locale = {
     -- Delete user dialog
     -- ==================
     confirm_delete_usr = "",
-    warning_no_return = "WARNUNG! Diese Aktion kann nicht rückgängig gemacht werden!",
+    warning_no_return = "ATENÇÃO! Esta acção não pode ser revertida!",
 
     -- Change password page
     -- ====================
-    change_password_title = "Passwort ändern",
-    current_pwd = "Aktuelles Passwort",
-    new_pwd = "Neues Passwort",
-    new_pwd_2 = "Neues Passwort bestätigen",
+    change_password_title = "Alterar a Sua Palavra-passe",
+    current_pwd = "Palavra-Passe Actual",
+    new_pwd = "Nova Palavra-Passe",
+    new_pwd_2 = "Confirmação da Nova Palavra-Passe",
 
     -- Change email page
     -- =================
-    new_email_2 = "",
+    new_email_2 = "Confirmação do Endereço de Correio Electrónico",
 
     -- Administration page
     -- ===================
-    user_admin = "",
+    user_admin = "Administração de Utilizadores",
     zombie_admin = "",
-    flagged_projects = "",
+    flagged_projects = "Projectos Assinalados",
 
     -- Error messages
     -- ==============
@@ -360,7 +360,7 @@ local locale = {
     err_password_mismatch = "", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_password_mismatch_title = "",
     err_email_mismatch = "", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
-    err_email_mismatch_title = "",
+    err_email_mismatch_title = "Os endereços não coincidem",
 }
 
 return locale

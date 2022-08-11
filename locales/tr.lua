@@ -16,26 +16,26 @@
 local locale = {
     -- Meta data
     -- =========
-    lang_name = "Deutsch",
-    lang_code = "de",
-    authors = "Jadga Hügle",
-    last_updated = "2022/08/11", -- YYYY/MM/DD
+    lang_name = "Türkçe",
+    lang_code = "tr",
+    authors = "Turgut Guneysu",
+    last_updated = "2022/11/08", -- YYYY/MM/DD
 
     -- Top navigation bar
     -- ==================
     -- Buttons
-    run_snap = "Snap@1 starten", -- @1 becomes an italic exclamation mark (!)
-    explore = "Entdecken",
+    run_snap = "Snap@1 i Deneyin", -- @1 becomes an italic exclamation mark (!)
+    explore = "Keşfet",
     forum = "Forum",
-    join = "Mitmachen",
-    login = "Anmelden",
+    join = "Katıl",
+    login = "Oturum Aç",
     -- User menu
-    my_projects = "Meine Projekte",
-    my_collections = "",
-    my_public_page = "Meine öffentliche Seite",
-    my_profile = "Mein Profil",
-    administration = "Administration",
-    logout = "Abmelden",
+    my_projects = "Projelerim",
+    my_collections = "Koleksiyonlarım",
+    my_public_page = "Sayfam",
+    my_profile = "Profilim",
+    administration = "Yönetim",
+    logout = "Oturumu Kapat",
     -- This option lets admins go back to their admin account when they're
     -- impersonating another user:
     unbecome = "",
@@ -43,57 +43,57 @@ local locale = {
     -- Footer
     -- ======
     -- Titles
-    t_about = "Über",
-    t_learning = "Lernen",
-    t_tools = "Tools",
-    t_support = "Support",
-    t_legal = "Rechtliches",
+    t_about = "Hakkında",
+    t_learning = "Öğrenme",
+    t_tools = "Araçlar",
+    t_support = "Destek",
+    t_legal = "Yasal",
     -- Links
-    about = "Über Snap<em>!</em>",
-    blog = "",
-    credits = "Credits",
-    requirements = "Technische Voraussetzungen",
-    partners = "Partner",
-    source = "Quellcode",
+    about = "Snap@1 Hakkında",
+    blog = "Blog",
+    credits = "Krediler",
+    requirements = "Teknik gereksinimler",
+    partners = "Ortaklar",
+    source = "Kaynak kodu",
     events = "",
     examples = "",
-    manual = "Reference Manual",
-    materials = "",
+    manual = "Başvuru Kılavuzu",
+    materials = "Malzemeler",
     bjc = "The Beauty and Joy of Computing",
-    research = "",
-    offline = "",
-    extensions = "Erweiterungen",
+    research = "Araştır",
+    offline = "Çevrimdışı Sürüm",
+    extensions = "Uzantılar",
     old_snap = "",
     -- forum already translated in top navigation bar
-    contact = "Kontakt",
-    mirrors = "Spiegelserver",
-    dmca = "DMCA",
-    privacy = "Datenschutz",
-    tos = "Nutzungsbedingungen",
+    contact = "Bize Ulaşın",
+    mirrors = "İkiz Siteler",
+    dmca = "Dijital Binyıl Telif Hakkı Yasası (DMCA)",
+    privacy = "Gizlilik",
+    tos = "Kullanım Şartları",
 
     -- Index page
     -- ==========
-    welcome = "Herzliche Willkommen bei Snap@1", -- @1 becomes an italic exclamation mark (!)
-    welcome_logged_in = "Willkommen, @1!", -- @1 becomes the current user username
-    snap_description = "Snap@1 ist eine blockbasierte Programmiersprache, die Kinder und Erwachsene einlädt, spielerisch und experimentierend Informatik zu erfahren, ist aber auch eine Plattform für Informatik-Studierende sowie Forscherinnen und Forscher.",
+    welcome = "Snap@1 e Hoşgeldiniz", -- @1 becomes an italic exclamation mark (!)
+    welcome_logged_in = "", -- @1 becomes the current user username
+    snap_description = "Snap@1; çocuklar ve yetişkinler için geniş anlamda davetkar bir programlama dilidir ve aynı zamanda bilgisayar bilimlerini ciddi şekilde incelemek için bir platformdur.",
     -- Buttons
     run_now = "",
     -- examples and manual already translated in Footer
     -- Curated Collections
-    featured = "",
+    featured = "Öne çıkan projeler",
     totm = "", -- @1 becomes the actual topic of the month
-    science = "",
+    science = "Bilim projeleri",
     simulations = "",
     three_d = "",
     music = "",
-    art = "",
-    fractals = "",
-    animations = "",
-    games = "",
+    art = "Sanat projeleri",
+    fractals = "Fraktallar",
+    animations = "Animasyonlar",
+    games = "Oyunlar",
     cs = "",
     maths = "",
-    latest = "Neueste Projekte",
-    more_collections = "Explore More Collections",
+    latest = "En Son Projeler",
+    more_collections = "",
 
     -- Events page
     events_title = "",
@@ -109,49 +109,49 @@ local locale = {
 
     -- Sign up page
     -- ============
-    signup_title = "Snap@1 Benutzerkonto erstellen", -- @1 becomes an italic exclamation mark (!)
-    username = "Benutzername",
-    password = "Passwort",
-    password_2 = "Passwort bestätigen",
-    birth_month = "",
+    signup_title = "Snap@1 hesabı oluştur", -- @1 becomes an italic exclamation mark (!)
+    username = "Kullanıcı adı",
+    password = "Şifre",
+    password_2 = "Şifreyi tekrarla",
+    birth_month = "Doğum Ayı",
     or_before = "", -- is preceded by a year, like "1995 or before"
-    email_parent = "",
-    email_user = "E-Mail-Adresse",
-    email_2 = "",
-    tos_agree = "Ich habe die @1 und die @2 gelesen und stimme ihnen zu", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
+    email_parent = "Ebeveyn veya velinin e-posta adresi",
+    email_user = "E-posta adresi",
+    email_2 = "E-posta adresini tekrarla",
+    tos_agree = "", -- @1 becomes Terms of Service, @2 becomes Privacy Agreement
     -- tos already translated in footer
-    privacy_agreement = "Datenschutzerklärung",
-    signup = "Registrieren",
+    privacy_agreement = "",
+    signup = "Kaydol",
 
     -- Log in page
     -- ===========
-    log_into_snap = "Anmelden in Snap@1", -- @1 becomes an italic exclamation mark (!)
-    keep_logged_in = "Eingeloggt bleiben",
-    i_forgot_password = "Ich habe mein Passwort vergessen",
+    log_into_snap = "Snap@1 e giriş yap", -- @1 becomes an italic exclamation mark (!)
+    keep_logged_in = "Oturumumu açık tut",
+    i_forgot_password = "",
     i_forgot_username = "",
 
     -- Dates
     -- =====
     -- Month names
-    january = "",
-    february = "",
-    march = "",
-    april = "",
-    may = "",
-    june = "",
-    july = "",
-    august = "",
-    september = "",
-    october = "",
-    november = "",
-    december = "",
+    january = "Ocak",
+    february = "Şubat",
+    march = "Mart",
+    april = "Nisan",
+    may = "Mayıs",
+    june = "Haziran",
+    july = "Temmuz",
+    august = "Ağustos",
+    september = "Eylül",
+    october = "Ekim",
+    november = "Kasım",
+    december = "Aralık",
     -- Date format
     date = "", -- @1 is the day, @2 is the month name, @3 is the year
 
     -- Generic dialogs
     -- ===============
-    ok = "Ok",
-    cancel = "Abbrechen",
+    ok = "OK",
+    cancel = "İptal",
     confirm = "",
 
     -- Explore page
@@ -161,13 +161,13 @@ local locale = {
 
     -- Search results page
     -- ===================
-    search_results = "Suchergebnisse: @1",
+    search_results = "",
     project_search_results = "",
     collection_search_results = "",
     user_search_results = "",
-    projects = "",
-    collections = "",
-    users = "",
+    projects = "Projeler",
+    collections = "Koleksiyonlar",
+    users = "Kullanıcılar",
 
     -- Users page
     -- ==========
@@ -180,9 +180,9 @@ local locale = {
     -- My Collections page
     -- ===================
     -- Buttons
-    new_collection = "",
+    new_collection = "Yeni Koleksiyon",
     -- New collection dialog
-    collection_name = "",
+    collection_name = "Koleksiyon adı?",
     collection_by_thumb = "", -- @1 is the author's username
 
     -- Collection page
@@ -194,23 +194,23 @@ local locale = {
     collection_shared_date = "",
     collection_published_date = "",
     -- Buttons
-    share_collection_button = "",
-    unshare_collection_button = "",
-    publish_collection_button = "",
-    unpublish_collection_button = "",
+    share_collection_button = "Paylaş",
+    unshare_collection_button = "Paylaşma",
+    publish_collection_button = "Yayımla",
+    unpublish_collection_button = "Yayımlama",
     delete_collection_button = "",
     make_ffa = "",
     unmake_ffa = "",
     unenroll = "",
     -- Project Thumbnail
-    project_by_thumb = "von @1", -- @1 is the author's username
-    item_shared_info = "Dieses Projekt kann mit der Projekt-URL geteilt werden.",
+    project_by_thumb = "", -- @1 is the author's username
+    item_shared_info = "",
     item_not_shared_info = "",
     item_published_info = "",
     item_not_published_info = "",
     confirm_uncollect = "", -- @1 becomes a new line. You can add as many as you need.
     remove_from_collection_tooltip = "",
-    collection_thumbnail_tooltip = "",
+    collection_thumbnail_tooltip = "Koleksiyon küçük resmi olarak ayarla",
 
     -- Collection dialogs
     -- ==================
@@ -224,28 +224,28 @@ local locale = {
 
     -- User public page
     -- ================
-    public_page = "@1s öffentliche Seite", -- @1 becomes the user's username
+    public_page = "", -- @1 becomes the user's username
     -- Admin tools
-    admin_tools = "",
+    admin_tools = "Yönetici araçları",
     latest_published_projects = "",
     latest_published_collections = "",
 
     -- User profile
     -- ============
     profile_title = "", -- @1 becomes the user's username
-    join_date = "Mitglied seit", -- date of user creation follows
-    email = "E-Mail",
-    role = "",
+    join_date = "", -- date of user creation follows
+    email = "",
+    role = "Rol",
     -- User roles
-    standard = "",
-    reviewer = "",
-    moderator = "",
-    admin = "",
-    banned = "",
+    standard = "standart",
+    reviewer = "reviewer",
+    moderator = "moderatör",
+    admin = "yönetici",
+    banned = "yasaklandı",
     -- Buttons
-    change_my_password = "Mein Passwort ändern",
-    change_my_email = "",
-    delete_my_user = "",
+    change_my_password = "Şifremi Değiştir",
+    change_my_email = "E-postamı Değiştir",
+    delete_my_user = "Hesabımı Sil",
 
     -- Project page
     -- ============
@@ -254,53 +254,53 @@ local locale = {
     project_remixes_title = "",
     project_collections_title = "",
     shift_enter_note = "", -- in the notes field
-    no_notes = "Dieses Projekt hat keine Notizen",
+    no_notes = "Bu projede not yok",
     created_date = "",
     updated_date = "",
     shared_date = "",
     published_date = "",
     -- Buttons
-    see_code = "",
-    edit = "Bearbeiten",
-    download = "Herunterladen",
-    embed = "",
-    collect = "",
-    delete_button = "Löschen",
-    publish_button = "Veröffentlichen",
-    share_button = "Teilen",
-    unpublish_button = "Veröffentlichen rückgängig machen",
-    unshare_button = "Teilen rückgängig machen",
+    see_code = "Koda Bak",
+    edit = "Düzenle",
+    download = "İndir",
+    embed = "Göm / Yerleştir",
+    collect = "Koleksiyonuma Ekle",
+    delete_button = "",
+    publish_button = "",
+    share_button = "",
+    unpublish_button = "",
+    unshare_button = "",
     -- Flagging
     you_flagged = "",
     unflag_project = "",
-    flag_project = "",
+    flag_project = "Bu projeyi ihbarla",
 
     -- Embed dialog
     -- ============
-    embed_title = "",
-    embed_explanation = "",
-    project_title = "",
-    project_author = "",
-    edit_button = "",
+    embed_title = "Yerleştirme Seçenekleri",
+    embed_explanation = "Lütfen katıştırılmış proje görüntüleyiciye eklemek istediğiniz öğeleri seçin:",
+    project_title = "Proje Başlığı",
+    project_author = "Proje yazarı",
+    edit_button = "Düzenle düğmesi",
     pause_button = "",
     embed_url = "",
     embed_code = "",
 
     -- Collect dialog
     -- ==============
-    collect_title = "",
-    collect_explanation = "",
+    collect_title = "Projeyi koleksiyona ekle",
+    collect_explanation = "Lütfen bu projeyi eklemek istediğiniz koleksiyonu seçin:",
 
     -- Delete project dialog
     -- =====================
-    confirm_delete_project = "Bist du sicher, dass du dieses Projekt löschen möchtest?",
+    confirm_delete_project = "Bu projeyi silmek istediğinden emin misin?",
     confirm_delete_user = "",
     confirm_delete_collection = "",
 
     -- Share/unshare and publish/unpublish dialogs
     -- ===========================================
-    confirm_share_project = "Bist du sicher, dass du dieses Projekt teilen möchtest?",
-    confirm_unshare_project = "Bist du sicher, dass dieses Projekt nicht mehr geteilt werden soll?",
+    confirm_share_project = "Bu projeyi paylaşmak istediğinden emin misin?",
+    confirm_unshare_project = "",
     confirm_publish_project = "",
     confirm_unpublish_project = "",
 
@@ -319,12 +319,12 @@ local locale = {
     user_id = "",
     project_count = "",
     -- Buttons
-    become = "", -- as an admin, temporarily impersonate this user
-    change_email = "",
+    become = "Ol", -- as an admin, temporarily impersonate this user
+    change_email = "E-posta Değiştir",
     send_msg = "",
-    ban = "",
+    ban = "Yasakla",
     unban = "",
-    delete_usr = "",
+    delete_usr = "Sil",
     -- New email dialog
     new_email = "",
     -- Send message dialog
@@ -335,24 +335,24 @@ local locale = {
     -- Delete user dialog
     -- ==================
     confirm_delete_usr = "",
-    warning_no_return = "WARNUNG! Diese Aktion kann nicht rückgängig gemacht werden!",
+    warning_no_return = "UYARI! Bu eylem geri alınamaz!",
 
     -- Change password page
     -- ====================
-    change_password_title = "Passwort ändern",
-    current_pwd = "Aktuelles Passwort",
-    new_pwd = "Neues Passwort",
-    new_pwd_2 = "Neues Passwort bestätigen",
+    change_password_title = "Şifreni Değiştir",
+    current_pwd = "Şimdiki Şifre",
+    new_pwd = "Yeni Şifre",
+    new_pwd_2 = "Yeni Şifreyi Tekrarla",
 
     -- Change email page
     -- =================
-    new_email_2 = "",
+    new_email_2 = "Yeni e-postanı tekrarla",
 
     -- Administration page
     -- ===================
-    user_admin = "",
-    zombie_admin = "",
-    flagged_projects = "",
+    user_admin = "Kullanıcı yönetimi",
+    zombie_admin = "Zombi Yönetimi",
+    flagged_projects = "İhbarlı projeler",
 
     -- Error messages
     -- ==============
@@ -360,7 +360,7 @@ local locale = {
     err_password_mismatch = "", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
     err_password_mismatch_title = "",
     err_email_mismatch = "", -- @1 becomes a new line. Feel free to move it around to where it best fits your locale. You can also add additional new lines by inserting a new @1 where needed.
-    err_email_mismatch_title = "",
+    err_email_mismatch_title = "E-postalar uyuşmuyor",
 }
 
 return locale

@@ -70,6 +70,46 @@ localizer.get = function (selector, ...)
     return localizer.localize(selector, localizer.language, ...)
 end
 
+localizer.at = function (selector)
+    -- Fetches the raw string, placeholders and all, for the current language
+    return localizer.locales[localizer.language][selector]
+end
+
+-- Localization tools
+
+localizer.update = function ()
+    -- Takes the EN locale file and rebuilds the currently selected locale, line
+    -- by line.
+
+    -- just in case we mess it up
+    --os.execute('cp locales/' .. localizer.language .. '.lua /tmp')
+
+    local input_file = io.open('locales/en.lua', 'r')
+    local output_file = io.open('locales/' .. localizer.language .. '.lua', 'w+')
+
+    for line in input_file:lines() do
+        -- try to extract the key
+        local key = line:match('^%s*%a.*=')
+        if key and line:match('",') then
+            key = key:sub(1, -3):match('%a.*')
+            local new_line = line:match('^.*=') -- copy up to the equals sign
+            new_line = new_line .. ' "' .. (localizer.at(key) or '') ..'",'
+
+            -- if the line has comments after the value, copy them too
+            local comment = line:match('", --.*')
+            if comment then new_line = new_line .. comment:sub(3) end
+
+            output_file:write(new_line .. '\n')
+        else
+            -- copy other stuff (comments, blank lines, returns, locals, etc)
+            output_file:write(line .. '\n')
+        end
+    end
+
+    input_file:close()
+    output_file:close()
+end
+
 localizer.language = 'en'
 
 localizer.read_locales()

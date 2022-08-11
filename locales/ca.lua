@@ -1,8 +1,3 @@
--- Catalan localization
--- ====================
--- Authors: Bernat Romagosa
--- Last updated: 10 August 2022
-
 -- How to translate
 -- ----------------
 -- Translate each text string to the target language leaving intact the two
@@ -23,6 +18,8 @@ local locale = {
     -- =========
     lang_name = "Català",
     lang_code = "ca",
+    authors = "Bernat Romagosa",
+    last_updated = "2022/08/11", -- YYYY/MM/DD
 
     -- Top navigation bar
     -- ==================
@@ -117,6 +114,7 @@ local locale = {
     password = "Contrasenya",
     password_2 = "Contrasenya (repetir)",
     birth_month = "Mes de naixement",
+    or_before = "o abans", -- is preceded by a year, like "1995 or before"
     email_parent = "Adreça electrònica de la mare, pare o tutor",
     email_user = "Adreça electrònica",
     email_2 = "Adreça electrònica (repetir)",
@@ -124,7 +122,6 @@ local locale = {
     -- tos already translated in footer
     privacy_agreement = "Acord de privacitat",
     signup = "Registra-t'hi",
-    or_before = "o abans", -- is preceded by a year, like "1995 or before"
 
     -- Log in page
     -- ===========
@@ -151,16 +148,16 @@ local locale = {
     -- Date format
     date = "@1 de @2 de @3", -- @1 is the day, @2 is the month name, @3 is the year
 
+    -- Generic dialogs
+    -- ===============
+    ok = "D'acord",
+    cancel = "Cancel·la",
+    confirm = "Confirmació",
+
     -- Explore page
     -- ============
     published_projects = "Projectes públics",
     published_collections = "Col·leccions públiques",
-
-    -- Dialogs
-    -- =======
-    ok = "D'acord",
-    cancel = "Cancel·la",
-    confirm = "Confirmació",
 
     -- Search results page
     -- ===================
@@ -216,7 +213,7 @@ local locale = {
     collection_thumbnail_tooltip = "Tria per a la imatge en miniatura de la col·lecció",
 
     -- Collection dialogs
-    -- ===========================================
+    -- ==================
     confirm_share_collection = "Segur que vols compartir aquesta col·lecció?",
     confirm_unshare_collection = "Segur que vols deixar de compartir aquesta col·lecció?",
     confirm_publish_collection = "Segur que vols publicar aquesta col·lecció?",

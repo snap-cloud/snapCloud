@@ -1,14 +1,14 @@
 TODO
 ====
 [ ] unify self.per_page, self.items_per_page and self.params.items_per_page
-[x] events page
 
 [ ] redo localization entirely
     [ ] user admin
     [ ] flagged projects
     [ ] translate titles of curated collections
     [ ] errors
-    [ ] "refurbish" old locale files
+    [x] "refurbish" old locale files
+    [x] update locales tool
 [ ] rethink rate limiting for the site, maybe using CRLF protection?
 
 TODO AFTER DEPLOYING
