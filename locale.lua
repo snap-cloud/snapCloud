@@ -82,7 +82,7 @@ localizer.update = function ()
     -- by line.
 
     -- just in case we mess it up
-    --os.execute('cp locales/' .. localizer.language .. '.lua /tmp')
+    os.execute('cp locales/' .. localizer.language .. '.lua /tmp')
 
     local input_file = io.open('locales/en.lua', 'r')
     local output_file = io.open('locales/' .. localizer.language .. '.lua', 'w+')
