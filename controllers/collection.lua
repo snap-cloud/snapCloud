@@ -125,6 +125,9 @@ CollectionController = {
         )
     end),
     new = capture_errors(function (self)
+        rate_limit(self)
+        prevent_tor_access(self)
+
         assert_can_create_collection(self)
         local collection =
             Collections:find(self.current_user.id, self.params.name)
