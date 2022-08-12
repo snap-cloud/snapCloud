@@ -126,10 +126,10 @@ app:match(api_route('users/:username/password_reset'), respond_to({
 }))
 
 app:match(api_route('users/:username/login'), respond_to({
-    POST = function(self)
+    POST = capture_errors(function(self)
         self.params.password = self.params.body
         return UserController.login(self)
-    end
+    end)
 }))
 
 app:match(api_route('users/:username/set_role'), respond_to({
@@ -286,3 +286,11 @@ app:match(api_route('collection/:id/project/:project_id'),
     })
 )
 
+app:match(api_route('set_totm'),
+    respond_to({
+        POST = function (self)
+            -- do the thing
+            return okResponse('totm set to ' .. self.params.id)
+        end
+    })
+)

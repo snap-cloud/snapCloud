@@ -41,6 +41,15 @@ package.loaded.Users = Model:extend('active_users', {
                 )
             end
         },
+        {'ffa_collections',
+            fetch = function (self)
+                return package.loaded.Collections:select(
+                    [[WHERE creator_id = ? AND collections.free_for_all]],
+                    self.id,
+                    { fields = 'name, collections.id' }
+                )
+            end
+        },
         {'project_count',
             fetch = function (self)
                 return package.loaded.Projects:select(
@@ -187,7 +196,7 @@ package.loaded.Projects = Model:extend('active_projects', {
                 )
             end
         }
-}
+    }
 })
 
 package.loaded.DeletedProjects = Model:extend('deleted_projects', {

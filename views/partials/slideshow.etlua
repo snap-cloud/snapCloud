@@ -2,7 +2,7 @@
 <link rel="stylesheet" href="/static/style/banner.css">
 
 <div class="slideshow">
-    <a href="collection.html?user=snapcloud&collection=Snap!%20Olympics">
+    <a href="collection?username=snapcloud&collection=Snap!%20Olympics">
         <div class="slide fade">
             <img src="/static/img/totm.png" style="width:100%">
         </div>
