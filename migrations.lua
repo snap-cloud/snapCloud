@@ -180,5 +180,20 @@ return {
             'notes',
             types.text({ null = true })
         )
-    end
+    end,
+
+    -- Create a FeaturedCollections table
+    ['2022-08-16:0'] = function ()
+        schema.create_table("featured_collections", {
+            { 'collection_id', types.foreign_key },
+            { 'page_path', types.text },
+            -- type is a free-text field we can use to add information about a
+            -- collection in a page, such as "totm" or "pick 5"
+            { 'type', types.text },
+            { 'order', types.integer },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) },
+            'PRIMARY KEY (collection_id, page_path)'
+        })
+    end,
 }

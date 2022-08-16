@@ -50,6 +50,15 @@ package.loaded.Users = Model:extend('active_users', {
                 )
             end
         },
+        {'public_collections',
+            fetch = function (self)
+                return package.loaded.Collections:select(
+                    [[WHERE creator_id = ? AND published ]],
+                    self.id,
+                    { fields = 'name, collections.id' }
+                )
+            end
+        },
         {'project_count',
             fetch = function (self)
                 return package.loaded.Projects:select(
@@ -308,6 +317,13 @@ package.loaded.BannedIPs = Model:extend(
 package.loaded.FlaggedProjects = Model:extend(
     'flagged_projects', {
         primary_key = 'id',
+        timestamp = true
+    }
+)
+
+package.loaded.FeaturedCollections = Model:extend(
+    'featured_collections', {
+        primary_key = {'collection_id', 'page_path'},
         timestamp = true
     }
 )

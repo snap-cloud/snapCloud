@@ -2,23 +2,17 @@
 <link rel="stylesheet" href="/static/style/project.css">
 <h1><%= locale.get('examples') %></h1>
 <%
-for _, name in pairs({
-        'Art Projects',
-        'Science Projects',
-        'Fractals',
-        'Animations',
-        'Music',
-        'Maths',
-        'Games',
-        'Computer Science',
-        }) do
+for _, descriptor in pairs(
+    package.loaded.FeaturedCollections:select("where page_path = 'examples'")
+) do
 
-    local collection = package.loaded.Collections:find(snapcloud_id, name)
+    local collection =
+        package.loaded.Collections:find({id = descriptor.collection_id })
 
     render(
         'views.carousel',
         {
-            title = name, -- TODO localize titles
+            title = collection.name, -- TODO localize titles
             items = CollectionController.projects({
                 params = {},
                 items_per_page = 20,

@@ -23,4 +23,21 @@
                 item.username .. '</strong></a>')
     %></span>
 <% end %>
+
+<% if show_unfeature then %>
+    <div class="collection-controls">
+        <a class="clickable remove" onclick="
+                cloud.delete(
+                    '/feature_carousel',
+                    null,
+                    {
+                        collection_id: <%= item.id %>,
+                        page_path: '<%= page_path %>'
+                    }
+                )
+            ">
+            <i class="fas fa-times-circle"></i>
+        </a>
+    </div>
+<% end %>
 </div>

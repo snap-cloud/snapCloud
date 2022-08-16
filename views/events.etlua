@@ -2,23 +2,17 @@
 <link rel="stylesheet" href="/static/style/project.css">
 <h1><%- locale.get('events_title', '<em>!</em>') %></h1>
 <%
-for _, name in pairs({
-        'Snap!Con 2022',
-        'Snap!Shot 2021',
-        'Snap!Con 2021',
-        'Snap!Shot 2020',
-        'Snap!Con 2020',
-        'Snap!Shot 2019',
-        'Snap!Con 2019',
-        }) do
+for _, descriptor in pairs(
+    package.loaded.FeaturedCollections:select("where type = 'event'")
+) do
 
-    local collection = package.loaded.Collections:find(snapcloud_id, name)
+    local collection =
+        package.loaded.Collections:find({ id = descriptor.collection_id })
 
-                       debug_print(name)
     render(
         'views.carousel',
         {
-            title = name,
+            title = collection.name,
             items = CollectionController.projects({
                 params = {},
                 items_per_page = 20,
@@ -29,4 +23,3 @@ for _, name in pairs({
     )
 end
 %>
-

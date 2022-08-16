@@ -286,11 +286,63 @@ app:match(api_route('collection/:id/project/:project_id'),
     })
 )
 
+-- New SiteController? More things could eventually go there...
+
 app:match(api_route('set_totm'),
     respond_to({
         POST = function (self)
-            -- do the thing
+            assert_min_role(self, 'moderator')
+
+            local FeaturedCollections = package.loaded.FeaturedCollections
+
+            -- find out whether there was a totm already
+            local carousel = FeaturedCollections:find({
+                page_path = 'index',
+                type = 'totm'
+            })
+
+            if carousel then
+                carousel:update({ collection_id = self.params.id })
+            else
+                FeaturedCollections:create({
+                    collection_id = self.params.id,
+                    page_path = 'index',
+                    type = 'totm'
+                })
+            end
             return okResponse('totm set to ' .. self.params.id)
+        end
+    })
+)
+
+app:match(api_route('feature_carousel'),
+    respond_to({
+        POST = function (self)
+            assert_min_role(self, 'moderator')
+
+            local FeaturedCollections = package.loaded.FeaturedCollections
+
+            FeaturedCollections:create({
+                collection_id = self.params.collection_id,
+                page_path = self.params.page_path,
+                type = self.params.type
+            })
+
+            return okResponse('collection featured')
+        end,
+        DELETE = function (self)
+            assert_min_role(self, 'moderator')
+
+            local FeaturedCollections = package.loaded.FeaturedCollections
+
+            local feature = FeaturedCollections:find({
+                collection_id = self.params.collection_id,
+                page_path = self.params.page_path
+            })
+
+            if feature then feature:delete() else yield_error() end
+
+            return okResponse('collection unfeatured')
         end
     })
 )

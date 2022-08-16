@@ -91,6 +91,11 @@ img.collection-thumbnail {
     margin-right: -1px;
 }
 
+.featured .collection-controls {
+    right: 35px;
+    width: 15px;
+}
+
 .flagged .collection-controls {
     right: 31px;
     width: 15px;

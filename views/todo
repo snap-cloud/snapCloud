@@ -1,6 +1,7 @@
 TWEAKS
 ======
 [ ] unify self.per_page, self.items_per_page and self.params.items_per_page
+[ ] refactor the three almost identical blocks in carousel_admin
 
 LOCALIZATION
 ============

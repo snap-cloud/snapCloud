@@ -140,28 +140,6 @@ app:get('/admin', capture_errors(function (self)
     end
 end))
 
-app:match('/totm', respond_to({
-    GET = capture_errors(function (self)
-        if self.current_user then
-            assert_min_role(self, 'moderator')
-            return { render = 'totm' }
-        else
-            return { redirect_to = self:build_url('index') }
-        end
-    end),
-    POST = capture_errors(function (self)
-        assert_min_role(self, 'moderator')
-        local file = self.params.uploaded_file
-        if file then
-            local disk = package.loaded.disk
-            if disk:save_totm_banner(file) then
-                return { render = 'totm' }
-            end
-        end
-        return errorResponse()
-    end)
-}))
-
 local index = capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
@@ -264,6 +242,32 @@ app:get('/user_admin', capture_errors(function (self)
     end
 end))
 
+app:match('/totm', respond_to({
+    GET = capture_errors(function (self)
+        if self.current_user then
+            assert_min_role(self, 'moderator')
+            return { render = 'totm' }
+        else
+            return { redirect_to = self:build_url('index') }
+        end
+    end),
+    POST = capture_errors(function (self)
+        assert_min_role(self, 'moderator')
+        local file = self.params.uploaded_file
+        if file then
+            local disk = package.loaded.disk
+            if disk:save_totm_banner(file) then
+                return { render = 'totm' }
+            end
+        end
+        return errorResponse()
+    end)
+}))
+
+app:get('/carousel_admin', capture_errors(function (self)
+    assert_min_role(self, 'moderator')
+    return { render = 'carousel_admin' }
+end))
 
 -- Tools
 

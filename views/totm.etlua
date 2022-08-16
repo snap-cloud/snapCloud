@@ -9,9 +9,14 @@
 <h2>Collection</h2>
 <select onchange="cloud.post('/set_totm', null, { id: this.value })">
 <%
+    local current_totm = package.loaded.FeaturedCollections:find({
+        page_path = 'index',
+        type = 'totm'
+    })
     local snapcloud = package.loaded.Users:find({ username = 'snapcloud' })
     for k, v in pairs(snapcloud:get_ffa_collections()) do
 %>
-    <option value="<%= v.id %>"><%= v.name %></option>
+    <option <%= (current_totm.collection_id == v.id) and 'selected' or '' %>
+        value="<%= v.id %>"><%= v.name %></option>
 <% end %>
 </select>

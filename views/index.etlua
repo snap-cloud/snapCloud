@@ -30,49 +30,43 @@
 <br class="v-spaced">
 
 <%
-local collections = {
-    {
-        collection_name = 'Featured',
-        title = locale.get('featured')
-    },
-    {
-        collection_name = 'Snap! Olympics',
-        title = locale.get('totm', 'Snap! Olympics')
-    },
-    {
-        collection_name = 'Snap!Con 2021',
-        title = 'Snap!Con 2021'
-    }
-}
+local FeaturedCollections = package.loaded.FeaturedCollections
+local features = {}
 
-local curated = {
-    'Science Projects',
-    'Simulations',
-    '3D',
-    'Music',
-    'Art Projects',
-    'Fractals',
-    'Animations',
-    'Games',
-    'Computer Science',
-    'Maths'
-}
+-- Featured projects first
+table.insert(features, FeaturedCollections:find({
+    page_path = 'index',
+    type = 'featured'
+}))
 
--- Add 3 curated collections to the front page
-for i = 1, 3, 1 do
-    local choice = table.remove(curated, math.random(#curated))
-    table.insert(collections, { collection_name = choice, title = choice })
+-- Events next
+for _, collection in pairs(FeaturedCollections:select(
+    "WHERE page_path = 'index' AND type = 'event'"
+)) do
+    table.insert(features, collection)
 end
 
-for _, descriptor in pairs(collections) do
-    local collection = package.loaded.Collections:find(
-        snapcloud_id,
-        descriptor.collection_name
-    )
+-- TOTM goes next
+table.insert(features, FeaturedCollections:find({
+    page_path = 'index',
+    type = 'totm'
+}))
+
+-- Then 3 random example collections
+for _, collection in pairs(FeaturedCollections:select([[
+    WHERE page_path = 'index' AND type = 'example'
+    ORDER BY RANDOM() LIMIT 3
+]])) do
+    table.insert(features, collection)
+end
+
+for _, descriptor in pairs(features) do
+    local collection =
+        package.loaded.Collections:find({ id = descriptor.collection_id })
     render(
         'views.carousel',
         {
-            title = descriptor.title, -- TODO localize titles
+            title = collection.name,
             items = CollectionController.projects({
                 params = {},
                 items_per_page = 20,
