@@ -400,7 +400,6 @@ UserController = {
     end),
 }
 
--- TODO move those to a separate module?
 app:match(
     'password_reset',
     '/password_reset/:token',
