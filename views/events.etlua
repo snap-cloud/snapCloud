@@ -2,9 +2,10 @@
 <link rel="stylesheet" href="/static/style/project.css">
 <h1><%- locale.get('events_title', '<em>!</em>') %></h1>
 <%
-for _, descriptor in pairs(
-    package.loaded.FeaturedCollections:select("where type = 'event'")
-) do
+for _, descriptor in ipairs(
+    package.loaded.FeaturedCollections:select(
+        "where type = 'event' and page_path = 'events'"
+)) do
 
     local collection =
         package.loaded.Collections:find({ id = descriptor.collection_id })
