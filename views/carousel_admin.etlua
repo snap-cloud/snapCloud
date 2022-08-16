@@ -1,37 +1,31 @@
 <link rel="stylesheet" href="/static/style/project.css">
 <h1>Carousel Administration</h1>
-<h2>Front Page</h2>
-<div class = "collection featured container">
 <%
-    local collections =
-        package.loaded.FeaturedCollections:select(
-            "where page_path = 'index' and not type = 'totm'"
-        )
-    for _, descriptor in ipairs(collections) do
-        local collection =
-            package.loaded.Collections:find({ id = descriptor.collection_id})
-        render(
-            'views.partials.collection',
-            {
-                item = collection,
-                items_per_row = 5,
-                show_unfeature = true,
-                page_path = 'index'
-            }
-        )
-    end
+    for _, section in ipairs({
+        {
+            title = 'Front Page',
+            query = "where page_path = 'index' and not type = 'totm'",
+            page_path = 'index'
+        },
+        {
+            title = 'Examples',
+            query = "where page_path = 'examples'",
+            page_path = 'expamples'
+        },
+        {
+            title = 'Events',
+            query = "where page_path = 'events'",
+            page_path = 'events'
+        },
+    }) do
 %>
-</div>
-<a class = 'pure-button' onclick="addCarousel('index')">Add Carousel</a>
 
-<h2>Examples</h2>
+<h2><%= section.title %></h2>
 <div class = "collection featured container">
 <%
-    local collections =
-        package.loaded.FeaturedCollections:select(
-            "where page_path = 'examples'"
-        )
-    for _, descriptor in ipairs(collections) do
+    for _, descriptor in
+            ipairs(package.loaded.FeaturedCollections:select(section.query))
+    do
         local collection =
             package.loaded.Collections:find({ id = descriptor.collection_id})
         render(
@@ -40,37 +34,16 @@
                 item = collection,
                 items_per_row = 5,
                 show_unfeature = true,
-                page_path = 'examples'
+                page_path = section.page_path
             }
         )
     end
 %>
 </div>
-<a class = 'pure-button' onclick="addCarousel('examples')">Add Carousel</a>
+<a class = 'pure-button'
+    onclick="addCarousel(section.page_path)">Add Carousel</a>
 
-<h2>Events</h2>
-<div class = "collection featured container">
-<%
-    local collections =
-        package.loaded.FeaturedCollections:select(
-            "where page_path = 'events'"
-        )
-    for _, descriptor in ipairs(collections) do
-        local collection =
-            package.loaded.Collections:find({ id = descriptor.collection_id})
-        render(
-            'views.partials.collection',
-            {
-                item = collection,
-                items_per_row = 5,
-                show_unfeature = true,
-                page_path = 'events'
-            }
-        )
-    end
-%>
-</div>
-<a class = 'pure-button' onclick="addCarousel('events')">Add Carousel</a>
+<% end %>
 
 <script>
     function addCarousel (page_path) {
