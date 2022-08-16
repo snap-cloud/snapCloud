@@ -350,6 +350,7 @@ local locale = {
 
     -- Administration page
     -- ===================
+    carousel_admin = "Featured Carousels",
     user_admin = "User Administration",
     zombie_admin = "Zombie Administration",
     flagged_projects = "Flagged Projects",
