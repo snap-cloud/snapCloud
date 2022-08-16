@@ -10,7 +10,7 @@
         {
             title = 'Examples',
             query = "where page_path = 'examples'",
-            page_path = 'expamples'
+            page_path = 'examples'
         },
         {
             title = 'Events',
