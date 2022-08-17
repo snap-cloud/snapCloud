@@ -2,11 +2,21 @@
 <link rel="stylesheet" href="/static/style/banner.css">
 
 <div class="slideshow">
-    <a href="collection?username=snapcloud&collection=Snap!%20Olympics">
+    <%
+    local totms = package.loaded.db.select([[
+        name FROM collections
+            WHERE id = (
+                SELECT collection_id FROM featured_collections
+                WHERE page_path = 'index' AND type = 'totm'
+                LIMIT 1)]])
+    if totms and totms[1] then
+    %>
+    <a href="collection?username=snapcloud&collection=<%= totms[1].name %>">
         <div class="slide fade">
             <img src="/static/img/totm.png" style="width:100%">
         </div>
     </a>
+    <% end %>
 
     <div class="slide fade">
         <img src="/static/img/snap-byob.png" style="width:100%">
