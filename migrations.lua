@@ -196,4 +196,70 @@ return {
             'PRIMARY KEY (collection_id, page_path)'
         })
     end,
+
+    -- Populate the FeaturedCollections table with the default carousels
+    ['2022-08-17:0'] = function ()
+        -- Example collections
+        local ids = db.query([[
+            SELECT id FROM collections
+                WHERE creator_id =
+                    (SELECT id FROM users WHERE username = 'snapcloud' LIMIT 1)
+                AND name IN
+                    ('Fractals', 'Animations', 'Art Projects',
+                    'Science Projects', 'Music', 'Simulations', 'Games',
+                    'Computer Science', 'Maths');
+        ]])
+        for _, entry in pairs(ids) do
+            -- Examples page
+            db.query([[
+                INSERT INTO featured_collections
+                    (collection_id, page_path, type, created_at, updated_at)
+                VALUES
+                    (?, 'examples', 'example', now()::timestamp,
+                        now()::timestamp)
+            ]], entry.id)
+            -- Front page
+            db.query([[
+                INSERT INTO featured_collections
+                    (collection_id, page_path, type, created_at, updated_at)
+                VALUES
+                    (?, 'index', 'example', now()::timestamp, now()::timestamp)
+            ]], entry.id)
+        end
+        -- Events page
+        ids = db.query([[
+            SELECT id FROM collections
+                WHERE creator_id =
+                    (SELECT id FROM users WHERE username = 'snapcloud' LIMIT 1)
+                AND name LIKE 'Snap%20%'
+            ]])
+        for _, entry in pairs(ids) do
+            db.query([[
+                INSERT INTO featured_collections
+                    (collection_id, page_path, type, created_at, updated_at)
+                VALUES
+                    (?, 'events', 'event', now()::timestamp, now()::timestamp)
+            ]], entry.id)
+        end
+        -- Featured collection
+        db.query([[
+            INSERT INTO featured_collections
+                (collection_id, page_path, type, created_at, updated_at)
+            VALUES (
+                (SELECT id FROM collections
+                    WHERE name = 'Featured'
+                    AND creator_id = (
+                        SELECT id FROM users
+                        WHERE username = 'snapcloud' LIMIT 1
+                    )
+                ),
+                'index',
+                'featured',
+                now()::timestamp,
+                now()::timestamp
+            )
+        ]])
+        -- Left for the maintainer is to feature the current TOTM and latest
+        -- event, if it applies
+    end,
 }

@@ -16,7 +16,7 @@
     local snapcloud = package.loaded.Users:find({ username = 'snapcloud' })
     for k, v in pairs(snapcloud:get_ffa_collections()) do
 %>
-    <option <%= (current_totm.collection_id == v.id) and 'selected' or '' %>
-        value="<%= v.id %>"><%= v.name %></option>
+    <option <%= (current_totm and (current_totm.collection_id == v.id))
+        and 'selected' or '' %> value="<%= v.id %>"><%= v.name %></option>
 <% end %>
 </select>
