@@ -133,7 +133,7 @@ end
 local lapis_cached = package.loaded.cached
 package.loaded.cached = function (func, options)
     local options = options or {}
-    local cache_key = function(path, params, request)
+    local cache_key = function (path, params, request)
         local key = path
         local param_keys = {}
         for k, _ in pairs(params) do table.insert(param_keys, k) end
@@ -144,11 +144,14 @@ package.loaded.cached = function (func, options)
         return key .. '@' .. (request.session.locale or 'en') ..
             '~' .. (request.session.username)
     end
+
+    local function no_cache (request) return request.params.no_cache ~= true end
+
     return lapis_cached({
         dict_name = 'page_cache', -- default dictionary, unchanged
         exptime = options.exptime or 30,
         cache_key = cache_key,
-        when = options.when or nil,
+        when = options.when or no_cache,
         func
     })
 end
