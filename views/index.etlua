@@ -60,13 +60,21 @@ for _, collection in pairs(FeaturedCollections:select([[
     table.insert(features, collection)
 end
 
+local function title_for (descriptor, collection_name)
+    if descriptor.type == 'totm' then
+        return locale.get('totm', collection_name)
+    else
+        return collection_name
+    end
+end
+
 for _, descriptor in pairs(features) do
     local collection =
         package.loaded.Collections:find({ id = descriptor.collection_id })
     render(
         'views.carousel',
         {
-            title = collection.name,
+            title = title_for(descriptor, collection.name),
             items = CollectionController.projects({
                 params = {},
                 items_per_page = 20,
@@ -76,6 +84,7 @@ for _, descriptor in pairs(features) do
         }
     )
 end
+
 
 -- Show latest projects next
 render(

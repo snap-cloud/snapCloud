@@ -3,7 +3,7 @@
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
+-- Copyright (C) 2022 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --

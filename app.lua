@@ -146,7 +146,7 @@ package.loaded.cached = function (func, options)
     end
     return lapis_cached({
         dict_name = 'page_cache', -- default dictionary, unchanged
-        exptime = options.exptime or 0,
+        exptime = options.exptime or 30,
         cache_key = cache_key,
         when = options.when or nil,
         func
