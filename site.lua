@@ -131,15 +131,6 @@ app:get('/collection', capture_errors(function (self)
     return { render = 'collection' }
 end))
 
-app:get('/admin', capture_errors(function (self)
-    if self.current_user then
-        assert_min_role(self, 'reviewer')
-        return { render = 'admin' }
-    else
-        return { redirect_to = self:build_url('index') }
-    end
-end))
-
 local index = capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
@@ -165,6 +156,14 @@ app:get('/user_projects/:username', capture_errors(cached(function (self)
     return { render = 'explore' }
 end)))
 
+app:get('/followed', capture_errors(cached(function (self)
+    if self.current_user then
+        self.items = ProjectController.followed_projects(self)
+        return { render = 'followed' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
+end)))
 
 app:get('/project', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
@@ -216,6 +215,15 @@ app:get('/profile', capture_errors(function (self)
     if self.current_user then
         self.user = self.current_user
         return { render = 'profile' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
+end))
+
+app:get('/admin', capture_errors(function (self)
+    if self.current_user then
+        assert_min_role(self, 'reviewer')
+        return { render = 'admin' }
     else
         return { redirect_to = self:build_url('index') }
     end

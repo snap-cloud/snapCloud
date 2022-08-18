@@ -96,6 +96,19 @@ ProjectController = {
             )
         end
     end),
+    followed_projects = capture_errors(function (self)
+        self.params.order = 'lastupdated DESC'
+        return ProjectController.run_query(
+            self,
+            db.interpolate_query([[
+                WHERE ispublished AND username IN (
+                    SELECT username FROM users WHERE id IN
+                        (SELECT followed_id FROM followers
+                            WHERE follower_id = ?)
+                )
+            ]], self.current_user.id)
+        )
+    end),
     flagged_projects = capture_errors(function (self)
         self.params.order = 'flag_count DESC'
         self.params.fields = [[active_projects.id AS id,

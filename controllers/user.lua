@@ -34,6 +34,7 @@ local DeletedUsers = package.loaded.DeletedUsers
 local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
 local Tokens = package.loaded.Tokens
+local Followers = package.loaded.Followers
 
 require 'responses'
 require 'validation'
@@ -397,6 +398,32 @@ UserController = {
             'Verification email for ' .. self.queried_user.username ..
             ' sent.\nPlease check your email and validate your\n' ..
             'account within the next 3 days.')
+    end),
+    follow = capture_errors(function (self)
+        assert_user_exists(self)
+        Followers:create({
+            follower_id = self.current_user.id,
+            followed_id = self.queried_user.id
+        })
+        return jsonResponse({
+            message = 'Now following user ' .. self.queried_user.username,
+            title = 'Follow user'
+        })
+    end),
+    unfollow = capture_errors(function (self)
+        assert_user_exists(self)
+        local follow = Followers:find({
+            follower_id = self.current_user.id,
+            followed_id = self.queried_user.id
+        })
+        if follow and follow:delete() then
+            return jsonResponse({
+                message = 'You stopped following ' .. self.queried_user.username,
+                title = 'Unfollow user'
+            })
+        else
+            yield_error()
+        end
     end),
 }
 

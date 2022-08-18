@@ -33,8 +33,9 @@ local locale = {
     my_projects = "My Projects",
     my_collections = "My Collections",
     my_public_page = "My Public Page",
-    my_profile = "My Profile",
+    followed_projects = "Followee Projects",
     administration = "Administration",
+    my_profile = "My Profile",
     logout = "Log Out",
     -- This option lets admins go back to their admin account when they're
     -- impersonating another user:
@@ -225,10 +226,17 @@ local locale = {
     -- User public page
     -- ================
     public_page = "@1's public page", -- @1 becomes the user's username
+    follow_user = "Follow this user",
+    unfollow_user = "Unfollow this user",
     -- Admin tools
     admin_tools = "Admin tools",
     latest_published_projects = "Latest Published Projects",
     latest_published_collections = "Latest Published Collections",
+
+    -- Followed users feed
+    -- ===================
+    followed_feed = "Projects By My Followed Users",
+    following_nobody = "You are not following any users yet. Visit a user's public page and click on @1 to follow them and see their latest public projects in this page.",
 
     -- User profile
     -- ============

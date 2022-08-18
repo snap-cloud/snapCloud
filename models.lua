@@ -69,6 +69,12 @@ package.loaded.Users = Model:extend('active_users', {
             end
         },
     },
+    follows = function (self, a_user)
+        return package.loaded.Followers:find({
+            follower_id = self.id,
+            followed_id = a_user.id
+        }) ~= nil
+    end,
     isadmin = function (self)
         return self.role == 'admin'
     end,
@@ -107,12 +113,15 @@ package.loaded.Users = Model:extend('active_users', {
         return self:ensure_unique_email()
     end,
     ensure_unique_email = function (self)
-        -- If a user is new, then their "unique email" is an unmodified email address.
+        -- If a user is new, then their "unique email" is an unmodified email
+        -- address.
         -- When emails are not unique, we will create a new unique email.
-        -- Unqiue emails take the form original-address+snap-id-01234@original.domain
+        -- Unique emails take the form:
+        --                      original-address+snap-id-01234@original.domain
         unique_email = self.email
         if self:shares_email_with_others() then
-            unique_email = string.gsub(self.email, '@', '+snap-id-' .. self.id .. '@')
+            unique_email =
+                string.gsub(self.email, '@', '+snap-id-' .. self.id .. '@')
         end
         self:update({ unique_email = unique_email })
         return unique_email
@@ -324,6 +333,13 @@ package.loaded.FlaggedProjects = Model:extend(
 package.loaded.FeaturedCollections = Model:extend(
     'featured_collections', {
         primary_key = {'collection_id', 'page_path'},
+        timestamp = true
+    }
+)
+
+package.loaded.Followers = Model:extend(
+    'followers', {
+        primary_key = {'follower_id', 'followed_id'},
         timestamp = true
     }
 )

@@ -60,14 +60,19 @@
                            href="<%= current_user:url_for('site') %>"
                            ><%- locale.get('my_public_page') %></a></li>
                     <li class="pure-menu-item">
-                        <a class="pure-menu-link my-profile" href="/profile"
-                            ><%- locale.get('my_profile') %></a></li>
+                        <a class="pure-menu-link followed-projects"
+                           href="/followed"
+                           ><%- locale.get('followed_projects') %></a></li>
                 <% if current_user:isadmin() then %>
+                    <hr>
                     <li class="pure-menu-item admin">
                         <a class="pure-menu-link" href="/admin"
                             ><%- locale.get('administration') %></a></li>
                 <% end %>
                     <hr>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link my-profile" href="/profile"
+                            ><%- locale.get('my_profile') %></a></li>
                     <li class="pure-menu-item">
                         <a class="pure-menu-link clickable" onclick="
                             cloud.post('/logout?&redirect=' + location.href);

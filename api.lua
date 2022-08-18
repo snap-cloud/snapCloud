@@ -153,6 +153,11 @@ app:match(api_route('users/:username/resendverification'), respond_to({
     POST = UserController.resend_verification
 }))
 
+app:match(api_route('users/:username/follow'), respond_to({
+    POST = UserController.follow,
+    DELETE = UserController.unfollow
+}))
+
 -- Emails
 -- ======
 

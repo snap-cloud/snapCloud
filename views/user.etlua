@@ -41,7 +41,23 @@ render(
         href = build_url('/user_collections/' .. queried_user.username)
     }
 )
+%>
 
+<% if current_user then
+    if current_user:follows(queried_user) then %>
+    <a class="pure-button" onclick="
+        cloud.delete('/users/<%= queried_user.username %>/follow');
+    "><%= locale.get('unfollow_user') %></a>
+<% else %>
+    <a class="pure-button" onclick="
+        cloud.post('/users/<%= queried_user.username %>/follow');
+    "><%= locale.get('follow_user') %></a>
+<%
+    end
+end
+%>
+
+<%
 -- ADMIN TOOLS
 
 if current_user and current_user:has_min_role('moderator') then

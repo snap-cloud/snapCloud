@@ -1,6 +1,7 @@
 TWEAKS
 ======
 [ ] unify self.per_page, self.items_per_page and self.params.items_per_page
+[ ] maybe refactor IP bans administration so it uses the grid template?
 
 LOCALIZATION
 ============
@@ -16,10 +17,9 @@ MISSING FUNCTIONALITY
 =====================
 [ ] edit project notes
 [ ] edit project title
-[ ] follow user
+[x] follow user
 [ ] delete zombie projects and users after a given period
 
 MISSING PAGES
 =============
 [ ] zombie_admin
-[x] IP [un]banning utilities

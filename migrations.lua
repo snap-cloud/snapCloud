@@ -262,4 +262,17 @@ return {
         -- Left for the maintainer is to feature the current TOTM and latest
         -- event, if it applies
     end,
+
+    -- Create a Followers table
+    ['2022-08-18:0'] = function ()
+        schema.create_table("followers", {
+            { 'follower_id', types.foreign_key },
+            { 'followed_id', types.foreign_key },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) },
+            'PRIMARY KEY (follower_id, followed_id)'
+        })
+    end,
+
+
 }
