@@ -39,7 +39,8 @@
                 );">
                 <% for role, _ in pairs(package.loaded.Users.roles) do %>
                 <option value="<%= role %>"
-                    <%- role == item.role and 'selected' or '' %>>
+                    <%- role == item.role and 'selected' or '' %>
+                >
                     <%- locale.get(role) %>
                 </option>
                 <% end %>
