@@ -1,9 +1,12 @@
+.ips .ip,
 .user_admin .user {
     padding: 0.5em;
     box-sizing: border-box;
 }
 
+.ip .details,
 .user .details {
+    position: relative;
     background: rgba(0, 0, 0, 0.1);
     padding: 0.5em;
     border: 1px solid #AAAAAA;
@@ -18,13 +21,14 @@
     background: rgba(255,0,0,0.1);
 }
 
+.ip .details.count-3,
 .user .details.banned {
     overflow: hidden;
-    position: relative;
     border: 1px solid rgba(255,0,0,0.3);
     opacity: 0.75;
 }
 
+.ip .details.count-3:before,
 .user .details.banned:before {
     position: absolute;
     content: '';
@@ -38,6 +42,13 @@
     top: 0;
     bottom: 0;
     margin: auto;
+}
+
+.ip .details .remove {
+    display: block;
+    position: absolute;
+    right: 5px;
+    top: 5px;
 }
 
 .user .details span {
@@ -65,15 +76,18 @@
     margin-top: 0.5em;
 }
 
+.ips.search,
 .user_admin.search {
     margin-left: 0.5em;
     width: 220px;
 }
 
+.ips.search form,
 .user_admin.search form {
     position: relative;
 }
 
+.ips.search input,
 .user_admin.search input {
     width: 100%;
     height: 2em;
@@ -84,11 +98,13 @@
     border: 1px solid #AAAAAA;
 }
 
+.ips.search i,
 .user_admin.search i {
     position: absolute;
     right: 0.45em;
     top: 0.45em;
 }
+
 .paginator {
     line-height: 2em;
     margin: 0;

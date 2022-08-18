@@ -301,3 +301,9 @@ app:match(api_route('feature_carousel'),
         DELETE = SiteController.unfeature_carousel
     })
 )
+
+app:match(api_route('banned_ip/:ip'),
+    respond_to({
+        DELETE = SiteController.unban_ip
+    })
+)

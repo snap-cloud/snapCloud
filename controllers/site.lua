@@ -22,15 +22,40 @@
 
 local yield_error = package.loaded.yield_error
 local capture_errors = package.loaded.capture_errors
+local db = package.loaded.db
 local app = package.loaded.app
 
 local Users = package.loaded.Users
 local FeaturedCollections = package.loaded.FeaturedCollections
+local BannedIPs = package.loaded.BannedIPs
 
 require 'responses'
 require 'validation'
 
 SiteController = {
+    banned_ips = capture_errors(function (self)
+        if not self.params.page_number then self.params.page_number = 1 end
+        local paginator = BannedIPs:paginated(
+            (self.params.search_term and (db.interpolate_query(
+                'WHERE ip ILIKE ? ',
+                '%' .. self.params.search_term .. '%'
+            )) or ' ') .. 'ORDER BY updated_at ASC',
+            {
+                per_page = self.params.items_per_page or 249
+            }
+        )
+        self.num_pages = paginator:num_pages()
+        return paginator:get_page(self.params.page_number)
+    end),
+    unban_ip = capture_errors(function (self)
+        assert_admin(self)
+        local ip = BannedIPs:find(self.params.ip)
+        if ip and ip:delete() then
+            return okResponse('IP unbanned')
+        else
+            yield_error('Failed to unban IP')
+        end
+    end),
     feature_carousel = capture_errors(function (self)
         assert_min_role(self, 'moderator')
 

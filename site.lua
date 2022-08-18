@@ -269,6 +269,12 @@ app:get('/carousel_admin', capture_errors(function (self)
     return { render = 'carousel_admin' }
 end))
 
+app:get('/ip_admin', capture_errors(function (self)
+    assert_min_role(self, 'admin')
+    self.ips = SiteController.banned_ips(self)
+    return { render = 'ip_admin' }
+end))
+
 -- Tools
 
 --[[
