@@ -1,9 +1,14 @@
 <div class="user pure-u-1-2">
     <div class="details <%-
-        item.verified and '' or 'unverified' %> <%- item.role %>">
+        not zombie and (item.verified and '' or 'unverified')
+        %> <%- item.role %>">
+        <% if not zombie then %>
         <a href="<%= item:url_for('site') %>" target="">
+        <% end %>
             <strong><%= item.username %></strong>
+        <% if not zombie then %>
         </a>
+        <% end %>
         <span>
             <em>
                 <a target="_blank" href="mailto:<%= item.email %>">
@@ -19,6 +24,11 @@
         <% end %>
         <span><strong><%- locale.get('join_date') %> </strong><%=
             string.from_sql_date(item.created) %></span>
+        <% if zombie then %>
+        <span><strong><%- locale.get('delete_date') %> </strong><%=
+            string.from_sql_date(item.deleted) %></span>
+        <% end %>
+        <% if not zombie then %>
         <span>
             <strong><%- locale.get('role') %></strong>:
             <select onchange="
@@ -35,7 +45,9 @@
                 <% end %>
             </select>
         </span>
+        <% end %>
         <div class="buttons">
+            <% if not zombie then %>
             <a class="pure-button become"
                 onclick="cloud.post('/users/<%= item.username %>/become');"
                 ><%- locale.get('become') %></a>
@@ -56,6 +68,7 @@
                     nop
                     );
                 "><%- locale.get('change_email') %></a>
+            <% end %>
             <a class="pure-button sendamessage"
                 onclick="
                     dialog(
@@ -78,6 +91,7 @@
                         nop
                     );
                 "><%- locale.get('send_msg') %></a>
+            <% if not zombie then %>
             <a class="pure-button ban pure-button-warning"
                 onclick="
                     cloud.post(
@@ -94,7 +108,7 @@
                 ><%= item.role == 'banned' and
                     locale.get('unban') or
                     locale.get('ban') %></a>
-
+            <% end %>
             <a class="pure-button delete pure-button-warning"
                 onclick="
                     confirm(
@@ -103,10 +117,29 @@
                                 'delete_user',
                                 { username = item.username })
                         %>',
-                        () => { cloud.delete('/users/<%= item.username %>'); }
+                    () => {
+                        cloud.delete(
+                            '/<%= zombie and 'zombies' or 'users' 
+                                %>/<%= item.username %>');
+                        }
                     );
                 "
-                ><%- locale.get('delete_usr') %></a>
+                ><%-
+                    locale.get(zombie and 'perma_delete_usr' or 'delete_usr')
+                %></a>
+            <% if zombie then %>
+            <a class="pure-button revive"
+                onclick="
+                    confirm(
+                        '<%= locale.get('confirm_revive', item.username) %>',
+                        () => {
+                            cloud.post('/zombies/<%= item.username %>/revive');
+                        }
+                    );
+                "
+                ><%- locale.get('revive_usr') %></a>
+
+            <% end %>
         </div>
     </div>
 </div>

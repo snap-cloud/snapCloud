@@ -43,6 +43,7 @@ require 'passwords'
 UserController = {
     run_query = function (self, query)
         if not self.params.page_number then self.params.page_number = 1 end
+        if not self.table then self.table = Users end
 
         -- Apply filters from params. They look like filter_verified=true or
         -- filter_role=reviewer, so we strip them from the "filter_" part.
@@ -54,7 +55,7 @@ UserController = {
             end
         end
 
-        local paginator = Users:paginated(
+        local paginator = self.table:paginated(
             query ..
                 (self.params.search_term and (db.interpolate_query(
                     ' AND username ILIKE ? OR email ILIKE ?',
@@ -79,6 +80,10 @@ UserController = {
         -- just to be able to reuse the existing run_query structure:
         if not self.params.order then self.params.order = 'username' end
         return UserController.run_query(self, 'WHERE true')
+    end),
+    zombies = capture_errors(function (self)
+        self.table = DeletedUsers
+        return UserController.fetch(self)
     end),
     current = capture_errors(function (self)
         if self.current_user then
@@ -275,6 +280,98 @@ UserController = {
                 message = 'User ' .. user.username .. ' has been removed.',
                 redirect = self:build_url('index')
             })
+        end
+    end),
+    perma_delete = capture_errors(function (self)
+        assert_admin(self)
+        local zombie = DeletedUsers:find({ username = self.params.username })
+        if zombie then
+            -- Delete all follows
+            db.delete(
+                'followers',
+                'follower_id = ? OR followed_id = ?',
+                zombie.id,
+                zombie.id
+            )
+
+            -- Remove user from all collections where they're editor
+            db.update(
+                'collections',
+                { editor_ids = db.raw(db.interpolate_query(
+                    'array_remove(editor_ids, ?)',
+                    zombie.id))
+                },
+                'editor_ids @> array[?]',
+                zombie.id
+            )
+
+            -- Delete all collection memberships on collections by this user
+            db.delete(
+                'collection_memberships',
+                'collection_id IN ' ..
+                    '(SELECT id FROM collections WHERE creator_id = ?)',
+                zombie.id
+            )
+
+            -- Delete all collections owned by user
+            db.delete('collections', { creator_id = zombie.id })
+
+            -- Delete all flags by this user or of projects by them
+            db.delete(
+                'flagged_projects',
+                'flagger_id = ? OR project_id IN ' ..
+                    '(SELECT id FROM projects WHERE username = ?)',
+                zombie.id,
+                zombie.username
+            )
+
+            -- Delete all remix information involving projects by this user
+            db.delete(
+                'remixes',
+                'original_project_id IN ' ..
+                    '(SELECT id FROM projects WHERE username = ?) OR ' ..
+                'remixed_project_id IN ' ..
+                    '(SELECT id FROM projects WHERE username = ?)',
+                zombie.username,
+                zombie.username
+            )
+
+            -- Delete all tokens for this user
+            db.delete('tokens', { username = zombie.username })
+
+            -- Delete all projects by this user
+            db.delete('projects', { username = zombie.username })
+
+            -- Delete the user
+            zombie:delete()
+
+            return jsonResponse({
+                title = 'User deleted',
+                message = 'User ' .. self.params.username ..
+                    ' has been permanently deleted from our records.'
+            })
+        else
+            yield_error()
+        end
+    end),
+    revive = capture_errors(function (self)
+        assert_admin(self)
+        local zombie = DeletedUsers:find({ username = self.params.username })
+        if zombie then
+            zombie:update({ deleted = db.NULL })
+            local user = Users:find({ username = self.params.username })
+            if user then
+                return jsonResponse({
+                    title = 'User revived',
+                    message = 'User ' .. self.params.username ..
+                        ' has been brought back from limbo.',
+                    redirect = user:url_for('site')
+                })
+            else
+                yield_error('Could not revive user')
+            end
+        else
+            yield_error()
         end
     end),
     create = capture_errors(function (self)

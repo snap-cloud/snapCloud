@@ -158,6 +158,17 @@ app:match(api_route('users/:username/follow'), respond_to({
     DELETE = UserController.unfollow
 }))
 
+-- Zombies
+-- =======
+
+app:match(api_route('zombies/:username'), respond_to({
+    DELETE = UserController.perma_delete
+}))
+
+app:match(api_route('zombies/:username/revive'), respond_to({
+    POST = UserController.revive --TODO
+}))
+
 -- Emails
 -- ======
 

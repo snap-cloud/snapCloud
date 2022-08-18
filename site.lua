@@ -250,6 +250,17 @@ app:get('/user_admin', capture_errors(function (self)
     end
 end))
 
+app:get('/zombie_admin', capture_errors(function (self)
+    self.items_per_page = 150
+    if self.current_user then
+        assert_min_role(self, 'moderator')
+        self.items = UserController.zombies(self)
+        return { render = 'zombie_admin' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
+end))
+
 app:match('/totm', respond_to({
     GET = capture_errors(function (self)
         if self.current_user then

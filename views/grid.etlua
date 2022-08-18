@@ -79,7 +79,8 @@ if ((num_pages > 0) or show_if_empty) then %>
                         show_collection_controls =
                             show_collection_controls,
                         collection_id = (show_collection_controls and
-                            collection_id or -1)
+                            collection_id or -1),
+                        zombie = zombie
                     }
                 )
             %>

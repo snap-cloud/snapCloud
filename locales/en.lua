@@ -242,6 +242,7 @@ local locale = {
     -- ============
     profile_title = "@1's profile", -- @1 becomes the user's username
     join_date = "Joined in", -- date of user creation follows
+    delete_date = "Deleted in", -- date of user deletion follows
     email = "Email",
     role = "Role",
     -- User roles
@@ -333,6 +334,9 @@ local locale = {
     ban = "Ban",
     unban = "Unban",
     delete_usr = "Delete",
+    perma_delete_usr = "Delete Permanently",
+    revive_usr = "Revive",
+    confirm_revive = "Are you sure you want to undelete user @1?",
     -- New email dialog
     new_email = "New email",
     -- Send message dialog
