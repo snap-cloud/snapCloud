@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="/static/style/admin.css">
-<h1>Banned IPs</h1>
+<h1><%- locale.get('suspicious_ips') %></h1>
 
 <div class="ips container">
     <div class="bar">

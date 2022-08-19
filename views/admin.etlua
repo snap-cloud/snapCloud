@@ -10,7 +10,7 @@
        href="/zombie_admin"><%- locale.get('zombie_admin') %></a>
     <% end %>
     <% if current_user and current_user:isadmin() then %>
-    <a class="pure-button" href="ip_admin">IP bans</a>
+    <a class="pure-button" href="ip_admin"><%- locale.get('suspicious_ips') %></a>
     <% end %>
     <a class="pure-button" href="flags"><%- locale.get('flagged_projects') %></a>
 </div>

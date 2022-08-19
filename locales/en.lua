@@ -33,7 +33,7 @@ local locale = {
     my_projects = "My Projects",
     my_collections = "My Collections",
     my_public_page = "My Public Page",
-    followed_projects = "Followee Projects",
+    followed_projects = "Followed Projects",
     administration = "Administration",
     my_profile = "My Profile",
     logout = "Log Out",
@@ -235,7 +235,7 @@ local locale = {
 
     -- Followed users feed
     -- ===================
-    followed_feed = "Projects By My Followed Users",
+    followed_feed = "Projects By Users I'm Following",
     following_nobody = "You are not following any users yet. Visit a user's public page and click on @1 to follow them and see their latest public projects in this page.",
 
     -- User profile
@@ -366,6 +366,7 @@ local locale = {
     user_admin = "User Administration",
     zombie_admin = "Zombie Administration",
     flagged_projects = "Flagged Projects",
+    suspicious_ips = "Suspicious IPs",
 
     -- Error messages
     -- ==============
