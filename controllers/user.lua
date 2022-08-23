@@ -352,7 +352,7 @@ UserController = {
                 end
 
                 local salt = secure_salt()
-                Users:create({
+                local user = Users:create({
                     created = db.format_date(),
                     username = self.params.username,
                     salt = salt,
@@ -362,6 +362,7 @@ UserController = {
                     verified = false,
                     role = 'standard'
                 })
+                user.ensure_unique_email()
 
                 -- Create a verify_user-type token and send an email to the user
                 -- asking to verify the account.
