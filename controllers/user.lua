@@ -362,7 +362,7 @@ UserController = {
                     verified = false,
                     role = 'standard'
                 })
-                user.ensure_unique_email()
+                user:ensure_unique_email()
 
                 -- Create a verify_user-type token and send an email to the user
                 -- asking to verify the account.
