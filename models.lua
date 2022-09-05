@@ -127,8 +127,8 @@ package.loaded.Users = Model:extend('active_users', {
         return unique_email
     end,
     shares_email_with_others = function (self)
-        count = package.loaded.Users:count("email like '%'", self.email)
-        return count > 1
+        count = package.loaded.Users:count("unique_email ilike ?", self.email)
+        return count > 0
     end,
     cannot_access_forum = function (self)
         return self:isbanned() or self.validated == false
