@@ -25,6 +25,7 @@ local db = package.loaded.db
 local Model = package.loaded.Model
 
 local escape = package.loaded.util.escape
+local disk = package.loaded.disk
 
 package.loaded.Users = Model:extend('active_users', {
     type = 'user',
@@ -192,18 +193,20 @@ package.loaded.Projects = Model:extend('active_projects', {
         },
         {'public_remixes',
             fetch = function (self)
-                return package.loaded.Projects:select(
+                local items = package.loaded.Projects:select(
                    [[JOIN remixes
                         ON active_projects.id = remixes.remixed_project_id
                     WHERE remixes.original_project_id = ?
                     AND ispublic]],
                     self.id
                 )
+                disk:process_thumbnails(items)
+                return items
             end
         },
         {'public_collections',
             fetch = function (self)
-                return package.loaded.Collections:select(
+                local items = package.loaded.Collections:select(
                     [[INNER JOIN collection_memberships
                         ON collection_memberships.collection_id = collections.id
                     INNER JOIN users
@@ -212,6 +215,8 @@ package.loaded.Projects = Model:extend('active_projects', {
                     AND collections.published]],
                     self.id
                 )
+                disk:process_thumbnails(items)
+                return items
             end
         }
     }
