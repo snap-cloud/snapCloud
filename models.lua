@@ -215,7 +215,7 @@ package.loaded.Projects = Model:extend('active_projects', {
                     AND collections.published]],
                     self.id
                 )
-                disk:process_thumbnails(items)
+                disk:process_thumbnails(items, 'thumbnail_id')
                 return items
             end
         }
