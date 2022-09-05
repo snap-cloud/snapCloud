@@ -1,0 +1,77 @@
+<% if current_user and current_user:has_min_role('moderator') then %>
+<link rel="stylesheet" href="/static/style/admin.css">
+<% end %>
+
+<h1><%= locale.get('public_page', username) %></h1>
+
+<%
+-- PUBLIC PROJECTS
+render(
+    'views.carousel',
+    {
+        title = locale.get('latest_published_projects'),
+        items = ProjectController.user_projects({
+            params = {
+                username = username,
+                items_per_page = 20
+            },
+            session = session
+        }),
+        class = 'projects',
+        show_author = false,
+        href = build_url('/user_projects/' .. queried_user.username)
+    }
+)
+
+-- PUBLIC COLLECTIONS
+
+render(
+    'views.carousel',
+    {
+        title = locale.get('latest_published_collections'),
+        items = CollectionController.user_collections({
+            params = {
+                per_page = 20,
+                user_id = queried_user.id
+            },
+            session = session
+        }),
+        class = 'collections',
+        item_type = 'collection',
+        href = build_url('/user_collections/' .. queried_user.username)
+    }
+)
+%>
+
+<% if current_user then
+    if current_user:follows(queried_user) then %>
+    <a class="pure-button" onclick="
+        cloud.delete('/users/<%= queried_user.username %>/follow');
+    "><%= locale.get('unfollow_user') %></a>
+<% else %>
+    <a class="pure-button" onclick="
+        cloud.post('/users/<%= queried_user.username %>/follow');
+    "><%= locale.get('follow_user') %></a>
+<%
+    end
+end
+%>
+
+<%
+-- ADMIN TOOLS
+
+if current_user and current_user:has_min_role('moderator') then
+%>
+<div class="profile">
+    <h2><%- locale.get('admin_tools') %></h2>
+<%
+    render(
+        'views.partials.profile',
+        {
+            item = queried_user,
+            show_project_count = true
+        }
+    )
+%>
+</div>
+<% end %>

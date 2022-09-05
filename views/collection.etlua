@@ -1,0 +1,66 @@
+<script src="/static/js/project.js"></script>
+<script src="/static/js/inplace.js"></script>
+<link rel="stylesheet" href="/static/style/project.css">
+<div class="collection">
+    <div class="title">
+        <h1><%= collection.name %></h1>
+        <script>
+            new InPlaceEditor(
+                document.querySelector('div.title h1'),
+                (value) => {
+                    cloud.post(
+                        '/collection/<%= collection.id %>/name',
+                        Cloud.redirect,
+                        { new_name: value }
+                    );
+                }
+            );
+        </script>
+        <span class="author"><%-
+            locale.get(
+                'collection_by',
+                '<a href="' .. collection:url_for('author') .. '"><strong>' ..
+                    collection.creator.username .. '</strong></a>'
+)
+        %></span>
+    </div>
+    <div class="contents pure-g">
+        <div class="pure-u-7-24 info">
+            <%
+                render(
+                    'views.partials.collection_info',
+                     { collection = collection }
+                )
+            %>
+        </div>
+        <!-- just a separator -->
+        <i class="pure-u-1-24"></i>
+        <div class="pure-u-2-3 projects">
+            <%
+                render(
+                    'views.grid',
+                    {
+                        class = 'collection_projects',
+                        item_type = 'project',
+                        items_per_row = 4,
+                        show_icons = true,
+                        show_collection_controls = true
+                    }
+                )
+            %>
+            <script>
+            function confirmRemove (project_id) {
+                confirm(
+                    "<%- locale.get('confirm_uncollect', '<br>') %>",
+                    () => {
+                        cloud.delete(
+                            '/collection/<%= collection.id %>/project/' +
+                                project_id
+                        );
+                    }
+                );
+            };
+            </script>
+        </div>
+    </div>
+</div>

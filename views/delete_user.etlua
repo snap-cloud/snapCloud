@@ -1,0 +1,34 @@
+<h1 localizable>Delete your Account</h1>
+<h2 localizable>Please confirm your password</h2>
+
+<div id="confirm-password" class="pure-form pure-form-aligned">
+    <fieldset>
+        <div class="pure-control-group">
+            <label localizable for="password">Password</label>
+            <input id="password" name="password" type="password"
+                placeholder="Password">
+        </div>
+        <div class="pure-controls">
+            <button localizable onclick="submit()"
+                class="pure-button pure-button-warning">
+                Confirm and delete account
+            </button>
+        </div>
+    </fieldset>
+    <script type="text/javascript" src="/static/js/sha512.js"></script>
+    <script>
+        enableEnterSubmit();
+        var submit = function () {
+            cloud.delete(
+                '/my_user',
+                null,
+                {
+                    password:
+                        hex_sha512(
+                            document.querySelector('input#password').value
+                        )
+                }
+            );
+        };
+    </script>
+</div>

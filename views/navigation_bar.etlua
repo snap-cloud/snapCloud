@@ -1,0 +1,112 @@
+<nav id="top-bar">
+    <div class="pure-menu-horizontal pure-menu">
+        <ul class="pure-g pure-menu-list">
+            <a class="pure-u-1-12" href="/" aria-label="Snap! home page">
+                <img src="/static/img/topbar-logo.png" class="logo clickable"/>
+            </a>
+            <span class="pure-u-5-12">
+                <li class="pure-menu-item">
+                    <a class="pure-menu-link run" target="_blank"
+                        href="<%= build_url('/snap/snap.html') %>"
+                       ><%- locale.get('run_snap', '<em>!</em>') %></a>
+                </li>
+                <li class="pure-menu-item">
+                    <a class="pure-menu-link explore" href="/explore"
+                        ><%- locale.get('explore') %></a>
+                </li>
+                <li class="pure-menu-item">
+                    <a class="pure-menu-link forum"
+                        href="https://forum.snap.berkeley.edu/"
+                        ><%- locale.get('forum') %></a>
+                </li>
+                <!--   =======   Snap!Con   =======
+                <li class="pure-menu-item">
+                    <a class="pure-menu-link" target="_blank"
+                    href="https://www.snapcon.org">Snap<em>!</em>Con</a>
+                </li>
+                -->
+            </span>
+            <i class="pure-u-1-24"></i>
+            <div class="search pure-u-1-6">
+                <form action="search">
+                    <input type="text" name="query">
+                    <i class="fas fa-search"></i>
+                </form>
+            </div>
+            <i class="pure-u-1-24"></i>
+        <% if current_user == nil then %>
+            <li class="join pure-menu-item pure-u-1-12">
+                <a class="pure-menu-link" href="/sign_up"
+                    ><%- locale.get('join') %></a></li>
+            <li class="sign-in pure-menu-item pure-u-1-12">
+                <a class="pure-menu-link" href="/login"
+                    ><%- locale.get('login') %></a></li>
+        <% else %>
+            <li class="pure-menu-item pure-u-1-6
+                pure-menu-has-children pure-menu-allow-hover user-menu">
+                <a id="menuLink1" class="pure-menu-link visitor clickable">
+                    <%= current_user.username%></a>
+                <ul class="pure-menu-children">
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link my-projects"
+                            href="/my_projects"
+                            ><%- locale.get('my_projects') %></a></li>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link my-collections"
+                            href="/my_collections"
+                            ><%- locale.get('my_collections') %></a></li>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link my-public-projects"
+                           href="<%= current_user:url_for('site') %>"
+                           ><%- locale.get('my_public_page') %></a></li>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link followed-projects"
+                           href="/followed"
+                           ><%- locale.get('followed_projects') %></a></li>
+                <% if current_user:isadmin() then %>
+                    <hr>
+                    <li class="pure-menu-item admin">
+                        <a class="pure-menu-link" href="/admin"
+                            ><%- locale.get('administration') %></a></li>
+                <% end %>
+                    <hr>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link my-profile" href="/profile"
+                            ><%- locale.get('my_profile') %></a></li>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link clickable" onclick="
+                            cloud.post('/logout?&redirect=' + location.href);
+                        "><%- locale.get('logout') %></a></li>
+                    <% if session.impersonator then %>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link clickable"
+                            onclick="cloud.post('/unbecome');"
+                        ><%- locale.get('unbecome') %></a></li>
+                    <% end %>
+                </ul>
+            </li>
+        <% end %>
+            <li class="pure-menu-item pure-u-1-24 pure-menu-has-children
+                pure-menu-allow-hover language-select">
+                <a class="pure-menu-link clickable">
+                    <i class="fas fa-globe"></i>
+                </a>
+                <ul class="pure-menu-children languages">
+                    <% for _, each in pairs(locale.locales) do %>
+                    <a class="pure-menu-link clickable"
+                        onclick="
+                            cloud.post(
+                                '/set_locale',
+                                Cloud.redirect,
+                                {
+                                    locale: '<%= each.lang_code %>',
+                                    redirect: location.href
+                                }
+                            );
+                    "><%=each.lang_name%></a>
+                    <% end %>
+                </ul>
+            </li>
+        </ul>
+    </div>
+</nav>

@@ -41,6 +41,9 @@ err = {
     auth = {
         msg = 'You do not have permission to perform this action',
         status = 403 },
+    wrong_password = {
+        msg = 'The provided password is wrong',
+        status = 403 },
     nonexistent_user =
         { msg = 'No user with this username exists', status = 404 },
     nonexistent_email =
@@ -101,11 +104,9 @@ err = {
         { msg = 'You have already flagged this project.', status = 409 },
     project_never_flagged =
         { msg = 'This project was not flagged by you.', status = 404 },
-    method_not_allowed =
-        {
-            msg = 'This API endpoint does not respond to this HTTP method.',
-            status = 405
-        },
+    method_not_allowed = {
+        msg = 'This API endpoint does not respond to this HTTP method.',
+        status = 405 },
     too_fast =
         { msg = 'Too many requests. Slow down.', status = 429 },
     too_soon =
@@ -151,9 +152,8 @@ assert_role = function (self, role, message)
     end
 end
 
-assert_has_one_of_roles = function (self, roles)
-    if not self.current_user or
-        not self.current_user:has_one_of_roles(roles) then
+assert_min_role = function (self, expected_role)
+    if not self.current_user:has_min_role(expected_role) then
         yield_error(err.auth)
     end
 end
@@ -163,6 +163,7 @@ assert_admin = function (self, message)
 end
 
 assert_can_set_role = function (self, role)
+    -- TODO use a numeric lookup table like in models >> User >> has_min_role
     local can_set = {
         admin = {
             admin =
@@ -241,18 +242,39 @@ assert_users_have_email = function (self, message)
 end
 
 
--- Projects
+-- Projects and Collections
 
-assert_project_exists = function (self, message)
-    if not (Projects:find(self.params.username, self.params.projectname)) then
-        yield_error(message or err.nonexistent_project)
+assert_can_share = function (self, item)
+    if item.type == 'project' then
+        if (item.username ~= self.current_user.username) then
+            assert_min_role(self, 'reviewer')
+        end
+    elseif item.type == 'collection' then
+        if (item.creator_id ~= self.current_user.id) then
+            assert_min_role(self, 'reviewer')
+        end
     end
+end
+
+assert_can_delete = function (self, item)
+    if item.type == 'project' then
+        if (item.username ~= self.current_user.username) then
+            assert_min_role(self, 'moderator')
+        end
+    elseif item.type == 'collection' then
+        if (item.creator_id ~= self.current_user.id) then
+            assert_min_role(self, 'moderator')
+        end
+    end
+end
+
+assert_project_exists = function (self, project)
+    if not project then yield_error(err.nonexistent_project) end
 end
 
 -- Tokens
 
-check_token = function (token_value, purpose, on_success)
-    local token = Tokens:find(token_value)
+check_token = function (self, token, purpose, on_success)
     if token then
         local query =
             db.select("date_part('day', now() - ?::timestamp)",
@@ -264,17 +286,17 @@ check_token = function (token_value, purpose, on_success)
             return on_success(user)
         elseif token.purpose ~= purpose then
             -- We simply ignore tokens with different purposes
-            return htmlPage('Invalid token', '<p>' ..
+            return htmlPage(self, 'Invalid token', '<p>' ..
                 err.invalid_token.msg .. '</p>')
         else
             -- We delete expired tokens with 'verify_user' purpose
             token:delete()
-            return htmlPage('Expired token', '<p>' ..
+            return htmlPage(self, 'Expired token', '<p>' ..
                 err.expired_token.msg .. '</p>')
         end
     else
         -- This token does not exist anymore, or never existed
-        return htmlPage('Invalid token', '<p>' ..
+        return htmlPage(self, 'Invalid token', '<p>' ..
             err.invalid_token.msg .. '</p>')
     end
 end
@@ -288,12 +310,12 @@ end
 -- @param purpose string: token purpose and route name
 -- @param username string
 -- @param email string
-create_token = function (self, purpose, username, email)
+create_token = function (self, purpose, user)
     local token_value
 
     -- First check whether there's an existing token for the same user and
     -- purpose. If we find it, we'll just reset its creation date and reuse it.
-    local existing_token = find_token(username, purpose)
+    local existing_token = find_token(user.username, purpose)
 
     if existing_token then
         token_value = existing_token.value
@@ -303,22 +325,21 @@ create_token = function (self, purpose, username, email)
     else
         token_value = secure_token()
         Tokens:create({
-            username = username,
+            username = user.username,
             created = db.format_date(),
             value = token_value,
             purpose = purpose
         })
     end
-
     send_mail(
-        email,
-        mail_subjects[purpose] .. username,
+        user.email,
+        mail_subjects[purpose] .. user.username,
         mail_bodies[purpose],
         self:build_url(self:url_for(
             purpose,
             {
-                username = url.build_path({username}),
-                token = url.build_path({token_value}),
+                username = url.build_path({ user.username }),
+                token = url.build_path({ token_value })
             }
         ))
     )
@@ -327,22 +348,19 @@ end
 -- Collections
 
 can_edit_collection = function (self, collection)
-    if self.current_user == nil then
-        return false
-    end
-
     -- Users can edit their own collections
-    local can_edit = collection.creator_id == self.current_user.id
+    return (self.current_user ~= nil) and 
+        ((collection.creator_id == self.current_user.id) or
+        is_editor(self, collection))
+end
 
-    -- Find out whether user is in the editors array
+is_editor = function (self, collection)
     if collection.editor_ids then
         for _, editor_id in pairs(collection.editor_ids) do
-            if can_edit then return true end
-            can_edit = can_edit or (editor_id == self.current_user.id)
+            if editor_id == self.current_user.id then return true end
         end
     end
-
-    return can_edit
+    return false
 end
 
 assert_collection_exists = function (self)
@@ -393,16 +411,6 @@ assert_can_add_project_to_collection = function (self, project, collection)
     yield_error(err.nonexistent_project)
 end
 
-assert_can_remove_project_from_collection =
-    function (self, collection, project)
-        -- Admins can remove any project from any collection.
-        if self.current_user:isadmin() then return end
-        if not (can_edit_collection(self, collection) or
-                project.username == self.current_user.username) then
-            yield_error(err.auth)
-        end
-end
-
 assert_project_not_in_collection = function (self, project, collection)
     -- We can't add a project twice to a collection
     if CollectionMemberships:find(collection.id, project.id) then
@@ -410,14 +418,14 @@ assert_project_not_in_collection = function (self, project, collection)
     end
 end
 
-assert_can_create_colletion = function (self)
+assert_can_create_collection = function (self)
     -- Spammer guard.
-    -- Not validated users and users without at least a project can't create
+    -- Non-validated users and users without at least a project can't create
     -- collections.
     if not self.current_user.verified then
         yield_error(err.nonvalidated_user)
     end
-    project_count =
+    local project_count =
         Projects:select(
             'where username = ?',
             self.current_user.username,
@@ -447,7 +455,8 @@ course_name_filter = function ()
     }
     local filter = ''
     for _, expression in pairs(expressions) do
-        filter = filter .. ' and (projectname !~* ' .. "'" .. expression .. "')"
+        filter = filter .. ' and (projectname !~* ' ..
+            "'" .. expression .. "')"
     end
     return filter
 end

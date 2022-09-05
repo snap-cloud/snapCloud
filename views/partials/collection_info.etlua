@@ -1,0 +1,29 @@
+<div class="pure-g">
+    <% render('views.partials.collection_thumbnail') %>
+    <div class="dates pure-u-1-2">
+        <% render('views.partials.collection_dates') %>
+    </div>
+</div>
+<pre class="description"><%= collection.description or '' %></pre>
+<script>
+    new InPlaceEditor(
+        document.querySelector('pre.description'),
+        (value) => {
+            cloud.post(
+                '/collection/<%= collection.id %>/description',
+                nop,
+                { new_description: value }
+            );
+        }
+    );
+</script>
+
+<%
+     render('views.partials.collection_editors')
+
+    if current_user and
+            ((collection.creator_id == current_user.id) or
+            current_user:has_min_role('reviewer')) then
+         render('views.partials.collection_buttons')
+    end
+%>

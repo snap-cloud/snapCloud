@@ -1,0 +1,50 @@
+<h1><%- locale.get('change_my_email') %></h1>
+<div id="change-email" class="pure-form pure-form-aligned">
+    <fieldset>
+        <div class="pure-control-group">
+            <label for="password"><%- locale.get('password') %></label>
+            <input id="password" name="password" type="password" required>
+        </div>
+
+        <div class="pure-control-group">
+            <label for="new-email"><%- locale.get('new_email') %></label>
+            <input id="new-email" name="new-email" type="email" required>
+        </div>
+
+        <div class="pure-control-group">
+            <label for="new-password-again"
+                ><%- locale.get('new_email_2') %></label>
+            <input
+                id="new-email-again" name="new-email-again"
+                type="email" required>
+        </div>
+
+        <div class="pure-controls">
+            <button onclick="submit()" class="pure-button red-button"
+                ><%- locale.get('change_my_email') %></button>
+        </div>
+    </fieldset>
+    <script type="text/javascript" src="/static/js/sha512.js"></script>
+    <script>
+        enableEnterSubmit();
+        var submit = function (event) {
+            var form = document.querySelector('div#change-email'),
+                password = hex_sha512(form.querySelector('#password').value),
+                email = form.querySelector('#new-email').value,
+                emailRepeat = form.querySelector('#new-email-again').value;
+
+            if (email !== emailRepeat) {
+                genericError(
+                    "<%- locale.get('err_email_mismatch', '<br>') %>",
+                    "<%- locale.get('err_email_mismatch_title') %>"
+                );
+            } else {
+                cloud.post(
+                    '/change_my_email',
+                    null,
+                    { password: password, email: email }
+                );
+            }
+        };
+    </script>
+</div>

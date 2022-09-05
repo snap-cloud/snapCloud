@@ -1,0 +1,132 @@
+<div class="buttons">
+    <a class="pure-button open" target="_blank"
+        href="<%= project:url_for('open', params.devVersion) %>"
+        ><%= (current_user and current_user.username == project.username) and
+            locale.get('edit') or
+            locale.get('see_code')
+        %></a>
+    <a class="pure-button download"
+        href="<%= project:url_for('download', params.devVersion) %>" download
+        ><%= locale.get('download') %></a>
+    <a class="pure-button embed-button" target="_blank"
+        onclick="embedDialog()" ><%= locale.get('embed') %></a>
+    <% if current_user then %>
+    <a class="pure-button collect" target="_blank"
+        onclick="collectDialog()"><%= locale.get('collect') %></a>
+    <% end %>
+    <script>
+        function embedDialog () {
+            function update (form) {
+                var options =
+                    Object.values(
+                        form.querySelectorAll('input[type="checkbox"]:checked')
+                    ).map(input => '&' + input.value + '=true').join('');
+                form.querySelector('textarea#embed-url').innerText =
+                    '<%- project:url_for('embed') %>' + options;
+                form.querySelector('textarea#embed-iframe').innerText =
+                    '<iframe width="480" height="390" frameBorder=0 ' +
+                        'allowfullscreen allow="geolocation; microphone;' +
+                        'camera" src="' + '<%- project:url_for('embed') %>' +
+                        options + '"></iframe>';
+            };
+            dialog(
+                "<%= locale.get('embed_title') %>",
+                '<%- package.loaded.dialog('embed') %>',
+                nop,
+                nop,
+                // onload:
+                () => {
+                    var form = document.querySelector('form.embed-options');
+                    update(form);
+                    form.querySelectorAll('input').forEach(input => {
+                        input.onchange = function () { update(form) };
+                    });
+                }
+            );
+        };
+
+        <% if current_user then %>
+        function collectDialog () {
+            dialog(
+                "<%= locale.get('collect_title') %>",
+                '<%- package.loaded.dialog(
+                    'collect',
+                    { current_user = current_user }) %>',
+                () => {
+                    var form = document.querySelector('form.collect-form');
+                    cloud.post(
+                        '/collection/' + form.querySelector('select').value +
+                            '/project/<%= project.id %>'
+                    );
+                },
+                nop
+            );
+        };
+        <% end %>
+    </script>
+    <%
+        if current_user and
+            ((project.username == current_user.username) or
+            current_user:isadmin()) then
+    %>
+        <a class="pure-button pure-button-warning delete"
+            target="_blank"
+            onclick="confirmDelete()"
+            ><%= locale.get('delete_button') %></a>
+        <script>
+        function confirmDelete () {
+            confirm(
+                '<%- package.loaded.dialog(
+                    'confirm_delete',
+                    { item_name = 'project'}) %>',
+                () => { cloud.delete('/project/<%= project.id %>'); }
+            );
+        }
+    </script>
+<% end %>
+<% if project.flagged then %>
+    <span class="flag-container"
+        title="<%= locale.get('you_flagged') %>"
+    >
+        <i class="warning fas fa-exclamation-triangle"></i>
+        <a class="clickable warning flag" target="_blank"
+            onclick="cloud.delete('/project/<%= project.id %>/flag')"
+        ><%= locale.get('unflag_project') %></a>
+    </span>
+<% else %>
+    <span class="flag-container">
+        <i class="warning fas fa-exclamation-triangle"></i>
+        <a class="clickable warning flag" target="_blank"
+            onclick="confirmFlag()"><%= locale.get('flag_project') %></a>
+    </span>
+<script>
+function confirmFlag () {
+    confirm(
+        "<%- locale.get('flag_prewarning' , '<br>') %>",
+        () => {
+            dialog(
+                "<%- locale.get('choose_flag_reason') %>",
+                '<%- package.loaded.dialog('flag_reason') %>',
+                () => {
+                    var form =
+                        document.querySelector('form.reasons');
+                    cloud.post(
+                        '/project/<%= project.id %>/flag',
+                        null,
+                        {
+                            reason: form.querySelector(
+                                'input[name=\'reason\']:checked'
+                                ).value,
+                            notes: form.querySelector(
+                                'textarea.notes').value
+                        }
+                    );
+                }
+            );
+        },
+        confirmTitle('<%= locale.get('flag_project') %>')
+    );
+}
+</script>
+<% end %>
+</div>

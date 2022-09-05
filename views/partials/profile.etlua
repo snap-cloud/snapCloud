@@ -1,0 +1,146 @@
+<div class="user pure-u-1-2">
+    <div class="details <%-
+        not zombie and (item.verified and '' or 'unverified')
+        %> <%- item.role %>">
+        <% if not zombie then %>
+        <a href="<%= item:url_for('site') %>" target="">
+        <% end %>
+            <strong><%= item.username %></strong>
+        <% if not zombie then %>
+        </a>
+        <% end %>
+        <span>
+            <em>
+                <a target="_blank" href="mailto:<%= item.email %>">
+                    <%= item.email %>
+                </a>
+            </em>
+        </span>
+        <span
+            ><strong><%- locale.get('user_id') %></strong> <%= item.id %></span>
+        <% if show_project_count then %>
+        <span><strong><%- locale.get('project_count') %></strong> <%=
+            item:get_project_count() %></span>
+        <% end %>
+        <span><strong><%- locale.get('join_date') %> </strong><%=
+            string.from_sql_date(item.created) %></span>
+        <% if zombie then %>
+        <span><strong><%- locale.get('delete_date') %> </strong><%=
+            string.from_sql_date(item.deleted) %></span>
+        <% end %>
+        <% if not zombie then %>
+        <span>
+            <strong><%- locale.get('role') %></strong>:
+            <select onchange="
+                cloud.post(
+                    '/users/<%= item.username %>/set_role',
+                    null, 
+                    { username: '<%= item.username %>', role: this.value }
+                );">
+                <% for role, _ in pairs(package.loaded.Users.roles) do %>
+                <option value="<%= role %>"
+                    <%- role == item.role and 'selected' or '' %>
+                >
+                    <%- locale.get(role) %>
+                </option>
+                <% end %>
+            </select>
+        </span>
+        <% end %>
+        <div class="buttons">
+            <% if not zombie then %>
+            <a class="pure-button become"
+                onclick="cloud.post('/users/<%= item.username %>/become');"
+                ><%- locale.get('become') %></a>
+            <a class="pure-button changeemail"
+                onclick="
+                    prompt(
+                        '<%- locale.get('new_email') %>',
+                        email => {
+                            cloud.post(
+                                '/users/<%= item.username %>/change_email',
+                                null,
+                                {
+                                    email: email,
+                                    username: '<%= item.username %>'
+                                }
+                            );
+                        },
+                    nop
+                    );
+                "><%- locale.get('change_email') %></a>
+            <% end %>
+            <a class="pure-button sendamessage"
+                onclick="
+                    dialog(
+                        '<%- locale.get('compose_email') %>',
+                        '<%= package.loaded.dialog('compose_email') %>',
+                        () => {
+                            var form =
+                                document.querySelector('form.email-compose'),
+                                subject = form.querySelector('input').value,
+                                contents = form.querySelector('textarea').value;
+                            cloud.post(
+                                '/users/<%= item.username %>/send_email',
+                                null,
+                                {
+                                    subject: subject,
+                                    contents: contents
+                                }
+                            );
+                        },
+                        nop
+                    );
+                "><%- locale.get('send_msg') %></a>
+            <% if not zombie then %>
+            <a class="pure-button ban pure-button-warning"
+                onclick="
+                    cloud.post(
+                        '/users/<%= item.username %>/set_role',
+                        null, 
+                        {
+                            username: '<%= item.username %>',
+                            role: <%-
+                                item.role == 'banned'
+                                    and "'standard'"
+                                    or "'banned'" %>
+                        }
+                    );"
+                ><%= item.role == 'banned' and
+                    locale.get('unban') or
+                    locale.get('ban') %></a>
+            <% end %>
+            <a class="pure-button delete pure-button-warning"
+                onclick="
+                    confirm(
+                        '<%=
+                            package.loaded.dialog(
+                                'delete_user',
+                                { username = item.username })
+                        %>',
+                    () => {
+                        cloud.delete(
+                            '/<%= zombie and 'zombies' or 'users' 
+                                %>/<%= item.username %>');
+                        }
+                    );
+                "
+                ><%-
+                    locale.get(zombie and 'perma_delete_usr' or 'delete_usr')
+                %></a>
+            <% if zombie then %>
+            <a class="pure-button revive"
+                onclick="
+                    confirm(
+                        '<%= locale.get('confirm_revive', item.username) %>',
+                        () => {
+                            cloud.post('/zombies/<%= item.username %>/revive');
+                        }
+                    );
+                "
+                ><%- locale.get('revive_usr') %></a>
+
+            <% end %>
+        </div>
+    </div>
+</div>

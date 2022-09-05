@@ -1,0 +1,104 @@
+<script src="/static/js/project.js"></script>
+<link rel="stylesheet" href="/static/style/project.css">
+
+<% render('views.partials.slideshow') %>
+
+<h1><span><% if current_user then %>
+    <%= locale.get('welcome_logged_in', current_user.username) %>
+    <% else %>
+    <%- locale.get('welcome', '<em>!</em>') %>
+    <% end %></span></h1>
+
+<div class="indent bigger"
+    ><%- locale.get('snap_description', '<em>!</em>') %></div>
+
+<div class="indent v-spaced">
+    <a href="/snap" class="pure-button"
+        ><%- locale.get('run_now', '<em>!</em>') %></a>
+    <% if current_user then %>
+        <a href="/my_projects" class="pure-button"
+            ><%- locale.get('my_projects') %></a>
+        <a href="<%- current_user:url_for('site') %>"
+            class="pure-button my-public-projects"
+            ><%- locale.get('my_public_page') %></a>
+    <% end %>
+    <a href="/examples" class="pure-button"><%- locale.get('examples') %></a>
+    <a href="/snap/help/SnapManual.pdf" class="pure-button"
+        ><%- locale.get('manual') %></a>
+</div>
+
+<br class="v-spaced">
+
+<%
+local FeaturedCollections = package.loaded.FeaturedCollections
+local features = {}
+
+-- Featured projects first
+table.insert(features, FeaturedCollections:find({
+    page_path = 'index',
+    type = 'featured'
+}))
+
+-- Events next
+for _, collection in pairs(FeaturedCollections:select(
+    "WHERE page_path = 'index' AND type = 'event'"
+)) do
+    table.insert(features, collection)
+end
+
+-- TOTM goes next
+table.insert(features, FeaturedCollections:find({
+    page_path = 'index',
+    type = 'totm'
+}))
+
+-- Then 3 random example collections
+for _, collection in pairs(FeaturedCollections:select([[
+    WHERE page_path = 'index' AND type = 'example'
+    ORDER BY RANDOM() LIMIT 3
+]])) do
+    table.insert(features, collection)
+end
+
+local function title_for (descriptor, collection_name)
+    if descriptor.type == 'totm' then
+        return locale.get('totm', collection_name)
+    else
+        return collection_name
+    end
+end
+
+for _, descriptor in pairs(features) do
+    local collection =
+        package.loaded.Collections:find({ id = descriptor.collection_id })
+    render(
+        'views.carousel',
+        {
+            title = title_for(descriptor, collection.name),
+            items = CollectionController.projects({
+                params = {},
+                items_per_page = 20,
+                collection = collection
+            }),
+            href = collection:url_for('site')
+        }
+    )
+end
+
+
+-- Show latest projects next
+render(
+    'views.carousel',
+    {
+        title = locale.get('latest'),
+        items = ProjectController.fetch({
+            params = { items_per_page = 20 },
+            session = session
+        }),
+        href = 'explore'
+    }
+)
+%>
+
+<a href="/collections" class="pure-button"
+    ><%- locale.get('more_collections') %></a>

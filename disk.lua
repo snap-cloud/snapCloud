@@ -197,7 +197,9 @@ function disk:backup_project(id)
     command:close()
     if (os.time() - last_modified > 43200) then
         os.execute('mkdir -p ' .. dir .. '/d-2')
-        os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' .. dir .. '/d-2')
+        os.execute(
+            'cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
+                dir .. '/d-2')
     end
 end
 
@@ -223,6 +225,13 @@ function disk:process_thumbnails (items, id_selector)
                 self:generate_thumbnail(item[id_selector or 'id'])
         end
     end
+end
+
+function disk:save_totm_banner (file)
+    local totm_file = io.open('static/img/totm.png', 'w')
+    totm_file:write(file.content)
+    totm_file:close()
+    return true
 end
 
 return disk

@@ -1,0 +1,35 @@
+<h1><%- locale.get('my_collections') %></h1>
+<%
+render(
+    'views.grid',
+    {
+        class = 'my_collections',
+        item_type = 'collection',
+        items_per_page = 15,
+        with_search = true,
+        show_if_empty = true,
+        show_author = false,
+        show_icons = true,
+        show_author = true
+    }
+)
+%>
+<div class="buttons">
+    <a class="pure-button new-collection"
+       onclick="newCollectionDialog()"><%- locale.get('new_collection') %></a>
+    <script>
+        function newCollectionDialog () {
+            prompt(
+                "<%- locale.get('collection_name') %>",
+                name => {
+                    cloud.post(
+                        '/collections/<%= session.username %>',
+                        Cloud.redirect,
+                        { name: name }
+                    );
+                },
+                nop
+            );
+        };
+    </script>
+</div>

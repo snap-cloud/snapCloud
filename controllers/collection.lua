@@ -1,11 +1,9 @@
--- Collections API controller
--- ==========================
---
--- See static/API for API description
+-- Collection controller
+-- =====================
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
+-- Copyright (C) 2021 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --
@@ -22,430 +20,342 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local db = package.loaded.db
-local cached = package.loaded.cached
-local util = package.loaded.util
-local validate = package.loaded.validate
-local json_params = package.loaded.app_helpers.json_params
-local yield_error = package.loaded.app_helpers.yield_error
-local assert_error = package.loaded.app_helpers.assert_error
-local disk = package.loaded.disk
-
-local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
 local CollectionMemberships = package.loaded.CollectionMemberships
-
-require 'responses'
-require 'validation'
-
--- a simple helper for conditionally setting the timestamp fields
--- TODO: move to a more useful location.
-local current_time_or_nil = function (option)
-    if option == true then
-        return db.raw('now()')
-    end
-    return nil
-end
+local Users = package.loaded.Users
+local db = package.loaded.db
+local disk = package.loaded.disk
+local assert_error = package.loaded.app_helpers.assert_error
+local yield_error = package.loaded.yield_error
+local capture_errors = package.loaded.capture_errors
 
 CollectionController = {
-    GET = {
-        collections = cached({
-            -- GET /collections
-            -- Description: Get a paginated list of all published collections
-            --              with name matching matchtext, if provided.
-            -- Parameters:  matchtext, page, pagesize
-            exptime = 30, -- cache expires after 30 seconds
-            function (self)
-                local query =
-                    'JOIN active_users on (active_users.id = collections.creator_id) ' ..
-                    'WHERE published '
+    run_query = function (self, query)
+        if not self.params.page_number then self.params.page_number = 1 end
+        local paginator = Collections:paginated(
+            query ..
+                (self.params.search_term and (db.interpolate_query(
+                    ' AND (name ILIKE ? OR description ILIKE ?)',
+                    '%' .. self.params.search_term .. '%',
+                    '%' .. self.params.search_term .. '%')
+                ) or '') ..
+            ' ORDER BY ' .. (self.params.order or 'published_at DESC'),
+            {
+                per_page = self.params.per_page or 15,
+                fields = self.params.fields or
+                    [[collections.id, creator_id, collections.created_at,
+                    published, collections.published_at, shared,
+                    collections.shared_at, collections.updated_at, name,
+                    description, thumbnail_id, username, editor_ids]]
+            }
+        )
 
-                -- Apply where clauses
-                if self.params.matchtext then
-                    query = query ..
-                        db.interpolate_query(
-                            ' and (name ILIKE ? or description ILIKE ?)',
-                            self.params.matchtext,
-                            self.params.matchtext
-                        )
-                end
-
-                local paginator =
-                    Collections:paginated(
-                        query .. ' order by collections.published_at desc',
-                        {
-                            per_page = self.params.pagesize or 16,
-                            fields =
-                                'collections.id, creator_id, collections.created_at, published, ' ..
-                                'collections.published_at, shared, collections.shared_at, ' .. 'collections.updated_at, name, ' ..
-                                'description, thumbnail_id, username, editor_ids'
-                        })
-
-                local collections = self.params.page and
-                    paginator:get_page(self.params.page) or paginator:get_all()
-
-                disk:process_thumbnails(collections, 'thumbnail_id')
-
-                return jsonResponse({
-                    pages = self.params.page and paginator:num_pages() or nil,
-                    collections = collections
-                })
-            end
-        }),
-
-        user_collections = function (self)
-            -- GET /users/:username/collections
-            -- Description: Get a paginated list of all a particular user's
-            --              collections with name or description matching
-            --              matchtext, if provided.
-            --              Returns only public collections, if another user.
-            -- Parameters:  username, matchtext, page, pagesize
-
-            assert_user_exists(self)
-
-            local order = 'updated_at'
-
-            if not (users_match(self)) then
-                if not self.current_user or not self.current_user:isadmin() then
-                    self.params.published = 'true'
-                    order = 'published_at'
-                end
-            end
-
-            assert_user_exists(self)
-
-            local query = db.interpolate_query(
-                'join active_users on ' ..
-                    '(active_users.id = collections.creator_id) ' ..
-                    'where (creator_id = ? or editor_ids @> array[?]) or ' ..
-                    'collections.free_for_all',
-                self.queried_user.id,
-                self.queried_user.id)
-
-            -- Apply where clauses
-            if self.params.published ~= nil then
-                query = query ..
-                    db.interpolate_query(
-                        ' and published = ?',
-                        self.params.published == 'true'
-                    )
-            end
-
-            if self.params.matchtext then
-                query = query ..
-                    db.interpolate_query(
-                        ' and (name ILIKE ? or description ILIKE ?)',
-                        self.params.matchtext,
-                        self.params.matchtext
-                    )
-            end
-
-            local paginator = Collections:paginated(
-                query .. ' order by ' .. order .. ' desc',
-                {
-                    per_page = self.params.pagesize or 16,
-                    fields =
-                        'collections.id, creator_id, collections.created_at, ' ..
-                        'published, collections.published_at, shared, ' ..
-                        'shared_at, collections.updated_at, name, ' ..
-                        'description, thumbnail_id, username, editor_ids, ' ..
-                        'free_for_all'
-                })
-
-            local collections = self.params.page and
-                paginator:get_page(self.params.page) or paginator:get_all()
-
-            disk:process_thumbnails(collections, 'thumbnail_id')
-
-            return jsonResponse({
-                pages = self.params.page and paginator:num_pages() or nil,
-                collections = collections
-            })
-        end,
-
-        collection_meta = function (self)
-            -- GET /users/:username/collections/:name/metadata
-            -- Description: Get info about a collection.
-            -- Parameters:  username, name
-            local collection = assert_collection_exists(self)
-            assert_can_view_collection(self, collection)
-            collection.projects_count = collection:count_projects()
-            local creator =
-                Users:select(
-                    'where id = ?', collection.creator_id,
-                    { fields = 'username, id' })[1]
-            collection.username = creator.username
-            if collection.thumbnail_id then
-                collection.thumbnail =
-                    disk:retrieve_thumbnail(collection.thumbnail_id)
-            end
-            if collection.editor_ids then
-                collection.editors = Users:find_all(
-                    collection.editor_ids,
-                    { fields = 'username, id' })
-            end
-
-            return jsonResponse(collection)
-        end,
-
-        collection_projects = function (self)
-            -- GET /users/:username/collections/:name/projects
-            -- Description: Get a paginated list of all projects in a
-            --              collection.
-            -- Parameters:  username, name, withthumbnail, pagesize
-            local collection = assert_collection_exists(self)
-            assert_can_view_collection(self, collection)
-            local paginator
-
-            if self.current_user and
-                    self.current_user.id == collection.creator_id then
-                paginator = collection:get_projects()
-            elseif collection.published then
-                paginator = collection:get_published_projects()
-            elseif collection.shared or
-                    can_edit_collection(self, collection) then
-                paginator = collection:get_shared_and_published_projects()
-            end
-
-            paginator.per_page = self.params.pagesize or 16
-            local projects = paginator:get_page(self.params.page or 1)
-
-            if self.params.withthumbnail == 'true' then
-                disk:process_thumbnails(projects)
-            end
-
-            return jsonResponse({
-                pages = self.params.page and paginator:num_pages() or nil,
-                projects = projects
-            })
-        end,
-
-        collection_project = function (self)
-            -- GET /users/:username/collections/:name/projects/:project_id
-            -- Description: Get a project belonging to a collection
-            -- Parameters:  username, name
-            local collection = assert_collection_exists(self)
-            return jsonResponse(CollectionMemberships:find(collection.id,
-                self.params.project_id))
+        if not self.params.ignore_page_count then
+            self.num_pages = paginator:num_pages()
         end
-    },
 
-    POST = {
-        collection = json_params(function (self)
-            -- POST /users/:username/collections/:name
-            -- Description: Create a collection.
-            -- Parameters:  username, ...
+        local items = paginator:get_page(self.params.page_number)
+        disk:process_thumbnails(items, 'thumbnail_id')
+        return items
+    end,
+    fetch = capture_errors(function (self)
+        return CollectionController.run_query(
+            self,
+            [[JOIN active_users ON
+                (active_users.id = collections.creator_id)
+                WHERE published]]
+        )
+    end),
+    my_collections = capture_errors(function (self)
+        self.params.order = 'updated_at DESC'
+        return CollectionController.run_query(
+            self,
+            db.interpolate_query(
+                [[JOIN active_users ON
+                    (active_users.id = collections.creator_id)
+                    WHERE (creator_id = ? OR editor_ids @> ARRAY[?])]],
+                self.current_user.id,
+                self.current_user.id)
+        )
+    end),
+    user_collections = capture_errors(function (self)
+        self.params.order = 'updated_at DESC'
+        return CollectionController.run_query(
+            self,
+            db.interpolate_query(
+                [[JOIN active_users ON
+                    (active_users.id = collections.creator_id)
+                    WHERE (creator_id = ?)
+                    AND published]],
+                self.params.user_id,
+                self.params.user_id
+            )
+        )
+    end),
+    projects = capture_errors(function (self)
+        if not self.params.page_number then self.params.page_number = 1 end
+        local paginator = self.collection:get_projects()
+        paginator.per_page = self.items_per_page
+        if not ignore_page_count then
+            self.num_pages = paginator:num_pages()
+        end
+        local items = paginator:get_page(self.params.page_number)
+        self.page_item_count = #(items)
+        disk:process_thumbnails(items)
+        return items
+    end),
+    containing_project = capture_errors(function (self)
+        self.params.order =  'collections.created_at DESC'
+        self.params.fields =
+            [[collections.creator_id, collections.name,
+            collection_memberships.project_id, collections.thumbnail_id,
+            collections.shared, collections.published, users.username]]
+        return CollectionController.run_query(
+            self,
+            db.interpolate_query(
+                [[INNER JOIN collection_memberships
+                    ON collection_memberships.collection_id = collections.id
+                INNER JOIN users
+                    ON collections.creator_id = users.id
+                WHERE collection_memberships.project_id = ?
+                AND collections.published]],
+                self.params.project_id
+            )
+        )
+    end),
+    new = capture_errors(function (self)
+        rate_limit(self)
+        prevent_tor_access(self)
 
-            rate_limit(self)
+        assert_can_create_collection(self)
+        local collection =
+            Collections:find(self.current_user.id, self.params.name)
+        if not collection then
+            collection = assert_error(Collections:create({
+                name = self.params.name,
+                creator_id = self.current_user.id
+            }))
+        end
+        collection.username = self.current_user.username -- needed by url_for
+        return jsonResponse({ redirect = collection:url_for('site') })
+    end),
+    add_project = capture_errors(function (self)
+        local collection = Collections:find({ id = self.params.id })
+        local project = Projects:find({ id = self.params.project_id })
+        assert_can_add_project_to_collection(self, project, collection)
+        assert_project_not_in_collection(self, project, collection)
 
-            assert_users_match(self)
-            assert_can_create_colletion(self)
-
-            local params = self.params
-            local collection =
-                Collections:find(self.queried_user.id, params.name)
-
-            if collection then
-                -- TODO: I think we can extract these into functions.
-                local published = params.published ~= nil and
-                    params.published == true
-                local published_at = (published and collection.published_at) or
-                    current_time_or_nil(published)
-                local shared = params.shared ~= nil and params.shared == true
-                local shared_at = (shared and collection.shared_at) or
-                    current_time_or_nil(shared)
-
-                collection:update({
-                    name = params.name or collection.name,
-                    description = params.description or collection.description,
-                    published = published,
-                    published_at = published_at,
-                    shared = shared,
-                    shared_at = shared_at,
-                    thumbnail_id = params.thumbnail_id or
-                        collection.thumbnail_id
-                })
-
-                return jsonResponse(collection)
-            end
-
-            return jsonResponse(assert_error(Collections:create({
-                name = params.name,
-                creator_id = self.queried_user.id,
-                description = params.description,
-                published = params.published == true,
-                published_at = current_time_or_nil(params.published),
-                shared = params.shared == true,
-                shared_at = current_time_or_nil(params.shared),
-                thumbnail_id = params.thumbnail_id
-            })))
-        end),
-
-        collection_meta = function (self)
-            -- POST /users/:username/collections/:name/metadata
-            -- Description: Change metadata from a collection
-            -- Parameters:  shared, published, free_for_all
-            -- Body:        description, name
-            if not users_match(self) then assert_admin(self) end
-            if self.params.free_for_all then assert_admin(self) end
-            if self.current_user:isbanned() and self.params.published then
-                yield_error(err.banned)
-            end
-
-            ngx.req.read_body()
-            local body_data = ngx.req.get_body_data()
-            local body = body_data and util.from_json(body_data) or nil
-
-            local collection = assert_collection_exists(self)
-
-            local shouldUpdateSharedDate =
-                ((not collection.shared_at and self.params.shared)
-                or (self.params.shared and not collection.shared))
-
-            local new_name = body and body.name or nil
-            local new_description = body and body.description or nil
-
-            local new_free_for_all =
-                (self.params.free_for_all == nil)
-                    and collection.free_for_all
-                    or self.params.free_for_all
-
+        if not collection.thumbnail_id then
             collection:update({
-                name = new_name or collection.name,
-                description = new_description or collection.description,
-                published = self.params.published or collection.published,
-                shared = self.params.shared or collection.shared,
-                published_at = collection.published_at or
-                    (self.params.published and db.format_date()) or
-                    nil,
-                shared_at = shouldUpdateSharedDate and db.format_date() or nil,
-                free_for_all = new_free_for_all
+                thumbnail_id = project.id
             })
+        end
 
-            return okResponse('collection ' .. self.params.name .. ' updated')
-        end,
+        CollectionMemberships:create({
+            collection_id = collection.id,
+            project_id = project.id,
+            user_id = self.current_user.id -- who added it to the collection
+        })
 
-        collection_editors = json_params(function (self)
-            -- POST /users/:username/collections/:name/editors
-            -- Description: Add an editor to a collection
-            -- Body:        editor_username
-            if not users_match(self) then assert_admin(self) end
+        return jsonResponse({ redirect = project:url_for('site') })
+    end),
+    remove_project = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
 
-            local editor = Users:find(
-                { username = self.params.editor_username })
-            if not editor then yield_error(err.nonexistent_user) end
+        -- For now, only creators can add projects to collections. Should
+        -- editors also be able to?
+        if collection.creator_id ~= self.current_user.id then
+            assert_min_role(self, 'moderator')
+        end
 
-            local collection = assert_collection_exists(self)
-
-            collection:update({
-                editor_ids =
-                    db.raw(db.interpolate_query(
-                        'array_append(editor_ids, ?)',
-                        editor.id))
-            })
-
-            return okResponse('added ' .. self.params.editor_username ..
-                ' as an editor')
-        end),
-
-        collection_projects = function (self)
-            -- POST /users/:username/collections/:name/projects
-            -- Description: Add a project to a collection.
-            -- Body: projectname, username (project author)
-
-            rate_limit(self)
-
-            ngx.req.read_body()
-            local body_data = ngx.req.get_body_data()
-            local body = body_data and util.from_json(body_data) or nil
-
-            local collection = assert_collection_exists(self)
-            local project = Projects:find(body.username, body.projectname)
-
-            assert_project_not_in_collection(self, project, collection)
-            assert_can_add_project_to_collection(self, project, collection)
-
-            if not collection.thumbnail_id then
-                collection:update({
-                    thumbnail_id = project.id
-                })
-            end
-
-            return jsonResponse(assert_error(CollectionMemberships:create({
+        db.delete(
+            'collection_memberships',
+            {
                 collection_id = collection.id,
-                project_id = project.id,
-                user_id = self.queried_user.id
-            })))
-        end,
-
-        collection_thumbnail = function (self)
-            -- POST /users/:username/collections/:name/thumbnail
-            -- Description: Sets the collection thumbnail
-            -- Parameters: id
-            local collection = assert_collection_exists(self)
-            local project = Projects:find({ id = self.params.id })
-
-            assert_can_add_project_to_collection(self, project, collection)
-
-            collection:update({
-                thumbnail_id = self.params.id
+                project_id = self.params.project_id
             })
+        return okResponse()
+    end),
+    set_thumbnail = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
 
-            return okResponse('Thumbnail set')
+        if collection.creator_id ~= self.current_user.id then
+            assert_min_role(self, 'moderator')
         end
-    },
 
-    DELETE = {
-        collection = function (self)
-            -- DELETE /users/:username/collections/:name
-            -- Description: Delete a particular collection.
-            local collection = assert_collection_exists(self)
-            if not users_match(self) then
-                assert_has_one_of_roles(self, { 'moderator', 'admin' })
-            end
-            return jsonResponse(assert_error(collection:delete()))
-        end,
-
-        collection_project = function (self)
-            -- DELETE /users/:username/collections/:name/projects/:project_id
-            -- Description: Remove a project from a collection.
-            -- Parameters:  username, name
-            local collection = assert_collection_exists(self)
-            local project = Projects:find({ id = self.params.project_id })
-            assert_can_remove_project_from_collection(self, collection, project)
-            local membership =
-                CollectionMemberships:find(
-                    collection.id,
-                    self.params.project_id)
-            return jsonResponse(assert_error(membership:delete()))
-        end,
-
-        collection_editors = function (self)
-            -- DELETE /users/:username/collections/:name
-            --            /editors/:editor_username
-            -- Description: Remove an editor from a collection
-            if not users_match(self) and
-                -- users can remove themselves from collections
-                (self.params.editor_username ~= self.current_user.username) then
-                    assert_admin(self)
-            end
-
-            local editor = Users:find(
-                { username = self.params.editor_username })
-            if not editor then yield_error(err.nonexistent_user) end
-
-            local collection = assert_collection_exists(self)
-
+        collection:update({ thumbnail_id = self.params.project_id })
+        collection.thumbnail =
+            package.loaded.disk:retrieve_thumbnail(collection.thumbnail_id)
+        return okResponse()
+    end),
+    share = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
+        assert_can_share(self, collection)
+        collection:update({
+            updated_at = db.format_date(),
+            shared_at = db.format_date(),
+            shared = true,
+            published = false
+        })
+        return okResponse()
+    end),
+    unshare = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
+        assert_can_share(self, collection)
+        collection:update({
+            updated_at = db.format_date(),
+            shared = false,
+            published = false
+        })
+        return okResponse()
+    end),
+    publish = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
+        assert_can_share(self, collection)
+        collection:update({
+            updated_at = db.format_date(),
+            published_at = collection.published_at or db.format_date(),
+            shared = true,
+            published = true
+        })
+        return okResponse()
+    end),
+    unpublish = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
+        assert_can_share(self, collection)
+        collection:update({
+            updated_at = db.format_date(),
+            published = false
+        })
+        return okResponse()
+    end),
+    delete = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
+        local name = collection.name
+        assert_can_delete(self, collection)
+        db.delete('collection_memberships', { collection_id = collection.id })
+        db.delete('collections', { id = collection.id })
+        return jsonResponse({ redirect = self:build_url('my_collections') })
+    end),
+    make_ffa = capture_errors(function (self)
+        assert_min_role(self, 'moderator')
+        local collection =
+            Collections:find({ id = self.params.id })
+        collection:update({ free_for_all = true })
+        if collection.editor_ids then
+            collection.editors = Users:find_all(
+                collection.editor_ids,
+                { fields = 'username, id' }
+            )
+        end
+        collection.creator = Users:find({ id = collection.creator_id })
+        return jsonResponse({
+            message = 'Collection <em>' .. collection.name ..
+                '</em> is now free for all.',
+            title = 'Free for all'
+        })
+    end),
+    unmake_ffa = capture_errors(function (self)
+        assert_min_role(self, 'moderator')
+        local collection =
+            Collections:find({ id = self.params.id })
+        collection:update({ free_for_all = false })
+        if collection.editor_ids then
+            collection.editors = Users:find_all(
+            collection.editor_ids,
+            { fields = 'username, id' })
+        end
+        collection.creator = Users:find({ id = collection.creator_id })
+        return jsonResponse({
+            message = 'Collection <em>' .. collection.name ..
+                '</em> is no longer free for all.',
+            title = 'Free for all'
+        })
+    end),
+    unenroll = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
+        if is_editor(self, collection) then
             collection:update({
                 editor_ids =
                     db.raw(db.interpolate_query(
                         'array_remove(editor_ids, ?)',
-                        editor.id))
+                        self.current_user.id))
             })
+        end
+        return jsonResponse({ redirect = self:build_url('my_collections') })
+    end),
+    add_editor = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
+        if collection.creator_id ~= self.current_user.id then
+            assert_admin(self)
+        end
 
-            return okResponse(self.params.editor_username ..
-                ' removed from collection editors')
-        end,
-    }
+        local editor = Users:find({ username = self.params.username })
+        if not editor then yield_error(err.nonexistent_user) end
+
+        collection:update({
+            editor_ids =
+                db.raw(db.interpolate_query(
+                    'array_append(editor_ids, ?)',
+                    editor.id))
+        })
+
+        return okResponse('Editor added')
+    end),
+    remove_editor = capture_errors(function (self)
+        local collection =
+            Collections:find({ id = self.params.id })
+        if collection.creator_id == self.current_user.id or
+                is_editor(self, collection) or
+                current_user:isadmin() then
+            if (collection:update({
+                editor_ids =
+                    db.raw(db.interpolate_query(
+                        'array_remove(editor_ids, ?)',
+                        self.params.editor_id))
+            })) then
+                return okResponse('Editor removed')
+            else
+                yield_error()
+            end
+        else
+            yield_error(err.auth)
+        end
+    end),
+    rename = capture_errors(function (self)
+        local collection = Collections:find({ id = self.params.id })
+        if collection.creator_id ~= self.current_user.id then
+            assert_admin(self)
+        end
+        -- assign the creator so we can redirect to the new collection URL
+        collection.creator = Users:find({ id = collection.creator_id })
+        if not (collection:update({ name = self.params.new_name })) then
+            return errorResponse('Collection could not be renamed')
+        else
+            return jsonResponse({ redirect = collection:url_for('site') })
+        end
+    end),
+    set_description = capture_errors(function (self)
+        local collection = Collections:find({ id = self.params.id })
+        if collection.creator_id ~= self.current_user.id then
+            assert_admin(self)
+        end
+        if not 
+            (collection:update({ description = self.params.new_description }))
+                then
+            return errorResponse('Collection description could not be updated')
+        else
+            return okResponse('Collection description updated')
+        end
+    end)
 }

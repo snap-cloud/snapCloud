@@ -1,0 +1,20 @@
+TWEAKS
+======
+[ ] unify self.per_page, self.items_per_page and self.params.items_per_page
+[ ] maybe refactor IP bans administration so it uses the grid template?
+
+LOCALIZATION
+============
+[ ] user admin
+[ ] flagged projects
+[ ] titles of curated collections
+[ ] errors
+[ ] all static pages
+[ ] all errors
+[ ] all okay messages and titles
+
+MISSING FUNCTIONALITY
+=====================
+[ ] edit project notes
+[ ] edit project title
+[ ] delete zombie projects and users after a given period

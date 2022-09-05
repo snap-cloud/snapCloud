@@ -1,0 +1,27 @@
+<h1 localizable>DMCA Policy</h1>
+
+<p>The University of California respects the intellectual property of others, as well as our users. If you believe that your work has been copied in a way that constitutes copyright infringement, please email <a href="mailto:dmca-notices@snap.berkeley.edu">dmca-notices@snap.berkeley.edu</a>, or mail your complaint to the following:</p>
+
+<div class="indent v-spaced">
+    <strong>Snap<em>!</em> Copyright Agent / Brian Harvey</strong><br />
+    University of California<br />
+    Computer Science Division<br />
+    784 Soda Hall #1776<br />
+    Berkeley, CA  94720-1776
+</div>
+
+<p>We prefer notification by email, even if you also send a physical letter.</p>
+
+<p>The University of California will promptly process and investigate notices of alleged infringement and will take appropriate actions under the Digital Millennium Copyright Act ("DMCA") and other applicable intellectual property laws. Upon receipt of notices complying or substantially complying with the DMCA, the University of California may act expeditiously to remove or disable access to any material claimed to be infringing. Repeat infringers of third-party copyrights are subject to termination in appropriate circumstances.</p>
+
+<p>In assessing whether or not a Snap<em>!</em> user has violated your copyrights, please keep in mind that Snap<em>!</em> is an educational and not-for-profit initiative, seeking to aid children's learning by providing the tools for them to learn and express themselves using digital technology. Please also keep in mind the "Fair Use" doctrine incorporated into the <a href="http://www.copyright.gov/title17/92chap1.html#1-40">Copyright Act of 1976, 17 U.S.C.  107</a></p>
+
+<p>We hope you also see Snap<em>!</em> not only as a good way of popularizing your creations/website but also as an opportunity to do something good for children's education.</p>
+
+<p>If you choose to make a copyright infringement complaint, please note that we may post your notification, with personally identifiable information redacted, to a clearinghouse such as <a href="http://chillingeffects.org">chillingeffects.org</a>. Please also note that you may be liable for damages (including costs and attorneys' fees) if you materially misrepresent that an activity is infringing your copyright.</p>
+
+<small><em>(Text stolen from scratch.mit.edu.)</em></small>
+
+<script>
+    setTitle(localizer.localize('DMCA') + ' - Snap! Build Your Own Blocks');
+</script>
