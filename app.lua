@@ -184,7 +184,11 @@ app:before_filter(function (self)
     end
 
     if ngx.req.get_method() == 'OPTIONS' then
-        return -- avoid any unnecessary work for CORS pre-flight requests
+        self.res.headers['access-control-allow-headers'] = 'Content-Type'
+        self.res.headers['access-control-allow-methods'] =
+            'GET, POST, DELETE, OPTIONS'
+        ngx.exit(ngx.HTTP_OK)
+        return
     end
 
     if ngx.req.get_method() == 'POST' then
