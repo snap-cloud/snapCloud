@@ -22,8 +22,10 @@ DiscourseBlog.prototype.fetchJSON = function (path, callback, errorString) {
         if (req.readyState === 4) {
             if (req.status === 200 || req.status == 0) {
                 try {
-                    jsonResponse = JSON.parse(req.responseText);
-                    callback.call(myself, jsonResponse);
+                    if (req.responseText) {
+                        jsonResponse = JSON.parse(req.responseText);
+                        callback.call(myself, jsonResponse);
+                    }
                 } catch (err) {
                     genericError(err, errorString);
                 }
@@ -75,7 +77,13 @@ DiscourseBlog.prototype.renderPost = function (post, postDiv) {
         dateSpan = document.createElement('span'),
         contentsDiv = document.createElement('div'),
         separatorSpan = document.createElement('span'),
-        commentsAnchor = document.createElement('a');
+        commentsAnchor = document.createElement('a'),
+        authorSpan = function (username) {
+            var span = document.createElement('span');
+            span.innerHTML =
+                `<small><a href="/user?username=${username}">${username}</a> </small>`;
+            return span
+        };
 
     postDiv.classList.add('post');
     titleHeader.classList.add('title');
