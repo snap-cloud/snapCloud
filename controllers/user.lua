@@ -569,9 +569,11 @@ app:match(
     capture_errors(
         function (self)
             local token = Tokens:find(self.params.token)
-            local user = Users:find({ username = self.params.username })
+            if not token then yield_error(err.invalid_token) end
+            local user = Users:find({ username = token.username })
             local user_page = function ()
                 return htmlPage(
+                    self,
                     'User verified | Welcome to Snap<em>!</em>',
                     '<p>Your account <strong>' .. user.username ..
                     '</strong> has been verified.</p>' ..
