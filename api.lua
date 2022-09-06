@@ -84,7 +84,10 @@ app:match(api_route('init'), respond_to({
 
 -- Current user
 -- ============
-app:get(api_route('users/c'), UserController.current) -- backwards compatibility
+app:get(api_route('users/c'), respond_to({  -- backwards compatibility
+    GET = UserController.current
+}))
+
 app:match(api_route('my_user'), respond_to({
     GET = UserController.current,
     DELETE = UserController.delete
