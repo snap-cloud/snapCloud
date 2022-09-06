@@ -63,6 +63,9 @@ img.collection-thumbnail {
 .collection.small .author,
 .project.small .author {
     display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .project.small .no-image:hover,

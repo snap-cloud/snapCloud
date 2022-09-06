@@ -26,7 +26,6 @@ local api_version = 'v1'
 
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
-local respond_to = package.loaded.respond_to
 local yield_error = package.loaded.yield_error
 
 require 'validation'
@@ -36,10 +35,15 @@ require 'controllers.project'
 require 'controllers.collection'
 require 'controllers.site'
 
--- Wraps all API endpoints in standard behavior.
 -- All API routes are nested under /api/v1,
 -- which is currently an optional prefix.
 local function api_route(path) return '/(api/' .. api_version .. '/)' .. path end
+
+-- Add default response to all OPTIONS calls
+local respond_to = function (table)
+    table['OPTIONS'] = cors_options
+    return package.loaded.respond_to(table)
+end
 
 -- API Endpoints
 -- =============
