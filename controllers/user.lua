@@ -569,11 +569,11 @@ app:match(
     capture_errors(
         function (self)
             local token = Tokens:find(self.params.token)
-
+            local user = Users:find({ username = self.params.username })
             local user_page = function ()
                 return htmlPage(
                     'User verified | Welcome to Snap<em>!</em>',
-                    '<p>Your account <strong>' .. self.queried_user.username ..
+                    '<p>Your account <strong>' .. user.username ..
                     '</strong> has been verified.</p>' ..
                     '<p>Thank you!</p>' ..
                     '<p><a href="https://snap.berkeley.edu/">' ..
@@ -583,9 +583,9 @@ app:match(
 
             -- Check whether user had already been verified and, if so, delete
             -- the token
-            if self.queried_user.verified then
+            if user.verified then
                 token:delete()
-                return user_page(self.queried_user)
+                return user_page(user)
             else
                 return check_token(
                     self,
@@ -593,7 +593,7 @@ app:match(
                     'verify_user',
                     function ()
                         -- success callback
-                        self.queried_user:update({ verified = true })
+                        user:update({ verified = true })
                         self.session.verified = true
                         return user_page()
                     end
