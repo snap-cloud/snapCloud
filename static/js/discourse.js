@@ -85,7 +85,7 @@ DiscourseBlog.prototype.renderPost = function (post, postDiv) {
     commentsAnchor.classList.add('comments');
 
     titleHeader.innerText = post.title;
-    dateSpan.innerHTML = formatDate(post.date);
+    dateSpan.innerHTML = post.date;
     contentsDiv.innerHTML = post.content;
     commentsAnchor.innerText = localizer.localize('Discuss this in the forum');
     commentsAnchor.href = post.commentsURL;

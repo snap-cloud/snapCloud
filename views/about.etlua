@@ -3,7 +3,7 @@
 
 <p>In the example below, a Snap<em>!</em> user can create new control structures, such as a <code>for</code> loop, by writing a script as shown at the left. Once the <code>for</code> block is created, it can be used even to make nested loops, as shown in the center. A sprite carries out that script at the right.</p> </section>
 
-<p><img src="https://snap.berkeley.edu/comp09/forbanner.png"/></p>
+<p><img src="https://snap.berkeley.edu/old_site/comp09/forbanner.png"/></p>
 
 <p>Snap<em>!</em> runs in your browser. It is implemented using Javascript, which is designed to limit the ability of browser-based software to affect your computer outside of Snap<i>!</i> itself, so it’s safe to run even other people’s projects, even if you don’t trust our competence or good intentions.  (Our lawyers make us say we offer NO WARRANTY; see our <a href="/tos">Terms of Service</a>.)</p>
 
@@ -40,7 +40,7 @@ implemented as lists of lists.</p>
 
 <h2>Visual Representation for Advanced Ideas</h2>
 
-<img style="float:right; margin-left:10pt" src="https://snap.berkeley.edu/veelist.png">
+<img style="float:right; margin-left:10pt" src="https://snap.berkeley.edu/old_site/veelist.png">
 
 <p>Part of the genius of Scratch is the way it uses pictures to represent ideas such as loops, Booleans, and threads. The three different block shapes, for example, aren’t just a way to prevent syntax errors; they’re a way to <em>teach</em> the idea that some procedures return values and others don’t.</p>
 
