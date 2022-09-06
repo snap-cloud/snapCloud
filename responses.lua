@@ -69,13 +69,3 @@ htmlPage = function (self, title, contents)
     self.contents = contents
     return { render = 'message' }
 end
-
--- OPTIONS
-
-cors_options = function (self)
-    self.res.headers['access-control-allow-headers'] = 'Content-Type'
-    self.res.headers['access-control-allow-methods'] =
-        'GET, POST, DELETE, OPTIONS'
-    return { status = 200, layout = false }
-end
-

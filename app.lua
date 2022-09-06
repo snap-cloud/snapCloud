@@ -187,7 +187,7 @@ app:before_filter(function (self)
         self.res.headers['access-control-allow-headers'] = 'Content-Type'
         self.res.headers['access-control-allow-methods'] =
             'GET, POST, DELETE, OPTIONS'
-        ngx.exit(ngx.HTTP_OK)
+        self:write(rawResponse('preflight processed'))
         return
     end
 
