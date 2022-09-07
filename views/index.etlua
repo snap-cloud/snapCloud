@@ -91,10 +91,13 @@ render(
     'views.carousel',
     {
         title = locale.get('latest'),
-        items = ProjectController.fetch({
-            params = { items_per_page = 20 },
-            session = session
-        }),
+        items = ProjectController.fetch(
+            {
+                params = { items_per_page = 20 },
+                session = session,
+                cached = true
+            }
+        ),
         href = 'explore'
     }
 )

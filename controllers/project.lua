@@ -24,6 +24,7 @@ local util = package.loaded.util
 local validate = package.loaded.validate
 local db = package.loaded.db
 local cached = package.loaded.cached
+local cached_query = package.loaded.cached_query
 local yield_error = package.loaded.yield_error
 local capture_errors = package.loaded.capture_errors
 local db = package.loaded.db
@@ -54,15 +55,28 @@ ProjectController = {
                     fields = self.params.fields or '*'
                 }
             )
-        if not self.ignore_page_count then
-            self.num_pages = paginator:num_pages()
-        end
-
         if (self.session.app == 'snap') then
             return jsonResponse({ projects = paginator:get_all() })
         else
-            local items = paginator:get_page(self.params.page_number)
-            disk:process_thumbnails(items)
+            local items = {}
+            if self.cached then
+                items = cached_query(
+                    { paginator._clause, self.params.page_number },
+                    Projects,
+                    function ()
+                        local entries = paginator:get_page(self.params.page_number)
+                        disk:process_thumbnails(entries)
+                        return entries
+                    end
+                )
+            else
+                items = paginator:get_page(self.params.page_number)
+                disk:process_thumbnails(items)
+            end
+            if not self.ignore_page_count then
+                self.num_pages = paginator:num_pages()
+            end
+
             return items
         end
     end,

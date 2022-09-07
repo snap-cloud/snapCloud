@@ -36,7 +36,6 @@ package.loaded.validate = require 'lapis.validate'
 package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
 package.loaded.respond_to = package.loaded.app_helpers.respond_to
-package.loaded.cached = require('lapis.cache').cached
 package.loaded.resty_sha512 = require 'resty.sha512'
 package.loaded.resty_string = require 'resty.string'
 package.loaded.resty_random = require 'resty.random'
@@ -129,8 +128,10 @@ local function domain_name(url)
     return url:gsub('https*://', ''):gsub(':%d+$', '')
 end
 
+-- CACHING UTILITIES
+
 -- Custom caching to take in account current locale
-local lapis_cached = package.loaded.cached
+local lapis_cached = require('lapis.cache').cached
 package.loaded.cached = function (func, options)
     local options = options or {}
     local cache_key = function (path, params, request)
@@ -154,6 +155,35 @@ package.loaded.cached = function (func, options)
         when = options.when or no_cache,
         func
     })
+end
+
+-- cache for SQL queries so we're not constantly bombarding the DB
+package.loaded.cached_query = function (key_table, model, on_miss)
+    local cache = ngx.shared.query_cache
+
+    local sorted_keys = {}
+    for _, v in pairs(key_table) do table.insert(sorted_keys, tostring(v)) end
+    table.sort(sorted_keys)
+
+    local key = ''
+    for _, v in ipairs(sorted_keys) do key = key .. '#' .. v end
+
+    local contents = cache:get(key)
+    if contents == nil then
+        debug_print('cache miss')
+        -- run the function that was passed for when there's a cache miss
+        contents = on_miss()
+        cache:set(key, package.loaded.util.to_json(contents))
+    else
+        debug_print('cache hit')
+        contents = package.loaded.util.from_json(contents)
+        for _, item in ipairs(contents) do setmetatable(item, model.__index) end
+    end
+    return contents
+end
+
+package.loaded.uncache_query = function (query)
+    ngx.shared.query_cache.delete(query)
 end
 
 -- Before filter
