@@ -64,7 +64,8 @@ ProjectController = {
                     { paginator._clause, self.params.page_number },
                     Projects,
                     function ()
-                        local entries = paginator:get_page(self.params.page_number)
+                        local entries =
+                            paginator:get_page(self.params.page_number)
                         disk:process_thumbnails(entries)
                         return entries
                     end
@@ -401,7 +402,7 @@ ProjectController = {
         })
     end),
     save = capture_errors(function (self)
-        rate_limit(self)
+        -- rate_limit(self)
 
         validate.assert_valid(self.params, {
             { 'projectname', exists = true },
