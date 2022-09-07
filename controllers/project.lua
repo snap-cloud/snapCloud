@@ -180,7 +180,10 @@ ProjectController = {
         end
 
         local project =
-            Projects:find(self.params.username, self.params.projectname)
+            Projects:find(
+                self.params.username,
+                tostring(self.params.projectname)
+            )
         if not project then yield_error(err.nonexistent_project) end
 
         local shouldUpdateSharedDate =
@@ -201,7 +204,7 @@ ProjectController = {
         if error then yield_error({ msg = error, status = 422 }) end
 
         return okResponse(
-            'project ' .. self.params.projectname .. ' updated'
+            'project ' .. tostring(self.params.projectname) .. ' updated'
         )
     end),
     delete = capture_errors(function (self)
@@ -209,7 +212,10 @@ ProjectController = {
             self.params.id and
                 Projects:find({id = self.params.id })
             or
-                Projects:find(self.params.username, self.params.projectname)
+                Projects:find(
+                    self.params.username,
+                    tostring(self.params.projectname)
+                )
 
         assert_can_delete(self, project)
 
@@ -218,7 +224,7 @@ ProjectController = {
         if self.params.reason then
             send_mail(
                 self.queried_user.email,
-                mail_subjects.project_deleted .. project.projectname,
+                mail_subjects.project_deleted .. tostring(project.projectname),
                 mail_bodies.project_deleted .. self.current_user.role ..
                     '.</p><p>' .. self.params.reason .. '</p>')
         end
@@ -226,7 +232,7 @@ ProjectController = {
         -- Do not actually delete the project; flag it as deleted.
         if not (project:update({ deleted = db.format_date() })) then
             yield_error('Could not delete project ' ..
-                self.params.projectname)
+                tostring(self.params.projectname))
         end
 
         local url =
@@ -239,7 +245,7 @@ ProjectController = {
         return jsonResponse(
             {
                 title = 'Project deleted',
-                message = 'Project ' .. project.projectname ..
+                message = 'Project ' .. tostring(project.projectname) ..
                     ' has been deleted.',
                 redirect = url
             }
@@ -297,7 +303,10 @@ ProjectController = {
             self.params.id and
                 Projects:find({id = self.params.id })
             or
-                Projects:find(self.params.username, self.params.projectname)
+                Projects:find(
+                    self.params.username,
+                    tostring(self.params.projectname)
+                )
 
         if not project then yield_error(err.nonexistent_project) end
         if not (project.ispublic or users_match(self)) then
@@ -325,7 +334,10 @@ ProjectController = {
     end),
     thumbnail = capture_errors(function (self)
         local project =
-            Projects:find(self.params.username, self.params.projectname)
+            Projects:find(
+                self.params.username,
+                tostring(self.params.projectname)
+            )
 
         if not project then yield_error(err.nonexistent_project) end
 
@@ -346,7 +358,10 @@ ProjectController = {
     end),
     versions = capture_errors(function (self)
         local project =
-            Projects:find(self.params.username, self.params.projectname)
+            Projects:find(
+                self.params.username,
+                tostring(self.params.projectname)
+            )
 
         if not project then yield_error(err.nonexistent_project) end
         if not project.ispublic then
@@ -392,7 +407,10 @@ ProjectController = {
         })
 
         local project =
-            Projects:find(self.params.username, self.params.projectname)
+            Projects:find(
+                self.params.username,
+                tostring(self.params.projectname)
+            )
 
         if (project) then
             local shouldUpdateSharedDate =
@@ -425,7 +443,8 @@ ProjectController = {
             -- in the DB.
             -- We need to check for that and delete it for real this time
             local deleted_project = DeletedProjects:find(
-                self.params.username, self.params.projectname)
+                self.params.username,
+                tostring(self.params.projectname))
             -- Deleted project may have remixes or be included in a
             -- collection. Let's take care of this.
             if deleted_project then
@@ -441,7 +460,7 @@ ProjectController = {
                 deleted_project:delete()
             end
             Projects:create({
-                projectname = self.params.projectname,
+                projectname = tostring(self.params.projectname),
                 username = self.params.username,
                 created = db.format_date(),
                 lastupdated = db.format_date(),
@@ -454,7 +473,10 @@ ProjectController = {
                 ispublished = self.params.ispublished or false
             })
             project =
-                Projects:find(self.params.username, self.params.projectname)
+                Projects:find(
+                    self.params.username,
+                    tostring(self.params.projectname)
+                )
 
             if (body.remixID and body.remixID ~= cjson.null) then
                 -- user is remixing a project
@@ -474,9 +496,9 @@ ProjectController = {
             and disk:retrieve(project.id, 'thumbnail')
             and disk:retrieve(project.id, 'media.xml')) then
             yield_error('Could not save project ' ..
-                self.params.projectname)
+                tostring(self.params.projectname))
         else
-            return okResponse('project ' .. self.params.projectname ..
+            return okResponse('project ' .. tostring(self.params.projectname) ..
                 ' saved')
         end
     end)
