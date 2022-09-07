@@ -158,7 +158,7 @@ package.loaded.cached = function (func, options)
 end
 
 -- cache for SQL queries so we're not constantly bombarding the DB
-package.loaded.cached_query = function (key_table, model, on_miss)
+package.loaded.cached_query = function (key_table, category, model, on_miss)
     local cache = ngx.shared.query_cache
 
     local sorted_keys = {}
@@ -173,6 +173,9 @@ package.loaded.cached_query = function (key_table, model, on_miss)
         -- run the function that was passed for when there's a cache miss
         contents = on_miss()
         cache:set(key, package.loaded.util.to_json(contents))
+        if category then
+            ngx.shared.query_cache_categories:set(category, key)
+        end
     else
         contents = package.loaded.util.from_json(contents)
         for _, item in ipairs(contents) do setmetatable(item, model.__index) end
@@ -180,8 +183,9 @@ package.loaded.cached_query = function (key_table, model, on_miss)
     return contents
 end
 
-package.loaded.uncache_query = function (query)
-    ngx.shared.query_cache.delete(query)
+package.loaded.uncache_category = function (category)
+    local query = ngx.shared.query_cache_categories:get(category)
+    ngx.shared.query_cache:delete(query)
 end
 
 -- Before filter

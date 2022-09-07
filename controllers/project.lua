@@ -25,6 +25,7 @@ local validate = package.loaded.validate
 local db = package.loaded.db
 local cached = package.loaded.cached
 local cached_query = package.loaded.cached_query
+local uncache_category = package.loaded.uncache_category
 local yield_error = package.loaded.yield_error
 local capture_errors = package.loaded.capture_errors
 local db = package.loaded.db
@@ -62,6 +63,7 @@ ProjectController = {
             if self.cached then
                 items = cached_query(
                     { paginator._clause, self.params.page_number },
+                    self.cache_category,
                     Projects,
                     function ()
                         local entries =
@@ -82,6 +84,7 @@ ProjectController = {
         end
     end,
     fetch = capture_errors(function (self)
+        self.cache_category = 'latest'
         return ProjectController.run_query(
             self,
             [[WHERE ispublished AND NOT EXISTS(
@@ -166,6 +169,7 @@ ProjectController = {
             ispublic = false,
             ispublished = false
         })
+        uncache_category('latest')
         return okResponse()
     end),
     publish = capture_errors(function (self)
@@ -177,6 +181,7 @@ ProjectController = {
             ispublic = true,
             ispublished = true
         })
+        uncache_category('latest')
         return okResponse()
     end),
     unpublish = capture_errors(function (self)
@@ -186,6 +191,7 @@ ProjectController = {
             lastupdated = db.format_date(),
             ispublished = false
         })
+        uncache_category('latest')
         return okResponse()
     end),
     metadata = capture_errors(function (self)
