@@ -185,7 +185,7 @@ end
 
 package.loaded.uncache_category = function (category)
     local query = ngx.shared.query_cache_categories:get(category)
-    ngx.shared.query_cache:delete(query)
+    if query then ngx.shared.query_cache:delete(query) end
 end
 
 -- Before filter

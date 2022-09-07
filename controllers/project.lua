@@ -23,7 +23,6 @@
 local util = package.loaded.util
 local validate = package.loaded.validate
 local db = package.loaded.db
-local cached = package.loaded.cached
 local cached_query = package.loaded.cached_query
 local uncache_category = package.loaded.uncache_category
 local yield_error = package.loaded.yield_error

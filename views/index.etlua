@@ -78,7 +78,8 @@ for _, descriptor in pairs(features) do
             items = CollectionController.projects({
                 params = {},
                 items_per_page = 20,
-                collection = collection
+                collection = collection,
+                cached = true
             }),
             href = collection:url_for('site')
         }

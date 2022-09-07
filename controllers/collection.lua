@@ -25,6 +25,8 @@ local Collections = package.loaded.Collections
 local CollectionMemberships = package.loaded.CollectionMemberships
 local Users = package.loaded.Users
 local db = package.loaded.db
+local cached_query = package.loaded.cached_query
+local uncache_category = package.loaded.uncache_category
 local disk = package.loaded.disk
 local assert_error = package.loaded.app_helpers.assert_error
 local yield_error = package.loaded.yield_error
@@ -100,9 +102,24 @@ CollectionController = {
         if not ignore_page_count then
             self.num_pages = paginator:num_pages()
         end
-        local items = paginator:get_page(self.params.page_number)
+        local items = {}
+        if self.cached then
+            items = cached_query(
+                { paginator._clause, self.params.page_number },
+                'collection#' .. tostring(self.collection.id),
+                Projects,
+                function ()
+                    local entries =
+                        paginator:get_page(self.params.page_number)
+                    disk:process_thumbnails(entries)
+                    return entries
+                end
+            )
+        else
+            items = paginator:get_page(self.params.page_number)
+            disk:process_thumbnails(items)
+        end
         self.page_item_count = #(items)
-        disk:process_thumbnails(items)
         return items
     end),
     containing_project = capture_errors(function (self)
@@ -158,6 +175,8 @@ CollectionController = {
             user_id = self.current_user.id -- who added it to the collection
         })
 
+        uncache_category('collection#' .. tostring(collection.id))
+
         return jsonResponse({ redirect = project:url_for('site') })
     end),
     remove_project = capture_errors(function (self)
@@ -176,6 +195,9 @@ CollectionController = {
                 collection_id = collection.id,
                 project_id = self.params.project_id
             })
+
+        uncache_category('collection#' .. tostring(collection.id))
+
         return okResponse()
     end),
     set_thumbnail = capture_errors(function (self)
