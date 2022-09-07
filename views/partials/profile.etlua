@@ -52,6 +52,11 @@
             <a class="pure-button become"
                 onclick="cloud.post('/users/<%= item.username %>/become');"
                 ><%- locale.get('become') %></a>
+            <% if not item.verified then %>
+            <a class="pure-button verify"
+                onclick="cloud.post('/users/<%= item.username %>/verify');"
+                ><%- locale.get('verify') %></a>
+            <% end %>
             <a class="pure-button changeemail"
                 onclick="
                     prompt(

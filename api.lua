@@ -152,6 +152,10 @@ app:match(api_route('users/:username/become'), respond_to({
     POST = UserController.become
 }))
 
+app:match(api_route('users/:username/verify'), respond_to({
+    POST = UserController.verify
+}))
+
 app:match(api_route('users/:username/resendverification'), respond_to({
     POST = UserController.resend_verification
 }))

@@ -450,6 +450,19 @@ UserController = {
             })
         end
     end),
+    verify = capture_errors(function (self)
+        assert_min_role(self, 'moderator')
+        if self.queried_user then
+            self.queried_user:update({ verified = true })
+            local token = find_token(self.queried_user.username, 'verification')
+            if token then token:delete() end
+        end
+        return jsonResponse({
+            message = 'User ' .. self.queried_user.username .. ' verified.',
+            title = 'Verification',
+            redirect = self.queried_user:url_for('site')
+        })
+    end),
     set_role = capture_errors(function (self)
         assert_min_role(self, 'moderator')
         if self.queried_user then

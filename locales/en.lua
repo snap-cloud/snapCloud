@@ -329,6 +329,7 @@ local locale = {
     project_count = "Project count",
     -- Buttons
     become = "Become", -- as an admin, temporarily impersonate this user
+    verify = "Verify",
     change_email = "Change Email",
     send_msg = "Send a Message",
     ban = "Ban",
