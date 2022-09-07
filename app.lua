@@ -170,12 +170,10 @@ package.loaded.cached_query = function (key_table, model, on_miss)
 
     local contents = cache:get(key)
     if contents == nil then
-        debug_print('cache miss')
         -- run the function that was passed for when there's a cache miss
         contents = on_miss()
         cache:set(key, package.loaded.util.to_json(contents))
     else
-        debug_print('cache hit')
         contents = package.loaded.util.from_json(contents)
         for _, item in ipairs(contents) do setmetatable(item, model.__index) end
     end
