@@ -173,7 +173,7 @@ app:match(api_route('zombies/:username'), respond_to({
 }))
 
 app:match(api_route('zombies/:username/revive'), respond_to({
-    POST = UserController.revive --TODO
+    POST = UserController.revive
 }))
 
 -- Emails

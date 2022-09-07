@@ -502,8 +502,7 @@ UserController = {
                 ' is already verified.\n' ..
                 'There is no need for you to do anything.\n')
         end
-        create_token(self, 'verify_user', self.queried_user.username,
-            self.queried_user.email)
+        create_token(self, 'verify_user', self.queried_user)
         return okResponse(
             'Verification email for ' .. self.queried_user.username ..
             ' sent.\nPlease check your email and validate your\n' ..
