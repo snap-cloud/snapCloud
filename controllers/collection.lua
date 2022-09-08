@@ -99,9 +99,6 @@ CollectionController = {
         if not self.params.page_number then self.params.page_number = 1 end
         local paginator = self.collection:get_projects()
         paginator.per_page = self.items_per_page
-        if not ignore_page_count then
-            self.num_pages = paginator:num_pages()
-        end
         local items = {}
         if self.cached then
             items = cached_query(
@@ -118,6 +115,20 @@ CollectionController = {
         else
             items = paginator:get_page(self.params.page_number)
             disk:process_thumbnails(items)
+        end
+        if not ignore_page_count then
+            if self.cached then
+                self.num_pages = cached_query(
+                    { paginator._clause, 'count' },
+                    'collection#' .. tostring(self.collection.id) .. '#count',
+                    nil,
+                    function ()
+                        return paginator:num_pages()
+                    end
+                )
+            else
+                self.num_pages = paginator:num_pages()
+            end
         end
         self.page_item_count = #(items)
         return items
@@ -176,6 +187,7 @@ CollectionController = {
         })
 
         uncache_category('collection#' .. tostring(collection.id))
+        uncache_category('collection#' .. tostring(collection.id) .. '#count')
 
         return jsonResponse({ redirect = project:url_for('site') })
     end),
@@ -197,6 +209,7 @@ CollectionController = {
             })
 
         uncache_category('collection#' .. tostring(collection.id))
+        uncache_category('collection#' .. tostring(collection.id) .. '#count')
 
         return okResponse()
     end),

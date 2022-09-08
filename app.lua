@@ -178,7 +178,11 @@ package.loaded.cached_query = function (key_table, category, model, on_miss)
         end
     else
         contents = package.loaded.util.from_json(contents)
-        for _, item in ipairs(contents) do setmetatable(item, model.__index) end
+        if model then
+            for _, item in ipairs(contents) do
+                setmetatable(item, model.__index)
+            end
+        end
     end
     return contents
 end

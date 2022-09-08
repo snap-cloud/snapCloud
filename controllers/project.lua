@@ -76,7 +76,18 @@ ProjectController = {
                 disk:process_thumbnails(items)
             end
             if not self.ignore_page_count then
-                self.num_pages = paginator:num_pages()
+                if self.cached then
+                    self.num_pages = cached_query(
+                        { paginator._clause, 'count' },
+                        self.cache_category .. '#count',
+                        nil,
+                        function ()
+                            return paginator:num_pages()
+                        end
+                    )
+                else
+                    self.num_pages = paginator:num_pages()
+                end
             end
 
             return items
@@ -169,6 +180,7 @@ ProjectController = {
             ispublished = false
         })
         uncache_category('latest')
+        uncache_category('latest#count')
         return okResponse()
     end),
     publish = capture_errors(function (self)
@@ -181,6 +193,7 @@ ProjectController = {
             ispublished = true
         })
         uncache_category('latest')
+        uncache_category('latest#count')
         return okResponse()
     end),
     unpublish = capture_errors(function (self)
@@ -191,6 +204,7 @@ ProjectController = {
             ispublished = false
         })
         uncache_category('latest')
+        uncache_category('latest#count')
         return okResponse()
     end),
     metadata = capture_errors(function (self)
