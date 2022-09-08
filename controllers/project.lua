@@ -111,7 +111,7 @@ ProjectController = {
         )
     end),
     user_projects = capture_errors(function (self)
-        self.session.app = 'snap'
+        self.session.app = self.session.app or 'snap'
         if users_match(self) then
             return ProjectController.my_projects(self)
         else
