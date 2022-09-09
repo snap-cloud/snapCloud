@@ -211,7 +211,7 @@ assert_can_set_role = function (self, role)
 end
 
 users_match = function (self)
-    return (self.session.username == self.params.username)
+    return (self.session.username == tostring(self.params.username))
 end
 
 assert_users_match = function (self, message)
@@ -363,7 +363,7 @@ is_editor = function (self, collection)
 end
 
 assert_collection_exists = function (self)
-    local creator = Users:find({ username = self.params.username })
+    local creator = Users:find({ username = tostring(self.params.username) })
     if not creator then
         yield_error(err.nonexistent_collection)
     end

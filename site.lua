@@ -65,7 +65,7 @@ end
 app:get('/embed', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     self.project = Projects:find(
-        self.params.user or self.params.username,
+        tostring(self.params.user or self.params.username),
         self.params.project or self.params.projectname
     )
     return { render = 'embed', layout = false }
@@ -107,7 +107,7 @@ app:get('/my_collections', capture_errors(function (self)
 end))
 
 app:get('/collection', capture_errors(function (self)
-    local creator = Users:find({ username = self.params.username })
+    local creator = Users:find({ username = tostring(self.params.username) })
     self.collection =
         Collections:find(creator.id, self.params.collection)
     assert_can_view_collection(self, self.collection)
@@ -168,7 +168,7 @@ end)))
 app:get('/project', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     self.project = Projects:find(
-        self.params.user or self.params.username,
+        tostring(self.params.user or self.params.username),
         self.params.project or self.params.projectname
     )
 

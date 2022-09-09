@@ -120,7 +120,7 @@ ProjectController = {
                 self,
                 db.interpolate_query(
                     'WHERE ispublished AND username = ? ',
-                    self.params.username
+                    tostring(self.params.username)
                 )
             )
         end
@@ -216,7 +216,7 @@ ProjectController = {
 
         local project =
             Projects:find(
-                self.params.username,
+                tostring(self.params.username),
                 tostring(self.params.projectname)
             )
         if not project then yield_error(err.nonexistent_project) end
@@ -248,7 +248,7 @@ ProjectController = {
                 Projects:find({id = self.params.id })
             or
                 Projects:find(
-                    self.params.username,
+                    tostring(self.params.username),
                     tostring(self.params.projectname)
                 )
 
@@ -339,7 +339,7 @@ ProjectController = {
                 Projects:find({id = self.params.id })
             or
                 Projects:find(
-                    self.params.username,
+                    tostring(self.params.username),
                     tostring(self.params.projectname)
                 )
 
@@ -370,7 +370,7 @@ ProjectController = {
     thumbnail = capture_errors(function (self)
         local project =
             Projects:find(
-                self.params.username,
+                tostring(self.params.username),
                 tostring(self.params.projectname)
             )
 
@@ -394,7 +394,7 @@ ProjectController = {
     versions = capture_errors(function (self)
         local project =
             Projects:find(
-                self.params.username,
+                tostring(self.params.username),
                 tostring(self.params.projectname)
             )
 
@@ -443,7 +443,7 @@ ProjectController = {
 
         local project =
             Projects:find(
-                self.params.username,
+                tostring(self.params.username),
                 tostring(self.params.projectname)
             )
 
@@ -478,7 +478,7 @@ ProjectController = {
             -- in the DB.
             -- We need to check for that and delete it for real this time
             local deleted_project = DeletedProjects:find(
-                self.params.username,
+                tostring(self.params.username),
                 tostring(self.params.projectname))
             -- Deleted project may have remixes or be included in a
             -- collection. Let's take care of this.
@@ -496,7 +496,7 @@ ProjectController = {
             end
             Projects:create({
                 projectname = tostring(self.params.projectname),
-                username = self.params.username,
+                username = tostring(self.params.username),
                 created = db.format_date(),
                 lastupdated = db.format_date(),
                 lastshared = self.params.ispublic and
@@ -509,7 +509,7 @@ ProjectController = {
             })
             project =
                 Projects:find(
-                    self.params.username,
+                    tostring(self.params.username),
                     tostring(self.params.projectname)
                 )
 

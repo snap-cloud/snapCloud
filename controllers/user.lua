@@ -214,7 +214,8 @@ UserController = {
         })
     end),
     reset_password = capture_errors(function (self)
-        local token = find_token(self.params.username, 'password_reset')
+        local token =
+            find_token(tostring(self.params.username), 'password_reset')
         if token then
             local minutes = db.select(
                 'extract(minutes from (now()::timestamp - ?::timestamp))',
@@ -284,7 +285,8 @@ UserController = {
     end),
     perma_delete = capture_errors(function (self)
         assert_admin(self)
-        local zombie = DeletedUsers:find({ username = self.params.username })
+        local zombie =
+            DeletedUsers:find({ username = tostring(self.params.username) })
         if zombie then
             -- Delete all follows
             db.delete(
@@ -347,7 +349,7 @@ UserController = {
 
             return jsonResponse({
                 title = 'User deleted',
-                message = 'User ' .. self.params.username ..
+                message = 'User ' .. tostring(self.params.username) ..
                     ' has been permanently deleted from our records.'
             })
         else
@@ -356,14 +358,16 @@ UserController = {
     end),
     revive = capture_errors(function (self)
         assert_admin(self)
-        local zombie = DeletedUsers:find({ username = self.params.username })
+        local zombie =
+            DeletedUsers:find({ username = tostring(self.params.username) })
         if zombie then
             zombie:update({ deleted = db.NULL })
-            local user = Users:find({ username = self.params.username })
+            local user =
+                Users:find({ username = tostring(self.params.username) })
             if user then
                 return jsonResponse({
                     title = 'User revived',
-                    message = 'User ' .. self.params.username ..
+                    message = 'User ' .. tostring(self.params.username) ..
                         ' has been brought back from limbo.',
                     redirect = user:url_for('site')
                 })
@@ -379,7 +383,7 @@ UserController = {
         prevent_tor_access(self)
 
         -- strip whitespace *only* on create users.
-        self.params.username = util.trim(self.params.username)
+        self.params.username = util.trim(tostring(self.params.username))
         validate.assert_valid(self.params, {
             { 'username', exists = true, min_length = 4,
                 max_length = 200 },

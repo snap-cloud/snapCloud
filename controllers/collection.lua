@@ -335,7 +335,7 @@ CollectionController = {
             assert_admin(self)
         end
 
-        local editor = Users:find({ username = self.params.username })
+        local editor = Users:find({ username = tostring(self.params.username) })
         if not editor then yield_error(err.nonexistent_user) end
 
         collection:update({
