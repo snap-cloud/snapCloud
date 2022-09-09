@@ -242,6 +242,12 @@ app:before_filter(function (self)
         end
     end
 
+    if self.params.username and self.params.username ~= '' then
+        self.params.username = tostring(self.params.username):lower()
+        self.queried_user =
+            package.loaded.Users:find({ username = self.params.username })
+    end
+
     -- unescape all parameters and JSON-decode them
     for k, v in pairs(self.params) do
         -- try to decode it, if it fails it's not proper JSON
@@ -253,12 +259,6 @@ app:before_filter(function (self)
         elseif type(v) == 'string' then
             self.params[k] = package.loaded.util.unescape(v)
         end
-    end
-
-    if self.params.username and self.params.username ~= '' then
-        self.params.username = tostring(self.params.username):lower()
-        self.queried_user =
-            package.loaded.Users:find({ username = self.params.username })
     end
 
     if self.session.username and self.session.username ~= '' then
