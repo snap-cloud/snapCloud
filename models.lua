@@ -99,7 +99,7 @@ package.loaded.Users = Model:extend('active_users', {
     end,
     url_for = function (self, purpose)
         local urls = {
-            site = 'user?username=' .. escape(self.username)
+            site = '/user?username=' .. escape(self.username)
         }
         return urls[purpose]
     end,
@@ -170,9 +170,9 @@ package.loaded.Projects = Model:extend('active_projects', {
                 '&ProjectName=' .. escape(self.projectname) ..
                 '&editMode&noRun',
             download = '/project/' .. escape(self.id),
-            site = 'project?username=' .. escape(self.username) ..
+            site = '/project?username=' .. escape(self.username) ..
                 '&projectname=' .. escape(self.projectname),
-            author = 'user?username=' .. escape(self.username),
+            author = '/user?username=' .. escape(self.username),
             embed = 'https://snap.berkeley.edu/embed?projectname=' ..
                 escape(self.projectname) .. '&username=' ..
                 escape(self.username)
@@ -246,9 +246,9 @@ package.loaded.Collections = Model:extend('collections', {
             self.username = self.creator.username
         end
         local urls = {
-            site = 'collection?username=' .. escape(self.username) ..
+            site = '/collection?username=' .. escape(self.username) ..
                 '&collection=' .. escape(self.name),
-            author = 'user?username=' .. escape(self.username)
+            author = '/user?username=' .. escape(self.username)
         }
         return urls[purpose]
     end,
