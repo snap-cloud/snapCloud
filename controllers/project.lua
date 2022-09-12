@@ -111,7 +111,7 @@ ProjectController = {
         )
     end),
     user_projects = capture_errors(function (self)
-        if users_match(self) then
+        if users_match(self) and not self.params.show_public then
             return ProjectController.my_projects(self)
         else
             self.params.order = 'lastupdated DESC'

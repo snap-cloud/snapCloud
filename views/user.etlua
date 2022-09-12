@@ -13,9 +13,11 @@ render(
         items = ProjectController.user_projects({
             params = {
                 username = username,
-                items_per_page = 20
+                items_per_page = 20,
+                show_public = true
             },
-            session = session
+            session = session,
+            req = { source = 'site' }
         }),
         class = 'projects',
         show_author = false,
