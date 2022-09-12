@@ -1,4 +1,3 @@
-<% session.app = 'site' %>
 <!DOCTYPE html>
 <html>
     <head>

@@ -121,7 +121,7 @@ UserController = {
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
                 local message =
-                    (self.session.app == 'snap')
+                    (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
                         or err.nonvalidated_user_html
                 -- Check whether verification token is unused and valid

@@ -206,9 +206,9 @@ app:before_filter(function (self)
     self.locale = package.loaded.locale
     self.locale.language = self.session.locale or 'en'
 
-    self.session.app = (ngx.var.http_referer and
-        (ngx.var.http_referer:sub(-#'snap.html') == 'snap.html'))
-            and 'snap' or 'site'
+    self.req.source =
+        (self.req.headers['content-type'] and
+            self.req.headers['content-type']:find('json')) and 'snap' or 'site'
 
     -- Set Access Control header
     local domain = domain_name(self.req.headers.origin)

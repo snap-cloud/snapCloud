@@ -55,7 +55,7 @@ ProjectController = {
                     fields = self.params.fields or '*'
                 }
             )
-        if (self.session.app == 'snap') then
+        if (self.req.source == 'snap') then
             return jsonResponse({ projects = paginator:get_all() })
         else
             local items = {}
@@ -111,7 +111,6 @@ ProjectController = {
         )
     end),
     user_projects = capture_errors(function (self)
-        self.session.app = self.session.app or 'snap'
         if users_match(self) then
             return ProjectController.my_projects(self)
         else
