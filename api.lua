@@ -195,6 +195,10 @@ app:match(api_route('project/:id/flag'), respond_to({
     DELETE = ProjectController.remove_flag
 }))
 
+app:match(api_route('project/:id/mark_as_remix'), respond_to({
+    POST = ProjectController.mark_as_remix,
+}))
+
 app:match(api_route('project/:id/share'), respond_to({
     POST = ProjectController.share,
     DELETE = ProjectController.unshare

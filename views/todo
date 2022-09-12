@@ -2,6 +2,9 @@ TWEAKS
 ======
 [ ] unify self.per_page, self.items_per_page and self.params.items_per_page
 [ ] maybe refactor IP bans administration so it uses the grid template?
+[x] mark project as remix of other project
+[ ] disregard flag and email flagger
+[ ] count illegitimate flags
 
 LOCALIZATION
 ============

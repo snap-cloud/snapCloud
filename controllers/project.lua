@@ -32,6 +32,7 @@ local disk = package.loaded.disk
 local cjson = package.loaded.cjson
 
 local Projects = package.loaded.Projects
+local Remixes = package.loaded.Remixes
 local FlaggedProjects = package.loaded.FlaggedProjects
 local DeletedProjects = package.loaded.DeletedProjects
 local Collections = package.loaded.Collections
@@ -328,6 +329,24 @@ ProjectController = {
                     flagger.id
                 ) then
             yield_error(err.project_never_flagged)
+        end
+
+        return okResponse()
+    end),
+    mark_as_remix = capture_errors(function (self)
+        assert_min_role(self, 'moderator')
+
+        local original_project =
+            Projects:find(
+                tostring(self.params.original_username),
+                tostring(self.params.original_projectname)
+            )
+        if original_project then
+            Remixes:create({
+                original_project_id = original_project.id,
+                remixed_project_id = self.params.id,
+                created = self.params.created
+            })
         end
 
         return okResponse()
