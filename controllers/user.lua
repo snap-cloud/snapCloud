@@ -121,7 +121,7 @@ UserController = {
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
                 local message =
-                    (self.req.source == 'snap')
+                    self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
                         or err.nonvalidated_user_html
                 -- Check whether verification token is unused and valid
@@ -225,12 +225,16 @@ UserController = {
             end
         end
         create_token(self, 'password_reset', self.queried_user)
-        return jsonResponse({
-            title = 'Password reset',
-            message = 'A link to reset your password has been sent to ' ..
-            'your email account.',
-            redirect = self:build_url('index')
-        })
+        if self.req and (self.req.source == 'snap') then
+            return okResponse()
+        else
+            return jsonResponse({
+                title = 'Password reset',
+                message = 'A link to reset your password has been sent to ' ..
+                'your email account.',
+                redirect = self:build_url('index')
+            })
+        end
     end),
     remind_username = capture_errors(function (self)
         rate_limit(self)

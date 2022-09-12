@@ -55,7 +55,7 @@ ProjectController = {
                     fields = self.params.fields or '*'
                 }
             )
-        if (self.req.source == 'snap') then
+        if self.req and (self.req.source == 'snap') then
             return jsonResponse({ projects = paginator:get_all() })
         else
             local items = {}
