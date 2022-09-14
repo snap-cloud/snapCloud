@@ -15,8 +15,8 @@
                     '</a></span>',
                 '<a href="' .. remixed_from:url_for('author') ..
                     '"><strong>' .. remixed_from.username ..
-                    '</strong></a></span>')
-        %></span>'
+                    '</strong></a>')
+        %></span>
         <% end %>
 
         <span class="author"><%-
