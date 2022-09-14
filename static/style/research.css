@@ -1,0 +1,33 @@
+.article-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.2em;
+}
+
+.authors {
+    font-style: italic;
+    font-size: 0.9em;
+}
+
+.publication {
+    font-size: 0.9em;
+}
+
+.abstract {
+    font-size: 0.8em;
+    padding: 1em;
+    width: 80%;
+    line-height: 1.2em;
+}
+
+.article-list {
+    display: flex;
+    flex-flow: wrap;
+}
+
+.article-list li {
+    flex: 50%;
+    padding: 1em;
+    box-sizing: border-box;
+}

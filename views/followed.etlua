@@ -1,0 +1,21 @@
+<h1><%= locale.get('followed_feed') %></h1>
+<%
+if items[1] then
+    render(
+        'views.grid',
+        {
+            class = 'my_projects',
+            item_type = 'project',
+            items_per_page = 15,
+            items_per_row = 5,
+            with_search = true
+        }
+    )
+else
+%>
+<span><%-
+    locale.get(
+        'following_nobody',
+        '<strong>' .. locale.get('follow_user') .. '</strong>')
+%></span>
+<% end %>

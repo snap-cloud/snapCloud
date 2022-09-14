@@ -1,0 +1,49 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title><%= project.projectname %></title>
+
+        <script type="text/javascript" src="/static/js/locale.js"></script>
+        <script type="text/javascript" src="/static/js/base.js"></script>
+        <script type="text/javascript" src="/static/js/project.js"></script>
+
+        <link rel="icon" href="favicon.png">
+        <link rel="stylesheet" href="/static/style/reset.css">
+        <link rel="stylesheet" href="/static/style/pure-min.css">
+        <link rel="stylesheet"
+            href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
+            integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
+            crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/style/classes.css">
+        <link rel="stylesheet" href="/static/style/project.css">
+        <link rel="stylesheet" href="/static/style/embed.css">
+    </head>
+    <body>
+
+        <div class="project big embed">
+            <i class="project-loader fas fa-spinner fa-spin fa-3x"
+                aria-hidden="true"></i>
+            <div class="controlbar">
+        <% if params.showTitle then %>
+                <span class="title"><%= project.projectname %><% if params.showAuthor then %><span class="author"> by <a href="<%= project:url_for('author') %>" target=""><strong><%= project.username %></strong></a></span><% end %></span>
+        <% end %>
+                <i class="start-button fas fa-flag clickable"
+                    onclick="runProject(event);"></i>
+        <% if params.pauseButton then %>
+                <i class="pause-button fas fa-pause clickable"
+                    onclick="togglePauseProject();"></i>
+        <% end %>
+                <i class="stop-button fas fa-octagon clickable"
+                    onclick="stopProject();"></i>
+        <% if params.editButton then %>
+                <a title="See source code" class="edit" href="<%= project:url_for('open', params.devVersion) %>" target="_blank"><i class="far fa-eye"></i></a>
+        <% end %>
+            </div>
+            <iframe allow="geolocation; microphone; camera" sandbox="allow-scripts allow-same-origin" src="<%= project:url_for('viewer', params.devVersion) %>" height="406"></iframe>
+
+        </div>
+        <script type="text/javascript">
+            document.body.style.overflow = 'hidden';
+        </script>
+    </body>
+</html>

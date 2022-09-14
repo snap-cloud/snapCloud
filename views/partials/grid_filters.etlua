@@ -1,0 +1,21 @@
+<% for _, filter in ipairs(filter_descriptors) do %>
+    <div class="filter <%= filter.selector %>"><%= filter.label %>:
+        <% -- for some reason, URL does not work inside of onchange %>
+        <script>var url = new URL(location.href);</script>
+        <select name="<%= filter.selector %>"
+            onchange="
+                url.searchParams.set(
+                    'filter_<%- filter.selector %>',
+                    this.value
+                );
+                location.href = url.href;
+            ">
+            <% for _, option in pairs(filter.options) do %>
+            <option
+                <%- (params['filter_' .. filter.selector] == option.value)
+                    and 'selected' or '' %>
+                value="<%= option.value %>"><%= option.label %></option>
+            <% end %>
+        </select>
+    </div>
+<% end %>

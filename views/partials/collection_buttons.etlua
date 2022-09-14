@@ -1,0 +1,64 @@
+<div class="buttons">
+    <% if collection.published then %>
+    <a class="pure-button unpublish"
+        onclick="confirmUnpublish('<%= data %>')"
+        ><%= locale.get('unpublish_collection_button') %></a>
+    <a class="pure-button unshare"
+        onclick="confirmUnshare('<%= data %>')"
+        ><%= locale.get('unshare_collection_button') %></a>
+    <% elseif collection.shared then %>
+    <a class="pure-button publish"
+        onclick="confirmPublish('<%= data %>')"
+        ><%= locale.get('publish_collection_button') %></a>
+    <a class="pure-button unshare"
+        onclick="confirmUnshare('<%= data %>')"
+        ><%= locale.get('unshare_collection_button') %></a>
+    <% else %>
+    <a class="pure-button share"
+        onclick="confirmShare('<%= data %>')"
+        ><%= locale.get('share_collection_button') %></a>
+    <a class="pure-button publish"
+        onclick="confirmPublish('<%= data %>')"
+        ><%= locale.get('publish_collection_button') %></a>
+    <% end %>
+
+    <% if current_user:isadmin() or (current_user.id == collection.creator_id)
+        then %>
+    <a class="pure-button pure-button-warning delete" onclick="
+        confirm(
+            '<%= package.loaded.dialog(
+                'confirm_delete',
+                { item_name = 'collection'}) %>',
+            () => { cloud.delete('/collection/<%= collection.id %>'); }
+        );
+    "><%= locale.get('delete_collection_button') %></a>
+    <% end %>
+</div>
+<script>
+
+function confirmPublish () {
+    confirm(
+        "<%= locale.get('confirm_publish_collection') %>",
+        () => { cloud.post('/collection/<%= collection.id %>/publishing'); }
+    );
+};
+function confirmUnpublish () {
+    confirm(
+        "<%= locale.get('confirm_unpublish_collection') %>",
+        () => { cloud.delete('/collection/<%= collection.id %>/publishing'); }
+    );
+};
+function confirmShare () {
+    confirm(
+        "<%= locale.get('confirm_share_collection') %>",
+        () => { cloud.post('/collection/<%= collection.id %>/sharing'); }
+    );
+};
+function confirmUnshare () {
+    confirm(
+        "<%= locale.get('confirm_unshare_collection') %>",
+        () => { cloud.delete( '/collection/<%= collection.id %>/sharing'); }
+    );
+};
+
+</script>

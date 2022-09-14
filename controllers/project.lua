@@ -1,9 +1,9 @@
--- Project API controller
--- ======================
+-- Project controller
+-- ==================
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
+-- Copyright (C) 2021 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --
@@ -23,692 +23,536 @@
 local util = package.loaded.util
 local validate = package.loaded.validate
 local db = package.loaded.db
-local cached = package.loaded.cached
+local cached_query = package.loaded.cached_query
+local uncache_category = package.loaded.uncache_category
 local yield_error = package.loaded.yield_error
-local cjson = require('cjson')
+local capture_errors = package.loaded.capture_errors
+local db = package.loaded.db
+local disk = package.loaded.disk
+local cjson = package.loaded.cjson
 
 local Projects = package.loaded.Projects
-local Users = package.loaded.Users
-local DeletedProjects = package.loaded.DeletedProjects
 local Remixes = package.loaded.Remixes
-local CollectionMemberships = package.loaded.CollectionMemberships
 local FlaggedProjects = package.loaded.FlaggedProjects
-
-local disk = package.loaded.disk
-
-require 'responses'
-require 'validation'
+local DeletedProjects = package.loaded.DeletedProjects
+local Collections = package.loaded.Collections
+local Users = package.loaded.Users
 
 ProjectController = {
-    GET = {
-        projects = cached({
-            -- GET /projects
-            -- Description: Get a list of published projects.
-            -- Parameters:  page, pagesize, matchtext, withthumbnail, filtered
-            exptime = 30, -- cache expires after 30 seconds
-            function (self)
-                local query = 'where ispublished and username not in ' ..
-                    '(select username from deleted_users)'
-                -- Apply where clauses
-                if self.params.matchtext then
-                    query = query ..
-                        db.interpolate_query(
-                            ' and (projectname ILIKE ? or notes ILIKE ?)',
-                            self.params.matchtext,
-                            self.params.matchtext
-                        )
-                end
-
-                -- Apply project name filter to hide projects with typical
-                -- BJC or Teals names.
-                if self.params.filtered then
-                    query = query .. db.interpolate_query(course_name_filter())
-                end
-
-                local paginator =
-                    Projects:paginated(
-                        query .. ' order by firstpublished desc',
-                        { per_page = self.params.pagesize or 16 }
-                    )
-
-                local projects = self.params.page and
-                    paginator:get_page(self.params.page) or paginator:get_all()
-
-                if self.params.withthumbnail == 'true' then
-                    disk:process_thumbnails(projects)
-                end
-
-                return jsonResponse({
-                    pages = self.params.page and paginator:num_pages() or nil,
-                    projects = projects
-                })
-            end
-        }),
-
-        user_projects = function (self)
-            -- GET /projects/:username
-            -- Description: Get metadata for a project list by a user.
-            --              Response will depend on parameters and query issuer
-            --              permissions.
-            -- Parameters:  ispublished, page, pagesize, matchtext,
-            --              withthumbnail, updatingnotes
-            local order = 'lastupdated'
-
-            if not (users_match(self)) then
-                if not self.current_user or not self.current_user:isadmin() then
-                    self.params.ispublished = 'true'
-                    order = 'firstpublished'
-                end
-            end
-
-            assert_user_exists(self)
-
-            local query = db.interpolate_query('where username = ?',
-                self.queried_user.username)
-
-            -- Apply where clauses
-            if self.params.ispublished ~= nil then
-                query = query ..
-                    db.interpolate_query(
-                        ' and ispublished = ?',
-                        self.params.ispublished == 'true'
-                    )
-            end
-
-            if self.params.matchtext then
-                query = query ..
-                    db.interpolate_query(
-                        ' and (projectname ILIKE ? or notes ILIKE ?)',
-                        self.params.matchtext,
-                        self.params.matchtext
-                    )
-            end
-
-            local paginator = Projects:paginated(query .. ' order by ' ..
-                order .. ' desc', { per_page = self.params.pagesize or 16 })
-            local projects = self.params.page and
-                paginator:get_page(self.params.page) or paginator:get_all()
-
-            if self.params.updatingnotes == 'true' then
-                disk:process_notes(projects)
-            end
-            if self.params.withthumbnail == 'true' then
-                disk:process_thumbnails(projects)
-            end
-
-            return jsonResponse({
-                pages = self.params.page and paginator:num_pages() or nil,
-                projects = projects
-            })
-        end,
-
-        project = function (self)
-            -- GET /projects/:username/:projectname
-            -- Description: Get a particular project.
-            --              Response will depend on query issuer permissions.
-            -- Parameters:  delta, ispublic, ispublished
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if not project then yield_error(err.nonexistent_project) end
-            if not (project.ispublic or users_match(self)) then
-                assert_admin(self, err.nonexistent_project)
-            end
-
-            -- self.params.delta is a version indicator
-            -- delta = null will fetch the current version
-            -- delta = -1 will fetch the previous saved version
-            -- delta = -2 will fetch the last version before today
-
-            return xmlResponse(
-                -- if users don't match, this project is being remixed and we
-                -- need to attach its ID
-                '<snapdata' .. (users_match(self) and '>' or ' remixID="' ..
-                    project.id .. '">') ..
-                    (disk:retrieve(
-                        project.id, 'project.xml', self.params.delta) or
-                            '<project></project>') ..
-                    (disk:retrieve(
-                        project.id, 'media.xml', self.params.delta) or
-                            '<media></media>') ..
-                    '</snapdata>'
-            )
-        end,
-
-        project_meta = function (self)
-            -- GET /projects/:username/:projectname/metadata
-            -- Description: Get a project metadata.
-            -- Parameters:  projectname, ispublic, ispublished, lastupdated,
-            --              lastshared
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then
-                assert_users_match(self, err.nonexistent_project)
-            end
-
-            local remixed_from =
-                Remixes:select('where remixed_project_id = ?', project.id)[1]
-
-            if self.current_user then
-                project.flagged = FlaggedProjects:select(
-                        'where project_id = ? and flagger_id = ?',
-                        project.id,
-                        self.current_user.id,
-                        {fields = 'count(*) as count'})[1].count > 0
-            end
-
-            if remixed_from and remixed_from.original_project_id then
-                local original_project = Projects:select(
-                    'where id = ?', remixed_from.original_project_id)[1]
-                if original_project then
-                    project.remixedfrom = {
-                        username = original_project.username,
-                        projectname = original_project.projectname
-                    }
-                else
-                    project.remixedfrom = {
-                        username = nil,
-                        projectname = nil
-                    }
-                end
-            elseif remixed_from then
-                project.remixedfrom = {
-                    username = nil,
-                    projectname = nil
-                }
-            end
-
-            return jsonResponse(project)
-        end,
-
-        project_versions = function (self)
-            -- GET /projects/:username/:projectname/versions
-            -- Description: Get info about backed up project versions.
-            -- Body:        versions
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then
-                assert_users_match(self, err.nonexistent_project)
-            end
-
-            -- seconds since last modification
-            local query = db.select(
-                'extract(epoch from age(now(), ?::timestamp))',
-                project.lastupdated)[1]
-
-            return jsonResponse({
+    run_query = function (self, query)
+        -- query can hold a paginator or an SQL query
+        if not self.params.page_number then self.params.page_number = 1 end
+        local paginator = Projects:paginated(
+                 query ..
+                    (self.params.search_term and (db.interpolate_query(
+                        ' AND (projectname ILIKE ? OR notes ILIKE ?)',
+                        '%' .. self.params.search_term .. '%',
+                        '%' .. self.params.search_term .. '%')
+                    ) or '') ..
+                    ' ORDER BY ' ..
+                        (self.params.order or 'firstpublished DESC'),
                 {
-                    lastupdated = query.date_part,
-                    thumbnail = disk:retrieve(project.id, 'thumbnail') or
-                        disk:generate_thumbnail(project.id),
-                    notes = disk:parse_notes(project.id),
-                    delta = 0
-                },
-                disk:get_version_metadata(project.id, -1),
-                disk:get_version_metadata(project.id, -2)
-            })
-        end,
-
-        project_remixes = function (self)
-            -- GET /projects/:username/:projectname/remixes
-            -- Description: Get a list of all published remixes from a project.
-            -- Parameters:  page, pagesize
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if not project then yield_error(err.nonexistent_project) end
-            if not project.ispublic then
-                assert_users_match(self, err.nonexistent_project)
-            end
-
-            --TODO fetch only remixes of non-deleted projects. Otherwise
-            --     page count includes deleted remixes!
-            local paginator =
-                Remixes:paginated(
-                    'where original_project_id = ?',
-                    project.id,
-                    { per_page = self.params.pagesize or 16 }
+                    per_page = self.params.items_per_page or 15,
+                    fields = self.params.fields or '*'
+                }
+            )
+        if self.req and (self.req.source == 'snap') then
+            return jsonResponse({ projects = paginator:get_all() })
+        else
+            local items = {}
+            if self.cached then
+                items = cached_query(
+                    { paginator._clause, self.params.page_number },
+                    self.cache_category,
+                    Projects,
+                    function ()
+                        local entries =
+                            paginator:get_page(self.params.page_number)
+                        disk:process_thumbnails(entries)
+                        return entries
+                    end
                 )
-
-            local remixes_metadata = self.params.page and
-                paginator:get_page(self.params.page) or
-                paginator:get_all()
-            local remixes = {}
-
-            for i, remix in pairs(remixes_metadata) do
-                remixed_project = Projects:select(
-                    'where id = ? and ispublished',
-                    remix.remixed_project_id)[1];
-                if (remixed_project) then
-                    -- Lazy Thumbnail generation
-                    remixed_project.thumbnail =
-                        disk:retrieve(
-                            remix.remixed_project_id,
-                            'thumbnail') or
-                                disk:generate_thumbnail(
-                                    remix.remixed_project_id)
-                    table.insert(remixes, remixed_project)
+            else
+                items = paginator:get_page(self.params.page_number)
+                disk:process_thumbnails(items)
+            end
+            if not self.ignore_page_count then
+                if self.cached then
+                    self.num_pages = cached_query(
+                        { paginator._clause, 'count' },
+                        self.cache_category .. '#count',
+                        nil,
+                        function ()
+                            return paginator:num_pages()
+                        end
+                    )
+                else
+                    self.num_pages = paginator:num_pages()
                 end
             end
 
-            return jsonResponse({
-                pages = self.params.page and paginator:num_pages() or nil,
-                projects = remixes
-            })
-        end,
-
-        project_collections = cached({
-            -- GET /projects/:username/:projectname/collections
-            -- Description: Get a list of all collections this project belongs
-            --              to
-            -- Parameters:  page, pagesize
-            exptime = 60, -- cache expires after 60 seconds
-            function (self)
-                local project =
-                    Projects:find(self.params.username, self.params.projectname)
-
-                if not project then yield_error(err.nonexistent_project) end
-                if not project.ispublic then
-                    assert_users_match(self, err.nonexistent_project)
-                end
-
-                -- This logic is extremely convoluted. It needs to be rethought.
-                local query = db.interpolate_query(
-                    'inner join collections on ' ..
-                    'collection_memberships.collection_id = collections.id ' ..
-                    'inner join users on collections.creator_id = users.id ' ..
-                    'where collection_memberships.project_id = ? ' ..
-                    'and (collections.published or ' ..
-                    '(collections.shared and ?) or ' ..
-                    '(not collections.shared and not ?)' ..
-                        (self.current_user
-                            and
-                                (' or (collections.creator_id = ?) or ' ..
-                                '(collections.editor_ids @> array[?]))')
-                            or
-                                ')'),
-                    project.id,
-                    project.ispublic,
-                    project.ispublic,
-                    self.current_user and self.current_user.id or nil,
-                    self.current_user and self.current_user.id or nil
-                )
-
-                local paginator = CollectionMemberships:paginated(
-                    query,
-                    {
-                        fields = 'collections.creator_id, collections.name, ' ..
-                            'collection_memberships.project_id, '..
-                            'collections.thumbnail_id, collections.shared, ' ..
-                            'collections.published, users.username',
-                        per_page = self.params.pagesize or 16
-                    })
-
-                local collections = self.params.page and
-                    paginator:get_page(self.params.page) or
-                    paginator:get_all()
-
-                disk:process_thumbnails(collections, 'thumbnail_id')
-
-                return jsonResponse({
-                    pages = self.params.page and paginator:num_pages() or nil,
-                    collections = collections
-                })
-            end
-        }),
-
-        project_thumbnail = cached({
-            -- GET /projects/:username/:projectname/thumbnail
-            -- Description: Get a project thumbnail.
-            exptime = 30, -- cache expires after 30 seconds
-            function (self)
-                local project =
-                    Projects:find(self.params.username, self.params.projectname)
-                if not project then yield_error(err.nonexistent_project) end
-
-                if not users_match(self)
-                    and not project.ispublic then
-                    yield_error(err.nonexistent_project)
-                end
-
-                -- Lazy Thumbnail generation
-                return rawResponse(
-                    disk:retrieve(project.id, 'thumbnail') or
-                        disk:generate_thumbnail(project.id))
-            end
-        }),
-
-        flag = function (self)
-            -- GET /projects/:username/:projectname/flag
-            -- Description: Get flagging information for a specific project.
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if not project then yield_error(err.nonexistent_project) end
-
-            assert_has_one_of_roles(self, { 'admin', 'moderator', 'reviewer' })
-
-            return jsonResponse(
-                FlaggedProjects:select(
-                    'JOIN active_users ON active_users.id = flagger_id '..
-                    'WHERE project_id = ? ' ..
-                    'GROUP BY reason, username, created_at, notes',
-                    project.id,
-                    { fields = 'username, created_at, reason, notes' }
+            return items
+        end
+    end,
+    fetch = capture_errors(function (self)
+        self.cache_category = 'latest'
+        return ProjectController.run_query(
+            self,
+            [[WHERE ispublished AND NOT EXISTS(
+                SELECT 1 FROM deleted_users WHERE
+                username = active_projects.username LIMIT 1)]] ..
+                db.interpolate_query(course_name_filter())
+        )
+    end),
+    my_projects = capture_errors(function (self)
+        self.params.order = 'lastupdated DESC'
+        return ProjectController.run_query(
+            self,
+            db.interpolate_query('WHERE username = ?', self.session.username)
+        )
+    end),
+    user_projects = capture_errors(function (self)
+        if users_match(self) and not self.params.show_public then
+            return ProjectController.my_projects(self)
+        else
+            self.params.order = 'lastupdated DESC'
+            return ProjectController.run_query(
+                self,
+                db.interpolate_query(
+                    'WHERE ispublished AND username = ? ',
+                    tostring(self.params.username)
                 )
             )
-        end,
+        end
+    end),
+    followed_projects = capture_errors(function (self)
+        self.params.order = 'lastupdated DESC'
+        return ProjectController.run_query(
+            self,
+            db.interpolate_query([[
+                WHERE ispublished AND username IN (
+                    SELECT username FROM users WHERE id IN
+                        (SELECT followed_id FROM followers
+                            WHERE follower_id = ?)
+                )
+            ]], self.current_user.id)
+        )
+    end),
+    flagged_projects = capture_errors(function (self)
+        self.params.order = 'flag_count DESC'
+        self.params.fields = [[active_projects.id AS id,
+            active_projects.projectname AS projectname,
+            active_projects.username AS username,
+            count(*) AS flag_count]]
+        local query = [[INNER JOIN flagged_projects ON
+                active_projects.id = flagged_projects.project_id
+            WHERE active_projects.ispublic
+            GROUP BY active_projects.projectname,
+                active_projects.username,
+                active_projects.id]]
+        self.ignore_page_count = true
+        if (self.num_pages == nil) then
+            local total_flag_count =
+                #(Projects:select(query, {fields = self.params.fields}))
+            self.num_pages =
+                math.ceil(total_flag_count /
+                    (self.params.items_per_page or 15))
+        end
+        return ProjectController.run_query(self, query)
+    end),
+    share = capture_errors(function (self)
+        local project = Projects:find({ id = self.params.id })
+        assert_can_share(self, project)
+        project:update({
+            lastupdated = db.format_date(),
+            lastshared = db.format_date(),
+            ispublic = true,
+            ispublished = false
+        })
+        return okResponse()
+    end),
+    unshare = capture_errors(function (self)
+        local project = Projects:find({ id = self.params.id })
+        assert_can_share(self, project)
+        project:update({
+            lastupdated = db.format_date(),
+            ispublic = false,
+            ispublished = false
+        })
+        uncache_category('latest')
+        uncache_category('latest#count')
+        return okResponse()
+    end),
+    publish = capture_errors(function (self)
+        local project = Projects:find({ id = self.params.id })
+        assert_can_share(self, project)
+        project:update({
+            lastupdated = db.format_date(),
+            firstpublished = project.firstpublished or db.format_date(),
+            ispublic = true,
+            ispublished = true
+        })
+        uncache_category('latest')
+        uncache_category('latest#count')
+        return okResponse()
+    end),
+    unpublish = capture_errors(function (self)
+        local project = Projects:find({ id = self.params.id })
+        assert_can_share(self, project)
+        project:update({
+            lastupdated = db.format_date(),
+            ispublished = false
+        })
+        uncache_category('latest')
+        uncache_category('latest#count')
+        return okResponse()
+    end),
+    metadata = capture_errors(function (self)
+        assert_users_match(self)
 
-        flags = function (self)
-            -- GET /flagged_projects
-            -- Description: Get a list of all flagged projects and their flag
-            --              count.
+        if self.current_user:isbanned() and self.params.ispublished then
+            yield_error(err.banned)
+        end
 
-            assert_has_one_of_roles(self, { 'admin', 'moderator', 'reviewer' })
+        local project =
+            Projects:find(
+                tostring(self.params.username),
+                tostring(self.params.projectname)
+            )
+        if not project then yield_error(err.nonexistent_project) end
 
-            local projects =
-                Projects:select(
-                    'INNER JOIN flagged_projects ON ' ..
-                        'active_projects.id = flagged_projects.project_id ' ..
-                    'WHERE active_projects.ispublic ' ..
-                    'GROUP BY active_projects.projectname, ' ..
-                        'active_projects.username, ' ..
-                        'active_projects.id ' ..
-                    'ORDER BY flag_count DESC',
-                    {
-                        fields = 'active_projects.id as id, ' ..
-                            'active_projects.projectname as projectname, ' ..
-                            'active_projects.username as username, ' ..
-                            'count(*) AS flag_count',
-                    }
+        local shouldUpdateSharedDate =
+            ((not project.lastshared and self.params.ispublic)
+            or (self.params.ispublic and not project.ispublic))
+
+        local result, error = project:update({
+            lastupdated = db.format_date(),
+            lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+            firstpublished =
+                project.firstpublished or
+                (self.params.ispublished and db.format_date()) or
+                nil,
+            ispublic = self.params.ispublic,
+            ispublished = self.params.ispublished
+        })
+
+        if error then yield_error({ msg = error, status = 422 }) end
+
+        return okResponse(
+            'project ' .. tostring(self.params.projectname) .. ' updated'
+        )
+    end),
+    delete = capture_errors(function (self)
+        local project =
+            self.params.id and
+                Projects:find({id = self.params.id })
+            or
+                Projects:find(
+                    tostring(self.params.username),
+                    tostring(self.params.projectname)
                 )
 
-            disk:process_thumbnails(projects)
+        assert_can_delete(self, project)
 
-            return jsonResponse({ projects = projects })
+        local username = project.username -- keep it for after deleting it
+
+        if self.params.reason then
+            send_mail(
+                self.queried_user.email,
+                mail_subjects.project_deleted .. tostring(project.projectname),
+                mail_bodies.project_deleted .. self.current_user.role ..
+                    '.</p><p>' .. self.params.reason .. '</p>')
         end
-    },
 
-    POST = {
-        project = function (self)
-            -- POST /projects/:username/:projectname
-            -- Description: Add/update a particular project.
-            --              Response will depend on query issuer permissions.
-            -- Body:        xml, notes, thumbnail
+        -- Do not actually delete the project; flag it as deleted.
+        if not (project:update({ deleted = db.format_date() })) then
+            yield_error('Could not delete project ' ..
+                tostring(self.params.projectname))
+        end
 
-            rate_limit(self)
+        local url =
+            ((username == self.current_user.username) and
+                self:build_url('my_projects')
+            or
+                'user?username=' .. package.loaded.util.escape(username)
+            )
 
-            validate.assert_valid(self.params, {
-                { 'projectname', exists = true },
-                { 'username', exists = true }
+        return jsonResponse(
+            {
+                title = 'Project deleted',
+                message = 'Project ' .. tostring(project.projectname) ..
+                    ' has been deleted.',
+                redirect = url
+            }
+        )
+    end),
+    flag = capture_errors(function (self)
+        if self.current_user:isbanned() then yield_error(err.banned) end
+        local project = Projects:find({ id = self.params.id })
+        assert_project_exists(self, project)
+
+        local flag =
+            FlaggedProjects:select(
+                'WHERE project_id = ? AND flagger_id = ?',
+                project.id,
+                self.current_user.id
+            )[1]
+
+        if flag then yield_error(err.project_already_flagged) end
+
+        FlaggedProjects:create({
+            flagger_id = self.current_user.id,
+            project_id = project.id,
+            reason = self.params.reason,
+            notes = self.params.notes
+        })
+
+        project.flagged = true
+        return okResponse()
+    end),
+    remove_flag = capture_errors(function (self)
+        -- Check whether we're removing someone else's flag
+        if self.params.flagger then assert_min_role(self, 'reviewer') end
+
+        local project = Projects:find({ id = self.params.id })
+
+        local flagger =
+            self.params.flagger and
+                Users:select('WHERE username = ?', self.params.flagger)[1] or
+                self.current_user
+
+        -- flag:delete() fails with an internal Lapis error
+        if not db.delete(
+                    'flagged_projects',
+                    'project_id = ? AND flagger_id = ?',
+                    project.id,
+                    flagger.id
+                ) then
+            yield_error(err.project_never_flagged)
+        end
+
+        return okResponse()
+    end),
+    mark_as_remix = capture_errors(function (self)
+        assert_min_role(self, 'moderator')
+
+        local original_project =
+            Projects:find(
+                tostring(self.params.original_username),
+                tostring(self.params.original_projectname)
+            )
+        if original_project then
+            Remixes:create({
+                original_project_id = original_project.id,
+                remixed_project_id = self.params.id,
+                created = self.params.created
             })
+        end
 
-            assert_all({assert_user_exists, assert_users_match}, self)
+        return okResponse()
+    end),
+    xml = capture_errors(function (self)
+        local project =
+            self.params.id and
+                Projects:find({id = self.params.id })
+            or
+                Projects:find(
+                    tostring(self.params.username),
+                    tostring(self.params.projectname)
+                )
 
-            -- Read request body and parse it into JSON
-            ngx.req.read_body()
-            local body_data = ngx.req.get_body_data()
-            local body = body_data and util.from_json(body_data) or nil
+        if not project then yield_error(err.nonexistent_project) end
+        if not (project.ispublic or users_match(self)) then
+            assert_admin(self, err.nonexistent_project)
+        end
 
-            validate.assert_valid(body, {
-                { 'xml', exists = true },
-                { 'thumbnail', exists = true },
-                { 'media', exists = true }
-            })
+        -- self.params.delta is a version indicator
+        -- delta = null will fetch the current version
+        -- delta = -1 will fetch the previous saved version
+        -- delta = -2 will fetch the last version before today
 
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
+        return xmlResponse(
+            -- if users don't match, this project is being remixed and we
+            -- need to attach its ID
+            '<snapdata' .. (users_match(self) and '>' or ' remixID="' ..
+                project.id .. '">') ..
+                (disk:retrieve(
+                    project.id, 'project.xml', self.params.delta) or
+                        '<project></project>') ..
+                (disk:retrieve(
+                    project.id, 'media.xml', self.params.delta) or
+                        '<media></media>') ..
+                '</snapdata>'
+        )
+    end),
+    thumbnail = capture_errors(function (self)
+        local project =
+            Projects:find(
+                tostring(self.params.username),
+                tostring(self.params.projectname)
+            )
 
-            if (project) then
-                local shouldUpdateSharedDate =
-                    ((not project.lastshared and self.params.ispublic)
-                    or (self.params.ispublic and not project.ispublic))
+        if not project then yield_error(err.nonexistent_project) end
 
-                disk:backup_project(project.id)
+        if not users_match(self)
+            and not project.ispublic then
+            yield_error(err.nonexistent_project)
+        end
 
-                project:update({
-                    lastupdated = db.format_date(),
-                    lastshared =
-                        shouldUpdateSharedDate and db.format_date() or nil,
-                    firstpublished =
-                        project.firstpublished or
-                        (self.params.ispublished and db.format_date()) or
-                        nil,
-                    notes = body.notes,
-                    ispublic = self.params.ispublic or project.ispublic,
-                    ispublished = self.params.ispublished or project.ispublished
-                })
-            else
-                -- Users are automatically verified the first time
-                -- they save a project
-                if (not self.queried_user.verified) then
-                    self.queried_user:update({ verified = true })
-                    self.session.verified = true
-                end
+        -- Lazy thumbnail generation:
+        -- * fetch the thumbnail if it exists, or
+        -- * try to generate it and fetch it, or
+        -- * fail to generate it and return an empty string
 
-                -- A project flagged as "deleted" with the same name may exist
-                -- in the DB.
-                -- We need to check for that and delete it for real this time
-                local deleted_project = DeletedProjects:find(
-                    self.params.username, self.params.projectname)
-                -- Deleted project may have remixes or be included in a
-                -- collection. Let's take care of this.
-                if deleted_project then
-                    db.query(
-                        'DELETE FROM Remixes WHERE '..
-                            'original_project_id = ? OR remixed_project_id = ?',
-                        deleted_project.id,
-                        deleted_project.id)
-                    db.query(
-                        'DELETE FROM Collection_Memberships WHERE ' ..
-                            'project_id = ?',
-                        deleted_project.id)
-                    deleted_project:delete()
-                end
-                Projects:create({
-                    projectname = self.params.projectname,
-                    username = self.params.username,
-                    created = db.format_date(),
-                    lastupdated = db.format_date(),
-                    lastshared = self.params.ispublic and
-                        db.format_date() or nil,
-                    firstpublished = self.params.ispublished
-                        and db.format_date() or nil,
-                    notes = body.notes,
-                    ispublic = self.params.ispublic or false,
-                    ispublished = self.params.ispublished or false
-                })
-                project =
-                    Projects:find(self.params.username, self.params.projectname)
+        return rawResponse(
+            disk:retrieve(project.id, 'thumbnail') or
+                (disk:generate_thumbnail(project.id)) or
+                    '')
+    end),
+    versions = capture_errors(function (self)
+        local project =
+            Projects:find(
+                tostring(self.params.username),
+                tostring(self.params.projectname)
+            )
 
-                if (body.remixID and body.remixID ~= cjson.null) then
-                    -- user is remixing a project
-                    Remixes:create({
-                        original_project_id = body.remixID,
-                        remixed_project_id = project.id,
-                        created = db.format_date()
-                    })
-                end
-            end
+        if not project then yield_error(err.nonexistent_project) end
+        if not project.ispublic then
+            assert_users_match(self, err.nonexistent_project)
+        end
 
-            disk:save(project.id, 'project.xml', body.xml)
-            disk:save(project.id, 'thumbnail', body.thumbnail)
-            disk:save(project.id, 'media.xml', body.media)
+        -- seconds since last modification
+        local query = db.select(
+            'extract(epoch from age(now(), ?::timestamp))',
+            project.lastupdated)[1]
 
-            if not (disk:retrieve(project.id, 'project.xml')
-                and disk:retrieve(project.id, 'thumbnail')
-                and disk:retrieve(project.id, 'media.xml')) then
-                yield_error('Could not save project ' ..
-                    self.params.projectname)
-            else
-                return okResponse('project ' .. self.params.projectname ..
-                    ' saved')
-            end
-        end,
+        return jsonResponse({
+            {
+                lastupdated = query.date_part,
+                thumbnail = disk:retrieve(project.id, 'thumbnail') or
+                    disk:generate_thumbnail(project.id),
+                notes = disk:parse_notes(project.id),
+                delta = 0
+            },
+            disk:get_version_metadata(project.id, -1),
+            disk:get_version_metadata(project.id, -2)
+        })
+    end),
+    save = capture_errors(function (self)
+        -- rate_limit(self)
 
-        project_meta = function (self)
-            -- POST /projects/:username/:projectname/metadata
-            -- Description: Add/update a project metadata. When admins and
-            --              moderators unpublish somebody else's project, they
-            --              also provide a reason that will be emailed to the
-            --              project owner.
-            -- Parameters:  projectname, ispublic, ispublished, lastupdated,
-            --              lastshared, reason
-            -- Body:        notes, projectname
-            if not users_match(self) then assert_admin(self) end
+        validate.assert_valid(self.params, {
+            { 'projectname', exists = true },
+            { 'username', exists = true }
+        })
 
-            if self.current_user:isbanned() and self.params.ispublished then
-                yield_error(err.banned)
-            end
+        assert_all({assert_user_exists, assert_users_match}, self)
 
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-            if not project then yield_error(err.nonexistent_project) end
+        -- Read request body and parse it into JSON
+        ngx.req.read_body()
+        local body_data = ngx.req.get_body_data()
+        local body = body_data and util.from_json(body_data) or nil
 
-            if self.params.ispublished == 'false' and self.params.reason then
-                send_mail(
-                    self.queried_user.email,
-                    mail_subjects.project_unpublished .. project.projectname,
-                    mail_bodies.project_unpublished .. self.current_user.role ..
-                        '.</p><p>' .. self.params.reason .. '</p>')
-            end
+        validate.assert_valid(body, {
+            { 'xml', exists = true },
+            { 'thumbnail', exists = true },
+            { 'media', exists = true }
+        })
 
+        local project =
+            Projects:find(
+                tostring(self.params.username),
+                tostring(self.params.projectname)
+            )
+
+        if (project) then
             local shouldUpdateSharedDate =
                 ((not project.lastshared and self.params.ispublic)
                 or (self.params.ispublic and not project.ispublic))
 
-            -- Read request body and parse it into JSON
-            -- TODO: Replace this with json_params() after updating the
-            -- projectname key.
-            ngx.req.read_body()
-            local body_data = ngx.req.get_body_data()
-            local body = body_data and util.from_json(body_data) or nil
+            disk:backup_project(project.id)
 
-            local result, error = project:update({
+            project:update({
                 lastupdated = db.format_date(),
-                lastshared = shouldUpdateSharedDate and db.format_date() or nil,
+                lastshared =
+                    shouldUpdateSharedDate and db.format_date() or nil,
                 firstpublished =
                     project.firstpublished or
                     (self.params.ispublished and db.format_date()) or
                     nil,
-                --notes = new_notes and body.notes or project.notes,
+                notes = body.notes,
                 ispublic = self.params.ispublic or project.ispublic,
                 ispublished = self.params.ispublished or project.ispublished
             })
+        else
+            -- Users are automatically verified the first time
+            -- they save a project
+            if (not self.queried_user.verified) then
+                self.queried_user:update({ verified = true })
+                self.session.verified = true
+            end
 
-            if error then yield_error({ msg = error, status = 422 }) end
-
-            return okResponse(
-                'project ' .. self.params.projectname .. ' updated'
-            )
-        end,
-
-        flag = function (self)
-            -- POST /projects/:username/:projectname/flag
-            -- Description: Flag a project and provide a reason for doing so.
-            -- Parameters:  reason, notes
-
-            rate_limit(self)
-
-            if self.current_user:isbanned() then yield_error(err.banned) end
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-            if not project then yield_error(err.nonexistent_project) end
-
-            local flag =
-                FlaggedProjects:select(
-                    'where project_id = ? and flagger_id = ?',
-                    project.id,
-                    self.current_user.id
-                )[1]
-
-            if flag then yield_error(err.project_already_flagged) end
-
-            FlaggedProjects:create({
-                flagger_id = self.current_user.id,
-                project_id = project.id,
-                reason = self.params.reason,
-                notes = self.params.notes
+            -- A project flagged as "deleted" with the same name may exist
+            -- in the DB.
+            -- We need to check for that and delete it for real this time
+            local deleted_project = DeletedProjects:find(
+                tostring(self.params.username),
+                tostring(self.params.projectname))
+            -- Deleted project may have remixes or be included in a
+            -- collection. Let's take care of this.
+            if deleted_project then
+                db.query(
+                    'DELETE FROM Remixes WHERE '..
+                        'original_project_id = ? OR remixed_project_id = ?',
+                    deleted_project.id,
+                    deleted_project.id)
+                db.query(
+                    'DELETE FROM Collection_Memberships WHERE ' ..
+                        'project_id = ?',
+                    deleted_project.id)
+                deleted_project:delete()
+            end
+            Projects:create({
+                projectname = tostring(self.params.projectname),
+                username = tostring(self.params.username),
+                created = db.format_date(),
+                lastupdated = db.format_date(),
+                lastshared = self.params.ispublic and
+                    db.format_date() or nil,
+                firstpublished = self.params.ispublished
+                    and db.format_date() or nil,
+                notes = body.notes,
+                ispublic = self.params.ispublic or false,
+                ispublished = self.params.ispublished or false
             })
-
-            return okResponse(
-                'project ' .. self.params.projectname .. ' has been flagged'
-            )
-        end
-    },
-
-    DELETE = {
-        project = function (self)
-            -- DELETE /projects/:username/:projectname
-            -- Description: Delete a particular project. When admins and
-            --              moderators delete somebody else's project, they
-            --              also provide a reason that will be emailed to the
-            --              project owner.
-            --              Response will depend on query issuer permissions.
-            -- Parameters:  reason
-            assert_all({'project_exists', 'user_exists'}, self)
-            if not users_match(self) then
-                assert_has_one_of_roles(self, { 'admin', 'moderator' })
-            end
-
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-
-            if self.params.reason then
-                send_mail(
-                    self.queried_user.email,
-                    mail_subjects.project_deleted .. project.projectname,
-                    mail_bodies.project_deleted .. self.current_user.role ..
-                        '.</p><p>' .. self.params.reason .. '</p>')
-            end
-
-            -- Do not actually delete the project; flag it as deleted.
-            if not (project:update({ deleted = db.format_date() })) then
-                yield_error('Could not delete project ' ..
-                    self.params.projectname)
-            else
-                return okResponse('Project ' .. self.params.projectname
-                    .. ' has been removed.')
-            end
-        end,
-
-        flag = function (self)
-            -- DELETE /projects/:username/:projectname/flag
-            -- Description: Unflag a project that the current user, or someone
-            --              else if query issuer has permissions, has previously
-            --              flagged.
-            -- Parameters:  flagger
-
-            if self.params.flagger then
-                -- We're removing someone else's flag
-                assert_has_one_of_roles(
-                    self, { 'admin', 'moderator', 'reviewer' }
+            project =
+                Projects:find(
+                    tostring(self.params.username),
+                    tostring(self.params.projectname)
                 )
+
+            if (body.remixID and body.remixID ~= cjson.null) then
+                -- user is remixing a project
+                Remixes:create({
+                    original_project_id = body.remixID,
+                    remixed_project_id = project.id,
+                    created = db.format_date()
+                })
             end
-
-            local project =
-                Projects:find(self.params.username, self.params.projectname)
-            if not project then yield_error(err.nonexistent_project) end
-
-            local flag =
-                FlaggedProjects:select(
-                    'where project_id = ? and flagger_id in ' ..
-                    '(select id from users where username = ?)',
-                    project.id,
-                    self.params.flagger or self.current_user.username
-                )[1]
-
-            if not flag then yield_error(err.project_never_flagged) end
-
-            flag:delete()
-
-            return okResponse(
-                'project ' .. self.params.projectname .. ' has been unflagged'
-            )
         end
-    }
+
+        disk:save(project.id, 'project.xml', body.xml)
+        disk:save(project.id, 'thumbnail', body.thumbnail)
+        disk:save(project.id, 'media.xml', body.media)
+
+        if not (disk:retrieve(project.id, 'project.xml')
+            and disk:retrieve(project.id, 'thumbnail')
+            and disk:retrieve(project.id, 'media.xml')) then
+            yield_error('Could not save project ' ..
+                tostring(self.params.projectname))
+        else
+            return okResponse('project ' .. tostring(self.params.projectname) ..
+                ' saved')
+        end
+    end)
 }

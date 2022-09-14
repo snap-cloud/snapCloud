@@ -1,0 +1,3 @@
+<% warning = '<i class="warning fa fa-exclamation-triangle"></i>' %>
+<%= locale.get('confirm_delete_' .. item_name) %><br>
+<%- warning %> <%= locale.get('warning_no_return') %> <%- warning %>

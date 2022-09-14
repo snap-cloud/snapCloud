@@ -1,0 +1,34 @@
+<h1 localizable>Extensions</h1>
+<h3>Use devices with Snap<em>!</em>:</h3>
+<ul class="indent">
+    <li>BBC <a href="https://www.birdbraintechnologies.com/hummingbirdbit/snap/program/1-1">micro:bit</a> package by <a href="https://www.birdbraintechnologies.com">BirdBrain Technologies</a>.</li>
+    <li>Orbotix <a href="https://docs.google.com/document/d/11wR53OTnofRtTtxZCmxnCUjIlFQjnGewM21A0vmjtFw/edit?usp=sharing">Sphero</a> guide by Connor Hudson and Dan Garcia.</li>
+    <li>Lego <a href="https://github.com/technoboy10/snap-nxt">NXT</a> package by Connor Hudson.</li>
+    <li>Nintendo <a href="https://github.com/technoboy10/wiisnap">Wiimote</a> package by Connor Hudson.</li>
+    <li><a href="https://www.hummingbirdkit.com/learning/snap-programming/">Finch and Hummingbird</a> robots package by Tom Lauwers.</li>
+    <li>Parallax <a href="https://github.com/blockext/s2">S2</a> robot package by Connor Hudson.</li>
+    <li><a href="https://github.com/technoboy10/snapmotion">LEAP Motion</a> by Connor Hudson.</li>
+    <li><a href="https://github.com/technoboy10/snap2speech">Speech synthesis</a> by Connor Hudson.</li>
+    <li><a href="https://github.com/MrYsLab/s2a_fm">Arduino</a> package by Alan Yorinks.</li>
+    <li><a href="http://snap4arduino.rocks">Arduino</a> package by Bernat Romagosa/Citilab.</li>
+    <li><a href="https://github.com/rkunze/ft-robo-snap">Fischertechnik ROBOTICS TXT Controller</a> by Richard Kunze.</li>
+    <li><a href="http://downloads.rasplay.org/pisnap/">Snap<em>!</em> for Raspberry Pi</a> by rasplay.org.</li>
+</ul>
+
+<h3>More Snap<em>!</em> extensions for CS education</h3>
+<ul class="indent">
+    <li><a href="http://beetleblocks.com">Beetle Blocks</a> is a complete Snap<em>!</em> modification for 3D design and fabrication.</li>
+    <li><a href="http://turtlestitch.com">TurtleStitch</a> lets you generate patterns for embroidery machines.</li>
+    <li><a href="http://snapapps.github.io/">Snap Apps</a> provides <a href="http://snapapps.github.io/edgy/">Edgy</a> for graphs, <a href="http://www.flipt.org/#cellular">Cellular</a> for multi-agent simulation, and more.</li>
+    <li><a href="https://netsblox.org/">Netsblox</a> for multiplayer networking.</li>
+    <li><a href="http://bags.cs.jmu.edu/">Bags</a> for Relational Algebra.</li>
+    <li><a href="http://www.fradkin.com/snapmusic-0.3/tone-snap.html">Tone-Snap</a> for live-coding music.</li>
+    <li><a href="https://progkids.ru">ProgKids</a> is a Snap<em>!</em> extension that lets you program MineCraft (in Russian).</li>
+</ul>
+
+<h3>Tools</h3>
+<ul class="indent">
+    <li>Turn your project into a standalone executable with <a target="_blank" href="http://snapp.citilab.eu">Snapp<em>!</em>.</a></li>
+    <li>Import Scratch 2.0 projects with <a target="_blank" href="https://djsrv.github.io/Snapin8r2/">Snapin8r2</a>.</li>
+    <li>Merge two Snap<em>!</em> projects together with <a target="_blank" href="https://smerge.org/">Smerge</a>.</li>
+</ul>

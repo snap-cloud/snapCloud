@@ -1,0 +1,15 @@
+<h1><%- locale.get('my_projects') %></h1>
+<%
+render(
+    'views.grid',
+    {
+        class = 'my_projects',
+        item_type = 'project',
+        items_per_page = 15,
+        with_search = true,
+        show_if_empty = true,
+        show_author = false,
+        show_icons = true
+    }
+)
+%>

@@ -1,0 +1,41 @@
+<link rel="stylesheet" href="/static/style/profile.css">
+<h1><%- locale.get('profile_title', user.username) %></h1>
+<div class="pure-g profile">
+    <div class="pure-u-1-2 fields">
+        <span class="pure-u-1-1"><strong
+                ><%- locale.get('join_date') %> </strong>
+            <span
+                class="created"><%= string.from_sql_date(user.created) %></span>
+        </span>
+        <span class="pure-u-1-1"><strong><%- locale.get('email') %> </strong>
+            <span class="email"><a href="mailto:<%= user.email %>"
+                target="_blank"><%= user.email %></a></span>
+        </span>
+        <% if user.role ~= 'standard' then %>
+        <span class="pure-u-1-1 role-container">
+            <strong><%- locale.get('role') %></strong><strong> </strong>
+            <span class="role"><%- locale.get(user.role) %></span>
+        </span>
+        <% end %>
+    </div>
+    <div class="pure-u-1-2 buttons">
+        <a class="pure-button"
+            href="change_password"><%- locale.get('change_my_password') %></a>
+        <a class="pure-button"
+            href="change_email"><%- locale.get('change_my_email') %></a>
+        <a class="pure-button pure-button-warning" onclick="
+            confirmDeleteMyself()"><%- locale.get('delete_my_user') %></a>
+    </div>
+</div>
+<script>
+    function confirmDeleteMyself () {
+        confirm(
+            '<%= locale.get('confirm_delete_usr', user.username) %><br>' +
+            '<i class="warning fa fa-exclamation-triangle"></i> ' +
+            '<%- locale.get('warning_no_return') %>' +
+            ' <i class="warning fa fa-exclamation-triangle"></i>',
+            () => { location.href = 'delete_user' },
+            confirmTitle('<%- locale.get('delete_my_user') %>')
+        );
+    };
+</script>

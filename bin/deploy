@@ -23,6 +23,8 @@ echo
 Snippets/build.sh
 popd
 
+pushd ~/snapCloud/bin/;
+
 ./renew-certs.sh
 ./deploy_certs.sh
 ./deploy_snap.sh
@@ -48,7 +50,7 @@ curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $re
 echo
 
 echo 'Tagging Deploy in Sentry'
-curl https://sentry.io/api/hooks/release/builtin/6551094/d7cd0aef6164556416e18423ce5b39ff06cd12e29d967c1a69ee0fe9ade7349a/ \
+curl https://sentry.io/api/0/organizations/snapcloud/releases/ \
  -H "Authorization: Bearer $SENTRY_API_TOKEN" \
  -H 'Content-Type: application/json' \
  -d "{\"version\":\"$current_time\",\"ref\":\"$deploy_sha\",\"projects\":[\"snapcloud-server\"]}"

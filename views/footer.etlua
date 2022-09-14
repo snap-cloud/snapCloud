@@ -1,0 +1,46 @@
+<div id="footer">
+    <div class="links pure-g">
+        <div class="pure-u-1-5">
+            <p><h4><%- locale.get('t_about') %></h4></p>
+            <p><a href="about"><%- locale.get('about', '<em>!</em>') %></a></p>
+            <p><a href="blog"><%- locale.get('blog') %></a></p>
+            <p><a href="credits"><%- locale.get('credits') %></a></p>
+            <p><a href="requirements"><%- locale.get('requirements') %></a></p>
+            <p><a href="partners"><%- locale.get('partners') %></a></p>
+            <p><a href="source" ><%- locale.get('source') %></a></p>
+        </div>
+        <div class="pure-u-1-5">
+            <p><h4><%- locale.get('t_learning') %></h4></p>
+            <p><a href="examples"><%- locale.get('examples') %></a></p>
+            <p><a href="events"><%- locale.get('events') %></a></p>
+            <p><a href="snap/help/SnapManual.pdf"
+                ><%- locale.get('manual') %></a></p>
+            <p><a href="materials"><%- locale.get('materials') %></a></p>
+            <p><a href="bjc"><%- locale.get('bjc') %></a></p>
+            <p><a href="research"><%- locale.get('research') %></a></p>
+        </div>
+        <div class="pure-u-1-5">
+            <p><h4><%- locale.get('t_tools') %></h4></p>
+            <p><a href="offline"><%- locale.get('offline') %></a></p>
+            <p><a href="extensions"><%- locale.get('extensions') %></a></p>
+            <p><a href="snapp">Snapp<em>!</em></a></p>
+            <p><a href="snapinator">Snapinator</a></p>
+            <p><a href="https://smerge.org/">Smerge</a></p>
+            <p><a href="old_site/old-byob.html"
+                >BYOB <%- locale.get('old_snap', '<em>!</em>') %></a></p>
+        </div>
+        <div class="pure-u-1-5">
+            <p><h4><%- locale.get('t_support') %></h4></p>
+            <p><a target="_blank"
+                href="https://forum.snap.berkeley.edu/"><%- locale.get('forum') %></a></p>
+            <p><a href="contact"><%- locale.get('contact') %></a></p>
+            <p><a href="mirrors"><%- locale.get('mirrors') %></a></p>
+        </div>
+        <div class="pure-u-1-5">
+            <p><h4><%- locale.get('t_legal') %></h4></p>
+            <p><a href="dmca"><%- locale.get('dmca') %></a></p>
+            <p><a href="privacy"><%- locale.get('privacy') %></a></p>
+            <p><a href="tos"><%- locale.get('tos') %></a></p>
+        </div>
+    </div>
+</div>

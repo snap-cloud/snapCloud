@@ -1,0 +1,98 @@
+<script src="/static/js/project.js"></script>
+<script src="/static/js/inplace.js"></script>
+<link rel="stylesheet" href="/static/style/project.css">
+<div class="project big">
+    <div class="title">
+        <h1><%= project.projectname %></h1>
+
+        <% if remixed_from then %>
+        <span class="remixed-from"><%-
+            locale.get(
+                'remixed_from',
+                '<span class="project-link"><a href="' ..
+                    remixed_from:url_for('site') ..
+                    '" >' .. remixed_from.projectname .. 
+                    '</a></span>',
+                '<a href="' .. remixed_from:url_for('author') ..
+                    '"><strong>' .. remixed_from.username ..
+                    '</strong></a></span>')
+        %></span>'
+        <% end %>
+
+        <span class="author"><%-
+            locale.get(
+                'project_by',
+                '<a href="' .. project:url_for('author') ..
+                    '"target=""><strong>' .. project.username .. '</strong></a>'
+            )
+        %></span>
+    </div>
+    <div class="viewer pure-g">
+        <!-- Project viewer -->
+        <div class="embed pure-u-1-2">
+            <!-- Spinner shown while embed hasn't been loaded -->
+            <i class="project-loader fas fa-spinner fa-spin fa-3x"
+                aria-hidden="true"></i>
+
+            <!-- Project control bar -->
+            <div class="controlbar">
+                <i class="present-button fas fa-expand clickable"
+                    onclick="toggleFullScreen();"></i>
+                <i class="start-button fas fa-flag clickable"
+                    onclick="runProject(event);"></i>
+                <i class="pause-button fas fa-pause clickable"
+                    onclick="togglePauseProject();"></i>
+                <i class="stop-button fas fa-octagon clickable"
+                    onclick="stopProject();"></i>
+            </div>
+
+            <!-- Project embed -->
+            <iframe allow="geolocation; microphone; camera"
+                sandbox="allow-scripts allow-same-origin"
+                src="<%= project:url_for('viewer', params.devVersion) %>"
+                height="406"></iframe>
+
+            <!-- Project Action Buttons -->
+            <%
+               render('views.partials.project_buttons', { project = project })
+            %>
+        </div>
+        <!-- just a separator -->
+        <i class="pure-u-1-24"></i>
+        <% render('views.partials.project_details', { project = project }) %>
+    </div>
+
+<%
+    -- Carousel of remixes
+    render(
+        'views.carousel',
+        {
+            title = locale.get('project_remixes_title'),
+            items = project:get_public_remixes(),
+            class = 'remixes',
+            item_type = 'project'
+        }
+    )
+
+    -- Carousel of collections
+    render(
+        'views.carousel',
+        {
+            title = locale.get('project_collections_title'),
+            items = project:get_public_collections(),
+            class = 'collections',
+            item_type = 'collection'
+        }
+    )
+%>
+
+    <script>
+        // Prevent scrolling when focus is in the iframe
+        document.onscroll = function (event) {
+            if (document.activeElement.tagName === 'IFRAME') {
+                window.scrollTo(0, 0);
+            }
+        };
+    </script>
+</div>
+

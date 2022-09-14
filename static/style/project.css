@@ -1,0 +1,539 @@
+.collection.small,
+.project.small {
+    text-align: center;
+    margin-bottom: 1.5em;
+    position: relative;
+}
+
+.collection img.thumbnail,
+.project img.thumbnail {
+    width: 160px;
+    height: 120px;
+    border-radius: 5px;
+    margin-bottom: .5em;
+}
+
+.collection img.thumbnail,
+.project img.thumbnail,
+.project iframe,
+.project .embed-placeholder {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid #2d3142;
+    box-sizing: border-box;
+}
+
+.project .embed-placeholder {
+    display: block;
+    height: 406px;
+}
+
+.project.small .no-image,
+.collection.small .no-image {
+    left: 88px;
+    top: 38px;
+}
+
+.project.small .no-image,
+.collection.small .no-image,
+.collection .info .no-image {
+    position: absolute;
+    font-size: 40px;
+    opacity: 0.2;
+}
+
+.thumbnail-container {
+    position: relative;
+    border-radius: 5px;
+    height: 120px;
+    border: 1px solid #2d3142;
+    box-sizing: border-box;
+}
+
+.collection .info .no-image {
+    left: 59px;
+    top: 34px;
+}
+
+img.collection-thumbnail {
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;
+}
+
+.collection.small .author,
+.project.small .author {
+    display: block;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.project.small .no-image:hover,
+.collection.small .no-image:hover {
+    filter: brightness(1.2);
+}
+
+.collection-controls {
+    background: rgba(255, 255, 255, .5);
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin: 0 -5px;
+    display: flex;
+    justify-content: space-evenly;
+    position: absolute;
+    top: 2px;
+    right: 19px;
+    flex-direction: row-reverse;
+}
+
+.collection-controls .thumbnail {
+    margin-right: 3px;
+}
+
+.collection-controls .remove {
+    margin-right: -1px;
+}
+
+.featured .collection-controls {
+    right: 35px;
+    width: 15px;
+}
+
+.flagged .collection-controls {
+    right: 31px;
+    width: 15px;
+}
+
+.flag-list {
+  margin-top: 1em;
+  display: flex;
+  flex-direction: column;
+}
+
+.flag-list .flag {
+  font-size: .8em;
+  margin-bottom: 1em;
+}
+
+.flag-list .flag .header {
+  display: block;
+  flex-wrap: nowrap;
+  margin-bottom: .2em;
+}
+
+.flag-list .reason {
+  display: inline-block;
+  font-weight: bold;
+  font-size: 1.1em;
+}
+
+.flag-list .flag .remove {
+  display: inline-block;
+  margin-left: 1em;
+}
+
+.flag-list .flag .author {
+  font-size: 1em;
+}
+
+.collection-controls:hover {
+    background: rgba(255, 255, 255, .8);
+}
+
+.new-editor {
+    border: 1px solid #AAAAAA;
+    width: 160px;
+    border-radius: 15px;
+    padding-left: 0.75em;
+    box-sizing: border-box;
+}
+
+.editor-list {
+    display: inline;
+}
+
+.editor-list .editor {
+    display: inline-block;
+    margin: 0.2em;
+    padding: 0.2em 0.5em;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.editor-list a strong {
+    font-weight: normal;
+}
+
+.editor-list .editor .remove {
+    display: none;
+    margin-left: 0.2em;
+}
+.editor-list .editor:hover .remove {
+    display: inline;
+}
+
+.editors .unenroll,
+.editors .ffa,
+.editors .un-ffa {
+    display: block;
+    margin: 0.2em;
+}
+
+.project iframe,
+.project .embed-placeholder {
+    z-index: 2;
+    border-radius: 0 0 5px 5px;
+    width: 100%;
+}
+
+.collection img.thumbnail,
+.project.small img.thumbnail {
+    margin-bottom: 0;
+}
+
+.collection img.thumbnail:hover,
+.project img.thumbnail:hover {
+    filter: brightness(1.2);
+    border-color: #4c5e70;
+}
+
+.collection.small,
+.project.small {
+    line-height: 1.5em;
+}
+
+.collection.small span.collection-name,
+.project.small span.project-name {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 0 2px;
+}
+
+.collection.small span.is-public,
+.project.small span.is-public {
+    margin-right: 0.5em;
+}
+
+.collection .author,
+.project .author {
+    font-size: .8em;
+}
+
+.project.big .title .author {
+    position: absolute;
+    right: 0;
+}
+
+.project.big .title.author {
+    position: absolute;
+    line-height: 4em;
+    margin-left: 1em;
+}
+
+.project.big.embed .title .author {
+    position: relative !important;
+}
+
+.collection,
+.project.big {
+    margin-top: 1em;
+}
+
+.collection .title,
+.project.big .title {
+    position: relative;
+    margin-bottom: .5em;
+}
+
+.collection .title h1,
+.project.big .title h1 {
+    display: inline-block;
+    margin: 0;
+}
+
+.project.big .title h1 {
+    max-width: 540px;
+    word-wrap: break-word;
+}
+
+.collection .title {
+    margin-bottom: 1em;
+}
+
+.remixed-from {
+    position: absolute;
+    right: 0;
+    bottom: .4em;
+    font-size: 0.8em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.remixed-from .author {
+    font-size: 1em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    position: relative !important;
+}
+
+.embed {
+    z-index: 100;
+    position: relative;
+}
+
+.project.big .embed {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    margin-bottom: 0.5em;
+}
+
+.embed .project-loader {
+    z-index: 1;
+    position: absolute;
+    text-align: center;
+    display: block;
+    width: 100%;
+    top: 200px;
+}
+
+.project.big .controlbar {
+    box-sizing: border-box;
+    z-index: 200;
+    background: #2d3142;
+    padding: 0.4em 0.5em;
+    border-radius: 5px 5px 0 0;
+    text-align: right;
+}
+
+.project.big .controlbar i {
+    width: 1.2em;
+}
+
+.project.big .controlbar .present-button {
+    color: #ffffff;
+}
+
+.project.big .controlbar .start-button {
+    color: #66ee66;
+}
+
+.project.big .controlbar .pause-button {
+    color: #ffdc00;
+}
+
+.project.big .controlbar .stop-button {
+    color: #ee6666;
+}
+
+.project.big .controlbar i:hover {
+    filter: brightness(1.5);
+}
+
+.collection .buttons,
+.project.big .buttons {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 -0.1em;
+}
+
+.collection .buttons a,
+.project.big .buttons a {
+    margin: 5px 0.1em 0 0.1em; /* Edge margins get cancelled out by ↑ margin: 0 -0.1em; ↑ */
+    padding: 0.5em;
+    flex-grow: 0.20; /* 20% max growth */
+}
+
+.collection a.flag,
+.project.big span.flag-container {
+    text-align: right;
+    font-size: 0.8em;
+    margin-top: 0.5em;
+    display: block;
+    width: 100%;
+    padding: 0;
+}
+
+.project.big a.flag {
+    padding: 0;
+}
+
+.collection a.flag:hover,
+.project.big a.flag:hover {
+    filter: brightness(0.5) !important;
+}
+
+.collection .description,
+.project.big .notes {
+    padding: .5em;
+    background: #f3eeeb;
+    border-radius: 5px;
+    overflow: auto;
+    box-sizing: border-box;
+    font-family: FreeSans,Arimo,"Droid Sans",Helvetica,Arial,sans-serif;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    height: 150px;
+    margin-bottom: .5em;
+}
+
+.collection .description {
+    margin-top: .5em;
+}
+
+.collection .description small,
+.project.big .notes small {
+    font-style: italic;
+    opacity: 0.5;
+}
+
+.project.big .dates p {
+    font-size: 0.8em;
+    line-height: 0.8em;
+    margin-top: 0;
+    margin-bottom: 0.8em;
+}
+
+.dates strong {
+    margin-right: 0.5em;
+}
+
+.collection .dates p {
+    font-size: 0.7em;
+    padding-left: .5em;
+    box-sizing: border-box;
+    line-height: 1em;
+    margin-top: 0;
+    margin-bottom: 0.7em;
+}
+
+/* Embed dialog */
+
+.embed-options .info {
+    margin-bottom: 0.5em;
+    display: block;
+    text-align: center;
+}
+
+.embed-options fieldset {
+    margin: 0 3em;
+}
+
+.embed-options .pure-control-group,
+.embed-options .pure-control-group label {
+    text-align: left;
+    width: auto
+}
+
+.copy-text-element {
+    margin: 0.5em auto
+}
+
+.copy-button {
+    margin: 0 4px;
+    padding: 4px;
+}
+
+.embed-options .pure-control-group.copy-text-element label {
+    width: 12ch; /* "Embed Code" + some space */
+}
+
+.embed-code {
+    font-family: monospace;
+    margin: auto 4px;
+    width: 420px;
+    font-size: 0.75em;
+    line-height: 1;
+    resize: none;
+}
+
+.embed-url {
+    height: 3rem;
+}
+
+.embed-iframe {
+    height: 6rem;
+}
+
+/* Reasons dialog */
+
+.reasons {
+    text-align: left;
+}
+
+.reasons .option {
+    display: block;
+    margin-left: 3em;
+}
+
+.reasons input {
+    margin-right: 0.5em;
+}
+
+.reasons .notes-title {
+  font-size: .8em;
+  display: block;
+  margin-top: 1em;
+}
+
+.reasons .notes {
+  display: block;
+  width: 100%;
+  font-size: .8em;
+  resize: none;
+  line-height: 1.2em;
+  border-radius: 5px;
+  border: 1px solid #2d3142;
+  padding: 0 .5em;
+  height: 2.9em;
+  background: #f3eeeb;
+}
+
+/* My Projects / My Collections */
+
+.bar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-bottom: 1em;
+}
+
+.my_collections.search,
+.my_projects.search {
+    margin-left: 0.5em;
+    width: 220px;
+}
+
+.my_collections.search form,
+.my_projects.search form {
+    position: relative;
+}
+
+.my_collections.search input,
+.my_projects.search input {
+    width: 100%;
+    height: 2em;
+    padding-left: 0.75em;
+    padding-right: 1.75em;
+    box-sizing: border-box;
+    border-radius: 15px;
+    border: 1px solid #AAAAAA;
+}
+
+.my_collections.search i,
+.my_projects.search i {
+    position: absolute;
+    right: 0.45em;
+    top: 0.45em;
+}
+
+.my_collections.paginator,
+.my_projects.paginator {
+    line-height: 2em;
+    margin: 0;
+}
+

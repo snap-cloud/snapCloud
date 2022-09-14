@@ -1,0 +1,10 @@
+<% local snap_cloud = package.loaded.Users:find({ username = 'snapcloud' })%>
+<form class="carousel-form">
+    <p>Select a carousel to feature:</p>
+    <select>
+        <% for _, each in pairs(snap_cloud:get_public_collections()) do %>
+        <option value="<%= each.id %>"><%= each.name %></option>
+        <% end %>
+    </select>
+    <input value="event" name="type"></input>
+</form>

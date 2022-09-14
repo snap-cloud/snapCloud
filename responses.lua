@@ -60,23 +60,12 @@ errorResponse = function (err, status)
         layout = false,
         status = status or 500,
         readyState = 4,
-        json = { errors = {err} }
+        json = { errors = { err } }
     }
 end
 
-htmlPage = function (title, contents)
-    return {
-        status = 200,
-        readyState = 4,
-        '<h1>' .. title .. '</h1>' .. contents
-    }
+htmlPage = function (self, title, contents)
+    self.title = title
+    self.contents = contents
+    return { render = 'message' }
 end
-
--- OPTIONS
-
-cors_options = function (self)
-    self.res.headers['access-control-allow-headers'] = 'Content-Type'
-    self.res.headers['access-control-allow-methods'] = 'GET, POST, DELETE, OPTIONS'
-    return { status = 200, layout = false }
-end
-

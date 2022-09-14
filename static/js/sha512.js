@@ -1,0 +1,1 @@
+../../snap/src/sha512.js
