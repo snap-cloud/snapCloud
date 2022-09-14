@@ -42,6 +42,9 @@ domain_allowed['staging.snap.berkeley.edu'] = true
 domain_allowed['cs10.org'] = true
 domain_allowed['bjc.edc.org'] = true
 domain_allowed['web.media.mit.edu'] = true
+-- UC Berkeley Sites Things:
+domain_allowed['cbt-dev.berkeley.edu'] = true
+domain_allowed['bjc.berkeley.edu'] = true
 -- Snap! Research Projects
 domain_allowed['isnap.csc.ncsu.edu'] = true
 domain_allowed['eliza.csc.ncsu.edu'] = true
