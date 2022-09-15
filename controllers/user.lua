@@ -117,6 +117,12 @@ UserController = {
         local password = self.params.password
         if (hash_password(password, self.queried_user.salt) ==
                 self.queried_user.password) then
+            -- Check whether user has a verification token
+            local token =
+                Tokens:find({
+                    username = self.queried_user.username,
+                    purpose = 'verify_user'
+                })
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
@@ -124,12 +130,6 @@ UserController = {
                     self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
                         or err.nonvalidated_user_html
-                -- Check whether verification token is unused and valid
-                local token =
-                    Tokens:find({
-                        username = self.queried_user.username,
-                        purpose = 'verify_user'
-                    })
                 if token then
                     local query =
                         db.select("date_part('day', now() - ?::timestamp)",
@@ -141,8 +141,12 @@ UserController = {
                         self.queried_user.days_left = 3 - query.date_part
                     end
                 else
+                    -- This should never happen
                     yield_error(message)
                 end
+            elseif token then
+                -- User is verified but the token is still there
+                token:delete()
             end
             self.session.username = self.queried_user.username
             self.cookies.persist_session = tostring(self.params.persist)
@@ -603,11 +607,9 @@ app:match(
                 )
             end
 
-            -- Check whether user had already been verified and, if so, delete
-            -- the token
+            -- Check whether user had already been verified
             if user.verified then
-                token:delete()
-                return user_page(user)
+                return user_page()
             else
                 return check_token(
                     self,
