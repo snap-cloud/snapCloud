@@ -281,7 +281,8 @@ check_token = function (self, token, purpose, on_success)
                 token.created)[1]
         if query.date_part < 4 and token.purpose == purpose then
             local user = Users:find({ username = token.username })
-            token:delete()
+            -- Do not delete user verification tokens just yet
+            if purpose ~= 'verify_user' then token:delete() end
             return on_success(user)
         elseif token.purpose ~= purpose then
             -- We simply ignore tokens with different purposes
