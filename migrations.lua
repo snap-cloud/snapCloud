@@ -66,7 +66,7 @@ return {
 
     -- Create Collections and CollectionMemberships
     ['2019-01-04:0'] = function ()
-        schema.create_table("collections", {
+        schema.create_table('collections', {
             { 'id', types.serial({ primary_key = true }) },
             { 'name', types.text },
             { 'creator_id', types.foreign_key },
@@ -81,7 +81,7 @@ return {
         })
         schema.create_index('collections', 'creator_id')
 
-        schema.create_table("collection_memberships", {
+        schema.create_table('collection_memberships', {
             { 'id', types.serial({ primary_key = true }) },
             { 'collection_id', types.foreign_key },
             { 'project_id', types.foreign_key },
@@ -274,5 +274,14 @@ return {
         })
     end,
 
-
+    -- Add a bad_flags column to users, to store the times they've flagged a
+    -- legitimate project
+    ['2022-09-16:0'] = function ()
+        schema.add_column(
+            'users',
+            'bad_flags',
+            types.integer({ default = 0 })
+        )
+        update_user_views()
+    end
 }

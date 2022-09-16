@@ -330,6 +330,18 @@ ProjectController = {
                 ) then
             yield_error(err.project_never_flagged)
         end
+        -- Report the flagger for abusing the flagging system
+        if self.params.report then
+            flagger:update({ bad_flags = (flagger.bad_flags or 0) + 1 })
+            if flagger.bad_flags >= 3 then
+                -- TODO ban this user? probably, right?
+            end
+            send_mail(
+                flagger.email,
+                mail_subjects.bad_flag,
+                mail_bodies.bad_flag(flagger, project)
+            )
+        end
 
         return okResponse()
     end),

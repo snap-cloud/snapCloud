@@ -66,7 +66,18 @@ mail_bodies = {
                      '<p>You have been appointed an administrator in the Snap<em>!</em> community website.</p>' ..
                      '<p>Remember, do not abuse your newly acquired superpowers and use them responsibly.</p>',
     users_for_email = '<h1>Users associated with to email account</h1>' ..
-                      '<p>This is the list of Snap<em>!</em> usernames associated to your email account:</p>'
+                      '<p>This is the list of Snap<em>!</em> usernames associated to your email account:</p>',
+    bad_flag = function (user, project)
+        return '<h1>Flagging System Abuse</h1>' ..
+        '<p>You have flagged the project ' .. project.projectname .. ' by ' ..  project.username .. ', but we have not found it to violate any of our guidelines.</p>' ..
+        '<p>Bear in mind that abusing the flagging system <em>is</em> a violation of our policy and can result in the suspension of your user account.</p>' ..
+        '<p>' .. (user.bad_flags > 1 and
+            ('You have already been asked to not flag legitimate projects in ' .. user.bad_flags .. ' occasions.') or
+            '') ..
+        'Please do not do that again.</p><br>' ..
+        '<p>Thank you,</p>' ..
+        '<p>The Snap<em>!</em> team</p>'
+    end
 }
 
 mail_subjects = {
@@ -80,7 +91,8 @@ mail_subjects = {
     set_role_reviewer = 'You are now a reviewer, ',
     set_role_moderator = 'You are now a moderator, ',
     set_role_admin = 'You are now an administrator, ',
-    users_for_email = 'Users associated to your email account'
+    users_for_email = 'Users associated to your email account',
+    bad_flag = 'Flagged project'
 }
 
 send_mail = function (address, subject, html, url)

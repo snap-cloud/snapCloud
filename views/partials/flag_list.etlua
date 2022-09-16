@@ -18,6 +18,10 @@
                 class="remove clickable"
                 onclick="confirmRemoveFlag('<%= flag.username %>')"
                 ><i class="fas fa-times-circle"></i></a>
+            <a
+                class="remove clickable"
+                onclick="confirmBadFlag('<%= flag.username %>')"
+                ><i class="fas fa-thumbs-down"></i></a>
         </span>
         <span>Flagged</span>
         <span class="author"> by <a
@@ -38,6 +42,19 @@
                     '/project/<%= project.id %>/flag',
                     null,
                     { flagger: flagger }
+                );
+            }
+        );
+    };
+    function confirmBadFlag (flagger) {
+        confirm(
+            'Are you sure you want to remove this flag and\n' +
+                'report the flagger for abusing the flagging system?',
+            () => {
+                cloud.delete(
+                    '/project/<%= project.id %>/flag',
+                    null,
+                    { flagger: flagger, report: true }
                 );
             }
         );
