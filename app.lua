@@ -252,14 +252,15 @@ app:before_filter(function (self)
 
     -- unescape all parameters and JSON-decode them
     for k, v in pairs(self.params) do
-        -- try to decode it, if it fails it's not proper JSON
-        if pcall(function () package.loaded.util.from_json(v) end) then
+        if type(v) == 'string' then
+            -- leave strings alone
+            self.params[k] = package.loaded.util.unescape(v)
+        elseif pcall(function () package.loaded.util.from_json(v) end) then
+            -- try to decode it, if it fails it's not proper JSON
             self.params[k] =
                 package.loaded.util.from_json(
                     package.loaded.util.unescape(v)
                 )
-        elseif type(v) == 'string' then
-            self.params[k] = package.loaded.util.unescape(v)
         end
     end
 
