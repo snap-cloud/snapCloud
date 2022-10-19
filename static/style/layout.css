@@ -175,6 +175,20 @@
     text-decoration: underline;
 }
 
+#footer div.credits {
+    margin: 3em 0 1em 0;
+    padding: 1em;
+    border-top: 1px solid #ffffff;
+}
+
+#footer .credits a {
+    text-decoration: none;
+}
+
+#footer .credits img {
+    margin-right: 1em;
+}
+
 /* CUSTOM ALERT */
 
 .customalert {
