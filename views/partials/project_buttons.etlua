@@ -156,6 +156,7 @@ function markAsRemix () {
                 '/project/<%= project.id %>/mark_as_remix',
                 null,
                 {
+                    username: '<%= project.username %>',
                     created: '<%= project.created %>',
                     original_username: url.searchParams.get('username'),
                     original_projectname: url.searchParams.get('projectname')

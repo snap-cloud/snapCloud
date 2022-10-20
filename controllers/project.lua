@@ -346,7 +346,9 @@ ProjectController = {
         return okResponse()
     end),
     mark_as_remix = capture_errors(function (self)
-        assert_min_role(self, 'moderator')
+        if not users_match(self) then
+            assert_min_role(self, 'moderator')
+        end
 
         local original_project =
             Projects:find(
@@ -366,7 +368,7 @@ ProjectController = {
     xml = capture_errors(function (self)
         local project =
             self.params.id and
-                Projects:find({id = self.params.id })
+                Projects:find({ id = self.params.id })
             or
                 Projects:find(
                     tostring(self.params.username),
