@@ -1,11 +1,12 @@
 <h1 localizable>Extensions</h1>
 <h3>Use devices with Snap<em>!</em>:</h3>
 <ul class="indent">
-    <li>BBC <a href="https://www.birdbraintechnologies.com/hummingbirdbit/snap/program/1-1">micro:bit</a> package by <a href="https://www.birdbraintechnologies.com">BirdBrain Technologies</a>.</li>
+    <li>BBC <a href="https://snap.berkeley.edu/snap/snap.html#cloud:Username=birdbraintech&ProjectName=MicrobitStarterProject">micro:bit</a> bluetooth package by Krissie Lauwers.</li>
     <li>Orbotix <a href="https://docs.google.com/document/d/11wR53OTnofRtTtxZCmxnCUjIlFQjnGewM21A0vmjtFw/edit?usp=sharing">Sphero</a> guide by Connor Hudson and Dan Garcia.</li>
     <li>Lego <a href="https://github.com/technoboy10/snap-nxt">NXT</a> package by Connor Hudson.</li>
     <li>Nintendo <a href="https://github.com/technoboy10/wiisnap">Wiimote</a> package by Connor Hudson.</li>
-    <li><a href="https://www.hummingbirdkit.com/learning/snap-programming/">Finch and Hummingbird</a> robots package by Tom Lauwers.</li>
+    <li><a href="https://learn.birdbraintechnologies.com/finch/snap/program/1-1">Finch Robot</a> package from <a href="https://www.birdbraintechnologies.com">BirdBrain Technologies</a>.</li>
+    <li><a href="https://learn.birdbraintechnologies.com/hummingbirdbit/snap/program/1-1">Hummingbird Robot</a> package from <a href="https://www.birdbraintechnologies.com">BirdBrain Technologies</a>.</li>
     <li>Parallax <a href="https://github.com/blockext/s2">S2</a> robot package by Connor Hudson.</li>
     <li><a href="https://github.com/technoboy10/snapmotion">LEAP Motion</a> by Connor Hudson.</li>
     <li><a href="https://github.com/technoboy10/snap2speech">Speech synthesis</a> by Connor Hudson.</li>
