@@ -2,7 +2,7 @@
 <h1>Research</h1>
 <ul class="article-list">
     <li>
-        <a href="doc/Brian-Harvey_Baby-language.pdf" target="_blank" class="article-title">Why Do We Have to Learn This Baby Language?</a>
+        <a href="static/doc/Brian-Harvey_Baby-language.pdf" target="_blank" class="article-title">Why Do We Have to Learn This Baby Language?</a>
         <span class="authors">Brian Harvey. (2019).</span> <span class="publication"><a href="research">Snap<em>!</em> website</em></a></span>
         <blockquote class="abstract">I get it. You’re a teenager, it’s the first day of what was billed as a serious computer science course, and you’re confronted with drag-and-drop blocks in primary colors. You’ve seen this before, back when your age had only one digit, and you played around with Scratch. Been there, done that.  But Snap! (Build Your Own Blocks) isn’t Scratch. It’s a very serious programming language, in disguise.  The reason for the disguise is that most programming courses spend most of their time and effort on the details of the notation used by whatever programming language they choose. (...)</blockquote>
     </li>
