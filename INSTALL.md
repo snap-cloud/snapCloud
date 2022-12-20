@@ -2,15 +2,11 @@
 
 ## Cloning the repository
 
-First of all, clone the Snap!Cloud repository into a local folder:
-
+To begin, clone the Snap!Cloud repository into a local folder on your computer. Then, navigate to the local repository and update all submodules. This will allow you to view the Social site and have a fully functional Snap! installation.
 ```
-$ git clone --recursive https://github.com/bromagosa/snapCloud.git
+git submodule update --remote --recursive
 ```
-
-(Use the `--recursive` option so that you can see the Social site and have a working Snap<em>!</em> install.)
-
-**NOTE**: If you forked the repo, make sure that `bromagosa` is replaced with your **GitHub username**. However, submodules will be from the original author. There is no way to clone from your forked repo. You may choose to relinking the folders to the forked repository on your repos, but if you do, make sure to not push the folder references.
+ 
 
 ## Development
 
