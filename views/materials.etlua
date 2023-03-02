@@ -39,4 +39,24 @@
         <a href="http://ddi-mod.uni-goettingen.de/ComputerScienceWithSnap.pdf"
             >Computer Science with Snap<em>!</em></a>, by Eckart Modrow
     </li>
+    <li>
+        <a href="static/doc/TuneScope%20Book.pdf"
+            >TUNESCOPE, Creating Digital Music in Snap<em>!</em></a>, by Glen Bull, Rachel Gibson, Jo Watts, and N. Rich Nguyen
+    </li>
+    <li>
+        <a href="static/doc/StapelListeBaum.pdf"
+            >Stapel, Schlange, Liste, Baum mit Snap<em>!</em></a>, by Fritz Hasselhorn (in German)
+    </li>
+    <li>
+        <a href="static/doc/AutomatenGrammatiken.pdf"
+            >Automaten und Grammatiken</a>, by Fritz Hasselhorn (in German)
+    </li>
+    <li>
+        <a href="static/doc/Codierung.pdf"
+            >Fehlerkorrigierende und komprimierende Codes mit Snap<em>!</em></a>, by Fritz Hasselhorn (in German)
+    </li>
+    <li>
+        <a href="static/doc/Einf%C3%BChrung%20Programmierung.pdf"
+            >Einf ̈uhrung in die Programmierung mit Snap<em>!</em></a>, by Fritz Hasselhorn (in German)
+    </li>
 </ul>
