@@ -1,7 +1,7 @@
 package = "snap-cloud"
 version = "dev-0"
 source = {
-   url = "git+http://github.com/snap-cloud/snapCloud.git"
+   url = "git+https://github.com/snap-cloud/snapCloud.git"
 }
 description = {
    summary = "A Project Server and API for Snap!.",

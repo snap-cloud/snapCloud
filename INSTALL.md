@@ -5,12 +5,12 @@
 First of all, clone the Snap!Cloud repository into a local folder:
 
 ```
-$ git clone --recursive https://github.com/bromagosa/snapCloud.git
+$ git clone --recursive https://github.com/snap-cloud/snapCloud.git
 ```
 
-(Use the `--recursive` option so that you can see the Social site and have a working Snap<em>!</em> install.)
+(Use the `--recursive` option so that you can have a working Snap<em>!</em> install.)
 
-**NOTE**: If you forked the repo, make sure that `bromagosa` is replaced with your **GitHub username**. However, submodules will be from the original author. There is no way to clone from your forked repo. You may choose to relinking the folders to the forked repository on your repos, but if you do, make sure to not push the folder references.
+**NOTE**: If you forked the repo, make sure that `snap-cloud` is replaced with your **GitHub username**. However, submodules will be from the original author.
 
 ## Development
 
@@ -65,17 +65,18 @@ Once OpenResty is ready, installing Lapis is just a matter of asking the LuaRock
 Additional Lua packages you need for the Snap!Cloud to work properly are the Bcrypt module and the md5 module used for secure password encryption. You can use LuaRocks to install them all as root:
 
 All Lua dependencies are contained in the rockspec.
-```
-# luarocks install snap-cloud-beta-0.rockspec
-```
-
-#### Only for the MioSoft Cloud migration
-
-When using the migrate.lua script to import collections exported from the MioSoft Cloud (previous Snap! Cloud), you'll need to also install the following Lua rock:
 
 ```
-# luarocks install pgmoon
+# luarocks install snap-cloud-dec-0.rockspec
+```
 
+#### Note About `git` protocols
+
+Some rocks still use the `git://` protocol, which GitHub no longer accepts.
+The 'easy' was to get around this is to use a global git configuration:
+
+```
+# git config --global url."https://github".insteadOf git://github
 ```
 
 ### Authbind
@@ -290,4 +291,5 @@ To run it automatically, add the following to the `cloud` user crontab, by runni
 ```
 0 2 * * * /usr/sbin/logrotate /home/cloud/logrotate.conf --state /home/cloud/logrotate-state
 ```
+
 This will run the logrotation script at 2AM each night. (You'll want to create the logrotate-state file, and update the paths as necessary.)
