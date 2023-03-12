@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-# ./deploy.sh [BRANCH]
+# ./deploy [BRANCH]
 
 # Allow specifcying a branch or commit to deploy.
 branch=${1-'master'}
@@ -16,18 +16,11 @@ git pull origin $branch
 git submodule init
 git submodule update --recursive --remote
 
-# Build community site
-pushd site
-echo "Building Comminty Frontend"
-echo
-Snippets/build.sh
-popd
-
 pushd ~/snapCloud/bin/;
 
-./renew-certs.sh
-./deploy_certs.sh
-./deploy_snap.sh
+./renew-certs
+./deploy-certs
+./update-snap
 
 
 # echo "Updating Dependencies:"
@@ -72,7 +65,7 @@ curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394
 
 
 # Always update the letsencrypt script incase it changes.
-cp ./deploy_certs.sh ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
+cp ./deploy-certs ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
 
 # The cloud user only has the ability to restart this service.
 echo 'Restarting snapcloud daemon'
