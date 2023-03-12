@@ -21,7 +21,8 @@ dependencies = {
    "luasocket",
    "lua-resty-http",
    "lua-cjson",
-   "luasec"
+   "luasec",
+   "lpeg"
 }
 build = {
     type = "builtin",

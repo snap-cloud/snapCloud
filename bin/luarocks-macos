@@ -5,11 +5,8 @@
 
 # for installing with the correct version
 LUA_DIR="/usr/local/opt/lua@5.1"
-
 # Needed for lapis
 OPENSSL_BREW='/usr/local/opt/openssl/'
-
-echo 'Installing lua dependencies'
 gcc_version='gcc-12'
 
 # For some reason luarocks needs both directories specified...
