@@ -9,6 +9,7 @@
 
 if show_author == nil then show_author = true end
 item_type = item_type or 'project'
+debug_print(items);
 if items == nil then items = {} end
 items_per_page = items_per_page or 5
 num_pages = (math.ceil(#(items) / items_per_page) or 0)
@@ -20,25 +21,24 @@ items_per_row = items_per_row or 5
 <link rel="stylesheet" href="/static/style/project.css">
 <div class="<%= item_type %>s container carousel <%= class %>">
 
-<%
-if ((num_pages > 0) or show_if_empty) then %>
-    <% if (title) then %>
-    <% if href then %><a href="<%=href%>" title="Show all"><% end %>
+<% if ((num_pages > 0) or show_if_empty) then %>
+    <% if title then %>
+        <% if href then %><a href="<%=href%>" title="Show all"><% end %>
         <h2 class="<%= item_type %>s header"><%= title %></h2>
-    <% if href then %></a><% end %>
+        <% if href then %></a><% end %>
     <% elseif title_selector then %>
-    <h2 class="<%= item_type %>s header"
-        ><%= locale.get(title_selector) %></h2>
+        <h2 class="<%= item_type %>s header"
+            ><%= locale.get(title_selector) %></h2>
     <% end %>
     <% if num_pages > 1 then %>
-    <div class="bar">
-        <%
-            render(
-                'views.partials.carousel_paginator',
-                { num_pages = num_pages, id = id }
-            )
-        %>
-    </div>
+        <div class="bar">
+            <%
+                render(
+                    'views.partials.carousel_paginator',
+                    { num_pages = num_pages, id = id }
+                )
+            %>
+        </div>
     <% end %>
     <% if num_pages > 0 then %>
     <div class="<%= item_type %>s list pure-g">
@@ -101,5 +101,5 @@ if ((num_pages > 0) or show_if_empty) then %>
         change_page_<%=id%>('first');
     </script>
     <% end %>
-<% end -- show if empty %>
+<% end %> <!-- show if empty -->
 </div>

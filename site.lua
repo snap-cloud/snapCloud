@@ -158,9 +158,16 @@ end)))
 
 -- Legacy (?) route to embed a collection
 app:get('/carousel', capture_errors(cached(function (self)
-    self.params.user_id = self.queried_user.id
-    self.items = CollectionController.user_collections(self)
-    return { render = 'carousel' }
+    local creator = Users:find({ username = tostring(self.params.username) })
+    self.params.page_number = self.params.page_number or 1
+    self.collection =
+        Collections:find(creator.id, self.params.collection)
+    assert_can_view_collection(self, self.collection)
+    self.collection.creator = creator
+    self.items = self.collection:get_projects()
+    self.title = self.collection.name
+    self.show_if_empty = true
+    return { render = 'carousel', layout = 'embedded' }
 end)))
 
 

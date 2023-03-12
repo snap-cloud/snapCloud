@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Snap! Build Your Own Blocks</title>
+        <meta name="description" content="The Snap! Community. Snap! is a blocks-based programming language built by UC Berkeley and used by hundreds of thousands of programmers around the world.">
+        <meta name="author" content="Bernat Romagosa, Michael Ball, Jens Mönig, Brian Harvey, Jadge Hügle">
+        <meta name="snap-cloud-domain" location="https://snap.berkeley.edu">
+        <link rel="icon" href="/static/img/favicon.ico">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <!-- External libs, both stylesheets and JS -->
+        <link rel="stylesheet" href="/static/style/reset.css">
+        <link rel="stylesheet" href="/static/style/pure-min.css">
+        <link rel="stylesheet"
+            href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+            integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
+            crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/style/custom-alert.css">
+        <!-- Stylesheets -->
+        <link rel="stylesheet" href="/static/style/elements.css">
+        <link rel="stylesheet" href="/static/style/classes.css">
+        <link rel="stylesheet" href="/static/style/layout.css">
+        <!-- JS -->
+        <script type="text/javascript" src="/static/js/locale.js"></script>
+        <script type="text/javascript">modules = [];</script>
+        <script type="text/javascript" src="/snap/src/cloud.js"></script>
+        <script type="text/javascript" src="/static/js/base.js"></script>
+        <script>cloud = new Cloud(); cloud.url = baseURL;</script>
+    </head>
+    <body>
+        <% render('views.js.dialog') %>
+        <script>new customAlert();</script>
+        <div id="loading">
+            <i class="fas fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
+        </div>
+        <% content_for('inner') %>
+    </body>
+    <script>
+    doneLoading();
+    </script>
+</html>
