@@ -164,7 +164,7 @@ app:get('/carousel', capture_errors(cached(function (self)
         Collections:find(creator.id, self.params.collection)
     assert_can_view_collection(self, self.collection)
     self.collection.creator = creator
-    self.items = self.collection:get_projects()
+    self.items = CollectionController.projects(self)
     self.title = self.collection.name
     self.show_if_empty = true
     return { render = 'carousel', layout = 'embedded' }
