@@ -156,6 +156,14 @@ app:get('/user_projects/:username', capture_errors(cached(function (self)
     return { render = 'explore' }
 end)))
 
+-- Legacy (?) route to embed a collection
+app:get('/carousel', capture_errors(cached(function (self)
+    self.params.user_id = self.queried_user.id
+    self.items = CollectionController.user_collections(self)
+    return { render = 'carousel' }
+end)))
+
+
 app:get('/followed', capture_errors(cached(function (self)
     if self.current_user then
         self.items = ProjectController.followed_projects(self)
