@@ -1,4 +1,4 @@
-package = "snap-cloud"
+package = "snapcloud"
 version = "dev-0"
 source = {
    url = "git+https://github.com/snap-cloud/snapCloud.git"
@@ -9,7 +9,8 @@ description = {
       This is currently in active development.
       Maybe this will say something witty one day.
    ]],
-   homepage = "http://snap.berkeley.edu",
+   homepage = "https://snap.berkeley.edu",
+   maintainer = "Bernat Romagosa, Michael Ball",
    license = "AGPL"
 }
 dependencies = {
@@ -22,7 +23,7 @@ dependencies = {
    "lua-resty-http",
    "lua-cjson",
    "luasec",
-   "lpeg"
+   "inspect"
 }
 build = {
     type = "builtin",

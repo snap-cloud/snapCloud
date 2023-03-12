@@ -1,8 +1,8 @@
-# Snap!Cloud Install Guide
+# Snap!Cloud Installation Guide
 
 ## Cloning the repository
 
-First of all, clone the Snap!Cloud repository into a local folder:
+First, clone the Snap!Cloud repository into a local folder:
 
 ```
 $ git clone --recursive https://github.com/snap-cloud/snapCloud.git
@@ -29,7 +29,11 @@ The other sections not listed are not needed for development, but may be needed 
 
 ## Prereqs
 
-For Ubuntu, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a the database" afterwards.
+For Ubuntu, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies.
+
+**macOS Users**
+MacOS users can run `bin/setup-macos`. You will still need to follow all steps after "Setting up a the database" afterwards.
+We recommend you use the latest version of `gcc` avaiable.
 
 **Warning for Ubuntu users**
 If you are not running an LTS (long term support) Ubuntu release, you will need to look for this line in `bin/prereqs.sh`:
@@ -66,8 +70,19 @@ Additional Lua packages you need for the Snap!Cloud to work properly are the Bcr
 
 All Lua dependencies are contained in the rockspec.
 
+### Luarocks macOS
+
+`luarocks` will default to lua 5.3, which we do not use. Instead, `bin/luarocks-macos` "wraps" luarocks with our defaults,
+and includes the appropriate C/C++ flags so dependencies compile on recent macOS versions.
+
+You can pass all the same commmands to luarocks, e.g.
+
 ```
-# luarocks install snap-cloud-dec-0.rockspec
+$ bin/luarocks-macos install snapcloud-dev-0.rockspec
+```
+
+```
+# luarocks install snapcloud-dev-0.rockspec
 ```
 
 #### Note About `git` protocols
