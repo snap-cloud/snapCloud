@@ -9,7 +9,6 @@
 
 if show_author == nil then show_author = true end
 item_type = item_type or 'project'
-debug_print(items);
 if items == nil then items = {} end
 items_per_page = items_per_page or 5
 num_pages = (math.ceil(#(items) / items_per_page) or 0)

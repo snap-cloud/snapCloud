@@ -40,7 +40,4 @@
     <body>
         <div id="wrapper"><% content_for('inner') %></div>
     </body>
-    <script>
-    doneLoading();
-    </script>
 </html>

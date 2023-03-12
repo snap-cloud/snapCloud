@@ -10,7 +10,7 @@ description = {
       Maybe this will say something witty one day.
    ]],
    homepage = "https://snap.berkeley.edu",
-   maintainer = "Bernat Romagosa, Michael Ball",
+   maintainer = "Bernat Romagosa, Michael Ball, Jens Mönig, Brian Harvey, Jadge Hügle",
    license = "AGPL"
 }
 dependencies = {
