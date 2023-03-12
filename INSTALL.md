@@ -219,9 +219,17 @@ You can now point your browser to `http://localhost:8080` (note: `foreman` and `
 [nf]: https://github.com/strongloop/node-foreman
 
 
+### Updating Dependencies / Lockfile
+
+To regenerate `luarocks.rock`, use the following command:
+
+```
+$ bin/luarocks-macos build snapcloud-dev-0.rockspec --pin
+```
+
 ## Production Configuration
 
-## SSL
+### SSL
 The production instance needs SSL to run. See [certs/README.md](certs/README.md) for details on configuring SSL certificates.
 
 ### Setting Environment Variables
