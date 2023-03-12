@@ -156,12 +156,11 @@ app:get('/user_projects/:username', capture_errors(cached(function (self)
     return { render = 'explore' }
 end)))
 
--- Legacy (?) route to embed a collection
+-- Display an embedded collection view.
 app:get('/carousel', capture_errors(cached(function (self)
     local creator = Users:find({ username = tostring(self.params.username) })
     self.params.page_number = self.params.page_number or 1
-    self.collection =
-        Collections:find(creator.id, self.params.collection)
+    self.collection = Collections:find(creator.id, self.params.collection)
     assert_can_view_collection(self, self.collection)
     self.collection.creator = creator
     self.items = CollectionController.projects(self)
@@ -169,7 +168,6 @@ app:get('/carousel', capture_errors(cached(function (self)
     self.show_if_empty = true
     return { render = 'carousel', layout = 'embedded' }
 end)))
-
 
 app:get('/followed', capture_errors(cached(function (self)
     if self.current_user then
