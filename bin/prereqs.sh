@@ -45,7 +45,7 @@ apt-get -y install openssl
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing lua packages..."
-luarocks install snap-cloud-beta-0.rockspec
+luarocks install snapcloud-dev-0.rockspec
 
 if [ $? -ne 0 ]; then error; fi
 

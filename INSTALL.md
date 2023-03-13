@@ -1,16 +1,16 @@
-# Snap!Cloud Install Guide
+# Snap!Cloud Installation Guide
 
 ## Cloning the repository
 
-First of all, clone the Snap!Cloud repository into a local folder:
+First, clone the Snap!Cloud repository into a local folder:
 
 ```
-$ git clone --recursive https://github.com/bromagosa/snapCloud.git
+$ git clone --recursive https://github.com/snap-cloud/snapCloud.git
 ```
 
-(Use the `--recursive` option so that you can see the Social site and have a working Snap<em>!</em> install.)
+(Use the `--recursive` option so that you can have a working Snap<em>!</em> install.)
 
-**NOTE**: If you forked the repo, make sure that `bromagosa` is replaced with your **GitHub username**. However, submodules will be from the original author. There is no way to clone from your forked repo. You may choose to relinking the folders to the forked repository on your repos, but if you do, make sure to not push the folder references.
+**NOTE**: If you forked the repo, make sure that `snap-cloud` is replaced with your **GitHub username**. However, submodules will be from the original author.
 
 ## Development
 
@@ -29,7 +29,11 @@ The other sections not listed are not needed for development, but may be needed 
 
 ## Prereqs
 
-For Ubuntu, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies. MacOS users can run `bin/setup_osx.sh`. You will still need to follow all steps after "Setting up a the database" afterwards.
+For Ubuntu, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies.
+
+**macOS Users**
+MacOS users can run `bin/setup-macos`. You will still need to follow all steps after "Setting up a the database" afterwards.
+We recommend you use the latest version of `gcc` avaiable.
 
 **Warning for Ubuntu users**
 If you are not running an LTS (long term support) Ubuntu release, you will need to look for this line in `bin/prereqs.sh`:
@@ -65,17 +69,29 @@ Once OpenResty is ready, installing Lapis is just a matter of asking the LuaRock
 Additional Lua packages you need for the Snap!Cloud to work properly are the Bcrypt module and the md5 module used for secure password encryption. You can use LuaRocks to install them all as root:
 
 All Lua dependencies are contained in the rockspec.
+
+### Luarocks macOS
+
+`luarocks` will default to lua 5.3, which we do not use. Instead, `bin/luarocks-macos` "wraps" luarocks with our defaults,
+and includes the appropriate C/C++ flags so dependencies compile on recent macOS versions.
+
+You can pass all the same commmands to luarocks, e.g.
+
 ```
-# luarocks install snap-cloud-beta-0.rockspec
+$ bin/luarocks-macos install snapcloud-dev-0.rockspec
 ```
 
-#### Only for the MioSoft Cloud migration
+```
+# luarocks install snapcloud-dev-0.rockspec
+```
 
-When using the migrate.lua script to import collections exported from the MioSoft Cloud (previous Snap! Cloud), you'll need to also install the following Lua rock:
+#### Note About `git` protocols
+
+Some rocks still use the `git://` protocol, which GitHub no longer accepts.
+The 'easy' was to get around this is to use a global git configuration:
 
 ```
-# luarocks install pgmoon
-
+# git config --global url."https://github".insteadOf git://github
 ```
 
 ### Authbind
@@ -203,9 +219,17 @@ You can now point your browser to `http://localhost:8080` (note: `foreman` and `
 [nf]: https://github.com/strongloop/node-foreman
 
 
+### Updating Dependencies / Lockfile
+
+To regenerate `luarocks.rock`, use the following command:
+
+```
+$ bin/luarocks-macos build snapcloud-dev-0.rockspec --pin
+```
+
 ## Production Configuration
 
-## SSL
+### SSL
 The production instance needs SSL to run. See [certs/README.md](certs/README.md) for details on configuring SSL certificates.
 
 ### Setting Environment Variables
@@ -290,4 +314,5 @@ To run it automatically, add the following to the `cloud` user crontab, by runni
 ```
 0 2 * * * /usr/sbin/logrotate /home/cloud/logrotate.conf --state /home/cloud/logrotate-state
 ```
+
 This will run the logrotation script at 2AM each night. (You'll want to create the logrotate-state file, and update the paths as necessary.)

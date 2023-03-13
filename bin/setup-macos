@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# snapCloud install script for OS X / macOS
+# snapCloud install script for macOS
 # contributed by Michael Ball
+
+print_ok() {
+   echo -e "\033[32m$1\033[0m"
+}
 
 
 # Ensure brew is installed.
@@ -16,29 +20,33 @@ if [[ -z `which npm` ]]; then
     echo 'To install maildev, first install node (npm), then do:'
     echo '"npm install -g maildev"'
 else
-    echo 'Installing maildev...'
+    print_ok 'Installing maildev...'
     npm install -g maildev
 fi
 
-
 # Install basic dependencies via brew
 # Note that we must use lua 5.1, not 5.2 or 5.3
-echo 'Installing lua and postgres'
-brew install lua@5.1 luarocks postgres pcre
+print_ok 'Installing lua and postgres'
+brew install lua@5.1 luarocks postgres pcre gcc@12
 
-echo 'Installing OpenResty'
+print_ok 'Installing OpenResty'
 brew tap denji/nginx
 brew install denji/nginx/openresty
 
 # Need to link openresty to an nginx name for lapis
 ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx
 
-echo 'Adding luarocks path info to bashrc'
+
+print_ok "Setting Git to use https:// instead of unsecured git:// for GitHub"
+git config --global url."https://github".insteadOf git://github
+
+print_ok "Installing Lapis & Lua Dependencies"
+bin/luarocks-macos install snapcloud-dev-0.rockspec;
+
+print_ok 'Adding luarocks path info to bashrc'
 echo "" >> ~/.bashrc
 echo "# Luarocks 3 and Lua 5.1 tools (added by snapCloud)." >> ~/.bashrc
 echo $(luarocks path --lua-version 5.1) >> ~/.bashrc
 
-bin/luarocks-install-macos.sh;
-
-echo "Prerequisites installed."
-echo "Please follow all instructions after 'Setting up the database' in INSTALL.md"
+print_ok "Prerequisites installed."
+print_ok "Please follow all instructions after 'Setting up the database' in INSTALL.md"

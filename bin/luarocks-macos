@@ -5,12 +5,17 @@
 
 # for installing with the correct version
 LUA_DIR="/usr/local/opt/lua@5.1"
-
 # Needed for lapis
 OPENSSL_BREW='/usr/local/opt/openssl/'
+gcc_version='gcc-12'
 
-echo 'Installing lua dependencies'
-gcc_version='gcc-10'
 # For some reason luarocks needs both directories specified...
 # Set by parameter the Lua version used (currently 5.1)
-luarocks install --lua-dir=$LUA_DIR snap-cloud-beta-0.rockspec OPENSSL_DIR=$OPENSSL_BREW CRYPTO_DIR=$OPENSSL_BREW CC=$gcc_version LD=$gcc_version $@
+luarocks --lua-version=5.1 --lua-dir=$LUA_DIR --dev \
+  OPENSSL_DIR=$OPENSSL_BREW \
+  CRYPTO_DIR=$OPENSSL_BREW \
+  CC=$gcc_version \
+  LD=$gcc_version \
+  CFLAGS='--std=c++14' \
+  STDCPP_LIBDIR=/usr/local/Cellar/gcc/12.2.0/lib/gcc/current/ \
+  $@;
