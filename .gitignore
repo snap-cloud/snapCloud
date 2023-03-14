@@ -5,6 +5,7 @@ torbulkexitlist
 .env
 setenv
 logs
+tmp/*
 nginx.conf.compiled
 
 .htpasswd

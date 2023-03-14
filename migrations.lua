@@ -1,7 +1,7 @@
 -- Database migrations
 -- ===================
 --
--- Run migrations by running bin/migrations.sh
+-- Run migrations by running bin/lapis-migrate
 --
 -- Do not modify a migration once it has been run or commited!
 -- To change what a migration does, create a new one.
@@ -283,5 +283,20 @@ return {
             types.integer({ default = 0 })
         )
         update_user_views()
+    end,
+
+    -- Add columns to users to support teacher accounts.
+    ['2023-03-14:0'] = function()
+        -- this is likely temporary, but is a starting point.
+        schema.add_column(
+            'users',
+            'is_teacher',
+            types.boolean({ default = false })
+        )
+        schema.add_column(
+            'users',
+            'creator_id',
+            types.foreign_key({ null = true })
+        )
     end
 }

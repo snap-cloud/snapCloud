@@ -1,4 +1,5 @@
 #! /usr/bin/env bash
 
 # A simple wrapper because `lapis migrate` is broken.
+source .env
 lapis exec 'require("lapis.db.migrations").run_migrations(require("migrations"))' --trace
