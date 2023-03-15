@@ -298,5 +298,9 @@ return {
             'creator_id',
             types.foreign_key({ null = true })
         )
+    end,
+
+    ['2023-03-14:1'] = function()
+        update_user_views()
     end
 }

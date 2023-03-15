@@ -115,6 +115,10 @@ err = {
         { msg = 'Please use the Snap! site, not scripts.', status = 409 },
     tor_not_allowed =
         { msg = 'Sorry. We cannot let you use Tor for that.', status = 403 },
+    teacher_account_required = {
+        msg = 'You must be verified as a teacher to perfom this action.',
+        status = 403
+    }
 }
 
 assert_all = function (assertions, self)
@@ -241,6 +245,15 @@ assert_users_have_email = function (self, message)
     end
 end
 
+assert_user_can_create_accounts = function(self)
+    if self.current_user:isadmin() then return end
+    if not self.current_user.verified then
+        yield_error(err.nonvalidated_user)
+    end
+    if not self.current_user:is_teacher() then
+        yield_error(err.teacher_account_required)
+    end
+end
 
 -- Projects and Collections
 
@@ -349,7 +362,7 @@ end
 
 can_edit_collection = function (self, collection)
     -- Users can edit their own collections
-    return (self.current_user ~= nil) and 
+    return (self.current_user ~= nil) and
         ((collection.creator_id == self.current_user.id) or
         is_editor(self, collection))
 end

@@ -28,9 +28,11 @@ local yield_error = package.loaded.yield_error
 local capture_errors = package.loaded.capture_errors
 local socket = require('socket')
 local app = package.loaded.app
+local json = require('cjson')
 
 local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
+local AllUsers = package.loaded.AllUsers
 local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
 local Tokens = package.loaded.Tokens
@@ -428,6 +430,64 @@ UserController = {
                 'account within the next 3 days.\nYou can now log in.',
             title = 'Account Created',
             redirect = self:build_url('login')
+        })
+    end),
+    create_many = capture_errors(function (self)
+        -- For consistency, all users will be created or NONE will be created.
+        -- rate_limit(self)
+        assert_user_can_create_accounts(self)
+        local users = self.params.users
+        if not users then
+            yield_error('Malformed JSON Provided.')
+        end
+
+        local expected, created, errors = #users, 0, 0
+        local users_list = nil
+        if expected > 50 then yield_error('Please limit bulk creation to 50 users.') end
+
+        -- Assert no users exist.
+        local usernames = {}
+        for _, user in pairs(users) do
+            table.insert(usernames, util.trim(tostring(user.username)))
+        end
+
+        local existing_users = AllUsers:find_all(usernames, 'username', { fields = 'username' })
+        if #existing_users > 0 then
+            local usernames = {}
+            local msg =
+                 "No user accounts created! " ..
+                #existing_users .. " users already exist. Please provide new usernames for the following users."
+            for _, user in pairs(existing_users) do
+                table.insert(usernames, user.username)
+            end
+            return errorResponse({ error = msg, users = usernames }, 400)
+        end
+
+        -- Build a large table to run a single INSERT query
+        -- for _, user in pairs(users) do
+        --     debug_print(user)
+        --     user.username = util.trim(tostring(user.username))
+        --     user.password = util.trim(tostring(user.password))
+        --     user.email = user.email or self.current_user.email
+        --     local is_valid = validate.validate(user, User.validations)
+        --     debug_print('IS VALID? ' .. is_valid)
+        --     user.created = db.format_date()
+        --     user.salt = secure_salt()
+        -- end
+
+        debug_print(users)
+        -- local user = Users:create({
+        --
+        --     password = hash_password(self.params.password, salt),
+        --     verified = false,
+        --     role = 'standard'
+        -- })
+        if false then
+            return errorResponse('Some accounts not created')
+        end
+        return jsonResponse({
+            message = created .. ' ussers created.',
+            users = usernames
         })
     end),
     become = capture_errors(function (self)
