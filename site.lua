@@ -178,11 +178,27 @@ app:get('/followed', capture_errors(cached(function (self)
     end
 end)))
 
-app:get('/project', capture_errors(function (self)
+app:match('project', '/project', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
+    if self.params.user and self.params.project then
+        local escape = package.loaded.util.escape
+        -- Just redirect using the new URL params format
+        return {
+            redirect_to =
+                self:url_for(
+                    'project',
+                    nil,
+                    {
+                        username = self.params.user,
+                        projectname = self.params.project
+                    }
+                )
+        }
+    end
+
     self.project = Projects:find(
-        tostring(self.params.user or self.params.username),
-        self.params.project or self.params.projectname
+        tostring(self.params.username),
+        self.params.projectname
     )
 
     -- check whether this is a remix of another project
