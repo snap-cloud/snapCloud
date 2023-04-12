@@ -70,6 +70,15 @@ Additional Lua packages you need for the Snap!Cloud to work properly are the Bcr
 
 All Lua dependencies are contained in the rockspec.
 
+### Note About `git` protocols
+
+Some rocks still use the `git://` protocol, which GitHub no longer accepts.
+The 'easy' was to get around this is to use a global git configuration:
+
+```
+$ git config --global url."https://github".insteadOf git://github
+```
+
 ### Luarocks macOS
 
 `luarocks` will default to lua 5.3, which we do not use. Instead, `bin/luarocks-macos` "wraps" luarocks with our defaults,
@@ -83,15 +92,6 @@ $ bin/luarocks-macos install snapcloud-dev-0.rockspec
 
 ```
 # luarocks install snapcloud-dev-0.rockspec
-```
-
-#### Note About `git` protocols
-
-Some rocks still use the `git://` protocol, which GitHub no longer accepts.
-The 'easy' was to get around this is to use a global git configuration:
-
-```
-# git config --global url."https://github".insteadOf git://github
 ```
 
 ### Authbind

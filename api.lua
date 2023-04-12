@@ -27,6 +27,7 @@ local api_version = 'v1'
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
+local json_params = package.loaded.json_params
 local respond_to = package.loaded.respond_to
 
 require 'validation'
@@ -163,6 +164,11 @@ app:match(api_route('users/:username/resendverification'), respond_to({
 app:match(api_route('users/:username/follow'), respond_to({
     POST = UserController.follow,
     DELETE = UserController.unfollow
+}))
+
+
+app:match(api_route('users/create_many'), respond_to({
+    POST = json_params(UserController.create_many),
 }))
 
 -- Zombies

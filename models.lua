@@ -85,6 +85,10 @@ package.loaded.Users = Model:extend('active_users', {
     isbanned = function (self)
         return self.role == 'banned'
     end,
+    is_teacher = function (self)
+        -- This is likely to get more complex in the future.
+        return self.is_teacher
+    end,
     has_min_role = function (self, expected_role)
         return package.loaded.Users.roles[self.role] >=
             package.loaded.Users.roles[expected_role]
@@ -136,6 +140,12 @@ package.loaded.Users = Model:extend('active_users', {
     end
 })
 
+package.loaded.Users.validations = {
+    { 'username', exists = true, min_length = 4, max_length = 200 },
+    { 'password', exists = true, min_length = 6 },
+    { 'email', exists = true, min_length = 5 }
+}
+
 package.loaded.Users.roles = {
     admin = 4,
     moderator = 3,
@@ -145,6 +155,9 @@ package.loaded.Users.roles = {
 }
 
 package.loaded.DeletedUsers = Model:extend('deleted_users')
+
+-- Used for querires across the entire users table.
+package.loaded.AllUsers = Model:extend('users')
 
 package.loaded.Projects = Model:extend('active_projects', {
     type = 'project',
