@@ -30,8 +30,7 @@ print_ok 'Installing lua and postgres'
 brew install lua@5.1 luarocks postgres pcre gcc@12
 
 print_ok 'Installing OpenResty'
-brew tap denji/nginx
-brew install denji/nginx/openresty
+brew install openresty/brew/openresty
 
 # Need to link openresty to an nginx name for lapis
 ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx
