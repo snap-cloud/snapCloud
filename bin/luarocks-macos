@@ -3,19 +3,25 @@
 # Simple macOS wrapper around `luarocks install` because this
 # command is a little too complex to remember.
 
-# for installing with the correct version
-LUA_DIR="/usr/local/opt/lua@5.1"
-# Needed for lapis
-OPENSSL_BREW='/usr/local/opt/openssl/'
-gcc_version='gcc-10'
+# This script assumes that luarocks and lua@5.1 are installed via Homebrew.
+# openssl and gcc are needed, too.
+# ARM Macs need >= gcc-12, see bin/setup-macos
 
-# For some reason luarocks needs both directories specified...
-# Set by parameter the Lua version used (currently 5.1)
-luarocks --lua-version=5.1 --lua-dir=$LUA_DIR --dev \
-  OPENSSL_DIR=$OPENSSL_BREW \
-  CRYPTO_DIR=$OPENSSL_BREW \
+
+LUA_VERSION=5.1
+BREW_PREFIX=$(brew --prefix)
+LUA_DIR="$(brew --prefix lua@$LUA_VERSION)"
+OPENSSL_BREW="$(brew --prefix openssl)"
+gcc_version='gcc'
+
+# For some reason luarocks needs both lua-dir and lua-versions specified...
+# cc, ld flags, openssl, etc are needed for luasec and luaossl
+luarocks --lua-version=$LUA_VERSION --lua-dir=$LUA_DIR --dev \
+  OPENSSL_DIR="$BREW_PREFIX/opt/openssl@3/" \
+  CRYPTO_DIR="$BREW_PREFIX/opt/openssl@3/" \
   CC=$gcc_version \
   LD=$gcc_version \
+  LDFLAGS="-L$BREW_PREFIX/opt/openssl@3/lib" \
   CPPFLAGS='--std=c++14' \
-  STDCPP_LIBDIR=/usr/local/Cellar/gcc/12.2.0/lib/gcc/current/ \
+  STDCPP_LIBDIR=$BREW_PREFIX/Cellar/gcc/12.2.0/lib/gcc/current/ \
   $@;
