@@ -33,7 +33,13 @@ print_ok 'Installing OpenResty'
 brew install openresty/brew/openresty
 
 # Need to link openresty to an nginx name for lapis
-ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx
+# ln -s /usr/local/opt/openresty/bin/openresty /usr/local/opt/openresty/bin/nginx
+
+print_ok 'NOTE THERE IS AN ISSUE ON ARM MACS! You must use a pre-release openresty version!'
+print_ok 'Use `brew edit openresty` to manually update the installation. See setup-macos'
+# You need to update the following two lines in the file.
+#   VERSION = "1.21.4.2rc1".freeze
+#   sha256 "ee96bbcf119abe5f1fc90461dd4674bd9397aa3db5544139578d9ace81983fdb"
 
 
 print_ok "Setting Git to use https:// instead of unsecured git:// for GitHub"
