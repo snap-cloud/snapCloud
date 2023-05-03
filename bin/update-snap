@@ -25,7 +25,7 @@ popd;
 echo
 echo
 
-snap_release="v6.0.0" # must be exactly a git tag.
+snap_release="v7.0.0" # must be exactly a git tag.
 pushd $base/snap-versions/previous;
 echo "Updating Previous Snap!: $snap_release"
 echo
