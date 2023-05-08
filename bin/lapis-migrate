@@ -1,5 +1,12 @@
 #! /usr/bin/env bash
 
-# A simple wrapper because `lapis migrate` is broken.
+# Wrap `lapis migrate` to ensure we always dump the current schema to cloud.sql
 source .env
-lapis exec 'require("lapis.db.migrations").run_migrations(require("migrations"))' --trace
+lapis migrate
+if [ $LAPIS_ENVIRONMENT == 'development']; then
+  echo 'Dumping schema to cloud.sql.';
+  DB_USER="${DATABASE_USER:-$USER}"
+  DB_HOST="${DATABASE_HOST:-localhost}"
+  pg_dump --schema-only --no-owner --create -x -h $DB_HOST -U $DB_USER -d $DATABASE_NAME > cloud.sql;
+  pg_dump -x --no-owner --data-only -t lapis_migrations -h $DB_HOST -U $DB_USER -d $DATABASE_NAME | grep -v "^SET*" >> cloud.sql
+fi
