@@ -238,7 +238,7 @@ SnapCloud will read variables from a file `.env` which contains contains data sp
 
 ```sh
 export LAPIS_ENVIRONMENT=production
-export DATABASE_URL=127.0.0.1
+export DATABASE_HOST=127.0.0.1
 export DATABASE_PORT=5432
 export DATABASE_USERNAME=cloud
 export DATABASE_PASSWORD=snap-cloud-password
