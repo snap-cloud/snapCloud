@@ -141,8 +141,8 @@ app:match(api_route('users/:username/set_role'), respond_to({
     POST = UserController.set_role
 }))
 
-app:match(api_route('users/:username/make_teacher'), respond_to({
-    POST = UserController.make_teacher
+app:match(api_route('users/:username/set_teacher'), respond_to({
+    POST = UserController.set_teacher
 }))
 
 app:match(api_route('users/:username/change_email'), respond_to({
