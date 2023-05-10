@@ -482,7 +482,7 @@ UserController = {
             end
         end
         local result = db.query('COMMIT;')
-
+        -- TODO: Error Handling.
         return jsonResponse({
             message = #usernames .. ' users created.',
             users = usernames

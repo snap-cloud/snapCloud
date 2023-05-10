@@ -195,8 +195,7 @@ CollectionController = {
         local collection =
             Collections:find({ id = self.params.id })
 
-        -- For now, only creators can add projects to collections. Should
-        -- editors also be able to?
+        -- For now, only project creators or site mods can delete projects from collections.
         if collection.creator_id ~= self.current_user.id then
             assert_min_role(self, 'moderator')
         end
@@ -385,7 +384,7 @@ CollectionController = {
         if collection.creator_id ~= self.current_user.id then
             assert_admin(self)
         end
-        if not 
+        if not
             (collection:update({ description = self.params.new_description }))
                 then
             return errorResponse('Collection description could not be updated')
