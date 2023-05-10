@@ -557,7 +557,7 @@ UserController = {
     make_teacher = capture_errors(function (self)
         assert_admin(self)
         if self.queried_user then
-            self.queried_user:update({ is_teacher = self.params.value })
+            self.queried_user:update({ is_teacher = self.params.is_teacher })
         end
         return jsonResponse({
             message =
