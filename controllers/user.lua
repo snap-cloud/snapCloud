@@ -25,6 +25,7 @@ local validate = package.loaded.validate
 local db = package.loaded.db
 local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
+local assert_error = package.loaded.app_helpers.assert_error
 local capture_errors = package.loaded.capture_errors
 local socket = require('socket')
 local app = package.loaded.app
@@ -468,7 +469,11 @@ UserController = {
         -- wrap all user creations in a transaction. No partial completions.
         db.query('BEGIN;')
         if self.params.collection_name then
-            collection = Collections:find(self.current_user.id, self.params.name)
+            collection =
+                Collections:find(
+                    self.current_user.id,
+                    self.params.collection_name
+                )
             if not collection then
                 collection = assert_error(Collections:create({
                     name = self.params.collection_name,
@@ -485,6 +490,7 @@ UserController = {
                 end
             end
         end
+        debug_print('new collection:', collection)
         for _, user in pairs(users) do
             user.username = util.trim(tostring(user.username))
             user.password = util.trim(tostring(user.password))
@@ -512,6 +518,7 @@ UserController = {
                             'array_append(editor_ids, ?)',
                             user.id))
                 })
+                debug_print('added user to collection:', collection)
             end
         end
         local result = db.query('COMMIT;')
