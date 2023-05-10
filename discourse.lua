@@ -72,7 +72,7 @@ app:get('/api/v1/discourse-sso', capture_errors(function(self)
             { fields = 'id, username, verified, role, email, unique_email' })[1]
 
     if user:cannot_access_forum() then
-        yield_error({ msg = 'Banned users cannot use the forum.', status = 403 })
+        yield_error({ msg = user.role .. ' users cannot use the forum.', status = 403 })
     end
 
     local response_payload = build_payload(user, request_payload)
