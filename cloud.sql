@@ -62,6 +62,7 @@ CREATE DOMAIN public.dom_username AS text;
 --
 
 CREATE TYPE public.snap_user_role AS ENUM (
+    'student',
     'standard',
     'reviewer',
     'moderator',
@@ -717,6 +718,7 @@ COPY public.lapis_migrations (name) FROM stdin;
 2022-09-16:0
 2023-03-14:0
 2023-03-14:1
+1683536418
 \.
 
 
