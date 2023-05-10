@@ -304,7 +304,7 @@ return {
 
     -- Add a specific student role.
     -- Ordering likeky shouldn't be relied upon, but this is nice to have.
-    [1683536418] = function()
+    ['1683536418'] = function()
         db.query([[
             ALTER TYPE snap_user_role ADD VALUE 'student' BEFORE 'standard';
         ]])
