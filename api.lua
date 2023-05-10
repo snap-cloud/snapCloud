@@ -141,6 +141,10 @@ app:match(api_route('users/:username/set_role'), respond_to({
     POST = UserController.set_role
 }))
 
+app:match(api_route('users/:username/make_teacher'), respond_to({
+    POST = UserController.make_teacher
+}))
+
 app:match(api_route('users/:username/change_email'), respond_to({
     POST = UserController.change_email
 }))
@@ -166,9 +170,8 @@ app:match(api_route('users/:username/follow'), respond_to({
     DELETE = UserController.unfollow
 }))
 
-
 app:match(api_route('users/create_many'), respond_to({
-    POST = json_params(UserController.create_many),
+    POST = json_params(UserController.create_many)
 }))
 
 -- Zombies

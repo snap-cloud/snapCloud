@@ -323,6 +323,22 @@ app:get('/ip_admin', capture_errors(function (self)
     return { render = 'ip_admin' }
 end))
 
+-- Teachers
+
+app:get('/teacher', capture_errors(function (self)
+    if (not self.current_user.is_teacher) then
+        assert_admin(self)
+    end
+    return { render = 'teacher' }
+end))
+
+app:get('/bulk', capture_errors(function (self)
+    if (not self.current_user.is_teacher) then
+        assert_admin(self)
+    end
+    return { render = 'bulk' }
+end))
+
 -- Tools
 
 --[[

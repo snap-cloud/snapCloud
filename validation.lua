@@ -116,7 +116,7 @@ err = {
     tor_not_allowed =
         { msg = 'Sorry. We cannot let you use Tor for that.', status = 403 },
     teacher_account_required = {
-        msg = 'You must be verified as a teacher to perfom this action.',
+        msg = 'You must be verified as a teacher to perform this action.',
         status = 403
     }
 }

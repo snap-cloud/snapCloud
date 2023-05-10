@@ -434,13 +434,16 @@ UserController = {
     end),
     create_many = capture_errors(function (self)
         -- For consistency, all users will be created or NONE will be created.
+        debug_print('params', self.params)
         assert_user_can_create_accounts(self)
         local users = self.params.users
         if not users then
             yield_error('Malformed JSON Provided.')
         end
 
-        if #users > 50 then yield_error('Please limit bulk creation to 50 users.') end
+        if #users > 50 then
+            yield_error('Please limit bulk creation to 50 users.')
+        end
 
         local usernames = {}
         for _, user in pairs(users) do
@@ -448,16 +451,18 @@ UserController = {
         end
 
         -- Assert no users exist.
-        local existing_users = AllUsers:find_all(usernames, 'username', { fields = 'username' })
+        local existing_users =
+            AllUsers:find_all(usernames, 'username', { fields = 'username' })
         if #existing_users > 0 then
             usernames = {}
             local msg =
-                 "No user accounts created! " ..
-                #existing_users .. " users already exist. Please provide new usernames for the following users:"
+                'No user accounts created! ' ..
+                #existing_users .. ' users already exist.<br>' ..
+                'Please provide new usernames for the following users:<br><br>'
             for _, user in pairs(existing_users) do
-                table.insert(usernames, user.username)
+                msg = msg .. user.username .. '<br>'
             end
-            return errorResponse({ errors = msg, users = usernames }, 400)
+            return errorResponse(msg, 400)
         end
 
         -- wrap all user creations in a transaction. No partial completions.
@@ -478,7 +483,9 @@ UserController = {
             local result = Users:create(user)
             if not result then
                 db.query('ROLLBACK;')
-                return errorResponse('User ' .. user.username .. ' errored on creation.')
+                return errorResponse(
+                    'User ' .. user.username .. ' errored on creation.'
+                )
             end
         end
         local result = db.query('COMMIT;')
@@ -545,6 +552,17 @@ UserController = {
                 ' is now ' .. self.queried_user.role,
             title = 'Role set',
             redirect = self.queried_user:url_for('site')
+        })
+    end),
+    make_teacher = capture_errors(function (self)
+        assert_admin(self)
+        if self.queried_user then
+            self.queried_user:update({ is_teacher = self.params.is_teacher })
+        end
+        return jsonResponse({
+            message =
+                'User ' .. self.queried_user.username .. ' is now a teacher',
+            title = 'New teacher'
         })
     end),
     send_email = capture_errors(function (self)

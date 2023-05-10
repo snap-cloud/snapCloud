@@ -46,6 +46,23 @@
                 <% end %>
             </select>
         </span>
+        <span>
+            <strong>
+                <label for="is_teacher"><%- locale.get('teacher') %></label>
+            </strong>:
+            <input type="checkbox" name="is_teacher"
+                <%- item.is_teacher and 'checked' or '' %>
+                onchange="
+                    cloud.post(
+                        '/users/<%= item.username %>/make_teacher',
+                        null,
+                        {
+                            username: '<%= item.username %>',
+                            is_teacher: this.checked
+                        }
+                    );"
+            >
+        </span>
         <% end %>
         <div class="buttons">
             <% if not zombie then %>
