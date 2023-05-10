@@ -66,7 +66,7 @@ CollectionController = {
             self,
             [[JOIN active_users ON
                 (active_users.id = collections.creator_id)
-                WHERE collection.published]]
+                WHERE collections.published]]
         )
     end),
     my_collections = capture_errors(function (self)
