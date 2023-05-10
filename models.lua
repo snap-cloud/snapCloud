@@ -85,9 +85,8 @@ package.loaded.Users = Model:extend('active_users', {
     isbanned = function (self)
         return self.role == 'banned'
     end,
-    is_teacher = function (self)
-        -- This is likely to get more complex in the future.
-        return self.is_teacher
+    is_student = function (self)
+        return self.role == 'student'
     end,
     has_min_role = function (self, expected_role)
         return package.loaded.Users.roles[self.role] >=
@@ -136,7 +135,7 @@ package.loaded.Users = Model:extend('active_users', {
         return count > 0
     end,
     cannot_access_forum = function (self)
-        return self:isbanned() or self.validated == false
+        return self:is_student() or self:isbanned() or self.validated == false
     end
 })
 
