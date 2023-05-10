@@ -450,7 +450,7 @@ UserController = {
             table.insert(usernames, util.trim(tostring(user.username)))
         end
 
-    -- Assert no users exist.
+        -- Assert no users exist.
         local existing_users =
             AllUsers:find_all(usernames, 'username', { fields = 'username' })
         if #existing_users > 0 then
@@ -496,7 +496,7 @@ UserController = {
             user.salt = secure_salt()
             user.password = hash_password(user.password, user.salt)
             user.verified = true
-            user.role = 'standard'
+            user.role = 'student'
             user.creator_id = self.current_user.id
             local result = Users:create(user)
             if not result then
@@ -515,7 +515,7 @@ UserController = {
             end
         end
         local result = db.query('COMMIT;')
-
+        -- TODO: Error Handling.
         return jsonResponse({
             message = #usernames .. ' users created.',
             users = usernames

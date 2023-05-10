@@ -66,7 +66,7 @@ CollectionController = {
             self,
             [[JOIN active_users ON
                 (active_users.id = collections.creator_id)
-                WHERE published]]
+                WHERE collection.published]]
         )
     end),
     my_collections = capture_errors(function (self)
@@ -386,7 +386,7 @@ CollectionController = {
         if collection.creator_id ~= self.current_user.id then
             assert_admin(self)
         end
-        if not 
+        if not
             (collection:update({ description = self.params.new_description }))
                 then
             return errorResponse('Collection description could not be updated')

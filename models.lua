@@ -34,7 +34,7 @@ package.loaded.Users = Model:extend('active_users', {
         {'editable_collections',
             fetch = function (self)
                 return package.loaded.Collections:select(
-                    [[WHERE (creator_id = ? OR editor_ids @> array[?]) OR
+                    [[WHERE (collections.creator_id = ? OR editor_ids @> array[?]) OR
                         collections.free_for_all]],
                     self.id,
                     self.id,
@@ -45,7 +45,7 @@ package.loaded.Users = Model:extend('active_users', {
         {'ffa_collections',
             fetch = function (self)
                 return package.loaded.Collections:select(
-                    [[WHERE creator_id = ? AND collections.free_for_all]],
+                    [[WHERE collections.creator_id = ? AND collections.free_for_all]],
                     self.id,
                     { fields = 'name, collections.id' }
                 )
@@ -54,7 +54,7 @@ package.loaded.Users = Model:extend('active_users', {
         {'public_collections',
             fetch = function (self)
                 return package.loaded.Collections:select(
-                    [[WHERE creator_id = ? AND published ]],
+                    [[WHERE collections.creator_id = ? AND published ]],
                     self.id,
                     { fields = 'name, collections.id' }
                 )
