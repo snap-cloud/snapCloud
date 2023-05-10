@@ -490,7 +490,6 @@ UserController = {
                 end
             end
         end
-        debug_print('new collection:', collection)
         for _, user in pairs(users) do
             user.username = util.trim(tostring(user.username))
             user.password = util.trim(tostring(user.password))
@@ -518,7 +517,6 @@ UserController = {
                             'array_append(editor_ids, ?)',
                             user.id))
                 })
-                debug_print('added user to collection:', collection)
             end
         end
         local result = db.query('COMMIT;')
@@ -589,7 +587,6 @@ UserController = {
     end),
     make_teacher = capture_errors(function (self)
         assert_admin(self)
-        debug_print("MAKE TEACHER", self.params.body)
         if self.queried_user then
             self.queried_user:update({ is_teacher = self.params.is_teacher })
         end
