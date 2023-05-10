@@ -144,7 +144,9 @@ CREATE TABLE public.users (
     role public.snap_user_role DEFAULT 'standard'::public.snap_user_role,
     deleted timestamp with time zone,
     unique_email text,
-    bad_flags integer DEFAULT 0 NOT NULL
+    bad_flags integer DEFAULT 0 NOT NULL,
+    is_teacher boolean DEFAULT false NOT NULL,
+    creator_id integer
 );
 
 
@@ -165,7 +167,9 @@ CREATE VIEW public.active_users AS
     users.role,
     users.deleted,
     users.unique_email,
-    users.bad_flags
+    users.bad_flags,
+    users.is_teacher,
+    users.creator_id
    FROM public.users
   WHERE (users.deleted IS NULL);
 
@@ -304,7 +308,9 @@ CREATE VIEW public.deleted_users AS
     users.role,
     users.deleted,
     users.unique_email,
-    users.bad_flags
+    users.bad_flags,
+    users.is_teacher,
+    users.creator_id
    FROM public.users
   WHERE (users.deleted IS NOT NULL);
 
@@ -677,171 +683,41 @@ ALTER TABLE ONLY public.tokens
 
 
 --
--- Name: DATABASE snapcloud; Type: ACL; Schema: -; Owner: -
+-- PostgreSQL database dump complete
 --
 
-GRANT CONNECT,TEMPORARY ON DATABASE snapcloud TO snapanalytics;
-
-
 --
--- Name: FUNCTION expire_token(); Type: ACL; Schema: public; Owner: -
+-- PostgreSQL database dump
 --
 
-GRANT ALL ON FUNCTION public.expire_token() TO snapanalytics;
+-- Dumped from database version 14.7 (Homebrew)
+-- Dumped by pg_dump version 14.7 (Homebrew)
 
 
 --
--- Name: TABLE pg_stat_bgwriter; Type: ACL; Schema: pg_catalog; Owner: -
+-- Data for Name: lapis_migrations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-GRANT SELECT ON TABLE pg_catalog.pg_stat_bgwriter TO newrelic;
-
-
---
--- Name: TABLE pg_stat_database; Type: ACL; Schema: pg_catalog; Owner: -
---
-
-GRANT SELECT ON TABLE pg_catalog.pg_stat_database TO newrelic;
-
-
---
--- Name: TABLE pg_stat_database_conflicts; Type: ACL; Schema: pg_catalog; Owner: -
---
-
-GRANT SELECT ON TABLE pg_catalog.pg_stat_database_conflicts TO newrelic;
-
-
---
--- Name: TABLE projects; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.projects TO snapanalytics;
-
-
---
--- Name: TABLE active_projects; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.active_projects TO snapanalytics;
-
-
---
--- Name: TABLE users; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.users TO snapanalytics;
-
-
---
--- Name: COLUMN users.email; Type: ACL; Schema: public; Owner: -
---
-
-GRANT UPDATE(email) ON TABLE public.users TO snapanalytics;
-
-
---
--- Name: TABLE active_users; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.active_users TO snapanalytics;
-
-
---
--- Name: TABLE banned_ips; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.banned_ips TO snapanalytics;
-
-
---
--- Name: TABLE collection_memberships; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.collection_memberships TO snapanalytics;
-
-
---
--- Name: TABLE collections; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.collections TO snapanalytics;
-
-
---
--- Name: TABLE count_recent_projects; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.count_recent_projects TO snapanalytics;
-
-
---
--- Name: TABLE deleted_projects; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.deleted_projects TO snapanalytics;
-
-
---
--- Name: TABLE deleted_users; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.deleted_users TO snapanalytics;
-
-
---
--- Name: TABLE featured_collections; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.featured_collections TO snapanalytics;
-
-
---
--- Name: TABLE flagged_projects; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.flagged_projects TO snapanalytics;
-
-
---
--- Name: TABLE followers; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.followers TO snapanalytics;
-
-
---
--- Name: TABLE lapis_migrations; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.lapis_migrations TO snapanalytics;
-
-
---
--- Name: TABLE recent_projects_2_days; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.recent_projects_2_days TO snapanalytics;
-
-
---
--- Name: TABLE remixes; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.remixes TO snapanalytics;
-
-
---
--- Name: TABLE tokens; Type: ACL; Schema: public; Owner: -
---
-
-GRANT SELECT ON TABLE public.tokens TO snapanalytics;
-
-
---
--- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: -
---
-
-ALTER DEFAULT PRIVILEGES FOR ROLE cloud IN SCHEMA public GRANT SELECT ON TABLES  TO snapanalytics;
+COPY public.lapis_migrations (name) FROM stdin;
+20190140
+201901291
+20190141
+2019-01-04:0
+2019-01-29:0
+2019-02-01:0
+2019-02-05:0
+2019-02-04:0
+2020-10-22:0
+2020-11-03:0
+2020-11-09:0
+2020-11-10:0
+2022-08-16:0
+2022-08-17:0
+2022-08-18:0
+2022-09-16:0
+2023-03-14:0
+2023-03-14:1
+\.
 
 
 --
