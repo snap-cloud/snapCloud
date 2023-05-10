@@ -556,6 +556,7 @@ UserController = {
     end),
     make_teacher = capture_errors(function (self)
         assert_admin(self)
+        debug_print("MAKE TEACHER", self.params.body)
         if self.queried_user then
             self.queried_user:update({ is_teacher = self.params.is_teacher })
         end
