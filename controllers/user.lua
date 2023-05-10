@@ -432,10 +432,10 @@ UserController = {
             redirect = self:build_url('login')
         })
     end),
-    create_many = capture_errors(function (self)
+    create_learners = capture_errors(function (self)
         -- For consistency, all users will be created or NONE will be created.
-        debug_print('params', self.params)
         assert_user_can_create_accounts(self)
+        local collection = nil
         local users = self.params.users
         if not users then
             yield_error('Malformed JSON Provided.')
@@ -467,6 +467,24 @@ UserController = {
 
         -- wrap all user creations in a transaction. No partial completions.
         db.query('BEGIN;')
+        if self.params.collection_name then
+            collection = Collections:find(self.current_user.id, self.params.name)
+            if not collection then
+                collection = assert_error(Collections:create({
+                    name = self.params.collection_name,
+                    creator_id = self.current_user.id
+                }))
+                if not collection then
+                    db.query('ROLLBACK;')
+                    return errorResponse(
+                        'Could not create collection ' ..
+                        self.params.collection_name .. '.<br>' ..
+                        'Please make sure you do not already have a<br>' ..
+                        'collection with that name.'
+                    )
+                end
+            end
+        end
         for _, user in pairs(users) do
             user.username = util.trim(tostring(user.username))
             user.password = util.trim(tostring(user.password))
@@ -486,6 +504,14 @@ UserController = {
                 return errorResponse(
                     'User ' .. user.username .. ' errored on creation.'
                 )
+            end
+            if collection then
+                collection:update({
+                    editor_ids =
+                        db.raw(db.interpolate_query(
+                            'array_append(editor_ids, ?)',
+                            user.id))
+                })
             end
         end
         local result = db.query('COMMIT;')
