@@ -46,7 +46,7 @@ CollectionController = {
             {
                 per_page = self.params.per_page or 15,
                 fields = self.params.fields or
-                    [[collections.id, creator_id, collections.created_at,
+                    [[collections.id, collections.creator_id, collections.created_at,
                     published, collections.published_at, shared,
                     collections.shared_at, collections.updated_at, name,
                     description, thumbnail_id, username, editor_ids]]
@@ -66,7 +66,7 @@ CollectionController = {
             self,
             [[JOIN active_users ON
                 (active_users.id = collections.creator_id)
-                WHERE published]]
+                WHERE collections.published]]
         )
     end),
     my_collections = capture_errors(function (self)
@@ -76,7 +76,7 @@ CollectionController = {
             db.interpolate_query(
                 [[JOIN active_users ON
                     (active_users.id = collections.creator_id)
-                    WHERE (creator_id = ? OR editor_ids @> ARRAY[?])]],
+                    WHERE (collections.creator_id = ? OR editor_ids @> ARRAY[?])]],
                 self.current_user.id,
                 self.current_user.id)
         )
@@ -88,7 +88,7 @@ CollectionController = {
             db.interpolate_query(
                 [[JOIN active_users ON
                     (active_users.id = collections.creator_id)
-                    WHERE (creator_id = ?)
+                    WHERE (collections.creator_id = ?)
                     AND published]],
                 self.params.user_id,
                 self.params.user_id
@@ -192,12 +192,13 @@ CollectionController = {
         return jsonResponse({ redirect = project:url_for('site') })
     end),
     remove_project = capture_errors(function (self)
-        local collection =
-            Collections:find({ id = self.params.id })
+        local collection = Collections:find({ id = self.params.id })
+        local project = Projects:find({ id = self.params.project_id })
 
-        -- For now, only creators can add projects to collections. Should
-        -- editors also be able to?
-        if collection.creator_id ~= self.current_user.id then
+        -- Only creators, mods and owners of a particular project can remove
+        -- it from a collection.
+        if (collection.creator_id ~= self.current_user.id) or
+            (self.current_user.username ~= project.username) then
             assert_min_role(self, 'moderator')
         end
 
@@ -385,7 +386,7 @@ CollectionController = {
         if collection.creator_id ~= self.current_user.id then
             assert_admin(self)
         end
-        if not 
+        if not
             (collection:update({ description = self.params.new_description }))
                 then
             return errorResponse('Collection description could not be updated')

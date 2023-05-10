@@ -12,6 +12,9 @@ The Snap! Cloud is a backend for Snap<i>!</i> that stores only metadata in a dat
 * [Michal Kottman](https://github.com/mkottman)'s [LuaCrypto](https://luarocks.org/modules/luarocks/luacrypto) module is the Lua frontend to the OpenSSL library. - [[ MIT ](https://opensource.org/licenses/MIT)]
 * [Leafo](http://leafo.net/)'s [PgMoon](https://luarocks.org/modules/leafo/pgmoon) module is used to connect to the PostgreSQL database for migrations - [[ MIT ](https://opensource.org/licenses/MIT)]
 
+### JS libraries
+* [Matt Holt](https://github.com/mholt)'s [Papaparse](https://www.papaparse.com) library is used to parse CSV files for bulk account creation. - [[ MIT ](https://opensource.org/licenses/MIT)]
+* [Eli Grey](https://github.com/eligrey)'s [FileSaver.js](https://github.com/eligrey/FileSaver.js/) library is used to save project files from the project page, and maybe elsewhere - [[ MIT ](https://opensource.org/licenses/MIT)]
 
 ### Did we forget to mention your stuff?
 Sorry about that! Please file an issue stating what we forgot, or just send us a pull request modifying this [README](https://github.com/bromagosa/beetleCloud/edit/master/README.md).

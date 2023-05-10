@@ -56,16 +56,11 @@ rawResponse = function (contents)
 end
 
 errorResponse = function (err, status)
-    if (type(err) == 'table') then
-        response = err
-    else
-        response = { errors = { err } }
-    end
     return {
         layout = false,
         status = status or 500,
         readyState = 4,
-        json = response
+        json = { errors = { err } }
     }
 end
 

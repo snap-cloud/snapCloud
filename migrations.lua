@@ -62,8 +62,6 @@ local update_project_views = function ()
 end
 
 return {
-    -- TODO: We will eventually create migrations for the other tables.
-
     -- Create Collections and CollectionMemberships
     ['2019-01-04:0'] = function ()
         schema.create_table('collections', {
@@ -302,5 +300,13 @@ return {
 
     ['2023-03-14:1'] = function()
         update_user_views()
+    end,
+
+    -- Add a specific student role.
+    -- Ordering likeky shouldn't be relied upon, but this is nice to have.
+    ['1683536418'] = function()
+        db.query([[
+            ALTER TYPE snap_user_role ADD VALUE 'student' BEFORE 'standard';
+        ]])
     end
 }

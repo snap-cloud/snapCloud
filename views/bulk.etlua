@@ -1,0 +1,49 @@
+<script src="/static/js/papaparse.min.js"></script>
+<h1><%- locale.get('bulk_tile') %></h1>
+<div class="bulk">
+    <p><%- locale.get('bulk_text') %></p>
+    <label for="csv">Upload a CSV file:</label>
+    <input type="file" class="csv" name="csv">
+    <p>
+        <input type="checkbox" class="add-collection" name="add_collection" 
+            onchange="
+                document.querySelector('div.collection').hidden =
+                    !document.querySelector('div.collection').hidden;
+        ">
+        <label for="add_collection"
+            ><%- locale.get('bulk_make_collection') %></label>
+        <div class="collection" hidden>
+            <strong><%- locale.get('collection_name') %></strong>
+            <input name="collection_name" class="collection_name"></input>
+        </div>
+    </p>
+    <button class="pure-button" onclick="
+        var div = document.querySelector('div.bulk'),
+            collection_name =
+                div.querySelector('input.add-collection').checked ?
+                    div.querySelector('.collection_name').value :
+                    null,
+            file = div.querySelector('.csv').files[0];
+        Papa.parse(
+            file,
+            { 
+                skipEmptyLines: true,
+                header: true,
+                complete: (results) => {
+                    cloud.post(
+                        '/users/create_learners',
+                        null,
+                        {
+                            collection_name: collection_name,
+                            users: results.data
+                        }
+                    );
+                }
+            }
+        );
+    "><%- locale.get('bulk_create') %></button>
+    <script>
+        document.querySelector('div.collection').hidden = 
+            !document.querySelector('input.add-collection').checked;
+    </script>
+</div>

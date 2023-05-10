@@ -34,7 +34,7 @@
             <select onchange="
                 cloud.post(
                     '/users/<%= item.username %>/set_role',
-                    null, 
+                    null,
                     { username: '<%= item.username %>', role: this.value }
                 );">
                 <% for role, _ in pairs(package.loaded.Users.roles) do %>
@@ -45,6 +45,23 @@
                 </option>
                 <% end %>
             </select>
+        </span>
+        <span>
+            <strong>
+                <label for="is_teacher"><%- locale.get('teacher') %></label>
+            </strong>:
+            <input type="checkbox" name="is_teacher"
+                <%- item.is_teacher and 'checked' or '' %>
+                onchange="
+                    cloud.post(
+                        '/users/<%= item.username %>/set_teacher',
+                        null,
+                        {
+                            username: '<%= item.username %>',
+                            is_teacher: this.checked
+                        }
+                    );"
+            >
         </span>
         <% end %>
         <div class="buttons">
@@ -102,7 +119,7 @@
                 onclick="
                     cloud.post(
                         '/users/<%= item.username %>/set_role',
-                        null, 
+                        null,
                         {
                             username: '<%= item.username %>',
                             role: <%-
@@ -125,7 +142,7 @@
                         %>',
                     () => {
                         cloud.delete(
-                            '/<%= zombie and 'zombies' or 'users' 
+                            '/<%= zombie and 'zombies' or 'users'
                                 %>/<%= item.username %>');
                         }
                     );

@@ -19,7 +19,7 @@ local locale = {
     lang_name = "English",
     lang_code = "en",
     authors = "Bernat Romagosa",
-    last_updated = "2022/08/11", -- YYYY/MM/DD
+    last_updated = "2023/05/10", -- YYYY/MM/DD
 
     -- Top navigation bar
     -- ==================
@@ -245,7 +245,9 @@ local locale = {
     delete_date = "Deleted in", -- date of user deletion follows
     email = "Email",
     role = "Role",
+    teacher = "Teacher",
     -- User roles
+    student = "student",
     standard = "standard",
     reviewer = "reviewer",
     moderator = "moderator",
@@ -255,6 +257,17 @@ local locale = {
     change_my_password = "Change My Password",
     change_my_email = "Change My Email",
     delete_my_user = "Delete my Account",
+
+    -- Teacher page
+    -- ============
+    teacher_title = "Teacher Page",
+
+    -- Bulk account creation page
+    -- ==========================
+    bulk_tile = "Bulk account creation",
+    bulk_text = "Please provide a CSV file with <b>username</b> and <b>password</b> columns for all of your learners, plus an optional email column. If you do not provide an email for your users, they will all be associated with your email account. That is useful if you want to be able to reset the passwords of your learners.",
+    bulk_make_collection = "Create a private collection for this group of learners",
+    bulk_create = "Create users",
 
     -- Project page
     -- ============

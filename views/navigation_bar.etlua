@@ -63,11 +63,18 @@
                         <a class="pure-menu-link followed-projects"
                            href="/followed"
                            ><%- locale.get('followed_projects') %></a></li>
-                <% if current_user:isadmin() then %>
+                <% if current_user:isadmin() or current_user.is_teacher then %>
                     <hr>
-                    <li class="pure-menu-item admin">
-                        <a class="pure-menu-link" href="/admin"
-                            ><%- locale.get('administration') %></a></li>
+                    <% if current_user:isadmin() then %>
+                        <li class="pure-menu-item admin">
+                            <a class="pure-menu-link" href="/admin"
+                                ><%- locale.get('administration') %></a></li>
+                    <% end %>
+                    <% if current_user.is_teacher then %>
+                        <li class="pure-menu-item admin">
+                            <a class="pure-menu-link" href="/teacher"
+                                ><%- locale.get('teacher_title') %></a></li>
+                    <% end %>
                 <% end %>
                     <hr>
                     <li class="pure-menu-item">

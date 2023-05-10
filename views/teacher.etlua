@@ -1,0 +1,4 @@
+<h1><%- locale.get('teacher_title') %></h1>
+<div class="buttons">
+    <a class="pure-button" href="bulk"><%- locale.get('bulk_tile') %></a>
+</div>
