@@ -46,7 +46,7 @@ CollectionController = {
             {
                 per_page = self.params.per_page or 15,
                 fields = self.params.fields or
-                    [[collections.id, creator_id, collections.created_at,
+                    [[collections.id, collections.creator_id, collections.created_at,
                     published, collections.published_at, shared,
                     collections.shared_at, collections.updated_at, name,
                     description, thumbnail_id, username, editor_ids]]
@@ -66,7 +66,7 @@ CollectionController = {
             self,
             [[JOIN active_users ON
                 (active_users.id = collections.creator_id)
-                WHERE published]]
+                WHERE collection.published]]
         )
     end),
     my_collections = capture_errors(function (self)
@@ -76,7 +76,7 @@ CollectionController = {
             db.interpolate_query(
                 [[JOIN active_users ON
                     (active_users.id = collections.creator_id)
-                    WHERE (creator_id = ? OR editor_ids @> ARRAY[?])]],
+                    WHERE (collections.creator_id = ? OR editor_ids @> ARRAY[?])]],
                 self.current_user.id,
                 self.current_user.id)
         )
@@ -88,7 +88,7 @@ CollectionController = {
             db.interpolate_query(
                 [[JOIN active_users ON
                     (active_users.id = collections.creator_id)
-                    WHERE (creator_id = ?)
+                    WHERE (collections.creator_id = ?)
                     AND published]],
                 self.params.user_id,
                 self.params.user_id

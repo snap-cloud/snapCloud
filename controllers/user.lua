@@ -457,7 +457,7 @@ UserController = {
             for _, user in pairs(existing_users) do
                 table.insert(usernames, user.username)
             end
-            return errorResponse({ error = msg, users = usernames }, 400)
+            return errorResponse({ errors = msg, users = usernames }, 400)
         end
 
         -- wrap all user creations in a transaction. No partial completions.
