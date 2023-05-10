@@ -54,7 +54,7 @@
                 <%- item.is_teacher and 'checked' or '' %>
                 onchange="
                     cloud.post(
-                        '/users/<%= item.username %>/make_teacher',
+                        '/users/<%= item.username %>/set_teacher',
                         null,
                         {
                             username: '<%= item.username %>',
