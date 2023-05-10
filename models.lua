@@ -146,10 +146,11 @@ package.loaded.Users.validations = {
 }
 
 package.loaded.Users.roles = {
-    admin = 4,
-    moderator = 3,
-    reviewer = 2,
-    standard = 1,
+    admin = 5,
+    moderator = 4,
+    reviewer = 3,
+    standard = 2,
+    student = 1,
     banned = 0
 }
 

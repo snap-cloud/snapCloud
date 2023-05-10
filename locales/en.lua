@@ -247,6 +247,7 @@ local locale = {
     role = "Role",
     teacher = "Teacher",
     -- User roles
+    student = "student",
     standard = "standard",
     reviewer = "reviewer",
     moderator = "moderator",
