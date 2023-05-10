@@ -523,7 +523,7 @@ UserController = {
         -- TODO: Error Handling.
         return jsonResponse({
             message = #usernames .. ' users created.',
-            users = usernames
+            title = 'Users created'
         })
     end),
     become = capture_errors(function (self)
