@@ -192,12 +192,13 @@ CollectionController = {
         return jsonResponse({ redirect = project:url_for('site') })
     end),
     remove_project = capture_errors(function (self)
-        local collection =
-            Collections:find({ id = self.params.id })
+        local collection = Collections:find({ id = self.params.id })
+        local project = Projects:find({ id = self.params.project_id })
 
-        -- For now, only creators can add projects to collections. Should
-        -- editors also be able to?
-        if collection.creator_id ~= self.current_user.id then
+        -- Only creators, mods and owners of a particular project can remove
+        -- it from a collection.
+        if (collection.creator_id ~= self.current_user.id) or
+            (self.current_user.username ~= project.username) then
             assert_min_role(self, 'moderator')
         end
 

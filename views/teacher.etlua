@@ -1,0 +1,8 @@
+<h1><%- locale.get('teacher_title') %></h1>
+<div class="pure-g profile">
+    <div>
+        <h2><%- locale.get('bulk_tile') %></h2>
+        <label for="csv">Upload a CSV file:</label>
+        <input type="file" id="csv" name="csv"> 
+    </div>
+</div>

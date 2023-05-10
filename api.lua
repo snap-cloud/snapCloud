@@ -170,9 +170,8 @@ app:match(api_route('users/:username/follow'), respond_to({
     DELETE = UserController.unfollow
 }))
 
-
 app:match(api_route('users/create_many'), respond_to({
-    POST = json_params(UserController.create_many),
+    POST = json_params(UserController.create_many)
 }))
 
 -- Zombies
