@@ -53,7 +53,7 @@ else
         file_size = file:seek('end')
         file:seek('set', 0)
     else
-        print('Could not read ' .. filename)  
+        print('Could not read ' .. filename)
         print(usage)
         os.exit()
     end
@@ -130,7 +130,7 @@ function migrate_project(raw_project)
     end)
 
     -- print('migrating project ' .. fields[1])
-    
+
     local result, err = db:query("insert into projects (projectname, username, ispublic, ispublished, created, lastupdated, lastshared) values (" ..
         db:escape_literal(fields[1]) .. ", " ..
         db:escape_literal(fields[2]) .. ", " ..
@@ -158,9 +158,9 @@ function migrate_media(raw_media)
     end)
 
     -- print('migrating media for ' .. fields[1])
-    
+
     local result, err = db:query("select id from projects where projectname = " ..
-        db:escape_literal(fields[1]) .. 
+        db:escape_literal(fields[1]) ..
         ' and username = ' .. db:escape_literal(fields[2]) .. ';'
     )
 
@@ -175,7 +175,7 @@ end
 
 function dump_error(err, raw_item)
     print(err)
-    print('Could not import item. Dumping the whole raw contents into errors.log') 
+    print('Could not import item. Dumping the whole raw contents into errors.log')
     local file = io.open('errors.log', 'a')
     file:write(raw_item)
     file:close()

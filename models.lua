@@ -88,10 +88,6 @@ package.loaded.Users = Model:extend('active_users', {
     is_student = function (self)
         return self.role == 'student'
     end,
-    is_teacher = function (self)
-        -- This is likely to get more complex in the future.
-        return self.is_teacher
-    end,
     has_min_role = function (self, expected_role)
         return package.loaded.Users.roles[self.role] >=
             package.loaded.Users.roles[expected_role]

@@ -3,7 +3,8 @@
 # Wrap `lapis migrate` to ensure we always dump the current schema to cloud.sql
 source .env
 lapis migrate
-if [ $LAPIS_ENVIRONMENT == 'development']; then
+if [[ $LAPIS_ENVIRONMENT == 'development' ]]
+then
   echo 'Dumping schema to cloud.sql.';
   DB_USER="${DATABASE_USER:-$USER}"
   DB_HOST="${DATABASE_HOST:-localhost}"

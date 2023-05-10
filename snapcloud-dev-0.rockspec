@@ -23,7 +23,8 @@ dependencies = {
    "lua-resty-http",
    "lua-cjson",
    "luasec",
-   "inspect"
+   "inspect",
+   "luabitop"
 }
 build = {
     type = "builtin",
