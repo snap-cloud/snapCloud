@@ -547,6 +547,17 @@ UserController = {
             redirect = self.queried_user:url_for('site')
         })
     end),
+    make_teacher = capture_errors(function (self)
+        assert_admin(self)
+        if self.queried_user then
+            self.queried_user:update({ is_teacher = self.params.value })
+        end
+        return jsonResponse({
+            message =
+                'User ' .. self.queried_user.username .. ' is now a teacher',
+            title = 'New teacher'
+        })
+    end),
     send_email = capture_errors(function (self)
         assert_admin(self)
         if (#self.params.contents > 0) then

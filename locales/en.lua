@@ -19,7 +19,7 @@ local locale = {
     lang_name = "English",
     lang_code = "en",
     authors = "Bernat Romagosa",
-    last_updated = "2022/08/11", -- YYYY/MM/DD
+    last_updated = "2023/05/10", -- YYYY/MM/DD
 
     -- Top navigation bar
     -- ==================
@@ -245,6 +245,7 @@ local locale = {
     delete_date = "Deleted in", -- date of user deletion follows
     email = "Email",
     role = "Role",
+    teacher = "Teacher",
     -- User roles
     standard = "standard",
     reviewer = "reviewer",
