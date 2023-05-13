@@ -283,10 +283,14 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
-    local inspect = require('inspect')
-    print(inspect(err))
-    print(inspect(trace))
     local err_msg = exceptions.normalize_error(err)
+    if config._name == 'development' then
+        local inspect = require('inspect')
+        print(inspect(err))
+        print(inspect(trace))
+        return errorResponse(err .. "<br>" .. trace, 500, 'TEST')
+    end
+
     local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then
         local _, send_err = exceptions.rvn:captureException({{
