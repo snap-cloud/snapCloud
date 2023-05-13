@@ -21,8 +21,10 @@
     <div class="pure-u-1-2 buttons">
         <a class="pure-button"
             href="change_password"><%- locale.get('change_my_password') %></a>
+        <% if not user:is_student() then %>
         <a class="pure-button"
             href="change_email"><%- locale.get('change_my_email') %></a>
+        <% end %>
         <a class="pure-button pure-button-warning" onclick="
             confirmDeleteMyself()"><%- locale.get('delete_my_user') %></a>
     </div>
