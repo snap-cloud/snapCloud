@@ -2,8 +2,13 @@
 <h1><%- locale.get('bulk_tile') %></h1>
 <div class="bulk">
     <p><%- locale.get('bulk_text') %></p>
-    <label for="csv">Upload a CSV file:</label>
+    <label for="csv"><strong>Upload a CSV file:</strong></label>
     <input id="csv" type="file" class="csv" name="csv">
+    <p>
+        <label for="csv_txt">Paste the contents of a CSV file:</label>
+        <br>
+        <textarea id="csv_text" rows="5" name="csv_text" id="csv_text" style="font-family: monospace"></textarea>
+    </p>
     <p>
         <input id="add_collection" type="checkbox" class="add-collection" name="add_collection"
             onchange="
@@ -14,7 +19,7 @@
             ><%- locale.get('bulk_make_collection') %></label>
         <div class="collection" hidden>
             <label for="collection_name"><strong><%- locale.get('collection_name') %></strong></label>
-            <input id="collection_name" name="collection_name" class="collection_name"></input>
+            <input id="collection_name" name="collection_name" class="collection_name" />
         </div>
     </p>
     <button class="pure-button" onclick="
@@ -23,9 +28,11 @@
                 div.querySelector('input.add-collection').checked ?
                     div.querySelector('.collection_name').value :
                     null,
-            file = div.querySelector('.csv').files[0];
+            file = div.querySelector('.csv').files[0],
+            csv_text = document.querySelector('#csv_text').value,
+            csv_data = csv_text || file;
         Papa.parse(
-            file,
+            csv_data,
             {
                 skipEmptyLines: true,
                 header: true,

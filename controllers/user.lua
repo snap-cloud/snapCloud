@@ -501,15 +501,16 @@ UserController = {
             end
         end
         for _, user in pairs(users) do
+            local salt = secure_salt()
+            local password = util.trim(tostring(user.password))
             user.username = util.trim(tostring(user.username))
-            user.password = util.trim(tostring(user.password))
             user.email = user.email or self.current_user.email
             -- TODO: This doesn't reveal which record has an invalid value...
             validate.assert_valid(user, Users.validations)
 
             user.created = db.format_date()
-            user.salt = secure_salt()
-            user.password = hash_password(user.password, user.salt)
+            user.salt = salt
+            user.password = hash_password(password, salt)
             user.verified = true
             user.role = 'student'
             user.creator_id = self.current_user.id
