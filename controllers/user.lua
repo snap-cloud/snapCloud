@@ -184,8 +184,6 @@ UserController = {
         self.session.user_id = nil
         self.cookies.persist_session = 'false'
         return jsonResponse({
-            title = 'Logged Out',
-            message = username .. ' has been logged out',
             redirect = (self.params.redirect or self:build_url('/'))
         })
     end),
