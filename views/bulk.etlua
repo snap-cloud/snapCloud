@@ -3,9 +3,9 @@
 <div class="bulk">
     <p><%- locale.get('bulk_text') %></p>
     <label for="csv">Upload a CSV file:</label>
-    <input type="file" class="csv" name="csv">
+    <input id="csv" type="file" class="csv" name="csv">
     <p>
-        <input type="checkbox" class="add-collection" name="add_collection" 
+        <input type="checkbox" class="add-collection" name="add_collection"
             onchange="
                 document.querySelector('div.collection').hidden =
                     !document.querySelector('div.collection').hidden;
@@ -26,24 +26,21 @@
             file = div.querySelector('.csv').files[0];
         Papa.parse(
             file,
-            { 
+            {
                 skipEmptyLines: true,
                 header: true,
                 complete: (results) => {
-                    cloud.post(
-                        '/users/create_learners',
-                        null,
-                        {
-                            collection_name: collection_name,
-                            users: results.data
-                        }
-                    );
+                    let post_body = { users: results.data };
+                    if (collection_name) {
+                        post_body.collection_name = collection_name;
+                    }
+                    cloud.post('/users/create_learners', null, post_body);
                 }
             }
         );
     "><%- locale.get('bulk_create') %></button>
     <script>
-        document.querySelector('div.collection').hidden = 
+        document.querySelector('div.collection').hidden =
             !document.querySelector('input.add-collection').checked;
     </script>
 </div>
