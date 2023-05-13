@@ -36,7 +36,14 @@ config({'development', 'staging', 'production', 'test'}, {
 
     hostname = os.getenv('HOSTNAME') or 'localhost',
     secondary_hostname = os.getenv('SECONDARY_HOSTNAME') or 'localhost',
-    maintenance_mode = os.getenv('MAINTENANCE_MODE') or 'false'
+    maintenance_mode = os.getenv('MAINTENANCE_MODE') or 'false',
+
+    measure_performance = true,
+    logging = {
+        queries = true,
+        requests = true,
+        server = true,
+    }
 })
 
 config({'development', 'test'}, {
@@ -48,12 +55,7 @@ config({'development', 'test'}, {
     code_cache = 'off',
     num_workers = 1,
     log_directive = 'stderr notice',
-    logging = {
-        queries = true,
-        requests = true
-    },
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
-    measure_performance = true,
 
     -- development needs no special SSL or cert config.
     primary_nginx_config = 'locations.conf',
@@ -66,10 +68,6 @@ config({'test'}, {
         database = 'snapcloud_test'
     },
     store_path = 'store/test',
-    logging = {
-        queries = false,
-        locations = false
-    }
 })
 
 config({'production', 'staging'}, {
@@ -82,16 +80,19 @@ config({'production', 'staging'}, {
     code_cache = 'on',
 
     log_directive = 'logs/error.log warn',
-
-    -- TODO: See if we can turn this on without a big hit
-    measure_performance = false
 })
 
 config('production', {
     site_name = 'Snap Cloud',
     num_workers = 8,
     primary_nginx_config = 'http-only.conf',
-    secondary_nginx_config = 'include nginx.conf.d/ssl-production.conf;'
+    secondary_nginx_config = 'include nginx.conf.d/ssl-production.conf;',
+
+    logging = {
+        queries = false,
+        requests = true,
+        server = true,
+    }
 })
 
 config('staging', {
