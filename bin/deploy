@@ -22,6 +22,7 @@ pushd ~/snapCloud/bin/;
 ./deploy-certs
 # ./update-snap
 
+popd;
 
 echo "Updating Dependencies:"
 sudo luarocks install --only-deps snapcloud-dev-0.rockspec
@@ -65,7 +66,7 @@ curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394
 
 
 # Always update the letsencrypt script incase it changes.
-cp ./deploy-certs ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
+cp ./bin/deploy-certs ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
 
 # The cloud user only has the ability to restart this service.
 echo 'Restarting snapcloud daemon'
