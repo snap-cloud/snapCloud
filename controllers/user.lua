@@ -197,6 +197,8 @@ UserController = {
         if self.queried_user then
             -- we're trying to change someone else's email
             assert_min_role(self, 'moderator')
+        elseif user:is_student() then
+            yield_error(err.student_cannot_change_email)
         elseif (user.password ~=
                 hash_password(self.params.password, user.salt)) then
             yield_error(err.wrong_password)

@@ -118,6 +118,10 @@ err = {
     teacher_account_required = {
         msg = 'You must be verified as a teacher to perform this action.',
         status = 403
+    },
+    student_cannot_change_email = {
+        msg = 'Student account email addresses cannot be changed. Please contact your instructor for help.',
+        status = 403
     }
 }
 
