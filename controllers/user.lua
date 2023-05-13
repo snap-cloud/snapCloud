@@ -156,6 +156,7 @@ UserController = {
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
+            -- TODO: Handle first-time student account logins.
             else
                 return jsonResponse({
                     title = 'Verify your account',
@@ -171,13 +172,22 @@ UserController = {
             return self:build_url('index')
         end
     end),
-    logout = capture_errors(function (self)
+    logout_get = capture_errors(function (self)
         self.session.username = ''
         self.session.user_id = nil
         self.cookies.persist_session = 'false'
-        return jsonResponse(
-            { redirect = self.params.redirect or self:build_url('index') }
-        )
+        return { redirect_to = self:build_url('/') }
+    end),
+    logout = capture_errors(function (self)
+        local username = self.session.username
+        self.session.username = ''
+        self.session.user_id = nil
+        self.cookies.persist_session = 'false'
+        return jsonResponse({
+            title = 'Logged Out',
+            message = username .. ' has been logged out',
+            redirect = (self.params.redirect or self:build_url('/'))
+        })
     end),
     change_email = capture_errors(function (self)
         assert_logged_in(self)

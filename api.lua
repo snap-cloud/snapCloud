@@ -90,8 +90,11 @@ app:match(api_route('my_user'), respond_to({
     DELETE = UserController.delete
 }))
 
+app:match('logout', respond_to({
+    GET = UserController.logout_get,
+}))
+
 app:match(api_route('logout'), respond_to({
-    GET = UserController.logout,
     POST = UserController.logout
 }))
 
