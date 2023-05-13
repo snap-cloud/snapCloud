@@ -20,11 +20,11 @@ pushd ~/snapCloud/bin/;
 
 ./renew-certs
 ./deploy-certs
-./update-snap
+# ./update-snap
 
 
-# echo "Updating Dependencies:"
-# luarocks install snap-cloud-beta-0.rockspec
+echo "Updating Dependencies:"
+sudo luarocks install --only-deps snapcloud-dev-0.rockspec
 
 echo;
 echo;

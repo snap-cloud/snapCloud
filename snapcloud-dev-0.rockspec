@@ -1,8 +1,10 @@
 package = "snapcloud"
 version = "dev-0"
+
 source = {
    url = "git+https://github.com/snap-cloud/snapCloud.git"
 }
+
 description = {
    summary = "A Project Server and API for Snap!.",
    detailed = [[
@@ -13,9 +15,10 @@ description = {
    maintainer = "Bernat Romagosa, Michael Ball, Jens Mönig, Brian Harvey, Jadge Hügle",
    license = "AGPL"
 }
+
 dependencies = {
-   "lua >= 5.1, < 5.2",
-   "lapis >= 1.14.0",
+   "lua ~> 5.1",
+   "lapis == 1.14.0",
    "luaossl",
    "xml",
    "lua-resty-mail",
@@ -26,7 +29,7 @@ dependencies = {
    "inspect",
    "luabitop"
 }
+
 build = {
-    type = "builtin",
-    modules = {}
+    type = "none"
 }

@@ -2,7 +2,6 @@ local config = require('lapis.config')
 
 config({'development', 'staging', 'production', 'test'}, {
     postgres = {
-        backend = 'pgmoon',
         host = os.getenv('DATABASE_HOST') or '127.0.0.1',
         port = os.getenv('DATABASE_PORT') or '5432',
         user = os.getenv('DATABASE_USERNAME') or 'cloud',

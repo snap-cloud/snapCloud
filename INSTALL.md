@@ -5,7 +5,7 @@
 First, clone the Snap!Cloud repository into a local folder:
 
 ```
-$ git clone --recursive https://github.com/snap-cloud/snapCloud.git
+$ git clone --recursive git@github.com:snap-cloud/snapCloud.git
 ```
 
 (Use the `--recursive` option so that you can have a working Snap<em>!</em> install.)
@@ -79,7 +79,7 @@ The 'easy' was to get around this is to use a global git configuration:
 $ git config --global url."https://github".insteadOf git://github
 ```
 
-### Luarocks macOS
+### Lua Dependencies and `luarocks` macOS
 
 `luarocks` will default to lua 5.3, which we do not use. Instead, `bin/luarocks-macos` "wraps" luarocks with our defaults,
 and includes the appropriate C/C++ flags so dependencies compile on recent macOS versions.
@@ -87,12 +87,14 @@ and includes the appropriate C/C++ flags so dependencies compile on recent macOS
 You can pass all the same commmands to luarocks, e.g.
 
 ```
-$ bin/luarocks-macos install snapcloud-dev-0.rockspec
+$ bin/luarocks-macos install --only-deps snapcloud-dev-0.rockspec
 ```
 
 ```
-# luarocks install snapcloud-dev-0.rockspec
+# luarocks install --only-deps snapcloud-dev-0.rockspec
 ```
+
+Using `--only-deps` avoids an unecessary need to clone the repo from GitHub.
 
 ### Authbind
 
