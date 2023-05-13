@@ -5,7 +5,7 @@
     <label for="csv">Upload a CSV file:</label>
     <input id="csv" type="file" class="csv" name="csv">
     <p>
-        <input type="checkbox" class="add-collection" name="add_collection"
+        <input id="add_collection" type="checkbox" class="add-collection" name="add_collection"
             onchange="
                 document.querySelector('div.collection').hidden =
                     !document.querySelector('div.collection').hidden;
@@ -13,8 +13,8 @@
         <label for="add_collection"
             ><%- locale.get('bulk_make_collection') %></label>
         <div class="collection" hidden>
-            <strong><%- locale.get('collection_name') %></strong>
-            <input name="collection_name" class="collection_name"></input>
+            <label for="collection_name"><strong><%- locale.get('collection_name') %></strong></label>
+            <input id="collection_name" name="collection_name" class="collection_name"></input>
         </div>
     </p>
     <button class="pure-button" onclick="
