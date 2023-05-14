@@ -179,7 +179,6 @@ UserController = {
         return { redirect_to = self:build_url('/') }
     end),
     logout = capture_errors(function (self)
-        local username = self.session.username
         self.session.username = ''
         self.session.user_id = nil
         self.cookies.persist_session = 'false'
