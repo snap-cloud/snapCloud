@@ -237,7 +237,7 @@ UserController = {
             local minutes = db.select(
                 'extract(minutes from (now()::timestamp - ?::timestamp))',
                 token.created)[1].date_part
-            if minutes < 15 then
+            if minutes and minutes < 15 then
                 yield_error(err.too_many_password_resets)
             end
         end
@@ -500,21 +500,21 @@ UserController = {
                 end
             end
         end
+        local salt, password, result
         for _, user in pairs(users) do
-            local salt = secure_salt()
-            local password = util.trim(tostring(user.password))
-            user.username = util.trim(tostring(user.username))
-            user.email = user.email or self.current_user.email
-            -- TODO: This doesn't reveal which record has an invalid value...
-            validate.assert_valid(user, Users.validations)
+            salt = secure_salt()
+            password = util.trim(tostring(user.password))
+            result = Users:create({
+                created = db.format_date(),
+                username = util.trim(tostring(user.username)),
+                salt = salt,
+                password = hash_password(hash_password(password, ''), salt),
+                email = (user.email or self.current_user.email),
+                verified = true,
+                role = 'student',
+                creator_id = self.current_user.id
+            })
 
-            user.created = db.format_date()
-            user.salt = salt
-            user.password = hash_password(password, salt)
-            user.verified = true
-            user.role = 'student'
-            user.creator_id = self.current_user.id
-            local result = Users:create(user)
             if not result then
                 db.query('ROLLBACK;')
                 return errorResponse(
