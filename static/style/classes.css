@@ -167,3 +167,11 @@ pre.in-place {
 img.emoji {
     height: 1em;
 }
+
+.code-example {
+    border: 1px solid;
+    border-radius: 4px;
+    margin: 1em;
+    padding: 0.5em;
+    background: rgb(248, 248, 255);
+}

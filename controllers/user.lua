@@ -156,6 +156,7 @@ UserController = {
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
+            -- TODO: Handle first-time student account logins.
             else
                 return jsonResponse({
                     title = 'Verify your account',
@@ -171,13 +172,19 @@ UserController = {
             return self:build_url('index')
         end
     end),
+    logout_get = capture_errors(function (self)
+        self.session.username = ''
+        self.session.user_id = nil
+        self.cookies.persist_session = 'false'
+        return { redirect_to = self:build_url('/') }
+    end),
     logout = capture_errors(function (self)
         self.session.username = ''
         self.session.user_id = nil
         self.cookies.persist_session = 'false'
-        return jsonResponse(
-            { redirect = self.params.redirect or self:build_url('index') }
-        )
+        return jsonResponse({
+            redirect = (self.params.redirect or self:build_url('/'))
+        })
     end),
     change_email = capture_errors(function (self)
         assert_logged_in(self)
@@ -187,6 +194,8 @@ UserController = {
         if self.queried_user then
             -- we're trying to change someone else's email
             assert_min_role(self, 'moderator')
+        elseif user:is_student() then
+            yield_error(err.student_cannot_change_email)
         elseif (user.password ~=
                 hash_password(self.params.password, user.salt)) then
             yield_error(err.wrong_password)
@@ -227,7 +236,7 @@ UserController = {
             local minutes = db.select(
                 'extract(minutes from (now()::timestamp - ?::timestamp))',
                 token.created)[1].date_part
-            if minutes < 15 then
+            if minutes and minutes < 15 then
                 yield_error(err.too_many_password_resets)
             end
         end
@@ -490,20 +499,21 @@ UserController = {
                 end
             end
         end
+        local salt, password, result
         for _, user in pairs(users) do
-            user.username = util.trim(tostring(user.username))
-            user.password = util.trim(tostring(user.password))
-            user.email = user.email or self.current_user.email
-            -- TODO: This doesn't reveal which record has an invalid value...
-            validate.assert_valid(user, Users.validations)
+            salt = secure_salt()
+            password = util.trim(tostring(user.password))
+            result = Users:create({
+                created = db.format_date(),
+                username = util.trim(tostring(user.username)),
+                salt = salt,
+                password = hash_password(hash_password(password, ''), salt),
+                email = (user.email or self.current_user.email),
+                verified = true,
+                role = 'student',
+                creator_id = self.current_user.id
+            })
 
-            user.created = db.format_date()
-            user.salt = secure_salt()
-            user.password = hash_password(user.password, user.salt)
-            user.verified = true
-            user.role = 'student'
-            user.creator_id = self.current_user.id
-            local result = Users:create(user)
             if not result then
                 db.query('ROLLBACK;')
                 return errorResponse(

@@ -27,5 +27,5 @@ local function capitalize(str)
 end
 
 return {
-  capitalize
+  capitalize = capitalize
 }
