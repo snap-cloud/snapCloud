@@ -457,6 +457,11 @@ UserController = {
 
         local usernames = {}
         for _, user in pairs(users) do
+            -- Ensure necessary columns are present. (partial User validation.)
+            validate.assert_valid(user, {
+                { 'username', exists = true, min_length = 4, max_length = 200 },
+                { 'password', exists = true, min_length = 6}
+            })
             table.insert(usernames, util.trim(tostring(user.username)))
         end
 
@@ -503,17 +508,15 @@ UserController = {
         for _, user in pairs(users) do
             salt = secure_salt()
             password = util.trim(tostring(user.password))
-            result = Users:create({
-                created = db.format_date(),
-                username = util.trim(tostring(user.username)),
-                salt = salt,
-                password = hash_password(hash_password(password, ''), salt),
-                email = (user.email or self.current_user.email),
-                verified = true,
-                role = 'student',
-                creator_id = self.current_user.id
-            })
-
+            user.created = db.format_date()
+            user.username = util.trim(tostring(user.username))
+            user.salt = salt
+            user.password = hash_password(hash_password(password, ''), salt)
+            user.email = (user.email or self.current_user.email)
+            user.verified = true
+            user.role = 'student'
+            user.creator_id = self.current_user.id
+            result = Users:create(user)
             if not result then
                 db.query('ROLLBACK;')
                 return errorResponse(
@@ -525,12 +528,11 @@ UserController = {
                     editor_ids =
                         db.raw(db.interpolate_query(
                             'array_append(editor_ids, ?)',
-                            user.id))
+                            result.id))
                 })
             end
         end
-        local result = db.query('COMMIT;')
-        -- TODO: Error Handling.
+        assert_error(db.query('COMMIT;'))
         return jsonResponse({
             message = #usernames .. ' users created.',
             title = 'Users created'

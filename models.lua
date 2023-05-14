@@ -122,7 +122,7 @@ package.loaded.Users = Model:extend('active_users', {
         -- When emails are not unique, we will create a new unique email.
         -- Unique emails take the form:
         --                      original-address+snap-id-01234@original.domain
-        unique_email = self.email
+        local unique_email = self.email
         if self:shares_email_with_others() then
             unique_email =
                 string.gsub(self.email, '@', '+snap-id-' .. self.id .. '@')
@@ -131,7 +131,7 @@ package.loaded.Users = Model:extend('active_users', {
         return unique_email
     end,
     shares_email_with_others = function (self)
-        count = package.loaded.Users:count("unique_email ilike ?", self.email)
+        local count = package.loaded.Users:count("unique_email ilike ?", self.email)
         return count > 0
     end,
     cannot_access_forum = function (self)
@@ -139,6 +139,7 @@ package.loaded.Users = Model:extend('active_users', {
     end
 })
 
+-- Note: Due to client-side pre-hashing, password length isn't useful...
 package.loaded.Users.validations = {
     { 'username', exists = true, min_length = 4, max_length = 200 },
     { 'password', exists = true, min_length = 6 },
