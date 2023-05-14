@@ -28,6 +28,7 @@ render(
                     { label = 'Reviewer', value = 'reviewer' },
                     { label = 'Moderator', value = 'moderator' },
                     { label = 'Administrator', value = 'admin' },
+                    { label = 'Student', value = 'student' }
                     { label = 'Banned', value = 'banned' },
                 }
             }
