@@ -284,10 +284,10 @@ end
 
 function app:handle_error(err, trace)
     if config._name == 'development' then
-        local inspect = require('inspect')
-        debug_print(inspect(err))
-        debug_print(inspect(trace))
-        return errorResponse(err .. "<br>" .. trace, 500)
+        debug_print(err, trace)
+        local msg = '<pre style="text-align: left; width: 80ch">'
+            .. err .. '<br>' .. trace .. '</pre>'
+        return errorResponse(msg, 500)
     end
 
     local err_msg = exceptions.normalize_error(err)
