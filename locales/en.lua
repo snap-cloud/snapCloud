@@ -261,6 +261,7 @@ local locale = {
     -- Teacher page
     -- ============
     teacher_title = "Teacher Page",
+    your_learners = "Your Learners",
 
     -- Bulk account creation page
     -- ==========================
