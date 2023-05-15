@@ -144,9 +144,13 @@
     border-right: 9px solid transparent;
     height: 0;
     width: 64px;
-    margin-top: -14px;
-    top: 14px;
+    /* margin-top: -14px; */
+    /* top: 14px; */
     z-index: 1000;
+}
+
+.trapezoid-footer {
+    top: -14px;
 }
 
 /* FOOTER */
