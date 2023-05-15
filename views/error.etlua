@@ -1,0 +1,5 @@
+<h1 localizable><%- title %></h1>
+
+<div>
+  <%- contents %>
+</div>
