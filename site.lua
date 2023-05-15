@@ -68,7 +68,7 @@ app:get('/embed', capture_errors(function (self)
         tostring(self.params.user or self.params.username),
         self.params.project or self.params.projectname
     )
-    assert_project_exists(self, self.project)
+    assert_project_exists(self)
     return { render = 'embed', layout = false }
 end))
 
@@ -108,7 +108,8 @@ app:get('/my_collections', capture_errors(function (self)
 end))
 
 app:get('/collection', capture_errors(function (self)
-    local creator = Users:find({ username = tostring(self.params.username) })
+    assert_user_exists(self)
+    local creator = self.queried_user
 
     self.collection =
         assert_exists(Collections:find(creator.id, self.params.collection))
@@ -207,7 +208,7 @@ app:match('project', '/project', capture_errors(function (self)
         tostring(self.params.username),
         self.params.projectname
     )
-    assert_project_exists(self, self.project)
+    assert_project_exists(self)
 
     -- check whether this is a remix of another project
     local remix =

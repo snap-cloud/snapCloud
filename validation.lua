@@ -287,7 +287,11 @@ assert_can_delete = function (self, item)
 end
 
 assert_project_exists = function (self, project)
-    if not project then yield_error(err.nonexistent_project) end
+    local proj = self.project or project
+    if not proj then
+        yield_error(err.nonexistent_project)
+    end
+    return proj
 end
 
 -- Tokens
