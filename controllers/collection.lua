@@ -197,11 +197,6 @@ CollectionController = {
 
         -- Only creators, mods and owners of a particular project can remove
         -- it from a collection.
-        debug_print('REMOVE PROJECT', self.current_user.username)
-        debug_print('REMOVE PROJECT', project.username)
-        debug_print('REMOVE USERS MATCH', tostring(self.current_user.username ~= project.username))
-
-
         if (collection.creator_id ~= self.current_user.id) and
             (self.current_user.username ~= project.username) then
             assert_min_role(self, 'moderator')

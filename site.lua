@@ -35,6 +35,7 @@ local Remixes = package.loaded.Remixes
 local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
 local db = package.loaded.db
+local yield_error = package.loaded.yield_error
 
 require 'controllers.user'
 require 'controllers.project'
@@ -140,6 +141,9 @@ app:get('/', index)
 app:get('/index', index)
 
 app:get('/user', capture_errors(function (self)
+    if not self.queried_user then
+        yield_error(err.user_not_found)
+    end
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
     return { render = 'user' }
