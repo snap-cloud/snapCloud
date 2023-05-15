@@ -162,14 +162,14 @@ UserController = {
                     title = 'Verify your account',
                     message = 'Please verify your account within\n' ..
                         'the next ' .. self.queried_user.days_left .. ' days.',
-                    redirect = self:build_url('index')
+                    redirect = self:build_url('/')
                 })
             end
         else
             -- Admins can log in as other people
             assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
-            return self:build_url('index')
+            return self:build_url('/')
         end
     end),
     logout_get = capture_errors(function (self)
@@ -248,7 +248,7 @@ UserController = {
                 title = 'Password reset',
                 message = 'A link to reset your password has been sent to ' ..
                 'your email account.',
-                redirect = self:build_url('index')
+                redirect = self:build_url('/')
             })
         end
     end),
@@ -299,7 +299,7 @@ UserController = {
             return jsonResponse({
                 title = 'User deleted',
                 message = 'User ' .. user.username .. ' has been removed.',
-                redirect = self:build_url('index')
+                redirect = self:build_url('/')
             })
         end
     end),

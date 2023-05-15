@@ -94,7 +94,7 @@ app:get('/my_projects', capture_errors(function (self)
         self.items = ProjectController.my_projects(self)
         return { render = 'my_projects' }
     else
-        return { redirect_to = self:build_url('index') }
+        return { redirect_to = self:build_url('/') }
     end
 end))
 
@@ -103,7 +103,7 @@ app:get('/my_collections', capture_errors(function (self)
         self.items = CollectionController.my_collections(self)
         return { render = 'my_collections' }
     else
-        return { redirect_to = self:build_url('index') }
+        return { redirect_to = self:build_url('/') }
     end
 end))
 
@@ -132,13 +132,14 @@ app:get('/collection', capture_errors(function (self)
     return { render = 'collection' }
 end))
 
-local index = capture_errors(cached(function (self)
+app:get('/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
-end))
-
-app:get('/', index)
-app:get('/index', index)
+end)))
+-- Backwards compatibility.
+app:get('/index', function ()
+    return { redirect_to = '/' }
+end)
 
 app:get('/user', capture_errors(function (self)
     if not self.queried_user then
@@ -178,7 +179,7 @@ app:get('/followed', capture_errors(cached(function (self)
         self.items = ProjectController.followed_projects(self)
         return { render = 'followed' }
     else
-        return { redirect_to = self:build_url('index') }
+        return { redirect_to = self:build_url('/') }
     end
 end)))
 
@@ -249,7 +250,7 @@ app:get('/profile', capture_errors(function (self)
         self.user = self.current_user
         return { render = 'profile' }
     else
-        return { redirect_to = self:build_url('index') }
+        return { redirect_to = self:build_url('/') }
     end
 end))
 
@@ -258,7 +259,7 @@ app:get('/admin', capture_errors(function (self)
         assert_min_role(self, 'reviewer')
         return { render = 'admin' }
     else
-        return { redirect_to = self:build_url('index') }
+        return { redirect_to = self:build_url('/') }
     end
 end))
 
@@ -268,7 +269,7 @@ app:get('/flags', capture_errors(function (self)
         items = ProjectController.flagged_projects(self)
         return { render = 'flags' }
     else
-        return { redirect_to = self:build_url('index') }
+        return { redirect_to = self:build_url('/') }
     end
 end))
 
@@ -279,7 +280,7 @@ app:get('/user_admin', capture_errors(function (self)
         self.items = UserController.fetch(self)
         return { render = 'user_admin' }
     else
-        return { redirect_to = self:build_url('index') }
+        return { redirect_to = self:build_url('/') }
     end
 end))
 
@@ -290,7 +291,7 @@ app:get('/zombie_admin', capture_errors(function (self)
         self.items = UserController.zombies(self)
         return { render = 'zombie_admin' }
     else
-        return { redirect_to = self:build_url('index') }
+        return { redirect_to = self:build_url('/') }
     end
 end))
 
@@ -300,7 +301,7 @@ app:match('/totm', respond_to({
             assert_min_role(self, 'moderator')
             return { render = 'totm' }
         else
-            return { redirect_to = self:build_url('index') }
+            return { redirect_to = self:build_url('/') }
         end
     end),
     POST = capture_errors(function (self)
