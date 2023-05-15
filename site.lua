@@ -24,7 +24,6 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local app = package.loaded.app
-local util = package.loaded.util
 local capture_errors = package.loaded.capture_errors
 local cached = package.loaded.cached
 local respond_to = package.loaded.respond_to
@@ -35,7 +34,7 @@ local Remixes = package.loaded.Remixes
 local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
 local db = package.loaded.db
-local yield_error = package.loaded.yield_error
+local assert_exists = require('validation').assert_exists
 
 require 'controllers.user'
 require 'controllers.project'
@@ -69,6 +68,7 @@ app:get('/embed', capture_errors(function (self)
         tostring(self.params.user or self.params.username),
         self.params.project or self.params.projectname
     )
+    assert_project_exists(self, self.project)
     return { render = 'embed', layout = false }
 end))
 
@@ -109,8 +109,9 @@ end))
 
 app:get('/collection', capture_errors(function (self)
     local creator = Users:find({ username = tostring(self.params.username) })
+
     self.collection =
-        Collections:find(creator.id, self.params.collection)
+        assert_exists(Collections:find(creator.id, self.params.collection))
     assert_can_view_collection(self, self.collection)
     self.collection.creator = creator
 
@@ -136,36 +137,38 @@ app:get('/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'index' }
 end)))
+
 -- Backwards compatibility.
 app:get('/index', function ()
     return { redirect_to = '/' }
 end)
 
 app:get('/user', capture_errors(function (self)
-    if not self.queried_user then
-        yield_error(err.user_not_found)
-    end
+    assert_user_exists(self)
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
     return { render = 'user' }
 end))
 
 app:get('/user_collections/:username', capture_errors(cached(function (self)
+    assert_user_exists(self)
     self.params.user_id = self.queried_user.id
     self.items = CollectionController.user_collections(self)
     return { render = 'collections' }
 end)))
 
 app:get('/user_projects/:username', capture_errors(cached(function (self)
+    assert_user_exists(self)
     self.items = ProjectController.user_projects(self)
     return { render = 'explore' }
 end)))
 
 -- Display an embedded collection view.
 app:get('/carousel', capture_errors(cached(function (self)
-    local creator = Users:find({ username = tostring(self.params.username) })
+    assert_user_exists(self)
+    local creator = self.queried_user
     self.params.page_number = self.params.page_number or 1
-    self.collection = Collections:find(creator.id, self.params.collection)
+    self.collection = assert_exists(Collections:find(creator.id, self.params.collection))
     assert_can_view_collection(self, self.collection)
     self.collection.creator = creator
     self.items = CollectionController.projects(self)
@@ -186,7 +189,6 @@ end)))
 app:match('project', '/project', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     if self.params.user and self.params.project then
-        local escape = package.loaded.util.escape
         -- Just redirect using the new URL params format
         return {
             redirect_to =
@@ -205,6 +207,7 @@ app:match('project', '/project', capture_errors(function (self)
         tostring(self.params.username),
         self.params.projectname
     )
+    assert_project_exists(self, self.project)
 
     -- check whether this is a remix of another project
     local remix =
