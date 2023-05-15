@@ -95,9 +95,9 @@ package.loaded.capture_errors = function(fn)
         on_error = function(self)
             local error = self.errors[1]
             if type(error) == 'table' then
-                return errorResponse(error.msg, error.status)
+                return errorResponse(self, error.msg, error.status)
             else
-                return errorResponse(error, 400)
+                return errorResponse(self, error, 400)
             end
         end,
         fn
@@ -197,7 +197,7 @@ app:before_filter(function (self)
     local ip_entry = package.loaded.BannedIPs:find(ngx.var.remote_addr)
     if (ip_entry and ip_entry.offense_count > 2) then
         self:write(
-            errorResponse('Your IP has been banned from the system', 403)
+            errorResponse(self,'Your IP has been banned from the system', 403)
         )
         return
     end
@@ -279,7 +279,7 @@ app:before_filter(function (self)
 end)
 
 function app:handle_404()
-    return errorResponse('Failed to find resource: ' .. self.req.cmd_url, 404)
+    return errorResponse(self,'Failed to find resource: ' .. self.req.cmd_url, 404)
 end
 
 function app:handle_error(err, trace)
@@ -287,7 +287,7 @@ function app:handle_error(err, trace)
         debug_print(err, trace)
         local msg = '<pre style="text-align: left; width: 80ch">'
             .. err .. '<br>' .. trace .. '</pre>'
-        return errorResponse(msg, 500)
+        return errorResponse(self, msg, 500)
     end
 
     local err_msg = exceptions.normalize_error(err)
@@ -302,7 +302,7 @@ function app:handle_error(err, trace)
             ngx.log(ngx.ERR, send_err)
         end
     end
-    return errorResponse("An unexpected error occured: " .. err_msg, 500)
+    return errorResponse(self, "An unexpected error occured: " .. err_msg, 500)
 end
 
 -- Enable the ability to have a maintenance mode
@@ -310,7 +310,7 @@ end
 if config.maintenance_mode == 'true' then
     local msg = 'The Snap!Cloud is currently down for maintenance.'
     app:match('/*', function(self)
-        return errorResponse(msg, 500)
+        return errorResponse(self, msg, 500)
     end)
     return app
 end

@@ -308,7 +308,7 @@ app:match('/totm', respond_to({
                 return { render = 'totm' }
             end
         end
-        return errorResponse()
+        return errorResponse(self)
     end)
 }))
 

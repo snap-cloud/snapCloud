@@ -63,7 +63,7 @@ app:match(api_route('set_locale'), respond_to({
 
 app:match(api_route('init'), respond_to({
     GET = capture_errors(function (self)
-        return errorResponse(
+        return errorResponse(self,
             'It seems like you are trying to log in. ' ..
             'Try refreshing the page and try again. ' ..
             'This URL is internal to the Snap!Cloud.',

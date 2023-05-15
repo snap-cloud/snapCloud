@@ -477,7 +477,7 @@ UserController = {
             for _, user in pairs(existing_users) do
                 msg = msg .. user.username .. '<br>'
             end
-            return errorResponse(msg, 400)
+            return errorResponse(self, msg, 400)
         end
 
         -- wrap all user creations in a transaction. No partial completions.
@@ -495,7 +495,7 @@ UserController = {
                 }))
                 if not collection then
                     db.query('ROLLBACK;')
-                    return errorResponse(
+                    return errorResponse(self,
                         'Could not create collection ' ..
                         self.params.collection_name .. '.<br>' ..
                         'Please make sure you do not already have a<br>' ..
@@ -519,7 +519,7 @@ UserController = {
             result = Users:create(user)
             if not result then
                 db.query('ROLLBACK;')
-                return errorResponse(
+                return errorResponse(self,
                     'User ' .. user.username .. ' errored on creation.'
                 )
             end
