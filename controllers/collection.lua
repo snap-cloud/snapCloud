@@ -376,7 +376,7 @@ CollectionController = {
         -- assign the creator so we can redirect to the new collection URL
         collection.creator = Users:find({ id = collection.creator_id })
         if not (collection:update({ name = self.params.new_name })) then
-            return errorResponse(self,'Collection could not be renamed')
+            return errorResponse(self, 'Collection could not be renamed')
         else
             return jsonResponse({ redirect = collection:url_for('site') })
         end
@@ -389,7 +389,7 @@ CollectionController = {
         if not
             (collection:update({ description = self.params.new_description }))
                 then
-            return errorResponse(self,'Collection description could not be updated')
+            return errorResponse(self, 'Collection description could not be updated')
         else
             return okResponse('Collection description updated')
         end

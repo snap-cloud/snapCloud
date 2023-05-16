@@ -197,7 +197,7 @@ app:before_filter(function (self)
     local ip_entry = package.loaded.BannedIPs:find(ngx.var.remote_addr)
     if (ip_entry and ip_entry.offense_count > 2) then
         self:write(
-            errorResponse(self,'Your IP has been banned from the system', 403)
+            errorResponse(self, 'Your IP has been banned from the system', 403)
         )
         return
     end
@@ -279,7 +279,7 @@ app:before_filter(function (self)
 end)
 
 function app:handle_404()
-    return errorResponse(self,'Failed to find resource: ' .. self.req.cmd_url, 404)
+    return errorResponse(self, 'Failed to find resource: ' .. self.req.cmd_url, 404)
 end
 
 function app:handle_error(err, trace)
