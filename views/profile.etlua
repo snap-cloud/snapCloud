@@ -29,6 +29,18 @@
             confirmDeleteMyself()"><%- locale.get('delete_my_user') %></a>
     </div>
 </div>
+
+<% if user:is_student() then %>
+<div class="pure-g profile">
+    <div class="pure-u-1-2 fields">
+        <h2>Student Info</h2>
+        This is a <em>learner</em> account. Someone else has the ability to login to your account, view your projects, and change your password.
+        <br>
+        We encourage you to <a href="/join" target="_blank">sign up  for your own account.</a>
+    </div>
+</div>
+<% end %>
+
 <script>
     function confirmDeleteMyself () {
         confirm(
