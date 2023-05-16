@@ -225,7 +225,7 @@ ProjectController = {
             ((not project.lastshared and self.params.ispublic)
             or (self.params.ispublic and not project.ispublic))
 
-        local result, error = project:update({
+        local result, _affected_rows = project:update({
             lastupdated = db.format_date(),
             lastshared = shouldUpdateSharedDate and db.format_date() or nil,
             firstpublished =
