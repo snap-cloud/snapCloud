@@ -129,6 +129,24 @@ UserController = {
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
+                if self.queried_user.is_student then
+                    self.session.username = self.queried_user.username
+                    self.cookies.persist_session = tostring(self.params.persist)
+                    self.queried_user:update({ verified = true })
+                    return jsonResponse({
+                        title = 'Welcome!',
+                        message = 'Welcome to Snap!, ' .. self.queried_user.username .. [[! \n
+                        This account is a Snap! learner account. \n
+                        That means someone else has the
+                        ability to log in as you, see your projects,
+                        and change your password.
+
+                        We encourse you to creat your own account,
+                        using a personal email address.
+                        ]],
+                        redirect = self:build_url('/')
+                    })
+                end
                 local message =
                     self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
@@ -156,7 +174,6 @@ UserController = {
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
-            -- TODO: Handle first-time student account logins.
             else
                 return jsonResponse({
                     title = 'Verify your account',
@@ -169,7 +186,7 @@ UserController = {
             -- Admins can log in as other people
             assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
-            return self:build_url('/')
+            return jsonResponse({ redirect = self:build_url('/') })
         end
     end),
     logout_get = capture_errors(function (self)
@@ -513,7 +530,7 @@ UserController = {
             user.salt = salt
             user.password = hash_password(hash_password(password, ''), salt)
             user.email = (user.email or self.current_user.email)
-            user.verified = true
+            user.verified = false
             user.role = 'student'
             user.creator_id = self.current_user.id
             result = Users:create(user)

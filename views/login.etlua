@@ -39,7 +39,19 @@
                 form.querySelector('#username').value, // username
                 form.querySelector('#password').value,// password
                 form.querySelector('#persist').checked, // persist
-                () => { location.href = 'index'; }, // onSuccess
+                (user, role, response) => {
+                    console.log(response);
+                    console.log(arguments);
+                    if (response.title) {
+                        alert(
+                            localizer.localize(response.message),
+                            { title: localizer.localize(response.title) },
+                            () => { location.href = response.redirect }
+                        );
+                    } else {
+                        location.href = response.redirect;
+                    }
+                }, // onSuccess
                 response => {
                     genericError(
                         response,
@@ -50,4 +62,3 @@
         }
     </script>
 </div>
-

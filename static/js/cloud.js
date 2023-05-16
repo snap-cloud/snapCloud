@@ -328,7 +328,7 @@ Cloud.prototype.logout = function (onSuccess, onError) {
 };
 
 Cloud.prototype.login = function (
-	username,
+    username,
     password,
     persist,
     onSuccess,
