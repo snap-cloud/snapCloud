@@ -49,7 +49,7 @@
                             () => { location.href = response.redirect }
                         );
                     } else {
-                        location.href = response.redirect;
+                        location.href = '/';
                     }
                 }, // onSuccess
                 response => {

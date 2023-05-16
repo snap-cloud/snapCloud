@@ -236,7 +236,7 @@ ProjectController = {
             ispublished = self.params.ispublished
         })
 
-        if error then yield_error({ msg = error, status = 422 }) end
+        if not result then yield_error({ message = error, status = 422 }) end
 
         return okResponse(
             'project ' .. tostring(self.params.projectname) .. ' updated'
