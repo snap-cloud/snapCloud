@@ -8,7 +8,7 @@
         <pre class="code-example">
 username,password
 myclass-student1,correct-horse-battery-staple
-myclass-student2,sentences-make-good-passowrds</pre>
+myclass-student2,sentences-make-good-passwords</pre>
     </div>
     <div class="pure-form">
         <br>
@@ -45,22 +45,37 @@ myclass-student2,sentences-make-good-passowrds</pre>
                         div.querySelector('.collection_name').value :
                         null,
                 file = div.querySelector('.csv').files[0],
-                csv_text = document.querySelector('#csv_text').value,
-                csv_data = csv_text || file;
-            Papa.parse(
-                csv_data,
-                {
-                    skipEmptyLines: true,
-                    header: true,
-                    complete: (results) => {
-                        let post_body = { users: results.data };
-                        if (collection_name) {
-                            post_body.collection_name = collection_name;
-                        }
-                        cloud.post('/users/create_learners', null, post_body);
-                    }
+                csv_text = div.querySelector('#csv_text').value;
+
+            if (file) {
+                file.text().then(data => processCSV(data));
+            } else if (csv_text) {
+                processCSV(csv_text);
+            }
+
+            function processCSV (csv_data) {
+                if (csv_data.substring(0,8) !== 'username') {
+                    csv_data = 'username,password\n' + csv_data;
                 }
-            );
+                Papa.parse(
+                    csv_data,
+                    {
+                        skipEmptyLines: true,
+                        header: true,
+                        complete: (results) => {
+                            let post_body = { users: results.data };
+                            if (collection_name) {
+                                post_body.collection_name = collection_name;
+                            }
+                            cloud.post(
+                                '/users/create_learners',
+                                null,
+                                post_body
+                            );
+                        }
+                    }
+                );
+            };
         "><%- locale.get('bulk_create') %></button>
         <script>
             document.querySelector('div.collection').hidden =
