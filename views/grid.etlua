@@ -33,7 +33,6 @@ items_per_page = items_per_page or 15
 items_per_row = items_per_row or 5
 item_type = item_type or 'project'
 num_pages = num_pages or 0
-skip_pagination = skip_pagination or false
 if items == nil then items = {} end
 %>
 
@@ -62,9 +61,7 @@ if ((num_pages > 0) or show_if_empty) then %>
                 { filter_descriptors = filter_descriptors }
             )
         end
-        if not skip_pagination then
-            render('views.partials.grid_paginator')
-        end
+        render('views.partials.grid_paginator')
         %>
 
 
