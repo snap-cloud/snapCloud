@@ -40,8 +40,6 @@
                 form.querySelector('#password').value,// password
                 form.querySelector('#persist').checked, // persist
                 (user, role, response) => {
-                    console.log(response);
-                    console.log(arguments);
                     if (response.title) {
                         alert(
                             localizer.localize(response.message),
