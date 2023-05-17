@@ -40,9 +40,10 @@ package.loaded.resty_sha512 = require 'resty.sha512'
 package.loaded.resty_string = require 'resty.string'
 package.loaded.resty_random = require 'resty.random'
 package.loaded.config = require('lapis.config').get()
+package.loaded.cjson = require('cjson')
+
 package.loaded.disk = require('disk')
 package.loaded.locale = require('locale')
-package.loaded.cjson = require('cjson')
 
 local app = package.loaded.app
 local config = package.loaded.config

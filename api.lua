@@ -26,7 +26,6 @@ local api_version = 'v1'
 
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
-local yield_error = package.loaded.yield_error
 local json_params = package.loaded.json_params
 local respond_to = package.loaded.respond_to
 
