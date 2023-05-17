@@ -479,7 +479,7 @@ UserController = {
                 { 'username', exists = true, min_length = 4, max_length = 200 },
                 { 'password', exists = true, min_length = 6}
             })
-            table.insert(usernames, util.trim(tostring(user.username)))
+            table.insert(usernames, util.trim(tostring(user.username):lower()))
         end
 
         -- Assert no users exist.
@@ -526,7 +526,7 @@ UserController = {
             salt = secure_salt()
             password = util.trim(tostring(user.password))
             user.created = db.format_date()
-            user.username = util.trim(tostring(user.username))
+            user.username = util.trim(tostring(user.username):lower())
             user.salt = salt
             user.password = hash_password(hash_password(password, ''), salt)
             user.email = (user.email or self.current_user.email)
