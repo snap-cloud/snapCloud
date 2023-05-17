@@ -181,7 +181,6 @@ end)))
 app:match('project', '/project', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     if self.params.user and self.params.project then
-        local escape = package.loaded.util.escape
         -- Just redirect using the new URL params format
         return {
             redirect_to =
@@ -337,6 +336,16 @@ app:get('/bulk', capture_errors(function (self)
         assert_admin(self)
     end
     return { render = 'bulk' }
+end))
+
+app:get('/learners', capture_errors(function (self)
+    self.items_per_page = 150
+    if self.current_user and self.current_user.is_teacher then
+        self.items = UserController.learners(self)
+        return { render = 'learners' }
+    else
+        return { redirect_to = self:build_url('index') }
+    end
 end))
 
 -- Tools

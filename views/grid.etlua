@@ -18,6 +18,7 @@
     show_collection_controls
                         (t/f) Show buttons to set thumbnail or remove from
                               collection. Default: false.
+    item_params         (tbl) Params to pass to the item renderer
     filter_descriptors  (tbl) Dropdown menu filter descriptors:
       .label            (str) Dropdown label.
       .options          (tbl) Dropdown options.
@@ -69,20 +70,21 @@ if ((num_pages > 0) or show_if_empty) then %>
     <div class="<%= class %> list pure-g">
         <% for _, item in pairs(items) do %>
             <%
-                render(
-                    'views.partials.' .. item_type,
-                    {
-                        item = item,
-                        items_per_row = items_per_row,
-                        show_author = show_author,
-                        show_icons = show_icons,
-                        show_collection_controls =
-                            show_collection_controls,
-                        collection_id = (show_collection_controls and
-                            collection_id or -1),
-                        zombie = zombie
-                    }
-                )
+                params = {
+                    item = item,
+                    items_per_row = items_per_row,
+                    show_author = show_author,
+                    show_icons = show_icons,
+                    show_collection_controls =
+                        show_collection_controls,
+                    collection_id = (show_collection_controls and
+                        collection_id or -1),
+                    zombie = zombie
+                }
+                if item_params then
+                    for k, v in pairs(item_params) do params[k] = v end
+                end
+                render('views.partials.' .. item_type, params)
             %>
         <% end %>
     </div>

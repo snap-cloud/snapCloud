@@ -258,9 +258,10 @@ local locale = {
     change_my_email = "Change My Email",
     delete_my_user = "Delete my Account",
 
-    -- Teacher page
-    -- ============
+    -- Teacher pages
+    -- =============
     teacher_title = "Teacher Page",
+    learners_title = "My Learners",
 
     -- Bulk account creation page
     -- ==========================
@@ -344,6 +345,8 @@ local locale = {
     become = "Become", -- as an admin, temporarily impersonate this user
     verify = "Verify",
     change_email = "Change Email",
+    reset_password = "Reset Password",
+    confirm_reset_password = "Are you sure you want to reset user @1's password?",
     send_msg = "Send a Message",
     ban = "Ban",
     unban = "Unban",

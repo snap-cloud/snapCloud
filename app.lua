@@ -43,6 +43,7 @@ package.loaded.config = require('lapis.config').get()
 package.loaded.disk = require('disk')
 package.loaded.locale = require('locale')
 package.loaded.cjson = require('cjson')
+package.loaded.html = require('lapis.html')
 
 local app = package.loaded.app
 local config = package.loaded.config

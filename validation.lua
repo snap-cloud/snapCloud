@@ -254,7 +254,7 @@ assert_user_can_create_accounts = function(self)
     if not self.current_user.verified then
         yield_error(err.nonvalidated_user)
     end
-    if not self.current_user:is_teacher() then
+    if not self.current_user.is_teacher then
         yield_error(err.teacher_account_required)
     end
 end
