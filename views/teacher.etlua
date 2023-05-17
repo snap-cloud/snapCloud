@@ -3,20 +3,3 @@
     <a class="pure-button" href="bulk"><%- locale.get('bulk_tile') %></a>
     <a class="pure-button" href="learners"><%- locale.get('learners_title') %></a>
 </div>
-
-<section>
-    <%
-    render(
-        'views.grid',
-        {
-            title = locale.get('your_learners'),
-            item_type = 'user',
-            items_per_row = 1,
-            items_per_page = 150,
-            show_if_empty = true,
-            skip_pagination = true,
-            num_pages = 1
-        }
-    )
-    %>
-</section>

@@ -338,7 +338,6 @@ app:get('/teacher', capture_errors(function (self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    self.items = Users:select('WHERE creator_id = ?', self.current_user.id)
     return { render = 'teacher' }
 end))
 
