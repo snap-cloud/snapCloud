@@ -56,6 +56,16 @@ local views = {
     'forgot_username', 'sign_up', 'login',
 }
 
+app:get('index', '/', capture_errors(cached(function (self)
+    self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
+    return { render = 'index' }
+end)))
+
+-- Backwards compatibility.
+app:get('/index', function ()
+    return { redirect_to = '/' }
+end)
+
 for _, view in pairs(views) do
     app:get('/' .. view, capture_errors(cached(function (self)
         return { render = view }
@@ -133,16 +143,6 @@ app:get('/collection', capture_errors(function (self)
 
     return { render = 'collection' }
 end))
-
-app:get('/', capture_errors(cached(function (self)
-    self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'index' }
-end)))
-
--- Backwards compatibility.
-app:get('/index', function ()
-    return { redirect_to = '/' }
-end)
 
 app:get('/user', capture_errors(function (self)
     assert_user_exists(self)
