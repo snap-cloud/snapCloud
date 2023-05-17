@@ -46,13 +46,14 @@ curl -s -o /dev/null -w "%{http_code}" -X POST $repo \
 
 echo
 
-echo 'Tagging Deploy in Sentry'
+echo 'Creating Release in Sentry'
 curl -s -o /dev/null -w "%{http_code}" https://sentry.io/api/0/organizations/snapcloud/releases/ \
  -H "Authorization: Bearer $SENTRY_API_TOKEN" \
  -H 'Content-Type: application/json' \
  -d "{\"version\":\"$current_time\",\"ref\":\"$deploy_sha\",\"projects\":[\"snapcloud-server\"]}"
+echo
 
-
+echo 'Tagging Deploy in Sentry'
 curl -s -o /dev/null -w "%{http_code}" https://sentry.io/api/0/organizations/snapcloud/releases/$current_time/deploys/ \
  -H "Authorization: Bearer $SENTRY_API_TOKEN" \
  -H 'Content-Type: application/json' \
@@ -67,6 +68,7 @@ curl -s -o /dev/null -w "%{http_code}" -XPOST \
   "https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY" \
  -H 'Content-Type: application/json' \
  -d "{\"message\":\"Deployed Snap! to $LAPIS_ENVIRONMENT at $current_time\"}"
+echo
 
 
 # Always update the letsencrypt script incase it changes.
