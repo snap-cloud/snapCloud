@@ -135,15 +135,15 @@ UserController = {
                     self.queried_user:update({ verified = true })
                     return jsonResponse({
                         title = 'Welcome!',
-                        message = 'Welcome to Snap!, ' .. self.queried_user.username .. [[! \n
-                        This account is a Snap! learner account. \n
-                        That means someone else has the
-                        ability to log in as you, see your projects,
-                        and change your password.
+                        message = 'Welcome to Snap!, ' .. self.queried_user.username .. [[
 
-                        We encourse you to creat your own account,
-                        using a personal email address.
-                        ]],
+This account is a Snap! learner account.
+That means someone else has the ability to
+log in as you, see your projects,
+and change your password.
+
+We encourse you to creat your own account,
+using a personal email address.]],
                         redirect = self:build_url('/')
                     })
                 end
