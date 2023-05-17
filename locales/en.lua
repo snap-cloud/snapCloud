@@ -261,12 +261,12 @@ local locale = {
     -- Learner Accounts
     -- ================
     -- @1 username, @2 user profile URL
-    learner_first_login_meesage = [[Welcome, @username
+    learner_first_login_meesage = [[Welcome, @1
 This is a student account. That means your teacher controls it, not you.
 
 We therefore strongly recommend that you should also have your own personal Snap! account.
 
-Want to know more? Visit @url]],
+Want to know more? Visit @2]],
 
     -- Teacher pages
     -- =============

@@ -136,10 +136,10 @@ UserController = {
                     return jsonResponse({
                         title = 'Welcome to Snap!',
                         message = package.loaded.localelocale.get(
-                            'learner_first_login_meesage', {
-                            username = self.queried_user.username,
-                            url = self.build_url('/profile')
-                        }),
+                            'learner_first_login_meesage',
+                            self.queried_user.username,
+                            self.build_url('/profile')
+                        ),
                         redirect = self:build_url('/')
                     })
                 end
