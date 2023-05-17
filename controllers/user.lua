@@ -137,13 +137,11 @@ UserController = {
                         title = 'Welcome!',
                         message = 'Welcome to Snap!, ' .. self.queried_user.username .. [[
 
-This account is a Snap! learner account.
-That means someone else has the ability to
-log in as you, see your projects,
-and change your password.
+This is a student account. That means your teacher controls it, not you.
 
-We encourse you to creat your own account,
-using a personal email address.]],
+We therefore strongly recommend that you should also have your own personal Snap! account.
+
+Want to know more? Visit ]] .. self.build_url('/profile'),
                         redirect = self:build_url('/')
                     })
                 end
