@@ -258,6 +258,16 @@ local locale = {
     change_my_email = "Change My Email",
     delete_my_user = "Delete my Account",
 
+    -- Learner Accounts
+    -- ================
+    -- @1 username, @2 user profile URL
+    learner_first_login_meesage = [[Welcome, @username
+This is a student account. That means your teacher controls it, not you.
+
+We therefore strongly recommend that you should also have your own personal Snap! account.
+
+Want to know more? Visit @url]],
+
     -- Teacher pages
     -- =============
     teacher_title = "Teacher Page",

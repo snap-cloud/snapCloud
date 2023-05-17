@@ -134,14 +134,12 @@ UserController = {
                     self.cookies.persist_session = tostring(self.params.persist)
                     self.queried_user:update({ verified = true })
                     return jsonResponse({
-                        title = 'Welcome!',
-                        message = 'Welcome to Snap!, ' .. self.queried_user.username .. [[
-
-This is a student account. That means your teacher controls it, not you.
-
-We therefore strongly recommend that you should also have your own personal Snap! account.
-
-Want to know more? Visit ]] .. self.build_url('/profile'),
+                        title = 'Welcome to Snap!',
+                        message = package.loaded.localelocale.get(
+                            'learner_first_login_meesage', {
+                            username = self.queried_user.username,
+                            url = self.build_url('/profile')
+                        }),
                         redirect = self:build_url('/')
                     })
                 end
