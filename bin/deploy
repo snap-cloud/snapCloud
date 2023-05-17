@@ -10,9 +10,8 @@ echo "Deploying branch: $branch"
 # Deploy a copy of snapCloud
 pushd ~/snapCloud/ > /dev/null;
 
-git fetch
 git checkout $branch
-# git pull origin $branch
+git pull origin $branch
 # Always init, just incase we add a submodule.
 git submodule init
 git submodule update --recursive --remote
@@ -26,9 +25,9 @@ popd;
 # ./update-snap
 
 
-echo "Updating Dependencies:"
-sudo luarocks install --only-deps snapcloud-dev-0.rockspec
-
+# Disabled Until we fix sudo access for luarocks.
+# echo "Updating Dependencies:"
+# sudo luarocks install --only-deps snapcloud-dev-0.rockspec
 echo;
 echo;
 
@@ -41,18 +40,20 @@ current_time=$(date -u +"%Y-%m-%dT%H-%M-%S")
 repo='https://api.github.com/repos/snap-cloud/snapCloud/releases'
 # tag non-production releases as 'prerelase'
 prelease=$(if [ "$LAPIS_ENVIRONMENT" = 'production' ]; then echo 'false'; else echo 'true'; fi)
-curl -X POST -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN $repo -d "{\"tag_name\": \"$current_time\", \"target_commitish\": \"$deploy_sha\", \"prerelease\": $prelease}"
+curl -s -o /dev/null -w "%{http_code}" -X POST $repo \
+  -H "Content-Type:application/json" -u cycomachead:$GITHUB_TOKEN \
+  -d "{\"tag_name\": \"$current_time\", \"target_commitish\": \"$deploy_sha\", \"prerelease\": $prelease}"
 
 echo
 
 echo 'Tagging Deploy in Sentry'
-curl https://sentry.io/api/0/organizations/snapcloud/releases/ \
+curl -s -o /dev/null -w "%{http_code}" https://sentry.io/api/0/organizations/snapcloud/releases/ \
  -H "Authorization: Bearer $SENTRY_API_TOKEN" \
  -H 'Content-Type: application/json' \
  -d "{\"version\":\"$current_time\",\"ref\":\"$deploy_sha\",\"projects\":[\"snapcloud-server\"]}"
 
 
-curl https://sentry.io/api/0/organizations/snapcloud/releases/$current_time/deploys/ \
+curl -s -o /dev/null -w "%{http_code}" https://sentry.io/api/0/organizations/snapcloud/releases/$current_time/deploys/ \
  -H "Authorization: Bearer $SENTRY_API_TOKEN" \
  -H 'Content-Type: application/json' \
  -d "{\"environment\":\"$LAPIS_ENVIRONMENT\"}"
@@ -62,7 +63,8 @@ echo
 
 echo "Notifiying Slack"
 
-curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY \
+curl -s -o /dev/null -w "%{http_code}" -XPOST \
+  "https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY" \
  -H 'Content-Type: application/json' \
  -d "{\"message\":\"Deployed Snap! to $LAPIS_ENVIRONMENT at $current_time\"}"
 
