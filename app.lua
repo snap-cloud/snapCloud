@@ -26,21 +26,22 @@
 require 'writeguardmuter'
 
 -- Packaging everything so it can be accessed from other modules
-local lapis = require 'lapis'
+local lapis = require('lapis')
 package.loaded.app = lapis.Application()
-package.loaded.db = require 'lapis.db'
-package.loaded.app_helpers = require 'lapis.application'
+package.loaded.db = require('lapis.db')
+package.loaded.app_helpers = require('lapis.application')
 package.loaded.json_params = package.loaded.app_helpers.json_params
 package.loaded.yield_error = package.loaded.app_helpers.yield_error
+package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.validate = require 'lapis.validate'
 package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
-package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.resty_sha512 = require 'resty.sha512'
 package.loaded.resty_string = require 'resty.string'
 package.loaded.resty_random = require 'resty.random'
 package.loaded.config = require('lapis.config').get()
 package.loaded.cjson = require('cjson')
+package.loaded.html = require('lapis.html')
 
 package.loaded.disk = require('disk')
 package.loaded.locale = require('locale')

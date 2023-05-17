@@ -16,8 +16,10 @@
                 </a>
             </em>
         </span>
+        <% if current_user:has_min_role('moderator') then %>
         <span
             ><strong><%- locale.get('user_id') %></strong> <%= item.id %></span>
+        <% end %>
         <% if show_project_count then %>
         <span><strong><%- locale.get('project_count') %></strong> <%=
             item:get_project_count() %></span>
@@ -28,7 +30,7 @@
         <span><strong><%- locale.get('delete_date') %> </strong><%=
             string.from_sql_date(item.deleted) %></span>
         <% end %>
-        <% if not zombie then %>
+        <% if not zombie and current_user:has_min_role('moderator') then %>
         <span>
             <strong><%- locale.get('role') %></strong>:
             <select onchange="
@@ -70,14 +72,20 @@
         <% end %>
         <div class="buttons">
             <% if not zombie then %>
+            <% if current_user:has_min_role('admin') then %>
             <a class="pure-button become"
                 onclick="cloud.post('/users/<%= item.username %>/become');"
                 ><%- locale.get('become') %></a>
-            <% if not item.verified then %>
+            <% end %>
+            <% if not item.verified and
+                (current_user:has_min_role('moderator')) then %>
             <a class="pure-button verify"
                 onclick="cloud.post('/users/<%= item.username %>/verify');"
                 ><%- locale.get('verify') %></a>
             <% end %>
+            <% if current_user:has_min_role('moderator') or
+                    (current_user.is_teacher and
+                        item.creator_id == current_user.id) then %>
             <a class="pure-button changeemail"
                 onclick="
                     prompt(
@@ -92,10 +100,27 @@
                                 }
                             );
                         },
-                    nop
+                        nop
                     );
                 "><%- locale.get('change_email') %></a>
+            <a class="pure-button resetpassword"
+                onclick="
+                    confirm(
+                        '<%= package.loaded.html.escape(locale.get(
+                                'confirm_reset_password',
+                                item.username
+                            ))
+                        %>',
+                        () => {
+                            cloud.post(
+                                '/users/<%= item.username %>/password_reset'
+                            );
+                        }
+                    );
+                "><%- locale.get('reset_password') %></a>
             <% end %>
+            <% end %>
+            <% if current_user:has_min_role('moderator') then %>
             <a class="pure-button sendamessage"
                 onclick="
                     dialog(
@@ -144,10 +169,11 @@
                                 'delete_user',
                                 { username = item.username })
                         %>',
-                    () => {
-                        cloud.delete(
-                            '/<%= zombie and 'zombies' or 'users'
-                                %>/<%= item.username %>');
+                        () => {
+                            cloud.delete(
+                                '/<%= zombie and 'zombies' or 'users'
+                                    %>/<%= item.username %>'
+                            );
                         }
                     );
                 "
@@ -166,6 +192,7 @@
                 "
                 ><%- locale.get('revive_usr') %></a>
 
+            <% end %>
             <% end %>
         </div>
     </div>

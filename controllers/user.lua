@@ -66,7 +66,7 @@ UserController = {
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
                 (filters or '') ..
-            ' ORDER BY ' .. (self.params.order or 'created_at'),
+            ' ORDER BY ' .. (self.params.order or 'created'),
             {
                 per_page = self.items_per_page or 15,
                 fields = self.params.fields or '*'
@@ -210,7 +210,12 @@ UserController = {
 
         if self.queried_user then
             -- we're trying to change someone else's email
-            assert_min_role(self, 'moderator')
+            if not (self.current_user.is_teacher and
+                (self.queried_user.creator_id == self.current_user.id)) then
+                -- that someone is not that someone else's teacher, only mods
+                -- or above can do that
+                assert_min_role(self, 'moderator')
+            end
         elseif user:is_student() then
             yield_error(err.student_cannot_change_email)
         elseif (user.password ~=
@@ -247,6 +252,15 @@ UserController = {
         })
     end),
     reset_password = capture_errors(function (self)
+        if not users_match(self) then
+            -- someone is trying to change someone else's password
+            if not (self.current_user.is_teacher and
+                (self.queried_user.creator_id == self.current_user.id)) then
+                -- that someone is not that someone else's teacher, only mods
+                -- or above can do that
+                assert_min_role(self, 'moderator')
+            end
+        end
         local token =
             find_token(tostring(self.params.username), 'password_reset')
         if token then
@@ -264,7 +278,7 @@ UserController = {
             return jsonResponse({
                 title = 'Password reset',
                 message = 'A link to reset your password has been sent to ' ..
-                'your email account.',
+                    'your email account.',
                 redirect = self:build_url('/')
             })
         end
@@ -554,6 +568,16 @@ UserController = {
             message = #usernames .. ' users created.',
             title = 'Users created'
         })
+    end),
+    learners = capture_errors(function (self)
+        self.params.fields = 'username, created, email, creator_id'
+        return UserController.run_query(
+            self,
+            db.interpolate_query(
+                "WHERE creator_id = ? AND role = 'student'",
+                self.current_user.id
+            )
+        )
     end),
     become = capture_errors(function (self)
         assert_min_role(self, 'moderator')
