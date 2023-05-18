@@ -138,7 +138,7 @@ UserController = {
                         message = package.loaded.locale.get(
                             'learner_first_login_meesage',
                             self.queried_user.username,
-                            self.build_url('/profile')
+                            self:build_url('/profile')
                         ),
                         redirect = self:build_url('/')
                     })
