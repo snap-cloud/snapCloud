@@ -11,10 +11,7 @@
         <!-- External libs, both stylesheets and JS -->
         <link rel="stylesheet" href="/static/style/reset.css">
         <link rel="stylesheet" href="/static/style/pure-min.css">
-        <link rel="stylesheet"
-            href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
-            integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
-            crossorigin="anonymous">
+        <link rel="stylesheet" href="/static/style/fontawesome.min.css"">
         <link rel="stylesheet" href="/static/style/custom-alert.css">
         <script type="text/javascript" src="/static/js/FileSaver.min.js"></script>
         <!-- Stylesheets -->

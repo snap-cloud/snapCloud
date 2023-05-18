@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.7 (Homebrew)
+-- Dumped from database version 13.10
 -- Dumped by pg_dump version 14.7 (Homebrew)
 
 SET statement_timeout = 0;
@@ -691,7 +691,7 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.7 (Homebrew)
+-- Dumped from database version 13.10
 -- Dumped by pg_dump version 14.7 (Homebrew)
 
 
@@ -716,9 +716,9 @@ COPY public.lapis_migrations (name) FROM stdin;
 2022-08-17:0
 2022-08-18:0
 2022-09-16:0
+1683536418
 2023-03-14:0
 2023-03-14:1
-1683536418
 \.
 
 

@@ -225,7 +225,7 @@ ProjectController = {
             ((not project.lastshared and self.params.ispublic)
             or (self.params.ispublic and not project.ispublic))
 
-        local result, error = project:update({
+        local result = project:update({
             lastupdated = db.format_date(),
             lastshared = shouldUpdateSharedDate and db.format_date() or nil,
             firstpublished =
@@ -236,7 +236,7 @@ ProjectController = {
             ispublished = self.params.ispublished
         })
 
-        if error then yield_error({ msg = error, status = 422 }) end
+        if not result then yield_error({ msg = error, status = 422 }) end
 
         return okResponse(
             'project ' .. tostring(self.params.projectname) .. ' updated'

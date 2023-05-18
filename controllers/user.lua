@@ -129,6 +129,20 @@ UserController = {
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
+                if self.queried_user.is_student then
+                    self.session.username = self.queried_user.username
+                    self.cookies.persist_session = tostring(self.params.persist)
+                    self.queried_user:update({ verified = true })
+                    return jsonResponse({
+                        title = 'Welcome to Snap!',
+                        message = package.loaded.locale.get(
+                            'learner_first_login_meesage',
+                            self.queried_user.username,
+                            self:build_url('/profile')
+                        ),
+                        redirect = self:build_url('/')
+                    })
+                end
                 local message =
                     self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
@@ -156,20 +170,19 @@ UserController = {
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
-            -- TODO: Handle first-time student account logins.
             else
                 return jsonResponse({
                     title = 'Verify your account',
                     message = 'Please verify your account within\n' ..
                         'the next ' .. self.queried_user.days_left .. ' days.',
-                    redirect = self:build_url('index')
+                    redirect = self:build_url('/')
                 })
             end
         else
             -- Admins can log in as other people
             assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
-            return self:build_url('index')
+            return jsonResponse({ redirect = self:build_url('/') })
         end
     end),
     logout_get = capture_errors(function (self)
@@ -262,7 +275,7 @@ UserController = {
                 title = 'Password reset',
                 message = 'A link to reset your password has been sent to ' ..
                     'your email account.',
-                redirect = self:build_url('index')
+                redirect = self:build_url('/')
             })
         end
     end),
@@ -313,7 +326,7 @@ UserController = {
             return jsonResponse({
                 title = 'User deleted',
                 message = 'User ' .. user.username .. ' has been removed.',
-                redirect = self:build_url('index')
+                redirect = self:build_url('/')
             })
         end
     end),
@@ -491,7 +504,7 @@ UserController = {
             for _, user in pairs(existing_users) do
                 msg = msg .. user.username .. '<br>'
             end
-            return errorResponse(msg, 400)
+            return errorResponse(self, msg, 400)
         end
 
         -- wrap all user creations in a transaction. No partial completions.
@@ -509,7 +522,7 @@ UserController = {
                 }))
                 if not collection then
                     db.query('ROLLBACK;')
-                    return errorResponse(
+                    return errorResponse(self,
                         'Could not create collection ' ..
                         self.params.collection_name .. '.<br>' ..
                         'Please make sure you do not already have a<br>' ..
@@ -527,13 +540,13 @@ UserController = {
             user.salt = salt
             user.password = hash_password(hash_password(password, ''), salt)
             user.email = (user.email or self.current_user.email)
-            user.verified = true
+            user.verified = false
             user.role = 'student'
             user.creator_id = self.current_user.id
             result = Users:create(user)
             if not result then
                 db.query('ROLLBACK;')
-                return errorResponse(
+                return errorResponse(self,
                     'User ' .. user.username .. ' errored on creation.'
                 )
             end

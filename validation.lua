@@ -122,7 +122,8 @@ err = {
     student_cannot_change_email = {
         msg = 'Student account email addresses cannot be changed. Please contact your instructor for help.',
         status = 403
-    }
+    },
+    generic_not_found = { msg = 'The requested resource does not exist.', status = 404 }
 }
 
 assert_all = function (assertions, self)
@@ -286,7 +287,11 @@ assert_can_delete = function (self, item)
 end
 
 assert_project_exists = function (self, project)
-    if not project then yield_error(err.nonexistent_project) end
+    local proj = self.project or project
+    if not proj then
+        yield_error(err.nonexistent_project)
+    end
+    return proj
 end
 
 -- Tokens
@@ -529,3 +534,14 @@ prevent_tor_access = function (self)
         yield_error(err.tor_not_allowed)
     end
 end
+
+local assert_exists = function (resource)
+    if not resource then
+        yield_error(err.generic_not_found)
+    end
+    return resource
+end
+
+return {
+    assert_exists = assert_exists,
+}

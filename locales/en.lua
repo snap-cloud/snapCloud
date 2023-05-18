@@ -258,6 +258,16 @@ local locale = {
     change_my_email = "Change My Email",
     delete_my_user = "Delete my Account",
 
+    -- Learner Accounts
+    -- ================
+    -- @1 username, @2 user profile URL
+    learner_first_login_meesage = [[Welcome, @1
+This is a student account. That means your teacher controls it, not you.
+
+We therefore strongly recommend that you should also have your own personal Snap! account.
+
+Want to know more? Visit @2]],
+
     -- Teacher pages
     -- =============
     teacher_title = "Teacher Page",
@@ -266,7 +276,7 @@ local locale = {
     -- Bulk account creation page
     -- ==========================
     bulk_tile = "Bulk account creation",
-    bulk_text = "Please provide a CSV file with <b>username</b> and <b>password</b> columns for all of your learners, plus an optional email column. If you do not provide an email for your users, they will all be associated with your email account. That is useful if you want to be able to reset the passwords of your learners.",
+    bulk_text = "Please provide a CSV file with <code><b>username</b></code> and <code><b>password</b></code> columns for all of your learners, plus an optional <code>email</code> column. If you do not provide an email for your users, they will all be associated with your email account. That is useful if you want to be able to reset the passwords of your learners.",
     bulk_make_collection = "Create a private collection for this group of learners",
     bulk_create = "Create users",
 

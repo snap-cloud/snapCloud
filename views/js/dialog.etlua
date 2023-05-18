@@ -120,4 +120,3 @@ function customAlert(a){function c(a,b){for(var c in b)a[c]=b[c];return a}functi
 // old_confirm had very strange behavior...
 window.confirm = function(text, onSuccess, params) { g(text, ok => { if (ok) { onSuccess.call(params); } }); }; }
 </script>
-

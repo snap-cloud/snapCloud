@@ -48,11 +48,15 @@
                 <% end %>
             </select>
         </span>
+        <% if item.role == 'student' then %>
+        <span><strong>Creator ID</strong>: <%= item.creator_id %></span>
+        <% end %>
         <span>
+            <% label_id = "is_teacher-" .. tostring(item.id) %>
             <strong>
-                <label for="is_teacher"><%- locale.get('teacher') %></label>
+                <label for="<%- label_id %>"><%- locale.get('teacher') %></label>
             </strong>:
-            <input type="checkbox" name="is_teacher"
+            <input type="checkbox" name="is_teacher" id="<%- label_id %>"
                 <%- item.is_teacher and 'checked' or '' %>
                 onchange="
                     cloud.post(

@@ -81,7 +81,7 @@ for _, path in pairs(suspicious_paths) do
         end
 
         if (ip_entry.offense_count < 3) then
-            return errorResponse(
+            return errorResponse(self,
             'You are attempting to access a well known spam / exploit path. ' ..
             'Your IP will be banned from this system if this incident ' ..
             'happens ' .. tostring(3 - ip_entry.offense_count) .. ' more times',

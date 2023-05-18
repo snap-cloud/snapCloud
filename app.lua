@@ -26,24 +26,25 @@
 require 'writeguardmuter'
 
 -- Packaging everything so it can be accessed from other modules
-local lapis = require 'lapis'
+local lapis = require('lapis')
 package.loaded.app = lapis.Application()
-package.loaded.db = require 'lapis.db'
-package.loaded.app_helpers = require 'lapis.application'
+package.loaded.db = require('lapis.db')
+package.loaded.app_helpers = require('lapis.application')
 package.loaded.json_params = package.loaded.app_helpers.json_params
 package.loaded.yield_error = package.loaded.app_helpers.yield_error
+package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.validate = require 'lapis.validate'
 package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
-package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.resty_sha512 = require 'resty.sha512'
 package.loaded.resty_string = require 'resty.string'
 package.loaded.resty_random = require 'resty.random'
 package.loaded.config = require('lapis.config').get()
-package.loaded.disk = require('disk')
-package.loaded.locale = require('locale')
 package.loaded.cjson = require('cjson')
 package.loaded.html = require('lapis.html')
+
+package.loaded.disk = require('disk')
+package.loaded.locale = require('locale')
 
 local app = package.loaded.app
 local config = package.loaded.config
@@ -96,9 +97,9 @@ package.loaded.capture_errors = function(fn)
         on_error = function(self)
             local error = self.errors[1]
             if type(error) == 'table' then
-                return errorResponse(error.msg, error.status)
+                return errorResponse(self, error.msg, error.status)
             else
-                return errorResponse(error, 400)
+                return errorResponse(self, error, 400)
             end
         end,
         fn
@@ -198,7 +199,7 @@ app:before_filter(function (self)
     local ip_entry = package.loaded.BannedIPs:find(ngx.var.remote_addr)
     if (ip_entry and ip_entry.offense_count > 2) then
         self:write(
-            errorResponse('Your IP has been banned from the system', 403)
+            errorResponse(self, 'Your IP has been banned from the system', 403)
         )
         return
     end
@@ -280,7 +281,7 @@ app:before_filter(function (self)
 end)
 
 function app:handle_404()
-    return errorResponse('Failed to find resource: ' .. self.req.cmd_url, 404)
+    return errorResponse(self, 'Failed to find resource: ' .. self.req.cmd_url, 404)
 end
 
 function app:handle_error(err, trace)
@@ -288,7 +289,7 @@ function app:handle_error(err, trace)
         debug_print(err, trace)
         local msg = '<pre style="text-align: left; width: 80ch">'
             .. err .. '<br>' .. trace .. '</pre>'
-        return errorResponse(msg, 500)
+        return errorResponse(self, msg, 500)
     end
 
     local err_msg = exceptions.normalize_error(err)
@@ -303,7 +304,7 @@ function app:handle_error(err, trace)
             ngx.log(ngx.ERR, send_err)
         end
     end
-    return errorResponse("An unexpected error occured: " .. err_msg, 500)
+    return errorResponse(self, "An unexpected error occured: " .. err_msg, 500)
 end
 
 -- Enable the ability to have a maintenance mode
@@ -311,7 +312,7 @@ end
 if config.maintenance_mode == 'true' then
     local msg = 'The Snap!Cloud is currently down for maintenance.'
     app:match('/*', function(self)
-        return errorResponse(msg, 500)
+        return errorResponse(self, msg, 500)
     end)
     return app
 end

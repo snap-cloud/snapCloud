@@ -55,13 +55,28 @@ rawResponse = function (contents)
     }
 end
 
-errorResponse = function (err, status)
-    return {
-        layout = false,
-        status = status or 500,
-        readyState = 4,
-        json = { errors = { err } }
-    }
+local html_error = function (self, error, status)
+    status = status or 500
+    self.locale = package.loaded.locale
+    self.locale.language = self.session.locale or 'en'
+    self.title = status .. ' Error'
+    self.contents = error
+
+    return { layout = 'layout', render = 'error', status = status }
+end
+
+errorResponse = function (self, err, status)
+    local is_html_page = self.req.headers['accept']:match('text/html')
+    if is_html_page then
+        return html_error(self, err, status)
+    else
+        return {
+            layout = false,
+            status = status or 500,
+            readyState = 4,
+            json = { errors = { err } }
+        }
+    end
 end
 
 htmlPage = function (self, title, contents)

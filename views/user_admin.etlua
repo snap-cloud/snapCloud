@@ -20,6 +20,15 @@ render(
                 }
             },
             {
+                selector = 'is_teacher',
+                label = 'Teacher',
+                options = {
+                    { label = 'Any', value = '' },
+                    { label = 'True', value = true },
+                    { label = 'False', value = false },
+                }
+            },
+            {
                 selector = 'role',
                 label = 'Role',
                 options = {

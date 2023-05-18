@@ -26,7 +26,6 @@ local api_version = 'v1'
 
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
-local yield_error = package.loaded.yield_error
 local json_params = package.loaded.json_params
 local respond_to = package.loaded.respond_to
 
@@ -63,7 +62,7 @@ app:match(api_route('set_locale'), respond_to({
 
 app:match(api_route('init'), respond_to({
     GET = capture_errors(function (self)
-        return errorResponse(
+        return errorResponse(self,
             'It seems like you are trying to log in. ' ..
             'Try refreshing the page and try again. ' ..
             'This URL is internal to the Snap!Cloud.',

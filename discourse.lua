@@ -58,13 +58,13 @@ app:get('/api/v1/discourse-sso', capture_errors(function(self)
         else
             message = message .. '(Request payload is missing.)'
         end
-        yield_error({msg = message, status = 422})
+        yield_error({ msg = message, status = 422 })
     end
 
     local computed_signature = create_signature(payload)
     if computed_signature ~= signature then
-        yield_error({msg = 'Signature does not match. Please try again.',
-                     status = 422})
+        yield_error({ msg = 'Signature does not match. Please try again.',
+                     status = 422 })
     end
 
     local request_payload = extract_payload(payload)
