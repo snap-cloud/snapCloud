@@ -135,7 +135,7 @@ UserController = {
                     self.queried_user:update({ verified = true })
                     return jsonResponse({
                         title = 'Welcome to Snap!',
-                        message = package.loaded.localelocale.get(
+                        message = package.loaded.locale.get(
                             'learner_first_login_meesage',
                             self.queried_user.username,
                             self.build_url('/profile')
