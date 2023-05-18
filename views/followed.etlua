@@ -19,3 +19,6 @@ else
         '<strong>' .. locale.get('follow_user') .. '</strong>')
 %></span>
 <% end %>
+
+<a class="pure-button" href="followed_users"><%= locale.get('followed_users') %></a>
+<a class="pure-button" href="my_followers"><%= locale.get('follower_users') %></a>

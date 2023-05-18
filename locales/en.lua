@@ -237,6 +237,8 @@ local locale = {
     -- ===================
     followed_feed = "Projects By Users I'm Following",
     following_nobody = "You are not following any users yet. Visit a user's public page and click on @1 to follow them and see their latest public projects in this page.",
+    followed_users = "Users Followed by You",
+    follower_users = "Users That Follow You",
 
     -- User profile
     -- ============

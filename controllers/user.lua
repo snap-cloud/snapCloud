@@ -707,6 +707,30 @@ UserController = {
             yield_error()
         end
     end),
+    followed_users = capture_errors(function (self)
+        self.params.fields = 'username'
+        return UserController.run_query(
+            self,
+            db.interpolate_query(
+                "WHERE id IN (" ..
+                    "SELECT followed_id FROM followers WHERE " ..
+                    "follower_id = ?)",
+                self.current_user.id
+            )
+        )
+    end),
+    follower_users = capture_errors(function (self)
+        self.params.fields = 'username'
+        return UserController.run_query(
+            self,
+            db.interpolate_query(
+                "WHERE id IN (" ..
+                    "SELECT follower_id FROM followers WHERE " ..
+                    "followed_id = ?)",
+                self.current_user.id
+            )
+        )
+    end),
 }
 
 app:match(

@@ -187,6 +187,24 @@ app:get('/followed', capture_errors(cached(function (self)
     end
 end)))
 
+app:get('/followed_users', capture_errors(cached(function (self)
+    if self.current_user then
+        self.items = UserController.followed_users(self)
+        return { render = 'followed_users' }
+    else
+        return { redirect_to = self:build_url('/') }
+    end
+end)))
+
+app:get('/my_followers', capture_errors(cached(function (self)
+    if self.current_user then
+        self.items = UserController.follower_users(self)
+        return { render = 'my_followers' }
+    else
+        return { redirect_to = self:build_url('/') }
+    end
+end)))
+
 app:match('project', '/project', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     if self.params.user and self.params.project then
