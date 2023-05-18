@@ -709,6 +709,7 @@ UserController = {
     end),
     followed_users = capture_errors(function (self)
         self.params.fields = 'username'
+        self.items_per_page = 45
         return UserController.run_query(
             self,
             db.interpolate_query(
@@ -721,6 +722,7 @@ UserController = {
     end),
     follower_users = capture_errors(function (self)
         self.params.fields = 'username'
+        self.items_per_page = 45
         return UserController.run_query(
             self,
             db.interpolate_query(

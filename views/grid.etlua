@@ -10,7 +10,7 @@
     class               (str) CSS class.
     item_type           (str) item template name at views/partials/[item_type].
     items_per_row       (num) Number of items per grid row. Default: 5.
-    items_per_page      (num) Number of items per page. Default: 5.
+    items_per_page      (num) Number of items per page. Default: 15.
     with_search         (t/f) Adds a search input. Default: false.
     show_if_empty       (t/f) Show component if no items. Default: false.
     show_author         (t/f) Show the item author, if any. Default: false.

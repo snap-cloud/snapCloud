@@ -6,7 +6,6 @@ render(
         class = 'users',
         item_type = 'user',
         items_per_row = 3,
-        items_per_page = 45,
         with_search = false,
         show_if_empty = true,
     }
