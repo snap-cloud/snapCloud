@@ -69,6 +69,17 @@ CollectionController = {
                 WHERE collections.published]]
         )
     end),
+    totms = capture_errors(function (self)
+        self.params.order = 'updated_at DESC'
+        return CollectionController.run_query(
+            self,
+            [[JOIN active_users ON
+                (active_users.id = collections.creator_id)
+                WHERE (collections.creator_id =
+                    (SELECT id FROM users WHERE username = 'snapcloud')
+                AND collections.description LIKE 'TOTM%')]]
+        )
+    end),
     my_collections = capture_errors(function (self)
         self.params.order = 'updated_at DESC'
         return CollectionController.run_query(

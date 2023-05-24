@@ -99,6 +99,10 @@ local locale = {
     -- Events page
     events_title = "Snap@1 Events",
 
+    -- All Topics of the Month page
+
+    totms_title = "All Topics of the Month",
+
     -- Collections page
     collections_title = "Published Collections",
 

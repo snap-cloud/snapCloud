@@ -92,6 +92,11 @@ app:get('/collections', capture_errors(cached(function (self)
     return { render = 'collections' }
 end)))
 
+app:get('/all_totms', capture_errors(cached(function (self)
+    self.items = CollectionController.totms(self)
+    return { render = 'all_totms' }
+end)))
+
 app:get('/users', capture_errors(cached(function (self)
     self.items_per_page = 51
     self.items = UserController.fetch(self)

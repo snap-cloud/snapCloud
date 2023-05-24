@@ -14,6 +14,7 @@
             <p><h4><%- locale.get('t_learning') %></h4></p>
             <p><a href="examples"><%- locale.get('examples') %></a></p>
             <p><a href="events"><%- locale.get('events') %></a></p>
+            <p><a href="all_totms"><%- locale.get('totms_title') %></a></p>
             <p><a href="snap/help/SnapManual.pdf"
                 ><%- locale.get('manual') %></a></p>
             <p><a href="materials"><%- locale.get('materials') %></a></p>
