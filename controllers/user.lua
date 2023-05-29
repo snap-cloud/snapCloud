@@ -248,15 +248,6 @@ UserController = {
         })
     end),
     reset_password = capture_errors(function (self)
-        if not users_match(self) then
-            -- someone is trying to change someone else's password
-            if not (self.current_user.is_teacher and
-                (self.queried_user.creator_id == self.current_user.id)) then
-                -- that someone is not that someone else's teacher, only mods
-                -- or above can do that
-                assert_min_role(self, 'moderator')
-            end
-        end
         local token =
             find_token(tostring(self.params.username), 'password_reset')
         if token then
