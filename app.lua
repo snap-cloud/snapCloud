@@ -9,7 +9,7 @@
 --
 -- This file is part of Snap Cloud.
 --
--- Snap Cloud is free software: you can redistribute it and/or modify
+-- Snap Cloud is free software: you can gtfstribute it and/or modify
 -- it under the terms of the GNU Affero General Public License as
 -- published by the Free Software Foundation, either version 3 of
 -- the License, or (at your option) any later version.
@@ -280,6 +280,16 @@ app:before_filter(function (self)
 
 end)
 
+function app:default_route()
+    ngx.log(ngx.NOTICE, "User hit unknown path " .. self.req.parsed_url.path)
+
+    -- handle an open redirect vuln so nas not to redirect to different domains
+    self.req.parsed_url.path = string.gsub(self.req.parsed_url.path, '//', '/')
+
+    -- call the original implementaiton to preserve the functionality it provides
+    return lapis.Application.default_route(self)
+end
+
 function app:handle_404()
     return errorResponse(self, 'Failed to find resource: ' .. self.req.cmd_url, 404)
 end
@@ -298,7 +308,7 @@ function app:handle_error(err, trace)
         local _, send_err = exceptions.rvn:captureException({{
             type = err_msg,
             value = err .. "\n\n" .. trace,
-            trace_level = 2, -- Skip `handle_error`
+            trace_level = 2, -- skip `handle_error`
         }}, { user = user_info })
         if send_err then
             ngx.log(ngx.ERR, send_err)
