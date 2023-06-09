@@ -26,6 +26,15 @@ local function capitalize(str)
     return str:gsub("^%l", string.upper)
 end
 
+-- Remove the protocol and port from a URL
+local function domain_name(url)
+  if not url then
+      return
+  end
+  return url:gsub('https*://', ''):gsub(':%d+$', '')
+end
+
 return {
-  capitalize = capitalize
+  capitalize = capitalize,
+  domain_name = domain_name
 }

@@ -29,19 +29,20 @@ require 'writeguardmuter'
 local lapis = require('lapis')
 package.loaded.app = lapis.Application()
 package.loaded.db = require('lapis.db')
+package.loaded.validate = require('lapis.validate')
+package.loaded.Model = require('lapis.db.model').Model
+package.loaded.util = require('lapis.util')
+package.loaded.resty_sha512 = require('resty.sha512')
+package.loaded.resty_string = require('resty.string')
+package.loaded.resty_random = require('resty.random')
+package.loaded.config = require('lapis.config').get()
+package.loaded.cjson = require('cjson')
 package.loaded.app_helpers = require('lapis.application')
 package.loaded.json_params = package.loaded.app_helpers.json_params
 package.loaded.yield_error = package.loaded.app_helpers.yield_error
 package.loaded.respond_to = package.loaded.app_helpers.respond_to
-package.loaded.validate = require 'lapis.validate'
-package.loaded.Model = require('lapis.db.model').Model
-package.loaded.util = require('lapis.util')
-package.loaded.resty_sha512 = require 'resty.sha512'
-package.loaded.resty_string = require 'resty.string'
-package.loaded.resty_random = require 'resty.random'
-package.loaded.config = require('lapis.config').get()
-package.loaded.cjson = require('cjson')
 package.loaded.html = require('lapis.html')
+local date = require('date')
 
 package.loaded.disk = require('disk')
 package.loaded.locale = require('locale')
@@ -49,45 +50,15 @@ package.loaded.locale = require('locale')
 local app = package.loaded.app
 local config = package.loaded.config
 
+-- Snap!Cloud Utilities
+local utils = require('lib.util')
 -- Track exceptions, exposes raven, rollbar, and normalize_error
 local exceptions = require('lib.exceptions')
--- Store whitelisted domains
 local domain_allowed = require('cors')
 
--- Utility functions
-local date = require("date")
-string.from_sql_date = function (sql_date)
-    -- Formats an SQL date into (i.e.) November 21, 2021
-    local month_names = { 'january', 'february', 'march', 'april', 'may',
-        'june', 'july', 'august', 'september', 'october', 'november', 'december'
-    }
-    if (sql_date == nil) then return 'never' end
-    local actual_date = date(sql_date)
-    return package.loaded.locale.get(
-        'date',
-        actual_date:getday(),
-        package.loaded.locale.get(month_names[actual_date:getmonth()]),
-        actual_date:getyear()
-    )
-end
-
-debug_print = function (title, string)
-    print('\n\n----------\n' .. (string and title or 'DEBUG') .. '\n' ..
-        require('inspect').inspect(string or title) ..
-        '\n----------\n'
-    )
-end
-
--- Print tables as JSON by default. Lets us use tables in etlua templates
--- without having to convert them to JSON explicitly, which is nice.
-local old_tostring = tostring
-tostring = function (obj)
-    if (type(obj) == 'table') then
-        return package.loaded.util.to_json(obj)
-    else
-        return old_tostring(obj)
-    end
-end
+-- Snap!Cloud overrides
+-- Provides debug_print, string.from_sql_date
+require('lib.global')
 
 -- wrap the lapis capture errors to provide our own custom error handling
 -- just do: yield_error({msg = 'oh no', status = 401})
@@ -122,16 +93,7 @@ app.cookie_attributes = function(self)
                 sameSite .. ";" .. secure
 end
 
--- Remove the protocol and port from a URL
-local function domain_name(url)
-    if not url then
-        return
-    end
-    return url:gsub('https*://', ''):gsub(':%d+$', '')
-end
-
 -- CACHING UTILITIES
-
 -- Custom caching to take in account current locale
 local lapis_cached = require('lapis.cache').cached
 package.loaded.cached = function (func, options)
@@ -213,7 +175,7 @@ app:before_filter(function (self)
             self.req.headers['content-type']:find('json')) and 'snap' or 'site'
 
     -- Set Access Control header
-    local domain = domain_name(self.req.headers.origin)
+    local domain = utils.domain_name(self.req.headers.origin)
     if self.req.headers.origin and domain_allowed[domain] then
         self.res.headers['Access-Control-Allow-Origin'] =
             self.req.headers.origin
