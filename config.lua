@@ -54,7 +54,7 @@ config({'development', 'test'}, {
     dns_resolver = '8.8.8.8',
     code_cache = 'off',
     num_workers = 1,
-    log_directive = 'stderr notice',
+    log_directive = 'stderr debug',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
 
     -- development needs no special SSL or cert config.
