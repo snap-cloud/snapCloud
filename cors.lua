@@ -56,10 +56,14 @@ domain_allowed['chrome-extension://ghipaghphhpfncbokoobcjlapbnceipg'] = true
 domain_allowed['cbt-dev.berkeley.edu'] = true
 domain_allowed['bjc.berkeley.edu'] = true
 -- Snap! Research Projects
+-- CONTACT: Thomas Price
 domain_allowed['isnap.csc.ncsu.edu'] = true
 domain_allowed['eliza.csc.ncsu.edu'] = true
 domain_allowed['arena.csc.ncsu.edu'] = true
 domain_allowed['snapapps.fi.ncsu.edu'] = true
+-- CONTACT Saminur Islam <sislam8@ncsu.edu>,, Tiffany Barnes <tmbarnes@ncsu.edu>,, Veronica Catete <vmcatete@ncsu.edu>, Ally Limke <anlimke@ncsu.edu>
+domain_allowed['lin-class17.csc.ncsu.edu'] = true
+
 -- CONTACT: Ken Khan
 domain_allowed['ecraft2learn.github.io'] = true
 -- CONTACT:
