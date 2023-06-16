@@ -27,6 +27,8 @@ local Model = package.loaded.Model
 local escape = package.loaded.util.escape
 local disk = package.loaded.disk
 
+local reserved_usernames = require('models.reserved_usernames')
+
 package.loaded.Users = Model:extend('active_users', {
     type = 'user',
     relations = {
@@ -69,6 +71,14 @@ package.loaded.Users = Model:extend('active_users', {
                 )[1].count
             end
         },
+    },
+    constraints = {
+        username = function(self, value)
+            local cleaned_username = value:lower():strip()
+            if  cleaned_username then
+                return "The username " .. value .. ' is reserved.'
+            end
+        end
     },
     follows = function (self, a_user)
         return package.loaded.Followers:find({
