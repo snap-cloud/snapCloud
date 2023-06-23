@@ -35,6 +35,4 @@ reserved_names['reviewer'] = true
 reserved_names['reviewers'] = true
 reserved_names['root'] = true
 
-
-
 return reserved_names

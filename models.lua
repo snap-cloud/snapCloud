@@ -75,7 +75,7 @@ package.loaded.Users = Model:extend('active_users', {
     constraints = {
         username = function(self, value)
             local cleaned_username = value:lower():strip()
-            if  cleaned_username then
+            if cleaned_username then
                 return "The username " .. value .. ' is reserved.'
             end
         end
