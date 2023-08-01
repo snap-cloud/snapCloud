@@ -2,11 +2,13 @@
 <link rel="stylesheet" href="/static/style/banner.css">
 
 <div class="slideshow">
+<!--
     <a href="https://snapcon.org">
         <div class="slide fade">
             <img src="/static/img/snapcon.png" style="width:100%">
         </div>
     </a>
+-->
     <%
     local totms = package.loaded.db.select([[
         name FROM collections
