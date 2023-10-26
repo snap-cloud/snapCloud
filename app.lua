@@ -158,6 +158,8 @@ end
 
 -- Before filter
 app:before_filter(function (self)
+    -- Temporarily disable IP bans because of too many false positives
+    --[[
     local ip_entry = package.loaded.BannedIPs:find(ngx.var.remote_addr)
     if (ip_entry and ip_entry.offense_count > 2) then
         self:write(
@@ -165,6 +167,7 @@ app:before_filter(function (self)
         )
         return
     end
+    ]]--
 
     -- Make locale available to all routes and templates
     self.locale = package.loaded.locale
@@ -294,7 +297,8 @@ require 'api'
 require 'discourse'
 
 -- We don't keep spam/exploit paths in the API
-require 'spambots'
+-- Disabled for now to prevent false positives
+-- require 'spambots'
 
 -- The community site is handled in the site.lua file
 require 'site'
