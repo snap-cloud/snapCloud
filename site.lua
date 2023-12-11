@@ -48,8 +48,8 @@ app.layout = require 'views.layout'
 local views = {
     -- Static pages
     'about', 'bjc', 'coc', 'contact', 'credits', 'dmca', 'extensions',
-    'materials', 'mirrors', 'offline', 'partners', 'privacy', 'requirements',
-    'research', 'snapinator', 'snapp', 'source', 'tos',
+    'materials', 'mirrors', 'offline', 'partners', 'privacy', 'research',
+    'snapinator', 'snapp', 'source', 'tos',
 
     -- Simple pages
     'blog', 'change_email', 'change_password', 'delete_user', 'forgot_password',

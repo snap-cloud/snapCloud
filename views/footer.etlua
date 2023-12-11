@@ -6,7 +6,6 @@
             <p><a href="about"><%- locale.get('about', '<em>!</em>') %></a></p>
             <p><a href="blog"><%- locale.get('blog') %></a></p>
             <p><a href="credits"><%- locale.get('credits') %></a></p>
-            <p><a href="requirements"><%- locale.get('requirements') %></a></p>
             <p><a href="partners"><%- locale.get('partners') %></a></p>
             <p><a href="source" ><%- locale.get('source') %></a></p>
         </div>
