@@ -128,6 +128,14 @@ Follow instructions [here](https://tableplus.com/blog/2018/10/how-to-start-stop-
 
 ### Creating a user and a database
 
+First, try running:
+
+```sh
+$ bin/lapis-migrate
+```
+
+If all goes well, this will create a local database, and run the inital schema load and seeds.
+
 A PostgreSQL script is provided to help you get all tables set up easily.
 
 If you are developing locally, you should be able to authenticate if your postgres user matches your user you are using to run thw app. Otherwise, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
@@ -163,7 +171,7 @@ $ psql
 Continue by logging in as `cloud` and running the provided SQL file in the main Terminal:
 
 ```sh
-$ psql -U cloud -d snapcloud -a -f cloud.sql
+$ psql -U cloud -d snapcloud -a -f db/schema.sql
 ```
 
 Linux users can run the following to set the "cloud" to create a substitute user (after running `sudo -i`) before running the above:
@@ -175,7 +183,7 @@ Linux users can run the following to set the "cloud" to create a substitute user
 You then have to apply the Migration file (called `migrations.lua`) by running the following command, applying changes to your PSQL snapcloud tables:
 
 ```sh
-$ bin/migrations.sh
+$ bin/lapis-migrate
 ```
 
 If it all goes well, you should now have all tables properly set up. You can make sure it all worked by firing up the PostgreSQL shell and running the `\dt` command, which should print a list of all tables (`projects` and `users`).
