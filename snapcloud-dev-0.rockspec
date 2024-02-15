@@ -18,7 +18,7 @@ description = {
 
 dependencies = {
    "lua ~> 5.1",
-   "lapis == 1.14.0",
+   "lapis == 1.16.0",
    "luaossl",
    "xml",
    "lua-resty-mail",

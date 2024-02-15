@@ -113,7 +113,7 @@ The Snap!Cloud backend uses PostreSQL for storage, so you'll need to install it 
 ```
 
 #### Getting a self-signed certificate
-You should not need to run locally with SSL enabled. However, you may want to do so, if you were testing either the production or staging configurations. In those cases you might want to generate a self-signed certificate so that you can verify SL works locally.
+You should not need to run locally with SSL enabled. However, you may want to do so, if you were testing either the production or staging configurations. In those cases you might want to generate a self-signed certificate so that you can verify SSL works locally.
 
 Heroku has a good guide on [generating self-signed certs][heroku-guide].
 (The default configuration is for files named host.cert, and host.key. You can adjust the Heroku commands or rename your files afterwards.)
@@ -128,7 +128,9 @@ Follow instructions [here](https://tableplus.com/blog/2018/10/how-to-start-stop-
 
 ### Creating a user and a database
 
-A PostgreSQL script is provided to help you get all tables set up easily. However, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
+A PostgreSQL script is provided to help you get all tables set up easily.
+
+If you are developing locally, you should be able to authenticate if your postgres user matches your user you are using to run thw app. Otherwise, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
 
 ```sh
 $ psql postgres
@@ -226,7 +228,7 @@ You can now point your browser to `http://localhost:8080` (note: `foreman` and `
 To regenerate `luarocks.rock`, use the following command:
 
 ```
-$ bin/luarocks-macos build snapcloud-dev-0.rockspec --pin
+$ bin/luarocks-macos build --only-deps --pin snapcloud-dev-0.rockspec
 ```
 
 ## Production Configuration
@@ -245,7 +247,7 @@ export DATABASE_PORT=5432
 export DATABASE_USERNAME=cloud
 export DATABASE_PASSWORD=snap-cloud-password
 export DATABASE_NAME=snapcloud
-export HOSTNAME=cloud.snap.berkeley.edu
+export HOSTNAME=snap.berkeley.edu
 ```
 There are a lot of options defined in `config.lua`. Setting the environment is helpful because you may want to have a "staging" server with a slightly different configuration.
 
