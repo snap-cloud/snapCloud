@@ -136,8 +136,6 @@ $ bin/lapis-migrate
 
 If all goes well, this will create a local database, and run the inital schema load and seeds.
 
-A PostgreSQL script is provided to help you get all tables set up easily.
-
 If you are developing locally, you should be able to authenticate if your postgres user matches your user you are using to run thw app. Otherwise, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
 
 ```sh

@@ -1,7 +1,5 @@
 #! /usr/bin/env bash
-
 # Wrap `lapis migrate` to ensure we always dump the current schema to the $SCHEMA_FILE
-
 
 source .env
 
@@ -25,6 +23,6 @@ if [[ $LAPIS_ENVIRONMENT == 'development' ]]
 then
   CONNECTION="-h $DB_HOST -U $DB_USER -d $DATABASE_NAME --no-owner --no-privileges";
   echo "Dumping schema to $SCHEMA_FILE";
-  pg_dump --schema-only  $CONNECTION > $SCHEMA_FILE;
+  pg_dump --schema-only $CONNECTION > $SCHEMA_FILE;
   pg_dump --data-only --table=lapis_migrations $CONNECTION | grep -v "^SET*" >> $SCHEMA_FILE;
 fi
