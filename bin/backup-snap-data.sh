@@ -5,7 +5,7 @@ curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394
  -H 'Content-Type: application/json' \
  -d "{\"message\":\"Backup script started. $(date)\"}"
 
-server='cloud@cloud.snap.berkeley.edu'
+server='cloud.snap.berkeley.edu'
 cloud_src="$server:/mnt/snap_cloud_project_storage/store/"
 local_dest='/Volumes/Media/snapcloud/'
 
