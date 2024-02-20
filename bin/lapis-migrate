@@ -18,8 +18,8 @@ fi
 
 # TODO: lapis migrate --dry-run then ask for confirmation.
 lapis migrate
-
-if [[ $LAPIS_ENVIRONMENT == 'development' ]]
+success=$?
+if [[ $LAPIS_ENVIRONMENT == 'development' && $success == 0 ]]
 then
   CONNECTION="-h $DB_HOST -U $DB_USER -d $DATABASE_NAME --no-owner --no-privileges";
   echo "Dumping schema to $SCHEMA_FILE";
