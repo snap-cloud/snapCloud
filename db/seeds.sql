@@ -2,8 +2,8 @@
 -- This script should be designed to be re-run as needed!
 
 -- Main snapcloud owner for example collections.
-INSERT INTO users (id, username, verified, role)
-VALUES (519956, 'snapcloud', true, 'admin')
+INSERT INTO users (id, username, verified, role, email)
+VALUES (519956, 'snapcloud', true, 'admin', 'contact@snap.berkeley.edu')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO collections (id, name, creator_id, created_at, updated_at, description, published, published_at, shared, shared_at, thumbnail_id, editor_ids)

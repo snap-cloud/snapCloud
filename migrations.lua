@@ -6,14 +6,13 @@
 -- Do not modify a migration once it has been run or commited!
 -- To change what a migration does, create a new one.
 --
--- Add a new migration with the key 'YYYY-MM-DD:X'
--- Where X is a value [0-9]
+-- Use `lapis generate migration` to scaffold a new migration.
 -- NOTES:
 -- use _at for timestamps, and always add { timezone = true }
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
+-- Copyright (C) 2024 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --

@@ -26,5 +26,4 @@ curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394
  -d "{\"message\":\"Deployed Certs to $LAPIS_ENVIRONMENT\"}"
 
 # restart for nginx to reload the certs.
-# TODO can we just "rebuild"?
-sudo service snapcloud_daemon restart;
+sudo service snapcloud_daemon rebuild;

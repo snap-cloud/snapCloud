@@ -1,13 +1,28 @@
 #! /usr/bin/env bash
+# Wrap `lapis migrate` to ensure we always dump the current schema to the $SCHEMA_FILE
 
-# Wrap `lapis migrate` to ensure we always dump the current schema to cloud.sql
 source .env
+
+# TODO: We should standardize the table names with the environment.. oh well.
+DATABASE_NAME="${DATABASE_NAME:-'snapcloud'}";
+DB_USER="${DATABASE_USER:-$USER}";
+DB_HOST="${DATABASE_HOST:-localhost}";
+SCHEMA_FILE="db/schema.sql";
+
+if psql -lqt | cut -d \| -f 1 | grep -qw $DATABASE_NAME; then
+    echo "$DATABASE_NAME exists. Continuing...";
+else
+   echo "No $DATABSE_NAME found. Creating a new DB...";
+   db/init.sh;
+fi
+
+# TODO: lapis migrate --dry-run then ask for confirmation.
 lapis migrate
-if [[ $LAPIS_ENVIRONMENT == 'development' ]]
+success=$?
+if [[ $LAPIS_ENVIRONMENT == 'development' && $success == 0 ]]
 then
-  echo 'Dumping schema to cloud.sql.';
-  DB_USER="${DATABASE_USER:-$USER}"
-  DB_HOST="${DATABASE_HOST:-localhost}"
-  pg_dump --schema-only --no-owner --create -x -h $DB_HOST -U $DB_USER -d $DATABASE_NAME > cloud.sql;
-  pg_dump -x --no-owner --data-only -t lapis_migrations -h $DB_HOST -U $DB_USER -d $DATABASE_NAME | grep -v "^SET*" >> cloud.sql
+  CONNECTION="-h $DB_HOST -U $DB_USER -d $DATABASE_NAME --no-owner --no-privileges";
+  echo "Dumping schema to $SCHEMA_FILE";
+  pg_dump --schema-only $CONNECTION > $SCHEMA_FILE;
+  pg_dump --data-only --table=lapis_migrations $CONNECTION | grep -v "^SET*" >> $SCHEMA_FILE;
 fi
