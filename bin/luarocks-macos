@@ -13,6 +13,7 @@ BREW_PREFIX=$(brew --prefix)
 LUA_DIR="$(brew --prefix lua@$LUA_VERSION)"
 OPENSSL_BREW="$(brew --prefix openssl)"
 gcc_command='gcc'
+gcc_version='13.2.0'
 
 # For some reason luarocks needs both lua-dir and lua-versions specified...
 # cc, ld flags, openssl, etc are needed for luasec and luaossl
@@ -23,5 +24,5 @@ luarocks --lua-version=$LUA_VERSION --lua-dir=$LUA_DIR \
   LD=$gcc_command \
   LDFLAGS="-L$BREW_PREFIX/opt/openssl@3/lib" \
   CPPFLAGS='--std=c++14' \
-  STDCPP_LIBDIR=$BREW_PREFIX/Cellar/gcc/12.2.0/lib/gcc/current/ \
+  STDCPP_LIBDIR=$BREW_PREFIX/Cellar/gcc/$gcc_version/lib/gcc/current/ \
   $@;
