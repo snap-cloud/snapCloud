@@ -100,8 +100,9 @@ ProjectController = {
             self,
             [[WHERE ispublished AND NOT EXISTS(
                 SELECT 1 FROM deleted_users WHERE
-                username = active_projects.username LIMIT 1)]] ..
-                db.interpolate_query(course_name_filter())
+                username = active_projects.username LIMIT 1)]] --[[..
+                db.interpolate_query(course_name_filter()) ]]--
+                -- Disable course name filter because of high DB use
         )
     end),
     my_projects = capture_errors(function (self)
