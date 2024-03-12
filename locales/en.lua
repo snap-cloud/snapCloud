@@ -62,6 +62,7 @@ local locale = {
     materials = "Materials",
     bjc = "The Beauty and Joy of Computing",
     research = "Research",
+    wiki = "Community Wiki",
     offline = "Offline Version",
     extensions = "Extensions",
     old_snap = "(old Snap@1)",
