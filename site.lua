@@ -232,6 +232,7 @@ app:match('project', '/project', capture_errors(function (self)
         self.params.projectname
     )
     assert_project_exists(self)
+    assert_can_view_project(self)
 
     -- check whether this is a remix of another project
     local remix =
