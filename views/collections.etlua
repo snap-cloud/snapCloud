@@ -1,9 +1,9 @@
 <% if params.username then %>
-<h1><%- locale.get('user_collections_title', params.username) %></h1>
+<h1><%= locale.get('user_collections_title', params.username) %></h1>
 <% elseif params.search_term then %>
-<h1><%- locale.get('collection_search_results', params.search_term) %></h1>
+<h1><%= locale.get('collection_search_results', params.search_term) %></h1>
 <% else %>
-<h1><%- locale.get('collections_title') %></h1>
+<h1><%= locale.get('collections_title') %></h1>
 <% end %>
 <%
 render(
