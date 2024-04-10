@@ -294,6 +294,19 @@ assert_project_exists = function (self, project)
     return proj
 end
 
+assert_can_view_project = function (self, project)
+    local proj = self.project or project
+    if (not proj.ispublished and not proj.ispublic
+            and not users_match(self)
+            and not (
+                (self.current_user ~= nil) and self.current_user:isadmin()
+            )
+        )
+    then
+        yield_error(err.nonexistent_project)
+    end
+end
+
 -- Tokens
 
 check_token = function (self, token, purpose, on_success)

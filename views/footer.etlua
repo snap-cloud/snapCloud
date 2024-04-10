@@ -19,6 +19,8 @@
             <p><a href="materials"><%- locale.get('materials') %></a></p>
             <p><a href="bjc"><%- locale.get('bjc') %></a></p>
             <p><a href="research"><%- locale.get('research') %></a></p>
+            <p><a href="https://snapwiki.miraheze.org"
+                ><%- locale.get('wiki') %></a></p>
         </div>
         <div class="pure-u-1-5">
             <p><h4><%- locale.get('t_tools') %></h4></p>
