@@ -3,16 +3,28 @@
   --berkeley-blue: #003262;
   /* Historical dark color */
   --snap-dark-blue: #2d3142;
+  /* --snap-dark-blue: #003262; */
+  --bs-dark: var(--snap-dark-blue);
+  --bs-body-color: var(--snap-dark-blue);
   --navbar-height: 64px;
   /* this is the minimum I think w/ all 5 columns of links */
   --estimated-footer-height: 450px;
 }
 
+[data-bs-theme=dark] {
+
+  /* Ensure the hamburger icon is solid white. Seems to be no easier way to fix this. */
+  & .navbar-toggler-icon {
+    --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+}
+
 nav.navbar {
-  --bs-navbar-dark-color: #2d3142;
+  --bs-navbar-dark-color: var(--snap-dark-blue);
   --bs-navbar-color: #FFF;
   --bs-navbar-link-color: #FFF;
-  background-color: #2d3142;
+  --bs-navbar-toggler-border-color: #FFF;
+  background-color: var(--snap-dark-blue);
   font-weight: 600;
   padding: 0;
 
@@ -25,12 +37,14 @@ nav.navbar {
   .form-control {
     border-color: #FFF;
     background-color: #FFF;
-    color: #2d3142;
+    color: var(--snap-dark-blue);
     margin: auto 0;
   }
 
   /* spacing for the toggle button */
   & .navbar-toggler {
+    --bs-navbar-toggler-border-color: #FFF;
+    --bs-navbar-color: #FFF;
     margin: 12px;
   }
 
@@ -51,7 +65,7 @@ nav.navbar {
       background-color: #FFF;
 
       > a {
-        color: #2d3142;
+        color: var(--snap-dark-blue);
       }
     }
 
@@ -84,11 +98,9 @@ html {
 body {
   margin: var(--navbar-height) 0 0 0;
   color: var(--snap-dark-blue);
-  background: #ffffff;
   height: 100%;
   display: flex;
   flex-direction: column;
-  /* min-height: calc(100vh - var(--navbar-height) - var(--estimated-footer-height)); */
 }
 
 main {
@@ -99,7 +111,7 @@ main {
 .footer {
   background: var(--snap-dark-blue);
   padding: 1em;
-  color: #ffffff;
+  color: var(--bs-light);
   font-size: 0.75em;
 
   h2 {
