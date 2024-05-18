@@ -1,5 +1,5 @@
--- Database abstractions
--- =====================
+-- Snap!Cloud Tokens Model
+-- =======================
 --
 -- A cloud backend for Snap!
 -- Written by Bernat Romagosa and Michael Ball
@@ -21,5 +21,11 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
-local autoload = require("lapis.util").autoload
-autoload("models")
+local Model = package.loaded.Model
+
+local tokens = Model:extend('tokens', {
+    primary_key = {'value'}
+})
+
+package.loaded.Tokens = tokens
+return tokens

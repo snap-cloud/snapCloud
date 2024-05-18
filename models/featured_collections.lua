@@ -1,5 +1,5 @@
--- Database abstractions
--- =====================
+-- Snap!Cloud Featured Collections Model
+-- =====================================
 --
 -- A cloud backend for Snap!
 -- Written by Bernat Romagosa and Michael Ball
@@ -21,5 +21,14 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
-local autoload = require("lapis.util").autoload
-autoload("models")
+local Model = package.loaded.Model
+
+local featured_collections = Model:extend(
+    'featured_collections', {
+        primary_key = {'collection_id', 'page_path'},
+        timestamp = true
+    }
+)
+
+package.loaded.FeaturedCollections = featured_collections
+return featured_collections

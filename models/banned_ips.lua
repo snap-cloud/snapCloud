@@ -1,5 +1,5 @@
--- Database abstractions
--- =====================
+-- Snap!Cloud Banned IPs Model
+-- ===========================
 --
 -- A cloud backend for Snap!
 -- Written by Bernat Romagosa and Michael Ball
@@ -21,5 +21,14 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
-local autoload = require("lapis.util").autoload
-autoload("models")
+local Model = package.loaded.Model
+
+local banned_ips = Model:extend(
+    'banned_ips', {
+        primary_key = 'ip',
+        timestamp = true
+    }
+)
+
+package.loaded.BannedIPs = banned_ips
+return banned_ips

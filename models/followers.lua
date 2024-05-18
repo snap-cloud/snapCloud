@@ -1,5 +1,5 @@
--- Database abstractions
--- =====================
+-- Snap!Cloud Followers Model
+-- ==========================
 --
 -- A cloud backend for Snap!
 -- Written by Bernat Romagosa and Michael Ball
@@ -21,5 +21,14 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
-local autoload = require("lapis.util").autoload
-autoload("models")
+local Model = package.loaded.Model
+
+local followers = Model:extend(
+    'followers', {
+        primary_key = {'follower_id', 'followed_id'},
+        timestamp = true
+    }
+)
+
+package.loaded.Followers = followers
+return followers

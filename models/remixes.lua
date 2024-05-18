@@ -1,5 +1,5 @@
--- Database abstractions
--- =====================
+-- Snap!Cloud Remixes Model
+-- ========================
 --
 -- A cloud backend for Snap!
 -- Written by Bernat Romagosa and Michael Ball
@@ -21,5 +21,11 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
-local autoload = require("lapis.util").autoload
-autoload("models")
+local Model = package.loaded.Model
+
+local remixes = Model:extend('remixes', {
+    primary_key = {'original_project_id', 'remixed_project_id'}
+})
+
+package.loaded.Remixes = remixes
+return remixes

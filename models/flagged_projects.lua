@@ -1,5 +1,5 @@
--- Database abstractions
--- =====================
+-- Snap!Cloud Flagged Projects Model
+-- =================================
 --
 -- A cloud backend for Snap!
 -- Written by Bernat Romagosa and Michael Ball
@@ -21,5 +21,14 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
-local autoload = require("lapis.util").autoload
-autoload("models")
+local Model = package.loaded.Model
+
+local flagged_projects = Model:extend(
+    'flagged_projects', {
+        primary_key = 'id',
+        timestamp = true
+    }
+)
+
+package.loaded.FlaggedProjects = flagged_projects
+return flagged_projects

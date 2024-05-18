@@ -1,4 +1,4 @@
--- Snap Cloud
+-- Snap!Cloud
 -- ==========
 --
 -- A cloud backend for Snap!
