@@ -188,7 +188,7 @@ local locale = {
     -- Buttons
     new_collection = "New Collection",
     -- New collection dialog
-    collection_name = "Collection name?",
+    collection_name = "Collection name",
     collection_by_thumb = "by @1", -- @1 is the author's username
 
     -- Collection page

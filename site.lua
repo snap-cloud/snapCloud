@@ -362,14 +362,14 @@ app:get('/teacher', capture_errors(function (self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'teacher' }
+    return { render = 'teacher', layout = 'layout_bs' }
 end))
 
 app:get('/bulk', capture_errors(function (self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'bulk' }
+    return { render = 'bulk', layout = 'layout_bs' }
 end))
 
 app:get('/learners', capture_errors(function (self)
