@@ -58,7 +58,7 @@ local views = {
 
 app:get('index', '/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'index' }
+    return { render = 'index', layout = 'layout_bs' }
 end)))
 
 -- Backwards compatibility.
@@ -84,7 +84,7 @@ end))
 
 app:get('/explore', capture_errors(cached(function (self)
     self.items = ProjectController.fetch(self)
-    return { render = 'explore' }
+    return { render = 'explore', layout = 'layout_bs' }
 end)))
 
 app:get('/collections', capture_errors(cached(function (self)
@@ -383,7 +383,6 @@ app:get('/learners', capture_errors(function (self)
 end))
 
 -- Tools
-
 --[[
 app:get('/localize', capture_errors(function (self)
     return { render = 'localize' }
