@@ -22,9 +22,30 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
 local Model = package.loaded.Model
-local escape = package.loaded.util.escape
+local escape = require('lapis.util').escape
 
-local active_users = Model:extend('active_users', {
+-- Generated schema dump: (do not edit)
+--
+-- CREATE VIEW active_users AS
+--  SELECT users.id,
+--   users.created,
+--   users.username,
+--   users.email,
+--   users.salt,
+--   users.password,
+--   users.about,
+--   users.location,
+--   users.verified,
+--   users.role,
+--   users.deleted,
+--   users.unique_email,
+--   users.bad_flags,
+--   users.is_teacher,
+--   users.creator_id
+--    FROM public.users
+--   WHERE (users.deleted IS NULL);
+--
+local ActiveUsers =  Model:extend('active_users', {
     type = 'user',
     relations = {
         {'collections', has_many = 'Collections'},
@@ -136,16 +157,15 @@ local active_users = Model:extend('active_users', {
     end
 })
 
-package.loaded.Users = active_users
 
 -- Note: Due to client-side pre-hashing, password length isn't useful...
-package.loaded.Users.validations = {
+ActiveUsers.validations = {
     { 'username', exists = true, min_length = 4, max_length = 200 },
     { 'password', exists = true, min_length = 6 },
     { 'email', exists = true, min_length = 5 }
 }
 
-package.loaded.Users.roles = {
+ActiveUsers.roles = {
     admin = 5,
     moderator = 4,
     reviewer = 3,
@@ -159,4 +179,4 @@ package.loaded.DeletedUsers = Model:extend('deleted_users')
 -- Used for querires across the entire users table.
 package.loaded.AllUsers = Model:extend('users')
 
-return active_users
+return ActiveUsers

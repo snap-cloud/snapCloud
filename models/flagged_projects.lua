@@ -23,12 +23,24 @@
 
 local Model = package.loaded.Model
 
-local flagged_projects = Model:extend(
-    'flagged_projects', {
-        primary_key = 'id',
-        timestamp = true
-    }
-)
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE flagged_projects (
+--   id integer NOT NULL,
+--   flagger_id integer NOT NULL,
+--   project_id integer NOT NULL,
+--   reason text NOT NULL,
+--   created_at timestamp with time zone NOT NULL,
+--   updated_at timestamp with time zone NOT NULL,
+--   notes text
+-- );
+-- ALTER TABLE ONLY flagged_projects
+--   ADD CONSTRAINT flagged_projects_pkey PRIMARY KEY (id);
+-- CREATE UNIQUE INDEX flagged_projects_flagger_id_project_id_idx ON flagged_projects USING btree (flagger_id, project_id);
+--
+local FlaggedProjects =  Model:extend('flagged_projects', {
+    primary_key = 'id',
+    timestamp = true
+})
 
-package.loaded.FlaggedProjects = flagged_projects
-return flagged_projects
+return FlaggedProjects

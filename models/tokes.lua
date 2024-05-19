@@ -23,9 +23,22 @@
 
 local Model = package.loaded.Model
 
-local tokens = Model:extend('tokens', {
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE tokens (
+--   created timestamp without time zone DEFAULT now() NOT NULL,
+--   username public.dom_username NOT NULL,
+--   purpose text,
+--   value text NOT NULL
+-- );
+-- ALTER TABLE ONLY tokens
+--   ADD CONSTRAINT value_pkey PRIMARY KEY (value);
+-- CREATE TRIGGER expire_token_trigger AFTER INSERT ON tokens FOR EACH STATEMENT EXECUTE FUNCTION public.expire_token();
+-- ALTER TABLE ONLY tokens
+--   ADD CONSTRAINT users_fkey FOREIGN KEY (username) REFERENCES public.users(username) ON UPDATE CASCADE;
+--
+local Tokens =  Model:extend('tokens', {
     primary_key = {'value'}
 })
 
-package.loaded.Tokens = tokens
-return tokens
+return Tokens

@@ -23,12 +23,20 @@
 
 local Model = package.loaded.Model
 
-local banned_ips = Model:extend(
-    'banned_ips', {
-        primary_key = 'ip',
-        timestamp = true
-    }
-)
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE banned_ips (
+--   ip text NOT NULL,
+--   created_at timestamp with time zone NOT NULL,
+--   updated_at timestamp with time zone NOT NULL,
+--   offense_count integer DEFAULT 0 NOT NULL
+-- );
+-- ALTER TABLE ONLY banned_ips
+--   ADD CONSTRAINT banned_ips_pkey PRIMARY KEY (ip);
+--
+local BannedIPs = Model:extend ('banned_ips', {
+    primary_key = 'ip',
+    timestamp = true
+})
 
-package.loaded.BannedIPs = banned_ips
-return banned_ips
+return BannedIPs

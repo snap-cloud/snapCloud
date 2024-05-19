@@ -21,6 +21,12 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
+package.loaded.Model = require('lapis.db.model').Model
+
+-- TODO: This does not acutlly autoload the models
+-- In the meantime, we will require them manually
+-- return require("lapis.util").autoload("models")
+
 package.loaded.BannedIPs = require("models.banned_ips")
 package.loaded.CollectionMemberships = require("models.collection_memberships")
 package.loaded.Collections = require("models.collections" )
@@ -31,5 +37,3 @@ package.loaded.Projects = require("models.projects")
 package.loaded.Remixes = require("models.remixes" )
 package.loaded.Tokens = require("models.tokes" )
 package.loaded.Users = require("models.users" )
-
--- return require("lapis.util").autoload("models")
