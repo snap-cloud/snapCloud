@@ -21,5 +21,15 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
-local autoload = require("lapis.util").autoload
-autoload("models")
+package.loaded.BannedIPs = require("models.banned_ips")
+package.loaded.CollectionMemberships = require("models.collection_memberships")
+package.loaded.Collections = require("models.collections" )
+package.loaded.FeaturedCollections = require("models.featured_collections")
+package.loaded.FlaggedProjects = require("models.flagged_projects")
+package.loaded.Followers = require("models.followers" )
+package.loaded.Projects = require("models.projects")
+package.loaded.Remixes = require("models.remixes" )
+package.loaded.Tokens = require("models.tokes" )
+package.loaded.Users = require("models.users" )
+
+-- return require("lapis.util").autoload("models")
