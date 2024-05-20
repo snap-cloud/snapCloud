@@ -124,5 +124,4 @@ package.loaded.DeletedProjects = Model:extend('deleted_projects', {
     primary_key = {'username', 'projectname'}
 })
 
-package.loaded.Projects = ActiveProjects
 return ActiveProjects

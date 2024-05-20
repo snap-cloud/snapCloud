@@ -176,7 +176,7 @@ ActiveUsers.roles = {
 
 package.loaded.DeletedUsers = Model:extend('deleted_users')
 
--- Used for querires across the entire users table.
+-- Used for queries across the entire users table.
 package.loaded.AllUsers = Model:extend('users')
 
 return ActiveUsers
