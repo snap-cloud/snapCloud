@@ -24,10 +24,27 @@
 local db = package.loaded.db
 local Model = package.loaded.Model
 
-local escape = package.loaded.util.escape
+local escape = require('lapis.util').escape
 local disk = package.loaded.disk
 
-local active_projects = Model:extend('active_projects', {
+-- Generated schema dump: (do not edit)
+--
+-- CREATE VIEW active_projects AS
+--  SELECT projects.id,
+--   projects.projectname,
+--   projects.ispublic,
+--   projects.ispublished,
+--   projects.notes,
+--   projects.created,
+--   projects.lastupdated,
+--   projects.lastshared,
+--   projects.username,
+--   projects.firstpublished,
+--   projects.deleted
+--    FROM public.projects
+--   WHERE (projects.deleted IS NULL);
+--
+local ActiveProjects =  Model:extend('active_projects', {
     type = 'project',
     primary_key = {'username', 'projectname'},
     constraints = {
@@ -107,5 +124,4 @@ package.loaded.DeletedProjects = Model:extend('deleted_projects', {
     primary_key = {'username', 'projectname'}
 })
 
-package.loaded.Projects = active_projects
-return active_projects
+return ActiveProjects

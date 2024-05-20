@@ -23,12 +23,22 @@
 
 local Model = package.loaded.Model
 
-local featured_collections = Model:extend(
-    'featured_collections', {
-        primary_key = {'collection_id', 'page_path'},
-        timestamp = true
-    }
-)
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE featured_collections (
+--   collection_id integer NOT NULL,
+--   page_path text NOT NULL,
+--   type text NOT NULL,
+--   "order" integer DEFAULT 0 NOT NULL,
+--   created_at timestamp with time zone NOT NULL,
+--   updated_at timestamp with time zone NOT NULL
+-- );
+-- ALTER TABLE ONLY featured_collections
+--   ADD CONSTRAINT featured_collections_pkey PRIMARY KEY (collection_id, page_path);
+--
+local FeaturedCollections =  Model:extend('featured_collections', {
+    primary_key = {'collection_id', 'page_path'},
+    timestamp = true
+})
 
-package.loaded.FeaturedCollections = featured_collections
-return featured_collections
+return FeaturedCollections

@@ -23,12 +23,20 @@
 
 local Model = package.loaded.Model
 
-local followers = Model:extend(
-    'followers', {
-        primary_key = {'follower_id', 'followed_id'},
-        timestamp = true
-    }
-)
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE followers (
+--   follower_id integer NOT NULL,
+--   followed_id integer NOT NULL,
+--   created_at timestamp with time zone NOT NULL,
+--   updated_at timestamp with time zone NOT NULL
+-- );
+-- ALTER TABLE ONLY followers
+--   ADD CONSTRAINT followers_pkey PRIMARY KEY (follower_id, followed_id);
+--
+local Followers =  Model:extend('followers', {
+    primary_key = {'follower_id', 'followed_id'},
+    timestamp = true
+})
 
-package.loaded.Followers = followers
-return followers
+return Followers

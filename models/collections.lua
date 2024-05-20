@@ -23,9 +23,30 @@
 
 local db = package.loaded.db
 local Model = package.loaded.Model
-local escape = package.loaded.util.escape
+local escape = require('lapis.util').escape
 
-local collections = Model:extend('collections', {
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE collections (
+--   id integer NOT NULL,
+--   name text NOT NULL,
+--   creator_id integer NOT NULL,
+--   created_at timestamp with time zone NOT NULL,
+--   updated_at timestamp with time zone NOT NULL,
+--   description text,
+--   published boolean DEFAULT false NOT NULL,
+--   published_at timestamp with time zone,
+--   shared boolean DEFAULT false NOT NULL,
+--   shared_at timestamp with time zone,
+--   thumbnail_id integer,
+--   editor_ids integer[],
+--   free_for_all boolean DEFAULT false NOT NULL
+-- );
+-- ALTER TABLE ONLY collections
+--   ADD CONSTRAINT collections_pkey PRIMARY KEY (id);
+-- CREATE INDEX collections_creator_id_idx ON collections USING btree (creator_id);
+--
+local Collections =  Model:extend('collections', {
     type = 'collection',
     primary_key = {'creator_id', 'name'},
     timestamp = true,
@@ -105,5 +126,4 @@ local collections = Model:extend('collections', {
     end
 })
 
-package.loaded.Collections = collections
-return collections
+return Collections

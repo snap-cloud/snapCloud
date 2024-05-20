@@ -23,9 +23,22 @@
 
 local Model = package.loaded.Model
 
-local remixes = Model:extend('remixes', {
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE remixes (
+--   original_project_id integer,
+--   remixed_project_id integer NOT NULL,
+--   created timestamp with time zone
+-- );
+-- CREATE INDEX original_project_id_index ON remixes USING btree (original_project_id);
+-- CREATE INDEX remixed_project_id_index ON remixes USING btree (remixed_project_id);
+-- ALTER TABLE ONLY remixes
+--   ADD CONSTRAINT remixes_original_project_id_fkey FOREIGN KEY (original_project_id) REFERENCES public.projects(id);
+-- ALTER TABLE ONLY remixes
+--   ADD CONSTRAINT remixes_remixed_project_id_fkey FOREIGN KEY (remixed_project_id) REFERENCES public.projects(id);
+--
+local Remixes =  Model:extend('remixes', {
     primary_key = {'original_project_id', 'remixed_project_id'}
 })
 
-package.loaded.Remixes = remixes
-return remixes
+return Remixes

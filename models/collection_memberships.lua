@@ -23,10 +23,25 @@
 
 local Model = package.loaded.Model
 
-local collection_memberships = Model:extend('collection_memberships', {
+-- Generated schema dump: (do not edit)
+--
+-- CREATE TABLE collection_memberships (
+--   id integer NOT NULL,
+--   collection_id integer NOT NULL,
+--   project_id integer NOT NULL,
+--   created_at timestamp with time zone NOT NULL,
+--   updated_at timestamp with time zone NOT NULL,
+--   user_id integer NOT NULL
+-- );
+-- ALTER TABLE ONLY collection_memberships
+--   ADD CONSTRAINT collection_memberships_pkey PRIMARY KEY (id);
+-- CREATE INDEX collection_memberships_collection_id_idx ON collection_memberships USING btree (collection_id);
+-- CREATE UNIQUE INDEX collection_memberships_collection_id_project_id_user_id_idx ON collection_memberships USING btree (collection_id, project_id, user_id);
+-- CREATE INDEX collection_memberships_project_id_idx ON collection_memberships USING btree (project_id);
+--
+local CollectionMemberships =  Model:extend('collection_memberships', {
     primary_key = {'collection_id', 'project_id'},
     timestamp = true
 })
 
-package.loaded.CollectionMemberships = collection_memberships
-return collection_memberships
+return CollectionMemberships
