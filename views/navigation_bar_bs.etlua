@@ -30,11 +30,13 @@
         </li>
       </ul>
       <ul class="navbar-nav me-auto navbar-nav-scroll">
-        <form class="d-flex" role="search" action="search">
-          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-light" type="submit">
-            <i class="fas fa-search"></i>
-          </button>
+        <form class="" role="search" action="search">
+          <div class="input-group">
+            <button class="btn btn-sm btn-outline-light" type="submit">
+              <i class="fas fa-search"></i>
+            </button>
+            <input class="form-control form-control-sm" type="search" placeholder="Search" aria-label="Search">
+          </div>
         </form>
       </ul>
       <ul class="navbar-nav me-auto navbar-nav-scroll">

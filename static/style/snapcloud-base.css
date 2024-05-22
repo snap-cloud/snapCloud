@@ -21,13 +21,15 @@ nav.navbar {
   }
 
   .form-control {
+    border-color: #FFF;
     background-color: #FFF;
     color: #2d3142;
-    height: 2.5em;
-    margin: 0.75em;
+    /* height: 2.5em; */
+    margin: auto 0;
   }
 
-  & button {
+  /* spacing for the toggle button */
+  & .navbar-toggler {
     margin: 12px;
   }
 
@@ -79,12 +81,50 @@ html {
 }
 
 body {
-  margin: var(--navbar-height) 1em 0 1em;
+  margin: var(--navbar-height) 0 0 0;
   color: var(--snap-dark-blue);
   background: #ffffff;
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+
+main {
+  margin: 1em auto;
+}
+
+.footer {
+  background: var(--snap-dark-blue);
+  padding: 1em;
+  color: #ffffff;
+  font-size: 0.75em;
+
+  h2 {
+    font-size: 1.5em;
+  }
+
+  .trapezoid-footer {
+    top: -14px;
+  }
+
+  a {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  .credits {
+    margin: 2em 1em;
+    padding: 1em;
+    border-top: 1px solid #ffffff;
+
+    a {
+      text-decoration: none;
+    }
+
+    img {
+      margin-right: 1em;
+    }
+  }
 }
 
 a {
