@@ -376,7 +376,7 @@ app:get('/learners', capture_errors(function (self)
     self.items_per_page = 150
     if self.current_user and self.current_user.is_teacher then
         self.items = UserController.learners(self)
-        return { render = 'learners' }
+        return { render = 'learners', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('index') }
     end

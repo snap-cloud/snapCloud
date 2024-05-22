@@ -3,7 +3,7 @@
 
 <meta name="description" content="The Snap! Community. Snap! is a blocks-based programming language built by UC Berkeley and used by hundreds of thousands of programmers around the world.">
 <meta name="author" content="Bernat Romagosa, Michael Ball, Jens Mönig, Brian Harvey, Jadge Hügle">
-<meta name="snap-cloud-domain" location="https://snap.berkeley.edu">
+<meta name="snap-cloud-domain" location="<%= ngx.var.scheme ..'://' .. ngx.var.host %>">
 <link rel="icon" href="/static/img/favicon.ico">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -25,4 +25,4 @@
 <script type="text/javascript">modules = [];</script>
 <script type="text/javascript" src="/snap/src/cloud.js"></script>
 <script type="text/javascript" src="/static/js/base.js"></script>
-<script>cloud = new Cloud(); cloud.url = baseURL;</script>
+<script>cloud = new Cloud(); cloud.url = location.origin;</script>

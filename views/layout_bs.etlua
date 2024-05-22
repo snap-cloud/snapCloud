@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<!-- language is reset by the locale JS -->
+<html lang="en">
     <head>
-        <% render('views.header') %>
+        <% render('views.header_bs') %>
     </head>
     <body>
         <% render('views.js.dialog') %>
@@ -9,13 +10,11 @@
         <div id="loading">
             <i class="fas fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
         </div>
-        <% render('views.navigation_bar') %>
+        <% render('views.navigation_bar_bs') %>
         <div id="wrapper">
             <% content_for('inner') %>
         </div>
         <% render('views.footer') %>
+        <script>doneLoading();</script>
     </body>
-    <script>
-    doneLoading();
-    </script>
 </html>

@@ -1,0 +1,137 @@
+/* This sets CSS Variables which override Bootstrap's config. */
+:root {
+  --berkeley-blue: #003262;
+  /* Historical dark color */
+  --snap-dark-blue: #2d3142;
+  --navbar-height: 64px;
+}
+
+nav.navbar {
+  --bs-navbar-dark-color: #2d3142;
+  --bs-navbar-color: #FFF;
+  --bs-navbar-link-color: #FFF;
+  background-color: #2d3142;
+  font-weight: 600;
+  padding: 0;
+
+
+  /* Remove extra padding so the li elements are full-height */
+  ul {
+    padding: 0;
+  }
+
+  .form-control {
+    background-color: #FFF;
+    color: #2d3142;
+    height: 2.5em;
+    margin: 0.75em;
+  }
+
+  & button {
+    margin: 12px;
+  }
+
+  li {
+    --bs-nav-link-padding-x: 1em;
+    padding: 0.75em 0.5em;
+    height: 100%;
+    margin: 0;
+
+    > a {
+      color: #FFF;
+    }
+
+    &:hover,
+    &:focus-within,
+    .dropdown-item:hover,
+    .dropdown-item:focus-within {
+      background-color: #FFF;
+
+      > a {
+        color: #2d3142;
+      }
+    }
+
+    .dropdown-menu {
+      background-color: var(--snap-dark-blue);
+      color: #FFF;
+    }
+
+    li.no-hover {
+      padding: 0 0;
+      background: var(--snap-dark-blue);
+
+      & hr {
+        opacity: 1;
+      }
+    }
+  }
+
+  .trapezoid {
+    position: absolute;
+    top: var(--navbar-height);
+  }
+}
+
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: var(--navbar-height) 1em 0 1em;
+  color: var(--snap-dark-blue);
+  background: #ffffff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: #7070A0;
+  text-decoration: none;
+}
+
+em {
+  font-style: italic;
+}
+
+p {
+  margin: 1em 0;
+}
+
+p {
+  line-height: 1.2em;
+}
+
+ul,
+ol {
+  padding: .5em 0;
+}
+
+ol {
+  list-style: decimal inside;
+}
+
+h2 {
+  font-size: 1.5em;
+  margin: 1em 0 .5em 0;
+}
+
+h3 {
+  font-size: 1.3em;
+  margin: 1em 0 .5em 0;
+}
+
+h4 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
+hr {
+  margin: 0;
+  border: 0;
+  height: 1px;
+  background: #ffffff;
+}
