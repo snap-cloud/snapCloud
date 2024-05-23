@@ -1,4 +1,11 @@
-<% card_classes = (item.role or '') .. ' ' .. (not zombie and (item.verified and '' or 'unverified')) %>
+<%
+  card_classes = (item.role or '') .. ' ' .. (not zombie and (item.verified and '' or 'unverified'))
+  role_bg_color = ({
+    moderator = 'info',
+    admin = 'primary',
+    banned = 'danger'
+})[item.role] or 'secondary' %>
+
 <div class="col">
   <div class="card <%- card_classes %>">
       <div class=card-header>
@@ -6,11 +13,14 @@
           <a class="card-title" href="<%= item:url_for('site') %>">
           <% end %>
               <strong><%= item.username %></strong>
-              <% if not item.verified then %>
-              <span class="badge rounded-pill text-bg-warning">unverified</span>
-              <% end %>
           <% if not zombie then %>
           </a>
+          <% end %>
+          <% if not item.verified then %>
+            <span class="badge rounded-pill text-bg-warning">unverified</span>
+          <% end %>
+          <% if item.role ~= 'standard' then %>
+            <span class="badge rounded-pill text-bg-<%- role_bg_color %>"><%- item.role %></span>
           <% end %>
       </div>
         <ul class="list-group list-group-flush">
