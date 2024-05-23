@@ -306,7 +306,7 @@ app:get('/user_admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'moderator')
         self.items = UserController.fetch(self)
-        return { render = 'user_admin' }
+        return { render = 'user_admin', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end

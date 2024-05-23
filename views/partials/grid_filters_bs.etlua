@@ -1,21 +1,18 @@
-<% for _, filter in ipairs(filter_descriptors) do %>
-    <div class="filter <%= filter.selector %>"><%= filter.label %>:
-        <% -- for some reason, URL does not work inside of onchange %>
-        <script>var url = new URL(location.href);</script>
-        <select name="<%= filter.selector %>"
-            onchange="
-                url.searchParams.set(
-                    'filter_<%- filter.selector %>',
-                    this.value
-                );
-                location.href = url.href;
-            ">
-            <% for _, option in pairs(filter.options) do %>
-            <option
-                <%- (params['filter_' .. filter.selector] == option.value)
-                    and 'selected' or '' %>
-                value="<%= option.value %>"><%= option.label %></option>
-            <% end %>
+<div class="row g-2">
+  <% for _, filter in ipairs(filter_descriptors) do %>
+    <div class="input-group col">
+      <label class="input-group-text" for="<%= filter.selector %>"><%= filter.label %></label>
+      <script>var url = new URL(location.href);</script>
+      <select class="form-select" name="<%= filter.selector %>" id="<%= filter.selector %>"
+        onchange="url.searchParams.set('filter_<%- filter.selector %>', this.value);
+            location.href = url.href;">
+        <% for _, option in pairs(filter.options) do %>
+          <option value="<%= option.value %>"
+              <%- (params['filter_' .. filter.selector] == option.value)
+                  and 'selected' or '' %>
+            ><%= option.label %></option>
+          <% end %>
         </select>
-    </div>
-<% end %>
+      </div>
+  <% end %>
+</div>
