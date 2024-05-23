@@ -4,6 +4,8 @@
   /* Historical dark color */
   --snap-dark-blue: #2d3142;
   --navbar-height: 64px;
+  /* this is the minimum I think w/ all 5 columns of links */
+  --estimated-footer-height: 450px;
 }
 
 nav.navbar {
@@ -86,6 +88,7 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
+  min-height: calc(100vh - var(--navbar-height) - var(--estimated-footer-height));
 }
 
 main {
