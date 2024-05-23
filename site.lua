@@ -360,6 +360,7 @@ end))
 -- Teachers
 
 app:get('/teacher', capture_errors(function (self)
+    assert_exists(self.current_user)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
@@ -367,6 +368,7 @@ app:get('/teacher', capture_errors(function (self)
 end))
 
 app:get('/bulk', capture_errors(function (self)
+    assert_exists(self.current_user)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
@@ -374,6 +376,11 @@ app:get('/bulk', capture_errors(function (self)
 end))
 
 app:get('/learners', capture_errors(function (self)
+    assert_exists(self.current_user)
+    if (not self.current_user.is_teacher) then
+        assert_admin(self)
+    end
+
     self.items_per_page = 150
     if self.current_user and self.current_user.is_teacher then
         self.items = UserController.learners(self)
