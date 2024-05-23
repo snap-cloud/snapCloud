@@ -33,7 +33,6 @@ local Projects = package.loaded.Projects
 local Remixes = package.loaded.Remixes
 local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
-local db = package.loaded.db
 local assert_exists = require('validation').assert_exists
 
 require 'controllers.user'
@@ -56,9 +55,30 @@ local views = {
     'forgot_username', 'sign_up', 'login',
 }
 
+local original_capture_errors = capture_errors
+function capture_errors (fn)
+    debug_print('CALLED NEW capture_errors', fn)
+    return original_capture_errors(function (...)
+        local result = fn(arg)
+        if type(result) == "table" then
+            result['render'] = result['render'] .. '_bs'
+        end
+        return result
+    end)
+end
+
+app:before_filter(function (self)
+    if self.current_user and self.current_user:isadmin() then
+        if self.params['bootstrap'] == 'true' then
+            app.layout = 'layout_bs'
+            self.use_bootstrap = true
+        end
+    end
+end)
+
 app:get('index', '/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'index', layout = 'layout_bs' }
+    return { render = 'index' }
 end)))
 
 -- Backwards compatibility.

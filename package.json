@@ -1,11 +1,7 @@
 {
-  "name": "snapcloud",
+  "name": "Snap!Cloud",
   "version": "1.0.0",
   "description": "Snap! Community Site",
-  "main": "index.js",
-  "directories": {
-    "lib": "lib"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -13,15 +9,18 @@
     "type": "git",
     "url": "git+ssh://git@github.com/snap-cloud/snapCloud.git"
   },
-  "author": "Bernat Romagosa, Michael Ball",
-  "license": "ISC",
+  "author": "Bernat Romagosa, Michael Ball, Jens Mönig, Brian Harvey, Jadge Hügle",
+  "license": "AGPL-3.0-only",
   "bugs": {
     "url": "https://github.com/snap-cloud/snapCloud/issues"
   },
   "homepage": "https://github.com/snap-cloud/snapCloud#readme",
   "dependencies": {
     "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.3",
-    "jquery": "^3.7.1"
+    "bootstrap": "^5.3.3"
+  },
+  "devDependencies": {
+    "maildev": "^2.1.0",
+    "sass": "1.77.2"
   }
 }

@@ -4,7 +4,8 @@
 source .env
 echo "Setting up $DATABASE_NAME";
 
-# this assumes a database does not exist yet.
-# psql postgres -c "CREATE TABLE $DATABASE_NAME;"
+# This displays an error if the db exists, but is a no-op.
+createdb $DATABASE_NAME;
+
 psql -d $DATABASE_NAME -a -f db/schema.sql;
 psql -d $DATABASE_NAME -a -f db/seeds.sql;
