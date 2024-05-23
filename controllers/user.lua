@@ -129,7 +129,7 @@ UserController = {
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
-                if self.queried_user.is_student then
+                if self.queried_user:is_student() then
                     self.session.username = self.queried_user.username
                     self.cookies.persist_session = tostring(self.params.persist)
                     self.queried_user:update({ verified = true })
