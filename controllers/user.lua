@@ -770,8 +770,6 @@ app:match(
     '/verify_me/:token',
     capture_errors(
         function (self)
-            local token = Tokens:find(self.params.token)
-            if not token then yield_error(err.invalid_token) end
             local user = Users:find({ username = token.username })
             local user_page = function ()
                 return htmlPage(
@@ -789,6 +787,9 @@ app:match(
             if user.verified then
                 return user_page()
             else
+                local token = Tokens:find(self.params.token)
+                if not token then yield_error(err.invalid_token) end
+
                 return check_token(
                     self,
                     token,
