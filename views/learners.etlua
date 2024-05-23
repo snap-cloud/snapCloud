@@ -8,7 +8,7 @@ render(
         class = 'user_admin',
         item_type = 'profile_bs',
         items_per_row = 3,
-        with_search = true,
+        with_search = false,
         show_if_empty = true,
         item_params = {
             show_project_count = true
