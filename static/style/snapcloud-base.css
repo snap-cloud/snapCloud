@@ -126,8 +126,12 @@ main {
   }
 }
 
+.btn-outline-primary + .form-control {
+  border-color: var(--bs-primary);
+}
+
 a {
-  color: #7070A0;
+  color: var(--berkeley-blue);
   text-decoration: none;
 }
 
@@ -143,13 +147,9 @@ p {
   line-height: 1.2em;
 }
 
-ul,
-ol {
-  padding: .5em 0;
-}
-
 ol {
   list-style: decimal inside;
+  padding: .5em 0;
 }
 
 h2 {

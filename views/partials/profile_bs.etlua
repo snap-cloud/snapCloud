@@ -23,7 +23,7 @@
             </li>
             <% if current_user:has_min_role('moderator') then %>
             <li class="list-group-item">
-                <strong><%- locale.get('user_id') %></strong> <%= item.id %>
+                <strong><%- locale.get('user_id') %></strong>: <%= item.id %>
             </li>
             <% end %>
             <% if show_project_count then %>

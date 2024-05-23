@@ -47,21 +47,26 @@ if items == nil then items = {} end
             ><%= locale.get(title_selector) %></h2>
     <% end %>
 
-    <div class="row bar">
-        <% if with_search then
-            render(
-                'views.partials.grid_search_bs',
-                 { class = class }
-            )
-        end
-        if filter_descriptors then
-            render(
-                'views.partials.grid_filters_bs',
-                { filter_descriptors = filter_descriptors }
-            )
-        end
-        render('views.partials.grid_paginator_bs')
-        %>
+    <div class="row">
+        <div class="col-4 col-sml-6">
+            <% if with_search then
+                render(
+                    'views.partials.grid_search_bs',
+                    { class = class }
+                )
+            end %>
+        </div>
+        <div class="col-4 col-sml-6">
+            <% if filter_descriptors then
+                render(
+                    'views.partials.grid_filters_bs',
+                    { filter_descriptors = filter_descriptors }
+                )
+            end %>
+        </div>
+        <div class="col-4 col-sml-6">
+            <% render('views.partials.grid_paginator_bs') %>
+        </div>
     </div>
 
     <% if (num_pages > 0) then %>

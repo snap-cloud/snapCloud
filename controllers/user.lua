@@ -557,7 +557,7 @@ UserController = {
         })
     end),
     learners = capture_errors(function (self)
-        self.params.fields = 'username, created, email, creator_id'
+        self.params.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
         return UserController.run_query(
             self,
             db.interpolate_query(
