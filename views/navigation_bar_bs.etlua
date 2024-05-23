@@ -1,4 +1,4 @@
-<nav id="" class="navbar navbar-expand-lg fixed-top" data-bs-theme="dark">
+<nav class="navbar navbar-expand-lg fixed-top" data-bs-theme="dark">
   <div class="container-lg">
     <a class="navbar-brand" href="/" aria-label="Snap! home page">
       <img src="/static/img/topbar-logo.png" height="32" class="logo clickable" alt="">
@@ -39,7 +39,7 @@
           </div>
         </form>
       </ul>
-      <ul class="navbar-nav me-auto navbar-nav-scroll">
+      <ul class="navbar-nav navbar-nav-scroll justify-content-end">
         <% if current_user == nil then %>
           <li class="nav-item join">
             <a class="nav-link" href="/sign_up">
