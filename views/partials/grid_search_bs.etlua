@@ -1,0 +1,21 @@
+<div class="<%= class %> search">
+    <form onsubmit="
+        event.preventDefault();
+        search(Object.fromEntries(new FormData(this)).query);
+    ">
+        <input type="text" name="query">
+        <i class="fas fa-search"></i>
+    </form>
+</div>
+<% if (params.search_term and params.search_term ~= '') then %>
+<span class="search-term"
+    ><%= locale.get('matching', '"' .. params.search_term .. '"') %></span>
+<% end %>
+<script>
+    function search(term) {
+        var url = new URL(location.href);
+        url.searchParams.set('search_term', term);
+        url.searchParams.set('page_number', 1);
+        location.href = url.href;
+    };
+</script>

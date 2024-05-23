@@ -1,12 +1,13 @@
 <link rel="stylesheet" href="/static/style/admin.css">
+
 <h1><%= locale.get('learners_title') %></h1>
 <%
 render(
-    'views.grid',
+    'views.grid_bs',
     {
         class = 'user_admin',
-        item_type = 'profile',
-        items_per_row = 2,
+        item_type = 'profile_bs',
+        items_per_row = 3,
         with_search = true,
         show_if_empty = true,
         item_params = {
