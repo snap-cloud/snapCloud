@@ -55,30 +55,20 @@ local views = {
     'forgot_username', 'sign_up', 'login',
 }
 
-local original_capture_errors = capture_errors
-function capture_errors (fn)
-    debug_print('CALLED NEW capture_errors', fn)
-    return original_capture_errors(function (...)
-        local result = fn(arg)
-        if type(result) == "table" then
-            result['render'] = result['render'] .. '_bs'
-        end
-        return result
-    end)
-end
-
+-- Temporary during a front-end rewrite.
+-- This allows testing anypage with adding ?bootstrap=true to the URL
 app:before_filter(function (self)
     if self.current_user and self.current_user:isadmin() then
         if self.params['bootstrap'] == 'true' then
             app.layout = 'layout_bs'
-            self.use_bootstrap = true
         end
     end
 end)
 
 app:get('index', '/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'index' }
+    -- return { render = 'index' }
+    return { render = 'index_bs', layout = 'layout_bs' }
 end)))
 
 -- Backwards compatibility.
@@ -88,7 +78,11 @@ end)
 
 for _, view in pairs(views) do
     app:get('/' .. view, capture_errors(cached(function (self)
-        return { render = view }
+        if self.params['bootstrap'] == 'true' then
+            return { render = view .. '_bs', layout = 'layout_bs'}
+        else
+            return { render = view }
+        end
     end)))
 end
 
