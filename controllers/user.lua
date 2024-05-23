@@ -765,13 +765,15 @@ app:match(
     )
 )
 
+-- TODO: We should have this route accept a user
+-- If a token is invalid, but the user is present we can still give them a useful message.
 app:match(
     'verify_user',
     '/verify_me/:token',
     capture_errors(
         function (self)
-            local user = Users:find({ username = token.username })
-            local user_page = function ()
+            local token = Tokens:find(self.params.token)
+            local user_page = function (user)
                 return htmlPage(
                     self,
                     'User verified | Welcome to Snap<em>!</em>',
@@ -783,13 +785,17 @@ app:match(
                 )
             end
 
+            if self.current_user and self.current_user.verified then
+                return user_page(self.current_user)
+            end
+
+            if not token then yield_error(err.invalid_token) end
+            local user = Users:find({ username = token.username })
+
             -- Check whether user had already been verified
             if user.verified then
-                return user_page()
+                return user_page(user)
             else
-                local token = Tokens:find(self.params.token)
-                if not token then yield_error(err.invalid_token) end
-
                 return check_token(
                     self,
                     token,
@@ -798,7 +804,7 @@ app:match(
                         -- success callback
                         user:update({ verified = true })
                         self.session.verified = true
-                        return user_page()
+                        return user_page(user)
                     end
                 )
             end
