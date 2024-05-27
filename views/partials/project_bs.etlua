@@ -1,33 +1,28 @@
-<% --[[%>
-  For bootstrap don't specify col-X since we often have 5 items in a row,
-  which does not nicely fit into the grid with divisions of 12.
-<% ]] %>
 <div class="project small col">
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle"></i>
     <% end %>
     <a target="_self" href="<%= item:url_for('site') %>">
-        <img class="thumbnail" title="" alt="<% item.projectname %> thumbnail"
+        <img class="thumbnail" title="" alt="<%- item.projectname %> thumbnail"
             <% if (item.thumbnail) then %>
-                src="<%= item.thumbnail %>"
+                src="<%- item.thumbnail %>"
             <% end %>
         >
-        <span class="project-name"><%= item.projectname %></span>
+        <span class="project-name"><%- item.projectname %></span>
     </a>
 
-<% local shared_label = locale.get('item_' .. (item.ispublic and 'shared' or 'not_shared') .. '_info') %>
 <% if show_icons then %>
+    <% local shared_label = locale.get('item_' .. (item.ispublic and 'shared' or 'not_shared') .. '_info') %>
     <span class="is-public" title="<%= shared_label %>" aria-label="<%= shared_label %>"
       ><small><i class="fas <%= item.ispublic and 'fa-link' or 'fa-unlink' %>"
             aria-hidden="true"></i>
         </small>
     </span>
-    <span class="is-published"
-        title="<%=
-            locale.get('item_' ..
+    <% local published_label = locale.get('item_' ..
                 (item.ispublished and 'published' or 'not_published')
-                .. '_info')
-    %>" ><small><i
+                .. '_info') %>
+    <span class="is-published" title="<%- published_label %>">
+        <small><i
             class="fas <%= item.ispublished and 'fa-eye' or 'fa-eye-slash' %>"
             aria-hidden="true"></i>
         </small>
@@ -46,7 +41,6 @@
         >Flagged <strong><%= item.flag_count %></strong> time</span>
 <% end %>
 
-<% -- TODO: Extract into a partial %>
 <% if show_collection_controls then %>
     <div class="collection-controls">
         <a title="<%= locale.get('remove_from_collection_tooltip') %>"

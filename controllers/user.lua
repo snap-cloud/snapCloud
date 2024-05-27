@@ -129,20 +129,6 @@ UserController = {
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
-                if self.queried_user.is_student then
-                    self.session.username = self.queried_user.username
-                    self.cookies.persist_session = tostring(self.params.persist)
-                    self.queried_user:update({ verified = true })
-                    return jsonResponse({
-                        title = 'Welcome to Snap!',
-                        message = package.loaded.locale.get(
-                            'learner_first_login_meesage',
-                            self.queried_user.username,
-                            self:build_url('/profile')
-                        ),
-                        redirect = self:build_url('/')
-                    })
-                end
                 local message =
                     self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
@@ -165,9 +151,26 @@ UserController = {
                 -- User is verified but the token is still there
                 token:delete()
             end
+
             self.session.username = self.queried_user.username
             self.cookies.persist_session = tostring(self.params.persist)
-            if self.queried_user.verified then
+
+            if self.queried_user.is_student() then
+                self.session.username = self.queried_user.username
+                self.cookies.persist_session = tostring(self.params.persist)
+                self.queried_user:update({ verified = true })
+                return jsonResponse({
+                    title = 'Welcome to Snap!',
+                    message = package.loaded.locale.get(
+                        'learner_first_login_meesage',
+                        self.queried_user.username,
+                        self:build_url('/profile')
+                    ),
+                    redirect = self:build_url('/')
+                })
+            end
+
+             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
             else

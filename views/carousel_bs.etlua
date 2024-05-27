@@ -36,7 +36,7 @@ items_per_row = items_per_row or 5
         <div class="bar">
             <%
                 render(
-                    'views.partials.carousel_paginator',
+                    'views.partials.carousel_paginator_bs',
                     { num_pages = num_pages, id = id }
                 )
             %>
@@ -44,19 +44,26 @@ items_per_row = items_per_row or 5
     <% end %>
 
     <% if num_pages > 0 then %>
-    <div class="<%= item_type %>s list pure-g">
-        <% for _, item in pairs(items) do %>
-            <%
-                render(
-                    'views.partials.' .. item_type,
-                    {
+    <div id="<%= id %>" class="carousel" data-bs-ride="false" data-bs-interval="false">
+        <div class="carousel-inner">
+            <% for idx, item in pairs(items) do %>
+                <% local new_row = (idx - 1) % items_per_row == 0
+                   local end_row = idx % items_per_row == 0
+                   local is_active = idx == 1 and 'active' or ''
+                %>
+                <% if new_row then %>
+                    <div class="<%= item_type .. 's ' .. is_active %> carousel-item">
+                    <div class="row">
+                <% end %>
+                <% render('views.partials.' .. item_type .. '_bs', {
                         item = item,
-                        items_per_row = items_per_row,
                         show_author = show_author
-                    }
-                )
-            %>
-        <% end %>
+                    }) %>
+                <% if end_row then %>
+                    </div></div>
+                <% end %>
+            <% end %>
+        </div>
     </div>
     <% end -- show items, if there are any %>
 
