@@ -111,6 +111,10 @@ domain_allowed['amazingrobots.net'] = true
 -- CONTACT: Bernat
 domain_allowed['microblocks.fun'] = true
 
+-- StudyGiggle
+-- CONTACT: Ben S <bfrstudios.apps@gmail.com>
+domain_allowed['studygiggle.onrender.com'] = true
+
 -- Development
 -- CONTACT: Snap! Team
 domain_allowed['localhost'] = true
