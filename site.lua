@@ -187,6 +187,7 @@ end)))
 app:get('/carousel', capture_errors(cached(function (self)
     assert_user_exists(self)
     local creator = self.queried_user
+    self.params.items_per_row = self.params.items_per_page or 5
     self.params.page_number = self.params.page_number or 1
     self.collection = assert_exists(Collections:find(creator.id, self.params.collection))
     assert_can_view_collection(self, self.collection)
@@ -373,6 +374,7 @@ end))
 -- Teachers
 
 app:get('/teacher', capture_errors(function (self)
+    assert_exists(self.current_user)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
@@ -380,6 +382,7 @@ app:get('/teacher', capture_errors(function (self)
 end))
 
 app:get('/bulk', capture_errors(function (self)
+    assert_exists(self.current_user)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
@@ -387,6 +390,11 @@ app:get('/bulk', capture_errors(function (self)
 end))
 
 app:get('/learners', capture_errors(function (self)
+    assert_exists(self.current_user)
+    if (not self.current_user.is_teacher) then
+        assert_admin(self)
+    end
+
     self.items_per_page = 150
     if self.current_user and self.current_user.is_teacher then
         self.items = UserController.learners(self)

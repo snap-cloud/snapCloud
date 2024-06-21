@@ -2,6 +2,7 @@
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle"></i>
     <% end %>
+    <!-- TODO-a11y: Add aria-label and alt text to link/image-->
     <a target="_self"
         href="<%= item:url_for('site') %>">
         <img class="thumbnail" title=""

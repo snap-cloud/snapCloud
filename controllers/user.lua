@@ -129,6 +129,20 @@ UserController = {
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
+                if self.queried_user:is_student() then
+                    self.session.username = self.queried_user.username
+                    self.cookies.persist_session = tostring(self.params.persist)
+                    self.queried_user:update({ verified = true })
+                    return jsonResponse({
+                        title = 'Welcome to Snap!',
+                        message = package.loaded.locale.get(
+                            'learner_first_login_meesage',
+                            self.queried_user.username,
+                            self:build_url('/profile')
+                        ),
+                        redirect = self:build_url('/')
+                    })
+                end
                 local message =
                     self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
@@ -560,7 +574,11 @@ UserController = {
         })
     end),
     learners = capture_errors(function (self)
+<<<<<<< HEAD
         self.params.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
+=======
+        self.params.fields = 'id, username, created, email, creator_id, role, verified'
+>>>>>>> 0cbcad1e44f11b2f93cf4a66115f7d10a2800da4
         return UserController.run_query(
             self,
             db.interpolate_query(
@@ -768,15 +786,15 @@ app:match(
     )
 )
 
+-- TODO: We should have this route accept a user
+-- If a token is invalid, but the user is present we can still give them a useful message.
 app:match(
     'verify_user',
     '/verify_me/:token',
     capture_errors(
         function (self)
             local token = Tokens:find(self.params.token)
-            if not token then yield_error(err.invalid_token) end
-            local user = Users:find({ username = token.username })
-            local user_page = function ()
+            local user_page = function (user)
                 return htmlPage(
                     self,
                     'User verified | Welcome to Snap<em>!</em>',
@@ -788,9 +806,16 @@ app:match(
                 )
             end
 
+            if self.current_user and self.current_user.verified then
+                return user_page(self.current_user)
+            end
+
+            if not token then yield_error(err.invalid_token) end
+            local user = Users:find({ username = token.username })
+
             -- Check whether user had already been verified
             if user.verified then
-                return user_page()
+                return user_page(user)
             else
                 return check_token(
                     self,
@@ -800,7 +825,7 @@ app:match(
                         -- success callback
                         user:update({ verified = true })
                         self.session.verified = true
-                        return user_page()
+                        return user_page(user)
                     end
                 )
             end
