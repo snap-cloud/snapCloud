@@ -165,9 +165,26 @@ UserController = {
                 -- User is verified but the token is still there
                 token:delete()
             end
+
             self.session.username = self.queried_user.username
             self.cookies.persist_session = tostring(self.params.persist)
-            if self.queried_user.verified then
+
+            if self.queried_user.is_student() then
+                self.session.username = self.queried_user.username
+                self.cookies.persist_session = tostring(self.params.persist)
+                self.queried_user:update({ verified = true })
+                return jsonResponse({
+                    title = 'Welcome to Snap!',
+                    message = package.loaded.locale.get(
+                        'learner_first_login_meesage',
+                        self.queried_user.username,
+                        self:build_url('/profile')
+                    ),
+                    redirect = self:build_url('/')
+                })
+            end
+
+             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
             else
@@ -557,7 +574,11 @@ UserController = {
         })
     end),
     learners = capture_errors(function (self)
+<<<<<<< HEAD
+        self.params.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
+=======
         self.params.fields = 'id, username, created, email, creator_id, role, verified'
+>>>>>>> 0cbcad1e44f11b2f93cf4a66115f7d10a2800da4
         return UserController.run_query(
             self,
             db.interpolate_query(
