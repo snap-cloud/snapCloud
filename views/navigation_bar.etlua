@@ -29,8 +29,9 @@
             <i class="pure-u-1-24"></i>
             <div class="search pure-u-1-6">
                 <form action="search">
-                    <input type="text" name="query">
-                    <i class="fas fa-search"></i>
+                    <input type="text" name="query" id="nav-query">
+                    <label class="sr-only" for="nav-query">Search Snap! Community</label>
+                    <i class="fas fa-search" aria-hidden=true></i>
                 </form>
             </div>
             <i class="pure-u-1-24"></i>

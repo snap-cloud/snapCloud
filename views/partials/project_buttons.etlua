@@ -25,8 +25,9 @@
                     '<%- project:url_for('embed') %>' + options;
                 form.querySelector('textarea#embed-iframe').innerText =
                     '<iframe width="480" height="390" frameBorder=0 ' +
-                        'allowfullscreen allow="geolocation; microphone;' +
-                        'camera" src="' + '<%- project:url_for('embed') %>' +
+                        'allowfullscreen allow="geolocation; microphone; camera" ' +
+                        'title="<%- project.projectname %> Snap! Project" ' +
+                        'src="' + '<%- project:url_for('embed') %>' +
                         options + '"></iframe>';
             };
             dialog(
