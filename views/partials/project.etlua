@@ -1,6 +1,7 @@
 <div class="project small pure-u-1-<%= items_per_row %>">
     <% if (item.thumbnail == nil) then %>
-    <i class="no-image fas fa-question-circle" aria-label="no thumbnail"></i>
+    <i class="no-image fas fa-question-circle" aria-hidden=true></i>
+    <span class="sr-only">no thumbnail aet</span>
     <% end %>
     <a target="_self" href="<%= item:url_for('site') %>">
         <img class="thumbnail" alt=""

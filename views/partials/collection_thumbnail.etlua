@@ -1,8 +1,9 @@
 <div class="pure-u-1-2 thumbnail-container">
     <% if (collection.thumbnail == nil) then %>
-    <i class="no-image fas fa-question-circle" aria-label="no thumbnail"></i>
+    <i class="no-image fas fa-question-circle" aria-hidden=true></i>
+    <span class="sr-only">no thumbnail aet</span>
     <% end %>
-    <img class="collection-thumbnail" alt=""
+    <img class="collection-thumbnail" alt="collection thumbnail"
         <% if (collection.thumbnail) then %>
             src="<%= collection.thumbnail %>"
         <% end %>
