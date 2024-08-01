@@ -1,8 +1,8 @@
 <footer id="footer">
     <div class="trapezoid trapezoid-footer"></div>
-    <nav class="links pure-g">
+    <nav class="links pure-g" aria-label="footer links">
         <section class="pure-u-1-5">
-            <p><h2 class="footer-heading"><%- locale.get('t_about') %></h2></p>
+            <h2 class="footer-heading"><%- locale.get('t_about') %></h2>
             <p><a href="/about"><%- locale.get('about', '<em>!</em>') %></a></p>
             <p><a href="/blog"><%- locale.get('blog') %></a></p>
             <p><a href="/credits"><%- locale.get('credits') %></a></p>
@@ -10,7 +10,7 @@
             <p><a href="/source" ><%- locale.get('source') %></a></p>
         </section>
         <section class="pure-u-1-5">
-            <p><h2 class="footer-heading"><%- locale.get('t_learning') %></h2></p>
+            <h2 class="footer-heading"><%- locale.get('t_learning') %></h2>
             <p><a href="/examples"><%- locale.get('examples') %></a></p>
             <p><a href="/events"><%- locale.get('events') %></a></p>
             <p><a href="/all_totms"><%- locale.get('totms_title') %></a></p>
@@ -23,7 +23,7 @@
                 ><%- locale.get('wiki') %></a></p>
         </section>
         <section class="pure-u-1-5">
-            <p><h2 class="footer-heading"><%- locale.get('t_tools') %></h2></p>
+            <h2 class="footer-heading"><%- locale.get('t_tools') %></h2>
             <p><a href="/offline"><%- locale.get('offline') %></a></p>
             <p><a href="/extensions"><%- locale.get('extensions') %></a></p>
             <p><a href="/snapp">Snapp<em>!</em></a></p>
@@ -33,14 +33,14 @@
                 >BYOB <%- locale.get('old_snap', '<em>!</em>') %></a></p>
         </section>
         <section class="pure-u-1-5">
-            <p><h2 class="footer-heading"><%- locale.get('t_support') %></h2></p>
+            <h2 class="footer-heading"><%- locale.get('t_support') %></h2>
             <p><a target="_blank"
                 href="https://forum.snap.berkeley.edu/"><%- locale.get('forum') %></a></p>
             <p><a href="/contact"><%- locale.get('contact') %></a></p>
             <p><a href="/mirrors"><%- locale.get('mirrors') %></a></p>
         </section>
         <section class="pure-u-1-5">
-            <p><h2 class="footer-heading"><%- locale.get('t_legal') %></h2></p>
+            <h2 class="footer-heading"><%- locale.get('t_legal') %></h2>
             <p><a href="/dmca"><%- locale.get('dmca') %></a></p>
             <p><a href="/privacy"><%- locale.get('privacy') %></a></p>
             <p><a href="/tos"><%- locale.get('tos') %></a></p>

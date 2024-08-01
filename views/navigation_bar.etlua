@@ -93,12 +93,12 @@
                 </ul>
             </li>
         <% end %>
-            <li class="pure-menu-item pure-u-1-24 pure-menu-has-children
+            <li class="pure-menu-item pure-menu-has-children
                 pure-menu-allow-hover language-select">
                 <a class="pure-menu-link clickable">
                     <i class="fas fa-globe"></i>
                 </a>
-                <ul class="pure-menu-children languages">
+                <ul class="pure-menu-children pure-u-1-12 languages">
                     <% for _, each in pairs(locale.locales) do %>
                     <a class="pure-menu-link clickable"
                         onclick="
