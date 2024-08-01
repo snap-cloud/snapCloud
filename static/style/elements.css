@@ -45,7 +45,7 @@ h3 {
     margin: 1em 0 .5em 0;
 }
 
-h4 {
+h4, .footer-heading {
     font-size: 1.3em;
     font-weight: bold;
     margin-bottom: 1em;
