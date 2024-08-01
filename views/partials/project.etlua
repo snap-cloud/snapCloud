@@ -1,9 +1,9 @@
 <div class="project small pure-u-1-<%= items_per_row %>">
     <% if (item.thumbnail == nil) then %>
-    <i class="no-image fas fa-question-circle"></i>
+    <i class="no-image fas fa-question-circle" aria-label="no thumbnail"></i>
     <% end %>
     <a target="_self" href="<%= item:url_for('site') %>">
-        <img class="thumbnail" title=""
+        <img class="thumbnail" alt=""
             <% if (item.thumbnail) then %>
                 src="<%= item.thumbnail %>"
             <% end %>
@@ -13,7 +13,7 @@
 <% if show_icons then %>
     <span class="is-public"
         title="<%=
-            locale.get('item_' .. 
+            locale.get('item_' ..
                 (item.ispublic and 'shared' or 'not_shared') .. '_info')
     %>"><small><i class="fas <%= item.ispublic and 'fa-link' or 'fa-unlink' %>"
             aria-hidden="true"></i>
@@ -21,7 +21,7 @@
     </span>
     <span class="is-published"
         title="<%=
-            locale.get('item_' .. 
+            locale.get('item_' ..
                 (item.ispublished and 'published' or 'not_published')
                 .. '_info')
     %>" ><small><i
@@ -60,4 +60,3 @@
     </div>
 <% end %>
 </div>
-
