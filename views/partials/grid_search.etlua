@@ -3,8 +3,9 @@
         event.preventDefault();
         search(Object.fromEntries(new FormData(this)).query);
     ">
-        <input type="text" name="query">
-        <i class="fas fa-search"></i>
+        <input type="text" name="query" id="grid-<%= class %>-query">
+        <label class="sr-only" for="grid-<%= class %>-query">Search</label>
+        <i class="fas fa-search" aria-hidden=true></i>
     </form>
 </div>
 <% if (params.search_term and params.search_term ~= '') then %>

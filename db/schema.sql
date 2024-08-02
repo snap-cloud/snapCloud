@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.10 (Homebrew)
--- Dumped by pg_dump version 14.10 (Homebrew)
+-- Dumped from database version 16.3 (Homebrew)
+-- Dumped by pg_dump version 16.3 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -27,7 +27,7 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 -- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
 
 
 --
@@ -93,19 +93,19 @@ CREATE TABLE public.projects (
 --
 
 CREATE VIEW public.active_projects AS
- SELECT projects.id,
-    projects.projectname,
-    projects.ispublic,
-    projects.ispublished,
-    projects.notes,
-    projects.created,
-    projects.lastupdated,
-    projects.lastshared,
-    projects.username,
-    projects.firstpublished,
-    projects.deleted
+ SELECT id,
+    projectname,
+    ispublic,
+    ispublished,
+    notes,
+    created,
+    lastupdated,
+    lastshared,
+    username,
+    firstpublished,
+    deleted
    FROM public.projects
-  WHERE (projects.deleted IS NULL);
+  WHERE (deleted IS NULL);
 
 
 --
@@ -136,23 +136,23 @@ CREATE TABLE public.users (
 --
 
 CREATE VIEW public.active_users AS
- SELECT users.id,
-    users.created,
-    users.username,
-    users.email,
-    users.salt,
-    users.password,
-    users.about,
-    users.location,
-    users.verified,
-    users.role,
-    users.deleted,
-    users.unique_email,
-    users.bad_flags,
-    users.is_teacher,
-    users.creator_id
+ SELECT id,
+    created,
+    username,
+    email,
+    salt,
+    password,
+    about,
+    location,
+    verified,
+    role,
+    deleted,
+    unique_email,
+    bad_flags,
+    is_teacher,
+    creator_id
    FROM public.users
-  WHERE (users.deleted IS NULL);
+  WHERE (deleted IS NULL);
 
 
 --
@@ -249,7 +249,7 @@ ALTER SEQUENCE public.collections_id_seq OWNED BY public.collections.id;
 CREATE VIEW public.count_recent_projects AS
  SELECT count(*) AS count
    FROM public.projects
-  WHERE (projects.lastupdated > (('now'::text)::date - '1 day'::interval));
+  WHERE (lastupdated > (('now'::text)::date - '1 day'::interval));
 
 
 --
@@ -257,19 +257,19 @@ CREATE VIEW public.count_recent_projects AS
 --
 
 CREATE VIEW public.deleted_projects AS
- SELECT projects.id,
-    projects.projectname,
-    projects.ispublic,
-    projects.ispublished,
-    projects.notes,
-    projects.created,
-    projects.lastupdated,
-    projects.lastshared,
-    projects.username,
-    projects.firstpublished,
-    projects.deleted
+ SELECT id,
+    projectname,
+    ispublic,
+    ispublished,
+    notes,
+    created,
+    lastupdated,
+    lastshared,
+    username,
+    firstpublished,
+    deleted
    FROM public.projects
-  WHERE (projects.deleted IS NOT NULL);
+  WHERE (deleted IS NOT NULL);
 
 
 --
@@ -277,23 +277,23 @@ CREATE VIEW public.deleted_projects AS
 --
 
 CREATE VIEW public.deleted_users AS
- SELECT users.id,
-    users.created,
-    users.username,
-    users.email,
-    users.salt,
-    users.password,
-    users.about,
-    users.location,
-    users.verified,
-    users.role,
-    users.deleted,
-    users.unique_email,
-    users.bad_flags,
-    users.is_teacher,
-    users.creator_id
+ SELECT id,
+    created,
+    username,
+    email,
+    salt,
+    password,
+    about,
+    location,
+    verified,
+    role,
+    deleted,
+    unique_email,
+    bad_flags,
+    is_teacher,
+    creator_id
    FROM public.users
-  WHERE (users.deleted IS NOT NULL);
+  WHERE (deleted IS NOT NULL);
 
 
 --
@@ -392,7 +392,7 @@ ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
 CREATE VIEW public.recent_projects_2_days AS
  SELECT count(*) AS count
    FROM public.projects
-  WHERE (projects.lastupdated > (('now'::text)::date - '2 days'::interval));
+  WHERE (lastupdated > (('now'::text)::date - '2 days'::interval));
 
 
 --
@@ -671,8 +671,8 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.10 (Homebrew)
--- Dumped by pg_dump version 14.10 (Homebrew)
+-- Dumped from database version 16.3 (Homebrew)
+-- Dumped by pg_dump version 16.3 (Homebrew)
 
 
 --

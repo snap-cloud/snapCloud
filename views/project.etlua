@@ -11,7 +11,7 @@
                 'remixed_from',
                 '<span class="project-link"><a href="' ..
                     remixed_from:url_for('site') ..
-                    '" >' .. remixed_from.projectname .. 
+                    '" >' .. remixed_from.projectname ..
                     '</a></span>',
                 '<a href="' .. remixed_from:url_for('author') ..
                     '"><strong>' .. remixed_from.username ..
@@ -49,6 +49,7 @@
             <!-- Project embed -->
             <iframe allow="geolocation; microphone; camera"
                 sandbox="allow-scripts allow-same-origin"
+                title="project viewer"
                 src="<%= project:url_for('viewer', params.devVersion) %>"
                 height="406"></iframe>
 
@@ -95,4 +96,3 @@
         };
     </script>
 </div>
-

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= locale.language %>">
     <head>
         <meta charset="UTF-8">
         <title>Snap! Build Your Own Blocks</title>
@@ -32,12 +32,10 @@
             <i class="fas fa-spinner fa-spin fa-3x" aria-hidden="true"></i>
         </div>
         <% render('views.navigation_bar') %>
-        <div id="wrapper">
+        <main id="wrapper">
             <% content_for('inner') %>
-        </div>
+        </main>
         <% render('views.footer') %>
     </body>
-    <script>
-    doneLoading();
-    </script>
+    <script>doneLoading();</script>
 </html>
