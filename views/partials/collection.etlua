@@ -1,11 +1,11 @@
 <div class="collection small pure-u-1-<%= items_per_row %>">
     <% if (item.thumbnail == nil) then %>
-    <i class="no-image fas fa-question-circle"></i>
+    <i class="no-image fas fa-question-circle" aria-hidden=true></i>
+    <span class="sr-only">no thumbnail aet</span>
     <% end %>
-    <!-- TODO-a11y: Add aria-label and alt text to link/image-->
     <a target="_self"
         href="<%= item:url_for('site') %>">
-        <img class="thumbnail" title=""
+        <img class="thumbnail" alt=""
             <% if (item.thumbnail) then %>
                 src="<%= item.thumbnail %>"
             <% end %>

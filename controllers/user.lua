@@ -647,7 +647,7 @@ UserController = {
         })
     end),
     set_teacher = capture_errors(function (self)
-        assert_admin(self)
+        assert_min_role(self, 'moderator')
         if self.queried_user then
             self.queried_user:update({ is_teacher = self.params.is_teacher })
         end

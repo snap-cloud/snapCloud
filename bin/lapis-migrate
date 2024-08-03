@@ -4,16 +4,18 @@
 source .env
 
 # TODO: We should standardize the table names with the environment.. oh well.
-DATABASE_NAME="${DATABASE_NAME:-'snapcloud'}";
+APP_NAME='snapcloud'
+DATABASE_NAME="${APP_NAME}_${LAPIS_ENVIRONMENT}";
 DB_USER="${DATABASE_USER:-$USER}";
 DB_HOST="${DATABASE_HOST:-localhost}";
 SCHEMA_FILE="db/schema.sql";
 
 if psql -lqt | cut -d \| -f 1 | grep -qw $DATABASE_NAME; then
-    echo "$DATABASE_NAME exists. Continuing...";
+  echo "$DATABASE_NAME exists. Continuing...";
 else
-   echo "No $DATABSE_NAME found. Creating a new DB...";
-   db/init.sh;
+  echo "No $DATABSE_NAME found. Creating a new DB...";
+  createdb $DATABASE_NAME;
+  db/init.sh;
 fi
 
 # TODO: lapis migrate --dry-run then ask for confirmation.

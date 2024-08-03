@@ -2,13 +2,11 @@
 <link rel="stylesheet" href="/static/style/banner.css">
 
 <div class="slideshow">
-<!--
     <a href="https://snapcon.org">
         <div class="slide fade">
             <img src="/static/img/snapcon.png" style="width:100%">
         </div>
     </a>
--->
     <%
     local totms = package.loaded.db.select([[
         name FROM collections
@@ -16,7 +14,8 @@
                 SELECT collection_id FROM featured_collections
                 WHERE page_path = 'index' AND type = 'totm'
                 LIMIT 1)]])
-    if totms and totms[1] then
+    --if totms and totms[1] then
+    if false then
     %>
     <a href="collection?username=snapcloud&collection=<%= totms[1].name %>">
         <div class="slide fade">

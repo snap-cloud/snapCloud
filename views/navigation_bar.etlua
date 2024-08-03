@@ -2,7 +2,7 @@
     <div class="pure-menu-horizontal pure-menu">
         <ul class="pure-g pure-menu-list">
             <a class="pure-u-1-12" href="/" aria-label="Snap! home page">
-                <img src="/static/img/topbar-logo.png" height=32 class="logo clickable"/>
+                <img src="/static/img/topbar-logo.png" alt="" height=32 class="logo clickable"/>
             </a>
             <span class="pure-u-5-12">
                 <li class="pure-menu-item">
@@ -29,8 +29,9 @@
             <i class="pure-u-1-24"></i>
             <div class="search pure-u-1-6">
                 <form action="search">
-                    <input type="text" name="query">
-                    <i class="fas fa-search"></i>
+                    <input type="text" name="query" id="nav-query">
+                    <label class="sr-only" for="nav-query">Search Snap! Community</label>
+                    <i class="fas fa-search" aria-hidden=true></i>
                 </form>
             </div>
             <i class="pure-u-1-24"></i>
@@ -93,12 +94,12 @@
                 </ul>
             </li>
         <% end %>
-            <li class="pure-menu-item pure-u-1-24 pure-menu-has-children
+            <li class="pure-menu-item pure-menu-has-children
                 pure-menu-allow-hover language-select">
                 <a class="pure-menu-link clickable">
                     <i class="fas fa-globe"></i>
                 </a>
-                <ul class="pure-menu-children languages">
+                <ul class="pure-menu-children pure-u-1-12 languages">
                     <% for _, each in pairs(locale.locales) do %>
                     <a class="pure-menu-link clickable"
                         onclick="

@@ -1,16 +1,16 @@
-<div id="footer">
+<footer id="footer">
     <div class="trapezoid trapezoid-footer"></div>
-    <div class="links pure-g">
-        <div class="pure-u-1-5">
-            <p><h4><%- locale.get('t_about') %></h4></p>
+    <nav class="links pure-g" aria-label="footer links">
+        <section class="pure-u-1-5">
+            <h2 class="footer-heading"><%- locale.get('t_about') %></h2>
             <p><a href="/about"><%- locale.get('about', '<em>!</em>') %></a></p>
             <p><a href="/blog"><%- locale.get('blog') %></a></p>
             <p><a href="/credits"><%- locale.get('credits') %></a></p>
             <p><a href="/partners"><%- locale.get('partners') %></a></p>
             <p><a href="/source" ><%- locale.get('source') %></a></p>
-        </div>
-        <div class="pure-u-1-5">
-            <p><h4><%- locale.get('t_learning') %></h4></p>
+        </section>
+        <section class="pure-u-1-5">
+            <h2 class="footer-heading"><%- locale.get('t_learning') %></h2>
             <p><a href="/examples"><%- locale.get('examples') %></a></p>
             <p><a href="/events"><%- locale.get('events') %></a></p>
             <p><a href="/all_totms"><%- locale.get('totms_title') %></a></p>
@@ -21,9 +21,9 @@
             <p><a href="/research"><%- locale.get('research') %></a></p>
             <p><a href="https://snapwiki.miraheze.org"
                 ><%- locale.get('wiki') %></a></p>
-        </div>
-        <div class="pure-u-1-5">
-            <p><h4><%- locale.get('t_tools') %></h4></p>
+        </section>
+        <section class="pure-u-1-5">
+            <h2 class="footer-heading"><%- locale.get('t_tools') %></h2>
             <p><a href="/offline"><%- locale.get('offline') %></a></p>
             <p><a href="/extensions"><%- locale.get('extensions') %></a></p>
             <p><a href="/snapp">Snapp<em>!</em></a></p>
@@ -31,26 +31,26 @@
             <p><a href="https://smerge.org/">Smerge</a></p>
             <p><a href="/old_site/old-byob.html"
                 >BYOB <%- locale.get('old_snap', '<em>!</em>') %></a></p>
-        </div>
-        <div class="pure-u-1-5">
-            <p><h4><%- locale.get('t_support') %></h4></p>
+        </section>
+        <section class="pure-u-1-5">
+            <h2 class="footer-heading"><%- locale.get('t_support') %></h2>
             <p><a target="_blank"
                 href="https://forum.snap.berkeley.edu/"><%- locale.get('forum') %></a></p>
             <p><a href="/contact"><%- locale.get('contact') %></a></p>
             <p><a href="/mirrors"><%- locale.get('mirrors') %></a></p>
-        </div>
-        <div class="pure-u-1-5">
-            <p><h4><%- locale.get('t_legal') %></h4></p>
+        </section>
+        <section class="pure-u-1-5">
+            <h2 class="footer-heading"><%- locale.get('t_legal') %></h2>
             <p><a href="/dmca"><%- locale.get('dmca') %></a></p>
             <p><a href="/privacy"><%- locale.get('privacy') %></a></p>
             <p><a href="/tos"><%- locale.get('tos') %></a></p>
-        </div>
+        </section>
         <div class="credits pure-u-1-1">
             <a href="/partners">
                 <p>Snap<em>!</em> is brought to you by UC Berkeley and SAP.</p>
-                <img src="/static/img/ucb-logo-footer.png"></img>
-                <img src="/static/img/sap-logo-footer.png"></img>
+                <img src="/static/img/ucb-logo-footer.png" alt="UC Berkeley logo" />
+                <img src="/static/img/sap-logo-footer.png" alt="SAP Logo" />
             </a>
         </div>
-    </div>
-</div>
+    </nav>
+</footer>
