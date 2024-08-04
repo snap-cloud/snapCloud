@@ -3,11 +3,13 @@
 
 <% render('views.partials.slideshow') %>
 
-<h1><span><% if current_user then %>
+<h1>
+    <% if current_user then %>
     <%= locale.get('welcome_logged_in', current_user.username) %>
     <% else %>
     <%- locale.get('welcome', '<em>!</em>') %>
-    <% end %></span></h1>
+    <% end %>
+</h1>
 
 <div class="row">
     <div class="col-12"><%- locale.get('snap_description', '<em>!</em>') %></div>

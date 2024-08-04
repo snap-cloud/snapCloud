@@ -1,4 +1,5 @@
-<nav class="navbar navbar-expand-lg fixed-top" data-bs-theme="dark">
+<nav class="navbar navbar-expand-lg fixed-top" data-bs-theme="dark" aria-label="main nav">
+  <!-- TODO-A11Y: Add a skip to main link up here. -->
   <div class="container-lg">
     <a class="navbar-brand" href="/" aria-label="Snap! home page">
       <img src="/static/img/topbar-logo.png" height="32" class="logo clickable" alt="">

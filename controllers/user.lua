@@ -118,6 +118,7 @@ UserController = {
     login = capture_errors(function (self)
         assert_user_exists(self)
         local password = self.params.password
+        -- TODO: self.queried_user:verify_password(self.params.password)
         if (hash_password(password, self.queried_user.salt) ==
                 self.queried_user.password) then
             -- Check whether user has a verification token
@@ -169,7 +170,7 @@ UserController = {
             self.session.username = self.queried_user.username
             self.cookies.persist_session = tostring(self.params.persist)
 
-            if self.queried_user.is_student() then
+            if self.queried_user:is_student() then
                 self.session.username = self.queried_user.username
                 self.cookies.persist_session = tostring(self.params.persist)
                 self.queried_user:update({ verified = true })

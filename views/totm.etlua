@@ -2,8 +2,8 @@
 <h2>Banner</h2>
 <img style="max-width: 600px" src="static/img/totm.png?random=<%=math.random()%>">
 <form action="totm" method="POST" enctype="multipart/form-data">
-    <input type="file" name="uploaded_file"></input>
-    <input value="Upload banner" type="submit"></input>
+    <input type="file" name="uploaded_file" />
+    <input value="Upload banner" type="submit" />
 </form>
 
 <h2>Collection</h2>
