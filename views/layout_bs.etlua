@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<!-- language is reset by the locale JS -->
-<html lang="en">
+<html lang="<%= locale.language %>">
   <head>
     <% render('views.header_bs') %>
   </head>
