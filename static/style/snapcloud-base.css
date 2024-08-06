@@ -190,3 +190,28 @@ hr {
   height: 1px;
   background: #ffffff;
 }
+
+#homepage-carousel {
+
+  .carousel-item img {
+    border-radius: 8px;
+    max-width: auto;
+    max-height: 400px;
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    border-radius: 6px;
+    height: 3ch;
+    width: 3ch;
+    font-weight: bold;
+    background-color: #222;
+    backdrop-filter: opacity(0.9) blur(4px);
+    -webkit-backdrop-filter: opacity(0.9) blur(4px);
+
+    &:focus-visible,
+    &:hover {
+      box-shadow: var(--bs-navbar-toggler-border-color) 0 0 3px 3px;
+    }
+  }
+}
