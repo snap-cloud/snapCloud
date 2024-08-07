@@ -36,10 +36,12 @@ num_pages = num_pages or 0
 if items == nil then items = {} end
 %>
 
+<!-- TODO: Consider moving this to the layout to reduce duplication in loading -->
 <link rel="stylesheet" href="/static/style/project.css">
-<div class="<%= class %> container-fluid">
 
 <% if (num_pages > 0) or show_if_empty then %>
+    <section class="<%= class %> container-fluid">
+
     <% if title then %>
         <h2 class="<%= class %> header"><%= title %></h2>
     <% elseif title_selector then %>
@@ -90,6 +92,8 @@ if items == nil then items = {} end
                 render('views.partials.' .. item_type, params)
             %>
         <% end %>
-    </div>
+        </div>
     <% end %>
+
+    </section>
 <% end %>
