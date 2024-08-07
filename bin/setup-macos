@@ -43,7 +43,7 @@ print_ok "Setting Git to use https:// instead of unsecured git:// for GitHub"
 git config --global url."https://github".insteadOf git://github
 
 print_ok "Installing Lapis & Lua Dependencies"
-bin/luarocks-macos install --only-deps snapcloud-dev-0.rockspec;
+make install
 
 print_ok 'Adding luarocks path info to bashrc'
 echo "" >> ~/.bashrc

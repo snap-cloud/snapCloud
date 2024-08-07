@@ -33,7 +33,6 @@ local Projects = package.loaded.Projects
 local Remixes = package.loaded.Remixes
 local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
-local db = package.loaded.db
 local assert_exists = require('validation').assert_exists
 
 require 'controllers.user'
@@ -56,9 +55,20 @@ local views = {
     'forgot_username', 'sign_up', 'login',
 }
 
+-- Temporary during a front-end rewrite.
+-- This allows testing anypage with adding ?bootstrap=true to the URL
+app:before_filter(function (self)
+    if self.current_user and self.current_user:isadmin() then
+        if self.params['bootstrap'] == 'true' then
+            app.layout = 'layout_bs'
+        end
+    end
+end)
+
 app:get('index', '/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'index' }
+    -- return { render = 'index' }
+    return { render = 'index_bs', layout = 'layout_bs' }
 end)))
 
 -- Backwards compatibility.
@@ -68,7 +78,11 @@ end)
 
 for _, view in pairs(views) do
     app:get('/' .. view, capture_errors(cached(function (self)
-        return { render = view }
+        if self.params['bootstrap'] == 'true' then
+            return { render = view .. '_bs', layout = 'layout_bs'}
+        else
+            return { render = view }
+        end
     end)))
 end
 
@@ -84,7 +98,7 @@ end))
 
 app:get('/explore', capture_errors(cached(function (self)
     self.items = ProjectController.fetch(self)
-    return { render = 'explore' }
+    return { render = 'explore', layout = 'layout_bs' }
 end)))
 
 app:get('/collections', capture_errors(cached(function (self)
@@ -307,7 +321,7 @@ app:get('/user_admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'moderator')
         self.items = UserController.fetch(self)
-        return { render = 'user_admin' }
+        return { render = 'user_admin', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -364,7 +378,7 @@ app:get('/teacher', capture_errors(function (self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'teacher' }
+    return { render = 'teacher', layout = 'layout_bs' }
 end))
 
 app:get('/bulk', capture_errors(function (self)
@@ -372,7 +386,7 @@ app:get('/bulk', capture_errors(function (self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'bulk' }
+    return { render = 'bulk', layout = 'layout_bs' }
 end))
 
 app:get('/learners', capture_errors(function (self)
@@ -384,14 +398,13 @@ app:get('/learners', capture_errors(function (self)
     self.items_per_page = 150
     if self.current_user and self.current_user.is_teacher then
         self.items = UserController.learners(self)
-        return { render = 'learners' }
+        return { render = 'learners', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('index') }
     end
 end))
 
 -- Tools
-
 --[[
 app:get('/localize', capture_errors(function (self)
     return { render = 'localize' }
