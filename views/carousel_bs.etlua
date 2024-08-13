@@ -17,38 +17,40 @@ class = 'id_' .. id
 items_per_row = items_per_row or 5
 %>
 
-<link rel="stylesheet" href="/static/style/project.css">
-<div class="<%= item_type %>s row carousel <%= class %>">
+
+<div class="<%= item_type %>s row my-2 <%= class %>">
 
 <% if ((num_pages > 0) or show_if_empty) then %>
-    <div class="col-12">
+    <div class="row">
+    <div class="col-10">
         <% if title then %>
             <% if href then %><a href="<%=href%>" title="Show all"><% end %>
-            <h2 class="<%= item_type %>s header"><%= title %></h2>
+            <h2 class="my-0 <%= item_type %>s"><%= title %></h2>
             <% if href then %></a><% end %>
         <% elseif title_selector then %>
-            <h2 class="<%= item_type %>s header"
+            <h2 class="my-0 <%= item_type %>s"
                 ><%= locale.get(title_selector) %></h2>
         <% end %>
     </div>
 
     <% if num_pages > 1 then %>
-        <div class="bar">
+        <div class="col-2">
             <%
                 render(
                     'views.partials.carousel_paginator_bs',
-                    { num_pages = num_pages, id = id }
+                    { num_pages = num_pages, id = id, title = title }
                 )
             %>
         </div>
     <% end %>
+    </div>
 
     <% if num_pages > 0 then %>
-    <div id="<%= id %>" class="carousel" data-bs-ride="false" data-bs-interval="false">
+    <div id="<%= id %>" class="row carousel" data-bs-ride="false" data-bs-interval="false">
         <div class="carousel-inner">
             <% for idx, item in pairs(items) do %>
                 <% local new_row = (idx - 1) % items_per_row == 0
-                   local end_row = idx % items_per_row == 0
+                   local end_row = idx % items_per_row == 0 or idx == #items
                    local is_active = idx == 1 and 'active' or ''
                 %>
                 <% if new_row then %>
@@ -74,42 +76,14 @@ items_per_row = items_per_row or 5
             -- page to prevent one paginator to mess with another carousel.
             -- This could be made more elegant, but it will do for now.
          %>
-        var items_<%=id%> = document.querySelectorAll(
-                'div.carousel.<%= class %> .<%= item_type %>s.list ' +
-                    '.<%= item_type %>'),
-            pageElement_<%=id%> = document.querySelector(
-                'div.carousel.<%= class %> span.page'),
-            current_page_<%=id%> = 1;
+        var totalItems = $('#<%= id %> .carousel-item').length;
+        var currentIndex = $('div.active').index() + 1;
+        $('.num').html('' + currentIndex + '/' + totalItems + '');
 
-        function change_page_<%=id%>(offset) {
-            var firstIndex;
-            if (offset == 'first') {
-                current_page_<%=id%> = 1;
-            } else if (offset == 'last') {
-                current_page_<%=id%> = <%= num_pages %>;
-            } else {
-                current_page_<%=id%> =
-                    Math.min(
-                        Math.max(
-                            1,
-                            current_page_<%=id%> + offset),
-                        <%= num_pages %>
-                    );
-            }
-
-            pageElement_<%=id%>.innerHTML = current_page_<%=id%>;
-
-            firstIndex = ((current_page_<%=id%> - 1) * <%= items_per_page %>);
-            items_<%=id%>.forEach((item, index) => {
-                if ((index < firstIndex) ||
-                        (index > (firstIndex + <%= items_per_page - 1 %>))) {
-                    item.style.display = 'none';
-                } else {
-                    item.style.display = 'block';
-                }
-            });
-        };
-        change_page_<%=id%>('first');
+        $('#carouselExampleCaptions').bind('slid.bs.carousel', function() {
+            currentIndex = $('div.active').index() + 1;
+            $('.num').html('' + currentIndex + '/' + totalItems + '');
+        });
     </script>
     <% end %>
 <% end %> <!-- show if empty -->

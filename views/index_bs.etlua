@@ -79,7 +79,7 @@ for _, descriptor in pairs(features) do
             title = title_for(descriptor, collection.name),
             items = CollectionController.projects({
                 params = {},
-                items_per_page = 20,
+                items_per_page = 5,
                 collection = collection,
                 cached = true
             }),
@@ -109,5 +109,5 @@ render(
 ]]--
 %>
 
-<a href="/collections" class="btn btn-lg btn-primary"
+<a href="/collections" class="btn btn-lg btn-outline-primary"
     ><%- locale.get('more_collections') %></a>
