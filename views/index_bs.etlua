@@ -79,7 +79,7 @@ for _, descriptor in pairs(features) do
             title = title_for(descriptor, collection.name),
             items = CollectionController.projects({
                 params = {},
-                items_per_page = 5,
+                items_per_page = 20, -- 20 projects to query from DB.
                 collection = collection,
                 cached = true
             }),
