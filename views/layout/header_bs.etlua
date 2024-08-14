@@ -10,13 +10,14 @@
 
 <!-- External libs, both stylesheets and JS -->
 <link rel="stylesheet" href="/static/vendor/style/bootstrap.min.css">
-<link rel="stylesheet" href="/static/vendor/fontawesome/style/fontawesome.min.css"">
+<link rel="stylesheet" href="/static/vendor/fontawesome/style/fontawesome.min.css">
 <link rel="stylesheet" href="/static/style/custom-alert.css">
 
 <!-- Stylesheets -->
 <link rel="stylesheet" href="/static/style/snapcloud-base.css">
 <link rel="stylesheet" href="/static/style/classes.css">
 <link rel="stylesheet" href="/static/style/layout.css">
+<link rel="stylesheet" href="/static/style/project.css">
 
 <!-- JS: Required to load the page -->
 <script type="text/javascript" src="/static/js/locale.js"></script>
@@ -25,9 +26,4 @@
 <script type="text/javascript" src="/static/js/base.js"></script>
 <script>cloud = new Cloud(); cloud.url = location.origin;</script>
 
-<!-- JS that can be delayed -->
-<script type="text/javascript" src="/static/vendor/js/FileSaver.min.js"></script>
-<script type="text/javascript" src="/static/vendor/js/bootstrap.bundle.min.js"></script>
-<script type="text/javascript" src="/static/vendor/js/popper.min.js"></script>
-
-<!-- TODO: Insert Sentry frontend logs + page tracking -->
+<!-- JS that can be delayed is loaded in the layout.delayed_scripts -->

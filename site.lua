@@ -45,15 +45,15 @@ app:enable('etlua')
 app.layout = require 'views.layout'
 
 local static_pages = {
-    'about', 'bjc', 'coc', 'contact', 'credits', 'dmca', 'extensions',
+    'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
     'materials', 'mirrors', 'offline', 'partners', 'privacy', 'research',
-    'snapinator', 'snapp', 'source', 'tos',
+    'snapinator', 'snapp', 'source', 'tos'
 }
 
 local views = {
     -- Simple pages
-    'blog', 'change_email', 'change_password', 'delete_user', 'forgot_password',
-    'forgot_username', 'sign_up', 'login',
+    'change_email', 'change_password', 'delete_user', 'forgot_password',
+    'forgot_username', 'sign_up', 'login'
 }
 
 -- Temporary during a front-end rewrite.
