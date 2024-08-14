@@ -44,12 +44,13 @@ require 'dialogs'
 app:enable('etlua')
 app.layout = require 'views.layout'
 
-local views = {
-    -- Static pages
+local static_pages = {
     'about', 'bjc', 'coc', 'contact', 'credits', 'dmca', 'extensions',
     'materials', 'mirrors', 'offline', 'partners', 'privacy', 'research',
     'snapinator', 'snapp', 'source', 'tos',
+}
 
+local views = {
     -- Simple pages
     'blog', 'change_email', 'change_password', 'delete_user', 'forgot_password',
     'forgot_username', 'sign_up', 'login',
@@ -75,6 +76,12 @@ end)))
 app:get('/index', function ()
     return { redirect_to = '/' }
 end)
+
+for _, page in pairs(static_pages) do
+    app:get('/' .. page, capture_errors(cached(function (self)
+            return { render = 'static/' .. page }
+    end)))
+end
 
 for _, view in pairs(views) do
     app:get('/' .. view, capture_errors(cached(function (self)
