@@ -109,5 +109,7 @@ render(
 ]]--
 %>
 
-<a href="/collections" class="btn btn-lg btn-outline-primary"
-    ><%- locale.get('more_collections') %></a>
+<div class="row projects">
+    <a href="/collections" class="btn btn-lg btn-outline-primary"
+        ><%- locale.get('more_collections') %></a>
+</div>

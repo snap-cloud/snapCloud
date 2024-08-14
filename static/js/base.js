@@ -94,6 +94,24 @@ function flash (element, callback, warning) {
     }, 500);
 };
 
+function setupCarouselPageIndicator (id) {
+    function setCarouselText(carousel, current, total) {
+        let textContainer = carousel.querySelector('.js-textStatus');
+        textContainer.querySelector('.page-link').innerHTML = `${current} / ${total}`;
+        textContainer.querySelector('.visually-hidden').innerHTML = `${current} of ${total}`;
+    }
+
+    let carousel = document.getElementById(`${id}_container`);
+    let totalItems = carousel.querySelectorAll('.carousel-item').length;
+    let currentIndex = Array.prototype.indexOf.call(carousel.querySelectorAll('.carousel-item'), carousel.querySelector('div.active')) + 1;
+    setCarouselText(carousel, currentIndex, totalItems);
+
+    carousel.addEventListener('slid.bs.carousel', function() {
+        currentIndex = Array.prototype.indexOf.call(carousel.querySelectorAll('.carousel-item'), carousel.querySelector('div.active')) + 1;
+        setCarouselText(carousel, currentIndex, totalItems);
+    });
+};
+
 // JS additions
 
 Array.prototype.sortBy = function (parameter, reverse) {

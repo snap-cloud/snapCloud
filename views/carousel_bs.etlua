@@ -18,11 +18,11 @@ items_per_row = items_per_row or 5
 %>
 
 
-<div class="<%= item_type %>s row my-2 <%= class %>">
+<div  id="<%= id %>_container" class="<%= item_type %>s my-2 <%= class %>">
 
 <% if ((num_pages > 0) or show_if_empty) then %>
-    <div class="row">
-    <div class="col-10">
+  <div class="row">
+    <div class="col-md-9 col-sm-12">
         <% if title then %>
             <% if href then %><a href="<%=href%>" title="Show all"><% end %>
             <h2 class="my-0 <%= item_type %>s"><%= title %></h2>
@@ -34,7 +34,7 @@ items_per_row = items_per_row or 5
     </div>
 
     <% if num_pages > 1 then %>
-        <div class="col-2">
+        <div class="col-md-3 col-sm-12">
             <%
                 render(
                     'views.partials.carousel_paginator_bs',
@@ -46,7 +46,7 @@ items_per_row = items_per_row or 5
     </div>
 
     <% if num_pages > 0 then %>
-    <div id="<%= id %>" class="row carousel" data-bs-ride="false" data-bs-interval="false">
+    <div id="<%= id %>" class="carousel" data-bs-ride="false" data-bs-interval="false">
         <div class="carousel-inner">
             <% for idx, item in pairs(items) do %>
                 <% local new_row = (idx - 1) % items_per_row == 0
@@ -70,21 +70,7 @@ items_per_row = items_per_row or 5
     <% end -- show items, if there are any %>
 
     <% if num_pages > 1 then %>
-    <script>
-        <%
-            -- Add id suffix to elements that may appear more than once in a
-            -- page to prevent one paginator to mess with another carousel.
-            -- This could be made more elegant, but it will do for now.
-         %>
-        var totalItems = $('#<%= id %> .carousel-item').length;
-        var currentIndex = $('div.active').index() + 1;
-        $('.num').html('' + currentIndex + '/' + totalItems + '');
-
-        $('#carouselExampleCaptions').bind('slid.bs.carousel', function() {
-            currentIndex = $('div.active').index() + 1;
-            $('.num').html('' + currentIndex + '/' + totalItems + '');
-        });
-    </script>
+    <script>setupCarouselPageIndicator('<%- id %>');</script>
     <% end %>
 <% end %> <!-- show if empty -->
 </div>

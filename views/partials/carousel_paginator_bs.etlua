@@ -12,9 +12,9 @@
             <span class="visually-hidden">previous page</span>
         </button>
     </li>
-    <li class="page-item disabled">
-        <span class="page-link js-carouselStatus" aria-hidden="true">1 / <%- num_pages %></span>
-        <span class="visually-hidden js-carouselStatus">1 of <%- num_pages %> pages</span>
+    <li class="page-item disabled js-textStatus">
+        <span class="page-link" aria-hidden="true">1 / <%- num_pages %></span>
+        <span class="visually-hidden">1 of <%- num_pages %> pages</span>
     </li>
     <li class="page-item">
         <button class="page-link" type="button" data-bs-target="#<%=id%>" data-bs-slide="next">
