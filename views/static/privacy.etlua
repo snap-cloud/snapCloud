@@ -63,7 +63,7 @@
 
 <h2>For further questions</h2>
 
-<% render('views.contact') %>
+<% render('views.static.contact') %>
 
 <script>
     setTitle(localizer.localize('Privacy') + ' - Snap! Build Your Own Blocks');

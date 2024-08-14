@@ -36,9 +36,6 @@ num_pages = num_pages or 0
 if items == nil then items = {} end
 %>
 
-<!-- TODO: Consider moving this to the layout to reduce duplication in loading -->
-<link rel="stylesheet" href="/static/style/project.css">
-
 <% if (num_pages > 0) or show_if_empty then %>
     <section class="<%= class %> container-fluid">
 
@@ -49,6 +46,7 @@ if items == nil then items = {} end
             ><%= locale.get(title_selector) %></h2>
     <% end %>
 
+    <% --[[%> TODO: When no search or filter render pagination in the same row as the title. <%]]%>
     <div class="row">
         <div class="col-md-3 col-sm-12">
             <% if with_search then
@@ -94,6 +92,5 @@ if items == nil then items = {} end
         <% end %>
         </div>
     <% end %>
-
     </section>
 <% end %>

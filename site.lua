@@ -79,13 +79,13 @@ end)
 
 for _, page in pairs(static_pages) do
     app:get('/' .. page, capture_errors(cached(function (self)
-            return { render = 'static/' .. page }
+            return { render = 'static/' .. page, layout = 'layout_bs' }
     end)))
 end
 
 for _, view in pairs(views) do
     app:get('/' .. view, capture_errors(cached(function (self)
-        if self.params['bootstrap'] == 'true' then
+        if self.params['bootstrap'] then
             return { render = view .. '_bs', layout = 'layout_bs'}
         else
             return { render = view }
