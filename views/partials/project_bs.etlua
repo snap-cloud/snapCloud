@@ -1,13 +1,12 @@
 <div class="project small col">
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle"></i>
+    <span class="sr-only">no thumbnail aet</span>
     <% end %>
     <a target="_self" href="<%= item:url_for('site') %>">
         <img class="thumbnail" title="" alt="<%- item.projectname %> thumbnail"
-            <% if (item.thumbnail) then %>
-                src="<%- item.thumbnail %>"
-            <% end %>
-        >
+            src="<%- item.thumbnail or '' %>"
+            width=160 height=120>
         <span class="project-name"><%- item.projectname %></span>
     </a>
 
