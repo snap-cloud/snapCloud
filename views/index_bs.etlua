@@ -14,17 +14,17 @@
 <div class="row">
     <div class="col-12"><%- locale.get('snap_description', '<em>!</em>') %></div>
 
-    <div class="col-12 py-4">
-        <a href="/snap" class="btn btn-lg btn-primary"
+    <div class="col-12 py-3">
+        <a href="/snap" class="m-1 btn btn-lg btn-primary"
             ><%- locale.get('run_now', '<em>!</em>') %></a>
         <% if current_user then %>
-            <a href="/my_projects" class="btn btn-lg btn-secondary"
+            <a href="/my_projects" class="m-1 btn btn-lg btn-outline-success"
                 ><%- locale.get('my_projects') %></a>
-            <a href="<%- current_user:url_for('site') %>" class="btn btn-lg btn-secondary"
+            <a href="<%- current_user:url_for('site') %>" class="m-1 btn btn-lg btn-outline-success"
                 ><%- locale.get('my_public_page') %></a>
         <% end %>
-        <a href="/examples" class="btn btn-lg btn-secondary"><%- locale.get('examples') %></a>
-        <a href="/snap/help/SnapManual.pdf" class="btn btn-lg btn-secondary" target="_blank"
+        <a href="/examples" class="m-1 btn btn-lg btn-outline-secondary"><%- locale.get('examples') %></a>
+        <a href="/snap/help/SnapManual.pdf" class="m-1 btn btn-lg btn-outline-secondary" target="_blank"
             ><%- locale.get('manual') %></a>
     </div>
 </div>
