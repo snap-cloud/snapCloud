@@ -1,4 +1,4 @@
--- Snap Cloud
+-- Snap!Cloud
 -- ==========
 --
 -- A cloud backend for Snap!
@@ -30,7 +30,6 @@ local lapis = require('lapis')
 package.loaded.app = lapis.Application()
 package.loaded.db = require('lapis.db')
 package.loaded.validate = require('lapis.validate')
-package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
 package.loaded.resty_sha512 = require('resty.sha512')
 package.loaded.resty_string = require('resty.string')
