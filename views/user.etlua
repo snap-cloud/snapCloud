@@ -7,7 +7,7 @@
 <%
 -- PUBLIC PROJECTS
 render(
-    'views.carousel',
+    'views.carousel_bs',
     {
         title = locale.get('latest_published_projects'),
         items = ProjectController.user_projects({
@@ -28,7 +28,7 @@ render(
 -- PUBLIC COLLECTIONS
 
 render(
-    'views.carousel',
+    'views.carousel_bs',
     {
         title = locale.get('latest_published_collections'),
         items = CollectionController.user_collections({
@@ -47,11 +47,11 @@ render(
 
 <% if current_user then
     if current_user:follows(queried_user) then %>
-    <a class="pure-button" onclick="
+    <a class="btn btn-outline-primary" onclick="
         cloud.delete('/users/<%= queried_user.username %>/follow');
     "><%= locale.get('unfollow_user') %></a>
 <% else %>
-    <a class="pure-button" onclick="
+    <a class="btn btn-primary" onclick="
         cloud.post('/users/<%= queried_user.username %>/follow');
     "><%= locale.get('follow_user') %></a>
 <%
@@ -59,16 +59,13 @@ render(
 end
 %>
 
-<%
--- ADMIN TOOLS
-
-if current_user and current_user:has_min_role('moderator') then
-%>
-<div class="profile">
+<% if current_user and current_user:has_min_role('moderator') then %>
+<!-- -- ADMIN TOOLS -->
+<div class="col-4">
     <h2><%- locale.get('admin_tools') %></h2>
 <%
     render(
-        'views.partials.profile',
+        'views.partials.profile_bs',
         {
             item = queried_user,
             show_project_count = true

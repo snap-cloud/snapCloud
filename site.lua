@@ -122,7 +122,7 @@ app:get('/users', capture_errors(cached(function (self)
     self.items_per_page = 51
     self.items = UserController.fetch(self)
     if not self.params.search_term then self.params.search_term = '' end
-    return { render = 'users' }
+    return { render = 'users', layout = 'layout_bs' }
 end)))
 
 app:get('/my_projects', capture_errors(function (self)
@@ -174,14 +174,14 @@ app:get('/user', capture_errors(function (self)
     assert_user_exists(self)
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
-    return { render = 'user' }
+    return { render = 'user', layout = 'layout_bs' }
 end))
 
 app:get('/user_collections/:username', capture_errors(cached(function (self)
     assert_user_exists(self)
     self.params.user_id = self.queried_user.id
     self.items = CollectionController.user_collections(self)
-    return { render = 'collections' }
+    return { render = 'collections', layout = 'layout_bs' }
 end)))
 
 app:get('/user_projects/:username', capture_errors(cached(function (self)
