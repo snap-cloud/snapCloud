@@ -128,7 +128,7 @@ end)))
 app:get('/my_projects', capture_errors(function (self)
     if self.current_user then
         self.items = ProjectController.my_projects(self)
-        return { render = 'my_projects' }
+        return { render = 'my_projects', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -137,7 +137,7 @@ end))
 app:get('/my_collections', capture_errors(function (self)
     if self.current_user then
         self.items = CollectionController.my_collections(self)
-        return { render = 'my_collections' }
+        return { render = 'my_collections', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -208,7 +208,7 @@ end)))
 app:get('/followed', capture_errors(cached(function (self)
     if self.current_user then
         self.items = ProjectController.followed_projects(self)
-        return { render = 'followed' }
+        return { render = 'followed', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -217,7 +217,7 @@ end)))
 app:get('/followed_users', capture_errors(cached(function (self)
     if self.current_user then
         self.items = UserController.followed_users(self)
-        return { render = 'followed_users' }
+        return { render = 'followed_users', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -226,7 +226,7 @@ end)))
 app:get('/my_followers', capture_errors(cached(function (self)
     if self.current_user then
         self.items = UserController.follower_users(self)
-        return { render = 'my_followers' }
+    return { render = 'my_followers', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -280,12 +280,12 @@ end))
 -- TODO: Should be able to consolidate these pages.
 app:get('/examples', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'examples' }
+    return { render = 'examples', layout = 'layout_bs' }
 end)))
 
 app:get('/events', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'events' }
+    return { render = 'events', layout = 'layout_bs' }
 end)))
 
 app:get('/search', capture_errors(function (self)

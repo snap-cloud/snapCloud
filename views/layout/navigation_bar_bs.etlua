@@ -2,7 +2,7 @@
   <!-- TODO-A11Y: Add a skip to main link up here. -->
   <div class="container-lg">
     <a class="navbar-brand" href="/" aria-label="Snap! home page">
-      <img src="/static/img/snap-logo-color.svg" height="36" class="logo clickable" alt="">
+      <img src="/static/img/snap-logo-color.svg" height="40" class="logo clickable" alt="">
     </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>

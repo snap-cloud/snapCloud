@@ -1,8 +1,9 @@
-<h1><%= locale.get('followed_feed') %></h1>
+<h1 class="mb-3"><%= locale.get('followed_feed') %></h1>
+
 <%
 if items[1] then
     render(
-        'views.grid',
+        'views.grid_bs',
         {
             class = 'my_projects',
             item_type = 'project',
@@ -20,5 +21,5 @@ else
 %></span>
 <% end %>
 
-<a class="pure-button" href="followed_users"><%= locale.get('followed_users') %></a>
-<a class="pure-button" href="my_followers"><%= locale.get('follower_users') %></a>
+<a class="btn btn-primary mr-3" href="/followed_users"><%= locale.get('followed_users') %></a>
+<a class="btn btn-primary mr-3" href="/my_followers"><%= locale.get('follower_users') %></a>

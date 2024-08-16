@@ -7,7 +7,7 @@
 <% end %>
 <%
 render(
-    'views.grid',
+    'views.grid_bs',
     {
         class = 'collections',
         item_type = 'collection',
