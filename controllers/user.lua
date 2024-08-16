@@ -122,15 +122,10 @@ UserController = {
         if (hash_password(password, self.queried_user.salt) ==
                 self.queried_user.password) then
             -- Check whether user has a verification token
-            local token =
-                Tokens:find({
-                    username = self.queried_user.username,
-                    purpose = 'verify_user'
-                })
-
-            -- TODO: Create and store a remember token
-            self.session.username = self.queried_user.username
-            self.cookies.persist_session = tostring(self.params.persist)
+            local token = Tokens:find({
+                username = self.queried_user.username,
+                purpose = 'verify_user'
+            })
 
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
@@ -170,7 +165,10 @@ UserController = {
                 token:delete()
             end
 
-             if self.queried_user.verified then
+            -- TODO: Create and store a remember token
+            self.session.username = self.queried_user.username
+            self.cookies.persist_session = tostring(self.params.persist)
+            if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
             else
