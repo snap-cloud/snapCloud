@@ -1,19 +1,71 @@
 <h1 localizable>Partners, sponsors and collaborators</h1>
-<ul class="flex">
-    <li><a href="https://nsf.gov"><img src="/static/img/nsf-logo.png"/></a></li>
-    <li><a href="https://sap.com"><img src="/static/img/sap-logo.png"/></a></li>
-    <li><a href="https://miosoft.com"><img src="/static/img/miosoft-logo.png"/></a></li>
-    <li><a href="https://bjc.berkeley.edu"><img src="/static/img/bjc-logo.png"/></a></li>
-    <li><a href="https://edc.org"><img src="/static/img/edc-logo.png"/></a></li>
-    <li><a href="https://tealsk12.org"><img src="/static/img/teals-logo.png"/></a></li>
-    <li><a href="http://faberresidency.cat/"><img src="/static/img/faber-logo.png"/></a></li>
-    <li><a href="http://microblocks.fun"><img src="/static/img/ublocks-logo.png"/></a></li>
-    <li><a href="https://turtlestitch.org"><img src="/static/img/turtlestitch-logo.png"/></a></li>
-    <li><a href="http://snap4arduino.rocks"><img src="/static/img/s4a-logo.png"/></a></li>
-    <li><a href="http://beetleblocks.com"><img src="/static/img/bb-logo.png"/></a></li>
-    <li><a href="https://citilab.eu"><img src="/static/img/citilab-logo.png"/></a></li>
+<ul class="flex list-unstyled">
+    <!-- TODO: Cleanup this list. Include UC Berkeley? -->
+    <li>
+        <a target="_blank" href="https://nsf.gov">
+            <img alt="NSF Logo" src="/static/img/nsf-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="https://sap.com">
+            <img alt="SAP Logo" src="/static/img/sap-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="https://miosoft.com">
+            <img alt="Miosoft Logo" src="/static/img/miosoft-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="https://bjc.berkeley.edu">
+            <img alt="BJC Logo" src="/static/img/bjc-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="https://edc.org">
+            <img alt="EDC Logo" src="/static/img/edc-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="https://tealsk12.org">
+            <img alt="Microsoft TEALS logo" src="/static/img/teals-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="http://faberresidency.cat/">
+            <img alt="Faber Residency Logo" src="/static/img/faber-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="http://microblocks.fun">
+            <img alt="microblocks logo" src="/static/img/ublocks-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="https://turtlestitch.org">
+            <img alt="TurtleStitch Logo" src="/static/img/turtlestitch-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="http://snap4arduino.rocks">
+            <img alt="Snap4Arduino Logo" src="/static/img/s4a-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="http://beetleblocks.com">
+            <img alt="Beetle Blocks logo" src="/static/img/bb-logo.png"/>
+        </a>
+    </li>
+    <li>
+        <a target="_blank" href="https://citilab.eu">
+            <img alt="CitiLab Logo" src="/static/img/citilab-logo.png"/>
+        </a>
+    </li>
 </ul>
+
 <p>This material is based upon work supported by the National Science Foundation under Grants No. 1138596, 1143566, and 1441075.</p>
+
 <p>Further development of the Snap<em>!</em> programming language, its cloud backend and its social website has been sponsored by <a href="https://sap.com">SAP</a>.</p>
+
 <p>The University of California, Berkeley partners with SAP to develop the Snap<em>!</em> programming language and provide the Snap<em>!</em> cloud service used  by the Snap<em>!</em> community website. UC Berkeley and Education Development Center, Inc., have created <a href="https://bjc.berkeley.edu">The Beauty and Joy of Computing</a> course and curriculum using Snap<em>!</em>, supported by grants from the NSF. Further curricular materials and online courses using Snap<em>!</em> are developed by researchers at SAP and by the TEALS initiative at Microsoft.
 <p><strong><small>Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation or other funders.</small></strong></p>
