@@ -187,7 +187,7 @@ end)))
 app:get('/user_projects/:username', capture_errors(cached(function (self)
     assert_user_exists(self)
     self.items = ProjectController.user_projects(self)
-    return { render = 'explore' }
+    return { render = 'explore', layout = 'layout_bs' }
 end)))
 
 -- Display an embedded collection view.
