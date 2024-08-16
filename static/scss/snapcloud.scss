@@ -1,0 +1,222 @@
+/* This sets CSS Variables which override Bootstrap's config. */
+:root {
+  --berkeley-blue-2023: #003262;
+  --berkeley-blue-2024: #002676;
+  --snap-dark-blue: #2d3142;
+  --snap-icon-blue: #496AD5;
+  --snap-logo-gold: #E6AD1B;
+  --bs-dark: var(--snap-dark-blue);
+  --bs-body-color: var(--snap-dark-blue);
+  --navbar-height: 64px;
+  /* this is the minimum I think w/ all 5 columns of links */
+  --estimated-footer-height: 450px;
+}
+
+[data-bs-theme=dark] {
+  /* Ensure the hamburger icon is solid white. Seems to be no easier way to fix this. */
+  & .navbar-toggler-icon {
+    --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+}
+
+nav.navbar {
+  --bs-navbar-dark-color: var(--snap-dark-blue);
+  --bs-navbar-color: #FFF;
+  --bs-navbar-link-color: #FFF;
+  --bs-navbar-toggler-border-color: #FFF;
+  background-color: var(--snap-dark-blue);
+  font-weight: 600;
+  padding: 0;
+
+
+  /* Remove extra padding so the li elements are full-height */
+  ul {
+    padding: 0;
+  }
+
+  .form-control {
+    border-color: #FFF;
+    background-color: #FFF;
+    color: var(--snap-dark-blue);
+    margin: auto 0;
+  }
+
+  /* spacing for the toggle button */
+  & .navbar-toggler {
+    --bs-navbar-toggler-border-color: #FFF;
+    --bs-navbar-color: #FFF;
+    margin: 12px;
+  }
+
+  li {
+    --bs-nav-link-padding-x: 1em;
+    padding: 0.75em 0.5em;
+    height: 100%;
+    margin: 0;
+
+    > a {
+      color: #FFF;
+    }
+
+    &:hover,
+    &:focus-within,
+    .dropdown-item:hover,
+    .dropdown-item:focus-within {
+      background-color: #FFF;
+
+      & form {
+        background-color: unset;
+      }
+
+      > a {
+        color: var(--snap-dark-blue);
+      }
+    }
+
+    .dropdown-menu {
+      background-color: var(--snap-dark-blue);
+      color: #FFF;
+    }
+
+    li.no-hover {
+      padding: 0 0;
+      background: var(--snap-dark-blue);
+
+      & hr {
+        opacity: 1;
+      }
+    }
+  }
+
+  .trapezoid {
+    position: absolute;
+    top: var(--navbar-height);
+  }
+}
+
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: var(--navbar-height) 0 0 0;
+  color: var(--snap-dark-blue);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  margin: 1em auto;
+  flex: 1 0 auto;
+}
+
+.footer {
+  background: var(--snap-dark-blue);
+  padding: 1em;
+  color: var(--bs-light);
+  font-size: 0.75em;
+
+  h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
+  .trapezoid-footer {
+    top: -14px;
+  }
+
+  a {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  .credits {
+    margin: 2em 1em;
+    padding: 1em;
+    border-top: 1px solid #ffffff;
+
+    a {
+      text-decoration: none;
+    }
+
+    img {
+      margin-right: 1em;
+    }
+  }
+}
+
+.btn-outline-primary + .form-control {
+  border-color: var(--bs-primary);
+}
+
+a {
+  color: var(--berkeley-blue);
+  text-decoration: none;
+}
+
+em {
+  font-style: italic;
+}
+
+p {
+  margin: 1em 0;
+}
+
+p {
+  line-height: 1.2em;
+}
+
+ol {
+  list-style: decimal inside;
+  padding: .5em 0;
+}
+
+h2 {
+  font-size: 1.5em;
+  margin: 1em 0 .5em 0;
+}
+
+h3 {
+  font-size: 1.3em;
+  margin: 1em 0 .5em 0;
+}
+
+h4 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
+hr {
+  margin: 0;
+  border: 0;
+  height: 1px;
+  background: #ffffff;
+}
+
+#homepage-carousel {
+
+  .carousel-item img {
+    border-radius: 8px;
+    max-width: auto;
+    max-height: 400px;
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    border-radius: 6px;
+    height: 3ch;
+    width: 3ch;
+    font-weight: bold;
+    background-color: #222;
+    backdrop-filter: opacity(0.9) blur(4px);
+    -webkit-backdrop-filter: opacity(0.9) blur(4px);
+
+    &:focus-visible,
+    &:hover {
+      box-shadow: var(--bs-navbar-toggler-border-color) 0 0 3px 3px;
+    }
+  }
+}
