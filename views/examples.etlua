@@ -1,5 +1,6 @@
 <script src="/static/js/project.js"></script>
 <link rel="stylesheet" href="/static/style/project.css">
+
 <h1><%= locale.get('examples') %></h1>
 <%
 for _, descriptor in pairs(

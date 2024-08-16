@@ -1,6 +1,7 @@
 <script src="/static/js/project.js"></script>
 <link rel="stylesheet" href="/static/style/project.css">
 <h1><%- locale.get('events_title', '<em>!</em>') %></h1>
+
 <%
 for _, descriptor in ipairs(
     package.loaded.FeaturedCollections:select(

@@ -293,7 +293,6 @@ app:get('/search', capture_errors(function (self)
     return { render = 'search' }
 end))
 
--- Administration and data management pages
 
 app:get('/profile', capture_errors(function (self)
     if self.current_user then
@@ -304,10 +303,12 @@ app:get('/profile', capture_errors(function (self)
     end
 end))
 
+-- Administration and data management pages
+
 app:get('/admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'reviewer')
-        return { render = 'admin' }
+        return { render = 'admin/index', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -317,7 +318,7 @@ app:get('/flags', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'reviewer')
         items = ProjectController.flagged_projects(self)
-        return { render = 'flags' }
+        return { render = 'admin/flags' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -328,7 +329,7 @@ app:get('/user_admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'moderator')
         self.items = UserController.fetch(self)
-        return { render = 'user_admin', layout = 'layout_bs' }
+        return { render = 'admin/user_admin', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -339,7 +340,7 @@ app:get('/zombie_admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'moderator')
         self.items = UserController.zombies(self)
-        return { render = 'zombie_admin' }
+        return { render = 'admin/zombie_admin' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -349,7 +350,7 @@ app:match('/totm', respond_to({
     GET = capture_errors(function (self)
         if self.current_user then
             assert_min_role(self, 'moderator')
-            return { render = 'totm' }
+            return { render = 'admin/totm' }
         else
             return { redirect_to = self:build_url('/') }
         end
@@ -360,7 +361,7 @@ app:match('/totm', respond_to({
         if file then
             local disk = package.loaded.disk
             if disk:save_totm_banner(file) then
-                return { render = 'totm' }
+                return { render = 'admin/totm' }
             end
         end
         return errorResponse(self)
@@ -369,13 +370,13 @@ app:match('/totm', respond_to({
 
 app:get('/carousel_admin', capture_errors(function (self)
     assert_min_role(self, 'moderator')
-    return { render = 'carousel_admin' }
+    return { render = 'admin/carousel_admin' }
 end))
 
 app:get('/ip_admin', capture_errors(function (self)
     assert_min_role(self, 'admin')
     self.ips = SiteController.banned_ips(self)
-    return { render = 'ip_admin' }
+    return { render = 'admin/ip_admin' }
 end))
 
 -- Teachers
@@ -385,7 +386,7 @@ app:get('/teacher', capture_errors(function (self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'teacher', layout = 'layout_bs' }
+    return { render = 'teacher/index', layout = 'layout_bs' }
 end))
 
 app:get('/bulk', capture_errors(function (self)
@@ -393,7 +394,7 @@ app:get('/bulk', capture_errors(function (self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'bulk', layout = 'layout_bs' }
+    return { render = 'teacher/bulk', layout = 'layout_bs' }
 end))
 
 app:get('/learners', capture_errors(function (self)
@@ -405,7 +406,7 @@ app:get('/learners', capture_errors(function (self)
     self.items_per_page = 150
     if self.current_user and self.current_user.is_teacher then
         self.items = UserController.learners(self)
-        return { render = 'learners', layout = 'layout_bs' }
+        return { render = 'teacher/learners', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('index') }
     end
