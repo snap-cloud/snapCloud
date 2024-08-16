@@ -4,7 +4,7 @@
       <!-- Ensure 1 item is always active. -->
       <div class="carousel-item active">
         <a href="https://snapcon.org" aria-label="Check out Snap!Con" target=_blank>
-          <img src="/static/img/snapcon.png" class="d-block w-100" aria-hidden=true>
+          <img src="/static/img/snapcon.png" aria-hidden=true>
         </a>
       </div>
 
@@ -20,26 +20,26 @@
     %>
     <div class="carousel-item">
       <a href="/collection?username=snapcloud&collection=<%= totms[1].name %>">
-        <img src="/static/img/totm.png" class="d-block w-100"
+        <img src="/static/img/totm.png"
           alt="View Topic of the Month '<%= totms[1].name %>'" />
       </a>
     </div>
     <% end %>
 
       <div class="carousel-item">
-        <img src="/static/img/snap-byob.png" class="d-block w-100" alt="Snap! - Build Your Own Blocks">
+        <img src="/static/img/snap-byob.png" alt="Snap! - Build Your Own Blocks">
       </div>
 
       <div class="carousel-item">
-        <img src="/static/img/lowfloor.png" class="d-block w-100" alt="Snap! - Low Floor (showing flowers)">
+        <img src="/static/img/lowfloor.png" alt="Snap! - Low Floor (showing flowers)">
       </div>
 
       <div class="carousel-item">
-        <img src="/static/img/widewalls.png" class="d-block w-100" alt="Snap! - Wide Walls">
+        <img src="/static/img/widewalls.png" alt="Snap! - Wide Walls">
       </div>
 
       <div class="carousel-item">
-        <img src="/static/img/noceiling.png" class="d-block w-100" alt="Snap! - No Ceiling">
+        <img src="/static/img/noceiling.png" alt="Snap! - No Ceiling">
       </div>
     </div>
 
