@@ -291,7 +291,7 @@ end)))
 app:get('/search', capture_errors(function (self)
     self.reviewer_controls =
         self.current_user and self.current_user:has_min_role('reviewer')
-    return { render = 'search' }
+    return { render = 'search', layout = 'layout_bs' }
 end))
 
 

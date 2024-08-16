@@ -51,10 +51,14 @@ items_per_row = items_per_row or 5
             <% for idx, item in pairs(items) do %>
                 <% local new_row = (idx - 1) % items_per_row == 0
                    local end_row = idx % items_per_row == 0 or idx == #items
+                   local new_page = (idx - 1) % items_per_page == 0
+                   local end_page = idx % items_per_page == 0 or idx == #items
                    local is_active = idx == 1 and 'active' or ''
                 %>
-                <% if new_row then %>
+                <% if new_page then %>
                     <div class="<%= item_type .. 's ' .. is_active %> carousel-item">
+                <% end %>
+                <% if new_row then %>
                     <div class="row">
                 <% end %>
                 <% render('views.partials.' .. item_type .. '_bs', {
@@ -62,12 +66,15 @@ items_per_row = items_per_row or 5
                         show_author = show_author
                     }) %>
                 <% if end_row then %>
-                    </div></div>
+                    </div>
+                <% end %>
+                <% if end_page then %>
+                    </div>
                 <% end %>
             <% end %>
         </div>
     </div>
-    <% end -- show items, if there are any %>
+    <% end %>
 
     <% if num_pages > 1 then %>
     <script>setupCarouselPageIndicator('<%- id %>');</script>
