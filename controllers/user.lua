@@ -122,17 +122,15 @@ UserController = {
         if (hash_password(password, self.queried_user.salt) ==
                 self.queried_user.password) then
             -- Check whether user has a verification token
-            local token =
-                Tokens:find({
-                    username = self.queried_user.username,
-                    purpose = 'verify_user'
-                })
+            local token = Tokens:find({
+                username = self.queried_user.username,
+                purpose = 'verify_user'
+            })
+
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
                 if self.queried_user:is_student() then
-                    self.session.username = self.queried_user.username
-                    self.cookies.persist_session = tostring(self.params.persist)
                     self.queried_user:update({ verified = true })
                     return jsonResponse({
                         title = 'Welcome to Snap!',
@@ -167,6 +165,7 @@ UserController = {
                 token:delete()
             end
 
+            -- TODO: Create and store a remember token
             self.session.username = self.queried_user.username
             self.cookies.persist_session = tostring(self.params.persist)
 
