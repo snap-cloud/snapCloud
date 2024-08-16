@@ -1,7 +1,6 @@
 <script src="/static/js/project.js"></script>
-<link rel="stylesheet" href="/static/style/project.css">
+<h1 class="mb-3"><%= locale.get('examples') %></h1>
 
-<h1><%= locale.get('examples') %></h1>
 <%
 for _, descriptor in pairs(
     package.loaded.FeaturedCollections:select("where page_path = 'examples'")
@@ -11,7 +10,7 @@ for _, descriptor in pairs(
         package.loaded.Collections:find({id = descriptor.collection_id })
 
     render(
-        'views.carousel',
+        'views.carousel_bs',
         {
             title = collection.name, -- TODO localize titles
             items = CollectionController.projects({
