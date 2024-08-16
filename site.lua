@@ -347,11 +347,11 @@ app:get('/zombie_admin', capture_errors(function (self)
     end
 end))
 
-app:match('/totm', respond_to({
+app:match('admin/totm', '/totm', respond_to({
     GET = capture_errors(function (self)
         if self.current_user then
             assert_min_role(self, 'moderator')
-            return { render = 'admin/totm' }
+            return { render = true, layout = 'layout_bs' }
         else
             return { redirect_to = self:build_url('/') }
         end
@@ -362,7 +362,7 @@ app:match('/totm', respond_to({
         if file then
             local disk = package.loaded.disk
             if disk:save_totm_banner(file) then
-                return { render = 'admin/totm' }
+                return { render = true, layout = 'layout_bs' }
             end
         end
         return errorResponse(self)
