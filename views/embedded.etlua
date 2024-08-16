@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= locale.language %>">
     <head>
         <meta charset="UTF-8">
         <title>Snap! Build Your Own Blocks</title>
@@ -44,5 +44,6 @@
     </head>
     <body>
         <div id="wrapper"><% content_for('inner') %></div>
+        <script src="https://js.sentry-cdn.com/3fad777945ae45818919b964c044f475.min.js" crossorigin="anonymous"></script>
     </body>
 </html>

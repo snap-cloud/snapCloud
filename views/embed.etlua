@@ -1,4 +1,5 @@
-<html>
+<!DOCTYPE html>
+<html lang="<%= locale.language %>">
     <head>
         <meta charset="UTF-8">
         <title><%= project.projectname %></title>
@@ -19,7 +20,6 @@
         <link rel="stylesheet" href="/static/style/embed.css">
     </head>
     <body>
-
         <div class="project big embed">
             <i class="project-loader fas fa-spinner fa-spin fa-3x"
                 aria-hidden="true"></i>
@@ -45,5 +45,6 @@
         <script type="text/javascript">
             document.body.style.overflow = 'hidden';
         </script>
+        <script src="https://js.sentry-cdn.com/3fad777945ae45818919b964c044f475.min.js" crossorigin="anonymous"></script>
     </body>
 </html>
