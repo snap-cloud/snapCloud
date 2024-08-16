@@ -5,9 +5,10 @@
   --snap-dark-blue: #2d3142;
   --snap-icon-blue: #496AD5;
   --snap-logo-gold: #E6AD1B;
-  --bs-dark: var(--snap-dark-blue);
+  --bs-dark: var(--berkeley-blue-2024);
   --bs-body-color: var(--snap-dark-blue);
   --navbar-height: 64px;
+  --lighter-link-color: #7070A0;
   /* this is the minimum I think w/ all 5 columns of links */
   --estimated-footer-height: 450px;
 }
@@ -24,10 +25,9 @@ nav.navbar {
   --bs-navbar-color: #FFF;
   --bs-navbar-link-color: #FFF;
   --bs-navbar-toggler-border-color: #FFF;
-  background-color: var(--snap-dark-blue);
+  background-color: var(--bs-navbar-dark-color);
   font-weight: 600;
   padding: 0;
-
 
   /* Remove extra padding so the li elements are full-height */
   ul {
@@ -37,7 +37,7 @@ nav.navbar {
   .form-control {
     border-color: #FFF;
     background-color: #FFF;
-    color: var(--snap-dark-blue);
+    color: var(--bs-navbar-dark-color);
     margin: auto 0;
   }
 
@@ -48,6 +48,10 @@ nav.navbar {
     margin: 12px;
   }
 
+  .nav-link.show {
+    color: var(--bs-navbar-dark-color);
+  }
+
   li {
     --bs-nav-link-padding-x: 1em;
     padding: 0.75em 0.5em;
@@ -56,6 +60,8 @@ nav.navbar {
 
     > a {
       color: #FFF;
+      font-weight: bold;
+      text-align: center;
     }
 
     &:hover,
@@ -63,24 +69,25 @@ nav.navbar {
     .dropdown-item:hover,
     .dropdown-item:focus-within {
       background-color: #FFF;
+      color: var(--bs-navbar-dark-color);
 
       & form {
         background-color: unset;
       }
 
       > a {
-        color: var(--snap-dark-blue);
+        color: var(--bs-navbar-dark-color);
       }
     }
 
     .dropdown-menu {
-      background-color: var(--snap-dark-blue);
+      background-color: var(--bs-navbar-dark-color);
       color: #FFF;
     }
 
     li.no-hover {
       padding: 0 0;
-      background: var(--snap-dark-blue);
+      background: var(--bs-navbar-dark-color);
 
       & hr {
         opacity: 1;
@@ -152,8 +159,12 @@ main {
 }
 
 a {
-  color: var(--berkeley-blue);
+  color: var(--lighter-link-color);
   text-decoration: none;
+
+  & h1, h2, h3, h4 {
+    color: var(--lighter-link-color);
+  }
 }
 
 em {
