@@ -1,5 +1,4 @@
 <script src="/static/js/project.js"></script>
-<link rel="stylesheet" href="/static/style/project.css">
 
 <% render('views.partials.slideshow_bs') %>
 
@@ -16,7 +15,7 @@
 
     <div class="col-12 py-3">
         <a href="/snap" class="m-1 btn btn-lg btn-primary"
-            ><%- locale.get('run_now', '<em>!</em>') %></a>
+            ><%- locale.get('run_now', '<img src="/static/img/snap-logo-white.svg" alt="Snap!" style="height: 1.5rem" />') %></a>
         <% if current_user then %>
             <a href="/my_projects" class="m-1 btn btn-lg btn-outline-success"
                 ><%- locale.get('my_projects') %></a>

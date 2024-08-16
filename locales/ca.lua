@@ -78,7 +78,7 @@ local locale = {
     welcome_logged_in = "Hola, @1!", -- @1 becomes the current user username
     snap_description = "Snap@1 és un llenguatge àmpliament acollidor tant per a nens i nenes com per a adults, així com una plataforma per a un estudi rigorós de les ciències de la computació.",
     -- Buttons
-    run_now = "Obre Snap@1 ara",
+    run_now = "Obre @1 ara",
     -- examples and manual already translated in Footer
     -- Curated Collections
     featured = "Projectes destacats",
