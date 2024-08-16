@@ -1,9 +1,10 @@
 /* This sets CSS Variables which override Bootstrap's config. */
 :root {
-  --berkeley-blue: #003262;
-  /* Historical dark color */
+  --berkeley-blue-2023: #003262;
+  --berkeley-blue-2024: #002676;
   --snap-dark-blue: #2d3142;
-  /* --snap-dark-blue: #003262; */
+  --snap-icon-blue: #496AD5;
+  --snap-logo-gold: #E6AD1B;
   --bs-dark: var(--snap-dark-blue);
   --bs-body-color: var(--snap-dark-blue);
   --navbar-height: 64px;

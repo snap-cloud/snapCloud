@@ -192,6 +192,12 @@ The above username and password are the default values, defined in `config.lua`.
 
 In development, it's completely fine to stick with these provided values. However, on a production server you must create a much stronger password, which should be stored in an environment variable.
 
+## Development Tools
+The Snap!Cloud uses the SASS compiler to compile (some) CSS.
+
+All you need to do is run `npm install` or `npm install -g sass`
+
+This compiles `static/scss` to `static/style/compiled/`.
 
 ### Getting Emails
 The Snap<em>!</em>Cloud sends emails for certain actions, like new user signups and password resets. In order to test those actions, you need an SMTP server.

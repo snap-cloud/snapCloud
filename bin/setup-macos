@@ -16,12 +16,12 @@ if [[ -z `which brew` ]]; then
 fi
 
 if [[ -z `which npm` ]]; then
-    echo 'Skipping installing maildev (an email catcher).'
-    echo 'To install maildev, first install node (npm), then do:'
-    echo '"npm install -g maildev"'
+    echo 'Skipping installing sass (css) maildev (an email catcher).'
+    echo 'To install, first install node (npm), then do:'
+    echo '"npm install -g sass maildev"'
 else
-    print_ok 'Installing maildev...'
-    npm install -g maildev
+    print_ok 'Installing dependecies from package.json ...'
+    npm install
 fi
 
 # Install basic dependencies via brew

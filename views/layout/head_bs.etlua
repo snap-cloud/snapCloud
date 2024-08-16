@@ -14,7 +14,7 @@
 <link rel="stylesheet" href="/static/style/custom-alert.css">
 
 <!-- Stylesheets -->
-<link rel="stylesheet" href="/static/style/snapcloud-base.css">
+<link rel="stylesheet" href="/static/style/compiled/snapcloud.css">
 <link rel="stylesheet" href="/static/style/classes.css">
 <link rel="stylesheet" href="/static/style/layout.css">
 <link rel="stylesheet" href="/static/style/project.css">

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= locale.language %>">
   <head>
-    <% render('views.layout.header_bs') %>
+    <% render('views.layout.head_bs') %>
   </head>
   <body>
     <% render('views.js.dialog') %>
