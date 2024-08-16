@@ -5,5 +5,4 @@ if [[ $1 != "--no-tor" ]]; then
 fi
 
 sass --watch static/scss/:static/style/compiled/ --style compressed &
-# authbind --deep lapis server $LAPIS_ENVIRONMENT
-lapis server $LAPIS_ENVIRONMENT
+authbind --deep lapis server $LAPIS_ENVIRONMENT
