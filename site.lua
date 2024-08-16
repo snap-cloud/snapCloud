@@ -110,7 +110,7 @@ end)))
 
 app:get('/collections', capture_errors(cached(function (self)
     self.items = CollectionController.fetch(self)
-    return { render = 'collections' }
+    return { render = 'collections', layout = 'layout_bs' }
 end)))
 
 app:get('/all_totms', capture_errors(cached(function (self)
