@@ -115,7 +115,7 @@ end)))
 
 app:get('/all_totms', capture_errors(cached(function (self)
     self.items = CollectionController.totms(self)
-    return { render = 'all_totms' }
+    return { render = 'all_totms', layout = 'layout_bs' }
 end)))
 
 app:get('/users', capture_errors(cached(function (self)
@@ -277,6 +277,7 @@ app:match('project', '/project', capture_errors(function (self)
     return { render = 'project' }
 end))
 
+-- TODO: Should be able to consolidate these pages.
 app:get('/examples', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
     return { render = 'examples' }
