@@ -36,6 +36,10 @@ nav.navbar {
   font-weight: 600;
   padding: 0;
 
+  .trapezoid {
+    color: var(--bs-navbar-dark-color);
+  }
+
   /* Remove extra padding so the li elements are full-height */
   ul {
     padding: 0;
@@ -115,7 +119,7 @@ html {
 
 body {
   margin: var(--navbar-height) 0 0 0;
-  color: var(--snap-dark-blue);
+  // color: var(--snap-dark-blue);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -169,6 +173,7 @@ a {
   color: var(--lighter-link-color);
   text-decoration: none;
 
+  // We sometimes have heading text _inside_ the <a> (and not the other way around...)
   & h1, h2, h3, h4 {
     color: var(--lighter-link-color);
   }
