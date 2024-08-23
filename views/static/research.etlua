@@ -2,13 +2,13 @@
 <h1>Research</h1>
 <ul class="article-list">
     <li>
-        <a href="static/doc/Kolar Moser Goldenberg—Building a Microworld in Snap.pdf" target="_blank" class="article-title">Building a Microworld in Snap<em>!</em></a>
+        <a href="/static/doc/Kolar Moser Goldenberg—Building a Microworld in Snap.pdf" target="_blank" class="article-title">Building a Microworld in Snap<em>!</em></a>
         <span class="authors">Zak Kolar, Hannah Moser, Paul Goldenberg. (2023).</span> <span class="publication"><a href="research">Snap<em>!</em> website</em></a></span>
         <blockquote class="abstract">With the hopes of encouraging others to design and build their own microworlds (MWs), we publicly share the technical tools we developed for our own, and document them here. This documentation will be updated from time to time as Snap<em>!</em> and/or our MW ideas evolve.</blockquote>
     </li>
 
     <li>
-        <a href="static/doc/Brian-Harvey_Baby-language.pdf" target="_blank" class="article-title">Why Do We Have to Learn This Baby Language?</a>
+        <a href="/static/doc/Brian-Harvey_Baby-language.pdf" target="_blank" class="article-title">Why Do We Have to Learn This Baby Language?</a>
         <span class="authors">Brian Harvey. (2019).</span> <span class="publication"><a href="research">Snap<em>!</em> website</em></a></span>
         <blockquote class="abstract">I get it. You’re a teenager, it’s the first day of what was billed as a serious computer science course, and you’re confronted with drag-and-drop blocks in primary colors. You’ve seen this before, back when your age had only one digit, and you played around with Scratch. Been there, done that.  But Snap! (Build Your Own Blocks) isn’t Scratch. It’s a very serious programming language, in disguise.  The reason for the disguise is that most programming courses spend most of their time and effort on the details of the notation used by whatever programming language they choose. (...)</blockquote>
     </li>
@@ -73,7 +73,5 @@
         <a href="https://bjc.berkeley.edu/documents/2010 Constructionism - Bringing No Ceiling to Scratch - Can One Language Serve Kids and Computer Scientists.pdf" target="_blank" class="article-title">Bringing "No Ceiling" to Scratch: Can One Language Serve Kids and Computer Scientists?</a>
         <span class="authors">Brian Harvey, Jens Monig. (2010).</span> <span class="publication"><a href="" target="_blank">Constructionism.</a></span>
         <blockquote class="abstract"><a href="https://scratch.mit.edu">Scratch</a> is a computer programming language for children, with a graphical drag-and-drop user interface. It is a descendent of Logo, developed at the MIT Media Lab. A small but growing trend among universities is to develop computer science courses for non-majors using Scratch as the programming environment, because it isn’‘t threatening - the same reason it works for kids. Also, the visible use of multiple threads in Scratch provide a simple introduction to parallelism. One such course was piloted this year at the University of California, Berkeley: “The Beauty and Joy of Computing.” But Scratch has weaknesses as a programming language. Most notably, it lacks procedures, so it can’t convey the impressive phenomenon of recursion, one of the central ideas of computer science (and also one of the central ideas of early Logo pedagogy). Its support for data structures is also weak. These weaknesses aren’t oversights; the designers of Scratch deliberately avoided cluttering the language with anything a child might find threatening. To serve these two audiences, it has been proposed to split the Scratch community with two versions of the language, one for kids and one for advanced users. We believe that this is not necessary. By taking key ideas, such as procedures as first class data, from the Scheme language, we can add only a few features to Scratch and still make it powerful enough to support a serious introductory computer science curriculum. Furthermore, the graphical interface of Scratch makes the reification of procedures as data seem much less abstract and intimidating to novices.</blockquote>
-    </li>
-    <li>
     </li>
 </ul>

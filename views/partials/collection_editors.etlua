@@ -1,33 +1,30 @@
 <div class="editors">
+    <% if collection.editor_ids then %>
     <ul class="editor-list">
-<%
-if collection.editor_ids then
-    for _, editor in pairs(collection.editors) do %>
+    <% for _, editor in pairs(collection.editors) do %>
     <li class="editor">
         <a href="<%= editor:url_for('site') %>">
             <strong><%= editor.username %></strong>
         </a>
 
-<% if current_user and
-    ((collection.creator.id == current_user.id)
-        or current_user:isadmin())
-    then %>
-        <a class="remove clickable" onclick="
-            removeEditor('<%= editor.id %>');
-            flash(
-                this.parentElement,
-                () => { this.hidden = true },
-                true // warning flash
-            );
-        "><i class="fas fa-times-circle"></i></a>
+        <% if current_user and
+            ((collection.creator.id == current_user.id)
+                or current_user:isadmin())
+            then %>
+            <a class="remove clickable" onclick="
+                removeEditor('<%= editor.id %>');
+                flash(
+                    this.parentElement,
+                    () => { this.hidden = true },
+                    true // warning flash
+                );
+            "><i class="fas fa-times-circle"></i></a>
+    <% end %>
+    </li>
+    <% end %>
+    </ul>
 <% end %>
 
-    </li>
-<%
-    end
-end
-%>
-    </ul>
 <% if current_user and
     ((collection.creator.id == current_user.id)
         or current_user:isadmin())
@@ -115,4 +112,3 @@ end
 %>
 
 </div>
-

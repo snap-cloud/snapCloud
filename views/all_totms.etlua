@@ -1,7 +1,9 @@
 <h1><%- locale.get('totms_title') %></h1>
+
+
 <%
 render(
-    'views.grid',
+    'views.grid_bs',
     {
         class = 'collections',
         item_type = 'collection',

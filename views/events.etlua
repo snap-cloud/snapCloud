@@ -1,6 +1,6 @@
 <script src="/static/js/project.js"></script>
-<link rel="stylesheet" href="/static/style/project.css">
-<h1><%- locale.get('events_title', '<em>!</em>') %></h1>
+<h1 class="mb-3"><%- locale.get('events_title', '<em>!</em>') %></h1>
+
 <%
 for _, descriptor in ipairs(
     package.loaded.FeaturedCollections:select(
@@ -11,7 +11,7 @@ for _, descriptor in ipairs(
         package.loaded.Collections:find({ id = descriptor.collection_id })
 
     render(
-        'views.carousel',
+        'views.carousel_bs',
         {
             title = collection.name,
             items = CollectionController.projects({

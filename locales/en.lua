@@ -79,7 +79,7 @@ local locale = {
     welcome_logged_in = "Welcome, @1!", -- @1 becomes the current user username
     snap_description = "Snap@1 is a broadly inviting programming language for kids and adults that's also a platform for serious study of computer science.",
     -- Buttons
-    run_now = "Run Snap@1 Now",
+    run_now = "Run @1 Now",
     -- examples and manual already translated in Footer
     -- Curated Collections
     featured = "Featured Projects",

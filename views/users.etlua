@@ -5,7 +5,7 @@
 <% end %>
 <%
     render(
-        'views.grid',
+        'views.grid_bs',
         {
             class = 'users',
             item_type = 'user',

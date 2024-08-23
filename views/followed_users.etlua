@@ -1,7 +1,8 @@
-<h1><%= locale.get('followed_users') %></h1>
+<h1 class="mb-3"><%= locale.get('followed_users') %></h1>
+
 <%
 render(
-    'views.grid',
+    'views.grid_bs',
     {
         class = 'users',
         item_type = 'user',

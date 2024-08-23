@@ -1,6 +1,5 @@
 var snapURL = location.origin + '/snap/snap.html',
     snapDevURL = location.origin + '/snapsource/dev/snap.html',
-    baseURL = location.protocol + '//' + location.host,
     nop = function () {},
     localizer = new Localizer(),
     buttonDefaults =
@@ -10,7 +9,7 @@ function encodeParams (params) {
     if (params) {
         return '?' +
             Object.keys(params).map(
-                paramName => 
+                paramName =>
                     encodeURIComponent(paramName) + '=' +
                         encodeURIComponent(JSON.stringify(params[paramName]))
             ).join('&');
@@ -93,6 +92,24 @@ function flash (element, callback, warning) {
         element.classList.remove(warning ? 'warning-flash' : 'flash');
         if (callback) { callback.call(element); }
     }, 500);
+};
+
+function setupCarouselPageIndicator (id) {
+    function setCarouselText(carousel, current, total) {
+        let textContainer = carousel.querySelector('.js-textStatus');
+        textContainer.querySelector('.page-link').innerHTML = `${current} / ${total}`;
+        textContainer.querySelector('.visually-hidden').innerHTML = `${current} of ${total}`;
+    }
+
+    let carousel = document.getElementById(`${id}_container`);
+    let totalItems = carousel.querySelectorAll('.carousel-item').length;
+    let currentIndex = Array.prototype.indexOf.call(carousel.querySelectorAll('.carousel-item'), carousel.querySelector('div.active')) + 1;
+    setCarouselText(carousel, currentIndex, totalItems);
+
+    carousel.addEventListener('slid.bs.carousel', function() {
+        currentIndex = Array.prototype.indexOf.call(carousel.querySelectorAll('.carousel-item'), carousel.querySelector('div.active')) + 1;
+        setCarouselText(carousel, currentIndex, totalItems);
+    });
 };
 
 // JS additions
