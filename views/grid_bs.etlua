@@ -48,7 +48,7 @@ if items == nil then items = {} end
 
     <% --[[%> TODO: When no search or filter render pagination in the same row as the title. <%]]%>
     <div class="row">
-        <div class="col-md-3 col-sm-12">
+        <div class="col-lg-2 col-md-3 col-sm-12">
             <% if with_search then
                 render(
                     'views.partials.grid_search_bs',
@@ -56,7 +56,7 @@ if items == nil then items = {} end
                 )
             end %>
         </div>
-        <div class="col-md-6 col-sm-12">
+        <div class="col-lg-6 col-md-6 col-sm-12">
             <% if filter_descriptors then
                 render(
                     'views.partials.grid_filters_bs',
