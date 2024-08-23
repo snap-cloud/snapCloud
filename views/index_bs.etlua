@@ -28,8 +28,6 @@
     </div>
 </div>
 
-<hr class="text-primary">
-
 <%
 local FeaturedCollections = package.loaded.FeaturedCollections
 local features = {}
