@@ -41,6 +41,8 @@
         <p><a href="/dmca"><%- locale.get('dmca') %></a></p>
         <p><a href="/privacy"><%- locale.get('privacy') %></a></p>
         <p><a href="/tos"><%- locale.get('tos') %></a></p>
+        <p><a href="https://dap.berkeley.edu/get-help/report-web-accessibility-issue" target="_blank">Accessibility</a></p>
+        <p><a href="https://ophd.berkeley.edu/policies-and-procedures/nondiscrimination-policy-statement" target="_blank">Nondiscrimination</a></p>
       </section>
     </nav>
     <div class="row">
