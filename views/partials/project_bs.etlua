@@ -1,4 +1,5 @@
-<div class="project small col">
+<% col_class = column_width and "col-" .. column_width or '' %>
+<div class="project small <%- col_class %>">
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle"></i>
     <span class="sr-only">no thumbnail aet</span>

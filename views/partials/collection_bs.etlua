@@ -1,4 +1,5 @@
-<div class="collection small col-2">
+<% col_class = column_width and "col-" .. column_width or '' %>
+<div class="collection small <%- col_class %>">
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle" aria-hidden=true></i>
     <span class="sr-only">no thumbnail aet</span>

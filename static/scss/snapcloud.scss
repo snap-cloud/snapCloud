@@ -20,6 +20,15 @@
   --estimated-footer-height: 450px;
 }
 
+// We often use 1/5 width items.
+// Bootstrap's grid system uses 12ths.
+// So we use col-20 for 20% width.
+.col-20 {
+  flex: 0 0 auto;
+  width: 20%;
+  max-width: 20%;
+}
+
 [data-bs-theme=dark] {
   /* Ensure the hamburger icon is solid white. Seems to be no easier way to fix this. */
   & .navbar-toggler-icon {

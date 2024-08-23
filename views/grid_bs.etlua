@@ -64,7 +64,7 @@ if items == nil then items = {} end
                 )
             end %>
         </div>
-        <div class="col-lg-3 col-md-8 col-sm-12">
+        <div class="col-lg-4 col-md-8 col-sm-12">
             <% render('views.partials.grid_paginator_bs') %>
         </div>
     </div>
