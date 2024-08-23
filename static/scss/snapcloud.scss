@@ -23,10 +23,12 @@
 // We often use 1/5 width items.
 // Bootstrap's grid system uses 12ths.
 // So we use col-20 for 20% width.
-.col-20 {
-  flex: 0 0 auto;
-  width: 20%;
-  max-width: 20%;
+// TODO: This need to really be a SASS utility.
+@media screen and (min-width: 950px) {
+  .col-lg-20 {
+    flex: 0 0 auto;
+    width: 20%;
+  }
 }
 
 [data-bs-theme=dark] {

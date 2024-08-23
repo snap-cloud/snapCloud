@@ -106,7 +106,7 @@ render(
 ]]--
 %>
 
-<div class="row projects">
+<div class="d-grid col-11 mx-auto">
     <a href="/collections" class="btn btn-lg btn-outline-primary"
         ><%- locale.get('more_collections') %></a>
 </div>
