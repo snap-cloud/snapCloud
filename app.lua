@@ -79,29 +79,6 @@ end
 require 'models'
 require 'responses'
 
-function app:handle_error(err, trace)
-    if config._name == 'development' then
-        debug_print(err, trace)
-        local msg = '<pre style="text-align: left; width: 80ch">'
-            .. err .. '<br>' .. trace .. '</pre>'
-        return errorResponse(self, msg, 500)
-    end
-
-    local err_msg = exceptions.normalize_error(err)
-    local user_info = exceptions.get_user_info(self.session)
-    if config.sentry_dsn then
-        local _, send_err = exceptions.rvn:captureException({{
-            type = err_msg,
-            value = err .. "\n\n" .. trace,
-            trace_level = 2, -- skip `handle_error`
-        }}, { user = user_info })
-        if send_err then
-            ngx.log(ngx.ERR, send_err)
-        end
-    end
-    return errorResponse(self, "An unexpected error occured: " .. err_msg, 500)
-end
-
 -- Make cookies persistent
 app.cookie_attributes = function(self)
     local expires = date(true):adddays(365):fmt("${http}")
@@ -281,6 +258,28 @@ function app:handle_404()
     return errorResponse(self, 'Failed to find resource: ' .. self.req.cmd_url, 404)
 end
 
+function app:handle_error(err, trace)
+    if config._name == 'development' then
+        debug_print(err, trace)
+        local msg = '<pre style="text-align: left; width: 80ch">'
+            .. err .. '<br>' .. trace .. '</pre>'
+        return errorResponse(self, msg, 500)
+    end
+
+    local err_msg = exceptions.normalize_error(err)
+    local user_info = exceptions.get_user_info(self.session)
+    if config.sentry_dsn then
+        local _, send_err = exceptions.rvn:captureException({{
+            type = err_msg,
+            value = err .. "\n\n" .. trace,
+            trace_level = 2, -- skip `handle_error`
+        }}, { user = user_info })
+        if send_err then
+            ngx.log(ngx.ERR, send_err)
+        end
+    end
+    return errorResponse(self, "An unexpected error occured: " .. err_msg, 500)
+end
 
 -- Enable the ability to have a maintenance mode
 -- No routes are served, and a generic error is returned.
