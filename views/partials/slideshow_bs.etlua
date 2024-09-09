@@ -2,11 +2,13 @@
   <div id="homepage-carousel" class="carousel slide col-12 my-3" data-bs-ride="carousel">
     <div class="carousel-inner">
       <!-- Ensure 1 item is always active. -->
+<!--
       <div class="carousel-item active">
         <a href="https://snapcon.org" aria-label="Check out Snap!Con" target=_blank>
           <img src="/static/img/snapcon.png" aria-hidden=true>
         </a>
       </div>
+-->
 
     <%
       local totms = package.loaded.db.select([[
@@ -26,7 +28,7 @@
     </div>
     <% end %>
 
-      <div class="carousel-item">
+      <div class="carousel-item active">
         <img src="/static/img/snap-byob.png" alt="Snap! - Build Your Own Blocks">
       </div>
 
