@@ -71,7 +71,7 @@ app:match(api_route('init'), respond_to({
     POST = capture_errors(function (self)
         if not self.session.username or
             (self.session.username and
-                self.cookies.persist_session == 'false') then
+                self.session.persist_session == 'false') then
             self.session.username = ''
         end
         return okResponse()

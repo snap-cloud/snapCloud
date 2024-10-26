@@ -79,17 +79,20 @@ end
 require 'models'
 require 'responses'
 
--- Make cookies persistent
-app.cookie_attributes = function(self)
-    local expires = date(true):adddays(365):fmt("${http}")
-    local secure = " " .. "Secure"
-    local sameSite = "None"
+app.cookie_attributes = function (self)
+-- A cookie is valid for 120 days from your last action on Snap!
+    local attributes = "Path=/; HttpOnly;"
     if (config._name == 'development') then
-        secure = ""
-        sameSite = "Lax"
+        attributes = attributes .. " SameSite=Lax;"
+    else
+        attributes = attributes .. " SameSite=Lax; Secure;"
     end
-    return "Expires=" .. expires .. "; Path=/; HttpOnly; SameSite=" ..
-                sameSite .. ";" .. secure
+    -- Cookies are 'session cookies' unless they have an expiration date.
+    if self.session.persist_session == 'true' then
+        local expires = date(true):adddays(120):fmt("${http}")
+        attributes = "Expires=" .. expires .. "; "  .. attributes
+    end
+    return attributes
 end
 
 -- CACHING UTILITIES
@@ -278,7 +281,7 @@ function app:handle_error(err, trace)
             ngx.log(ngx.ERR, send_err)
         end
     end
-    return errorResponse(self, "An unexpected error occured: " .. err_msg, 500)
+    return errorResponse(self, "An unexpected error occurred: " .. err_msg, 500)
 end
 
 -- Enable the ability to have a maintenance mode
