@@ -62,7 +62,7 @@ local html_error = function (self, error, status)
     self.title = status .. ' Error'
     self.contents = error
 
-    return { layout = 'layout', render = 'error', status = status }
+    return { layout = 'layout_bs', render = 'error', status = status }
 end
 
 errorResponse = function (self, err, status)
@@ -82,5 +82,5 @@ end
 htmlPage = function (self, title, contents)
     self.title = title
     self.contents = contents
-    return { render = 'message' }
+    return { layout = 'layout_bs', render = 'message' }
 end
