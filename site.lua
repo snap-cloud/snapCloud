@@ -281,7 +281,7 @@ app:match('project', '/project', capture_errors(function (self)
             )[1] ~= nil
     end
 
-    return { render = 'project' }
+    return { render = 'project_bs', layout = 'layout_bs' }
 end))
 
 -- TODO: Should be able to consolidate these pages.

@@ -1,18 +1,18 @@
 <div class="buttons">
-    <a class="pure-button open" target="_blank"
+    <a class="btn btn-primary open" target="_blank"
         href="<%= project:url_for('open', params.devVersion) %>"
         ><%= (current_user and current_user.username == project.username) and
             locale.get('edit') or
             locale.get('see_code')
         %></a>
-    <a class="pure-button download"
+    <a class="btn btn-outline-primary download"
         href="<%= project:url_for('download', params.devVersion) %>" download
         ><%= locale.get('download') %></a>
-    <a class="pure-button embed-button" target="_blank"
-        onclick="embedDialog()" ><%= locale.get('embed') %></a>
+    <button class="btn btn-outline-primary embed-button" type="button"
+        onclick="embedDialog()"><%= locale.get('embed') %></button>
     <% if current_user then %>
-    <a class="pure-button collect" target="_blank"
-        onclick="collectDialog()"><%= locale.get('collect') %></a>
+    <button class="btn btn-outline-primary collect" type="button"
+        onclick="collectDialog()"><%= locale.get('collect') %></button>
     <% end %>
     <script>
         function embedDialog () {
@@ -70,10 +70,10 @@
             ((project.username == current_user.username) or
             current_user:isadmin()) then
     %>
-        <a class="pure-button pure-button-warning delete"
-            target="_blank"
+        <button class="btn btn-danger delete"
             onclick="confirmDelete()"
-            ><%= locale.get('delete_button') %></a>
+            type="button"
+            ><%= locale.get('delete_button') %></button>
         <script>
         function confirmDelete () {
             confirm(
@@ -92,16 +92,20 @@
     <span class="flag-container"
         title="<%= locale.get('you_flagged') %>"
     >
-        <i class="warning fas fa-exclamation-triangle"></i>
-        <a class="clickable warning flag" target="_blank"
+        <button class="btn btn-link warning flag" type="button"
             onclick="cloud.delete('/project/<%= project.id %>/flag')"
-        ><%= locale.get('unflag_project') %></a>
+        >
+            <i class="warning fas fa-exclamation-triangle"></i>
+            <%= locale.get('unflag_project') %>
+        </button>
     </span>
-<%      else %>
+    <% else %>
     <span class="flag-container">
-        <i class="warning fas fa-exclamation-triangle"></i>
-        <a class="clickable warning flag" target="_blank"
-            onclick="confirmFlag()"><%= locale.get('flag_project') %></a>
+        <button class="btn btn-link warning flag" type="button"
+            onclick="confirmFlag()">
+            <i class="warning fas fa-exclamation-triangle"></i>
+            <%= locale.get('flag_project') %>
+        </button>
     </span>
 <script>
 function confirmFlag () {
@@ -143,9 +147,11 @@ function confirmFlag () {
         current_user:has_min_role('moderator')) then
 %>
 <span class="flag-container">
-    <i class="warning fas fa-fingerprint"></i>
-    <a class="clickable warning flag" target="_blank"
-        onclick="markAsRemix()">Mark as a Remix of another project</a>
+    <button class="btn btn-outline-danger btn-xs flag" type="button"
+        onclick="markAsRemix()">
+        <i class="fas fa-fingerprint" aria-hiden=true></i>
+        Mark as a Remix of another project
+    </button>
 </span>
 <script>
 function markAsRemix () {

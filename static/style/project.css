@@ -339,13 +339,12 @@ img.collection-thumbnail {
 .project.big .buttons {
     display: flex;
     flex-wrap: wrap;
-    margin: 0 -0.1em;
+    margin: 0 -0.2em;
 }
 
-.collection .buttons a,
-.project.big .buttons a {
-    margin: 5px 0.1em 0 0.1em; /* Edge margins get cancelled out by ↑ margin: 0 -0.1em; ↑ */
-    padding: 0.5em;
+.collection .buttons .btn,
+.project.big .buttons .btn {
+    margin: 6px 0.2em; /* Edge margins get cancelled out by ↑ margin: 0 -0.1em; ↑ */
     flex-grow: 0.20; /* 20% max growth */
 }
 
@@ -359,13 +358,10 @@ img.collection-thumbnail {
     padding: 0;
 }
 
-.project.big a.flag {
-    padding: 0;
-}
 
 .collection a.flag:hover,
-.project.big a.flag:hover {
-    filter: brightness(0.5) !important;
+.project.big button.flag:hover {
+    filter: brightness(0.8) !important;
 }
 
 .collection .description,

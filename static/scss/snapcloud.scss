@@ -181,6 +181,13 @@ main {
   border-color: var(--bs-primary);
 }
 
+.btn-xs {
+  padding: 0.2rem;
+  font-size: 0.7rem;
+  // line-height: 1.5;
+  // border-radius: 0.2rem;
+}
+
 a {
   color: var(--lighter-link-color);
   text-decoration: none;
