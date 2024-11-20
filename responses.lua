@@ -61,8 +61,16 @@ local html_error = function (self, error, status)
     self.locale.language = self.session.locale or 'en'
     self.title = status .. ' Error'
     self.contents = error
+    if status > 404 then
+        self.contents = [[
+            An unexpected error occurred.
+            Reach out to contact@snap.berkeley.edu if you continue to experience trouble.
+            Please include the details of the following message:
 
-    return { layout = 'layout_bs', render = 'error', status = status }
+        ]] .. error
+    end
+
+    return { layout = 'layout_bs', render = 'message', status = status }
 end
 
 errorResponse = function (self, err, status)
@@ -79,8 +87,8 @@ errorResponse = function (self, err, status)
     end
 end
 
-htmlPage = function (self, title, contents)
+html_message_page = function (self, title, contents)
     self.title = title
     self.contents = contents
-    return { render = 'message', layout = 'layout_bs' }
+    return { render = 'message', layout = 'layout_bs', status = 200 }
 end

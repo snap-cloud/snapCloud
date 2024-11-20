@@ -347,17 +347,17 @@ check_token = function (self, token, purpose, on_success)
             return on_success(user)
         elseif token.purpose ~= purpose then
             -- We simply ignore tokens with different purposes
-            return htmlPage(self, 'Invalid token', '<p>' ..
+            return html_message_page(self, 'Invalid token', '<p>' ..
                 err.invalid_token.msg .. '</p>')
         else
             -- We delete expired tokens with 'verify_user' purpose
             token:delete()
-            return htmlPage(self, 'Expired token', '<p>' ..
+            return html_message_page(self, 'Expired token', '<p>' ..
                 err.expired_token.msg .. '</p>')
         end
     else
         -- This token does not exist anymore, or never existed
-        return htmlPage(self, 'Invalid token', '<p>' ..
+        return html_message_page(self, 'Invalid token', '<p>' ..
             err.invalid_token.msg .. '</p>')
     end
 end
@@ -373,6 +373,7 @@ end
 -- @param email string
 create_token = function (self, purpose, user)
     local token_value
+    assert_exists(user)
 
     -- First check whether there's an existing token for the same user and
     -- purpose. If we find it, we'll just reset its creation date and reuse it.

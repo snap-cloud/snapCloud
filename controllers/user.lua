@@ -260,16 +260,12 @@ UserController = {
             end
         end
         create_token(self, 'password_reset', self.queried_user)
-        if self.req and (self.req.source == 'snap') then
-            return okResponse()
-        else
             return jsonResponse({
                 title = 'Password reset',
                 message = 'A link to reset your password has been sent to ' ..
-                    'your email account.',
+                    'your email address for your account.',
                 redirect = self:build_url('/')
             })
-        end
     end),
     remind_username = capture_errors(function (self)
         rate_limit(self)
@@ -750,7 +746,7 @@ app:match(
                         password .. '</h2></p>'
                     )
 
-                    return htmlPage(
+                    return html_message_page(
                         self,
                         'Password reset',
                         '<p>A new random password has been generated for ' ..
@@ -775,7 +771,7 @@ app:match(
         function (self)
             local token = Tokens:find(self.params.token)
             local user_page = function (user)
-                return htmlPage(
+                return html_message_page(
                     self,
                     'User verified | Welcome to Snap<em>!</em>',
                     '<p>Your account <strong>' .. user.username ..
