@@ -347,6 +347,7 @@ CollectionController = {
             assert_admin(self)
         end
 
+        -- TODO: Use self.queried_user and assert_user_exists (?)
         local editor = Users:find({ username = tostring(self.params.username) })
         if not editor then yield_error(err.nonexistent_user) end
 
@@ -364,7 +365,7 @@ CollectionController = {
             Collections:find({ id = self.params.id })
         if collection.creator_id == self.current_user.id or
                 is_editor(self, collection) or
-                current_user:isadmin() then
+                self.current_user:isadmin() then
             if (collection:update({
                 editor_ids =
                     db.raw(db.interpolate_query(

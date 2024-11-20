@@ -36,6 +36,8 @@ local http = require('lapis.nginx.http')
 require 'responses'
 require 'email'
 
+-- TODO: This shouldn't be global.
+-- Move specific types of errors (e.g. disk) to respective locations.
 err = {
     not_logged_in = { msg = 'You are not logged in', status = 401 },
     auth = {
@@ -126,6 +128,21 @@ err = {
     generic_not_found = { msg = 'The requested resource does not exist.', status = 404 }
 }
 
+-- NOTE: From now on, define local functions, and export them at the bottom of this file.
+local assert_exists = function (resource)
+    if not resource then
+        yield_error(err.generic_not_found)
+    end
+    return resource
+end
+
+local assert_current_user_logged_in = function(self)
+    if not self.current_user then
+        yield_error(err.not_logged_in)
+    end
+    return self.current_user
+end
+
 assert_all = function (assertions, self)
     for _, assertion in pairs(assertions) do
         if (type(assertion) == 'string') then
@@ -138,6 +155,7 @@ end
 
 -- User permissions and roles
 
+-- TODO: (Should we check just the session username or self.current_user)
 assert_logged_in = function (self, message)
     if not self.session.username then
         yield_error(message or err.not_logged_in)
@@ -251,6 +269,8 @@ assert_users_have_email = function (self, message)
 end
 
 assert_user_can_create_accounts = function(self)
+    assert_current_user_logged_in(self)
+
     if self.current_user:isadmin() then return end
     if not self.current_user.verified then
         yield_error(err.nonvalidated_user)
@@ -263,6 +283,9 @@ end
 -- Projects and Collections
 
 assert_can_share = function (self, item)
+    assert_current_user_logged_in(self)
+    assert_exists(item)
+
     if item.type == 'project' then
         if (item.username ~= self.current_user.username) then
             assert_min_role(self, 'reviewer')
@@ -275,6 +298,9 @@ assert_can_share = function (self, item)
 end
 
 assert_can_delete = function (self, item)
+    assert_current_user_logged_in(self)
+    assert_exists(item)
+
     if item.type == 'project' then
         if (item.username ~= self.current_user.username) then
             assert_min_role(self, 'moderator')
@@ -382,11 +408,13 @@ end
 
 -- Collections
 
-can_edit_collection = function (self, collection)
+local can_edit_collection = function (self, collection)
     -- Users can edit their own collections
-    return (self.current_user ~= nil) and
-        ((collection.creator_id == self.current_user.id) or
-        is_editor(self, collection))
+    assert_current_user_logged_in(self)
+    assert_exists(collection)
+
+    return (collection.creator_id == self.current_user.id) or
+        is_editor(self, collection)
 end
 
 is_editor = function (self, collection)
@@ -548,13 +576,7 @@ prevent_tor_access = function (self)
     end
 end
 
-local assert_exists = function (resource)
-    if not resource then
-        yield_error(err.generic_not_found)
-    end
-    return resource
-end
-
 return {
     assert_exists = assert_exists,
+    assert_current_user_logged_in = assert_current_user_logged_in
 }
