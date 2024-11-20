@@ -32,6 +32,9 @@ local assert_error = package.loaded.app_helpers.assert_error
 local yield_error = package.loaded.yield_error
 local capture_errors = package.loaded.capture_errors
 
+local validations = require('validation')
+local assert_current_user_logged_in = validations.assert_current_user_logged_in
+
 CollectionController = {
     run_query = function (self, query)
         if not self.params.page_number then self.params.page_number = 1 end
@@ -363,6 +366,7 @@ CollectionController = {
     remove_editor = capture_errors(function (self)
         local collection =
             Collections:find({ id = self.params.id })
+        assert_current_user_logged_in(self)
         if collection.creator_id == self.current_user.id or
                 is_editor(self, collection) or
                 self.current_user:isadmin() then
