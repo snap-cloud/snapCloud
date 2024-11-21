@@ -134,8 +134,8 @@ Cloud.redirect = function (response) {
             alert(
                 localizer.localize(response.message),
                 { title: localizer.localize(response.title) },
-                () =>  location.href = response.redirect
-            )
+                () => location.href = response.redirect
+            );
         } else {
             location.href = response.redirect;
         }
