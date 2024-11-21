@@ -127,7 +127,6 @@ Array.prototype.sortBy = function (parameter, reverse) {
 };
 
 Cloud.redirect = function (response) {
-    console.log('REDIRECT RESPONSE CALLED', response)
     if (!(response && response.redirect)) {
         location.reload();
     } else {
