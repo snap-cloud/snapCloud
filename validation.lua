@@ -20,7 +20,6 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local db = package.loaded.db
 local Collections = package.loaded.Collections
@@ -31,11 +30,12 @@ local Tokens = package.loaded.Tokens
 local url = require 'socket.url'
 local exceptions = require 'lib.exceptions'
 local socket = require('socket')
-local http = require('lapis.nginx.http')
 
 require 'responses'
 require 'email'
 
+-- TODO: This shouldn't be global.
+-- Move specific types of errors (e.g. disk) to respective locations.
 err = {
     not_logged_in = { msg = 'You are not logged in', status = 401 },
     auth = {
@@ -126,6 +126,22 @@ err = {
     generic_not_found = { msg = 'The requested resource does not exist.', status = 404 }
 }
 
+-- NOTE: From now on, define local functions, and export them at the bottom of this file.
+local assert_exists = function (resource)
+    if not resource then
+        yield_error(err.generic_not_found)
+    end
+    return resource
+end
+
+local assert_current_user_logged_in = function(self)
+    if not self.current_user then
+        yield_error(err.not_logged_in)
+    end
+    return self.current_user
+end
+
+-- The remaining functions are all global.
 assert_all = function (assertions, self)
     for _, assertion in pairs(assertions) do
         if (type(assertion) == 'string') then
@@ -137,12 +153,6 @@ assert_all = function (assertions, self)
 end
 
 -- User permissions and roles
-
-assert_logged_in = function (self, message)
-    if not self.session.username then
-        yield_error(message or err.not_logged_in)
-    end
-end
 
 -- User roles:
 -- standard:  Can view published and shared projects, can do anything to own
@@ -251,6 +261,8 @@ assert_users_have_email = function (self, message)
 end
 
 assert_user_can_create_accounts = function(self)
+    assert_current_user_logged_in(self)
+
     if self.current_user:isadmin() then return end
     if not self.current_user.verified then
         yield_error(err.nonvalidated_user)
@@ -263,6 +275,9 @@ end
 -- Projects and Collections
 
 assert_can_share = function (self, item)
+    assert_current_user_logged_in(self)
+    assert_exists(item)
+
     if item.type == 'project' then
         if (item.username ~= self.current_user.username) then
             assert_min_role(self, 'reviewer')
@@ -275,6 +290,9 @@ assert_can_share = function (self, item)
 end
 
 assert_can_delete = function (self, item)
+    assert_current_user_logged_in(self)
+    assert_exists(item)
+
     if item.type == 'project' then
         if (item.username ~= self.current_user.username) then
             assert_min_role(self, 'moderator')
@@ -321,17 +339,17 @@ check_token = function (self, token, purpose, on_success)
             return on_success(user)
         elseif token.purpose ~= purpose then
             -- We simply ignore tokens with different purposes
-            return htmlPage(self, 'Invalid token', '<p>' ..
+            return html_message_page(self, 'Invalid token', '<p>' ..
                 err.invalid_token.msg .. '</p>')
         else
             -- We delete expired tokens with 'verify_user' purpose
             token:delete()
-            return htmlPage(self, 'Expired token', '<p>' ..
+            return html_message_page(self, 'Expired token', '<p>' ..
                 err.expired_token.msg .. '</p>')
         end
     else
         -- This token does not exist anymore, or never existed
-        return htmlPage(self, 'Invalid token', '<p>' ..
+        return html_message_page(self, 'Invalid token', '<p>' ..
             err.invalid_token.msg .. '</p>')
     end
 end
@@ -347,6 +365,7 @@ end
 -- @param email string
 create_token = function (self, purpose, user)
     local token_value
+    assert_exists(user)
 
     -- First check whether there's an existing token for the same user and
     -- purpose. If we find it, we'll just reset its creation date and reuse it.
@@ -382,11 +401,13 @@ end
 
 -- Collections
 
-can_edit_collection = function (self, collection)
+local can_edit_collection = function (self, collection)
     -- Users can edit their own collections
-    return (self.current_user ~= nil) and
-        ((collection.creator_id == self.current_user.id) or
-        is_editor(self, collection))
+    assert_current_user_logged_in(self)
+    assert_exists(collection)
+
+    return (collection.creator_id == self.current_user.id) or
+        is_editor(self, collection)
 end
 
 is_editor = function (self, collection)
@@ -548,13 +569,7 @@ prevent_tor_access = function (self)
     end
 end
 
-local assert_exists = function (resource)
-    if not resource then
-        yield_error(err.generic_not_found)
-    end
-    return resource
-end
-
 return {
     assert_exists = assert_exists,
+    assert_current_user_logged_in = assert_current_user_logged_in
 }

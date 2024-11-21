@@ -107,7 +107,7 @@ UserController = {
                         mail_bodies.new_password .. '<p><h2>' ..
                             password .. '</h2></p>')
 
-                    return htmlPage(
+                    return html_message_page(
                         'Password reset',
                         '<p>A new random password has been generated for ' ..
                         'your account <strong>' .. user.username ..

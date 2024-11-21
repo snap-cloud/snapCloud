@@ -406,7 +406,6 @@ MicroWorld.prototype.overrideMakeABlockDialogs = function () {
                         sprite.hideSearchButton();
                         editor = new BlockEditorMorph(definition, sprite);
                         editor.firstTime = true;
-                        console.log(editor.firstTime);
                         editor.popUp();
                     }
                 },
