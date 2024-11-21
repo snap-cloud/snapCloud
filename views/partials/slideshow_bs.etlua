@@ -17,8 +17,8 @@
                   SELECT collection_id FROM featured_collections
                   WHERE page_path = 'index' AND type = 'totm'
                   LIMIT 1)]])
-    if totms and totms[1] then
-    -- if false then
+    --if totms and totms[1] then
+    if false then
     %>
     <div class="carousel-item">
       <a href="/collection?username=snapcloud&collection=<%= totms[1].name %>">
