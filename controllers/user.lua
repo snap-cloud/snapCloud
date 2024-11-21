@@ -23,25 +23,23 @@
 local util = package.loaded.util
 local validate = package.loaded.validate
 local db = package.loaded.db
-local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
 local assert_error = package.loaded.app_helpers.assert_error
 local capture_errors = package.loaded.capture_errors
 local socket = require('socket')
 local app = package.loaded.app
-local json = require('cjson')
 
 local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
 local AllUsers = package.loaded.AllUsers
-local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
 local Tokens = package.loaded.Tokens
 local Followers = package.loaded.Followers
 
 require 'responses'
-require 'validation'
 require 'passwords'
+local validations = require('validation')
+local assert_current_user_logged_in = validations.assert_current_user_logged_in
 
 UserController = {
     run_query = function (self, query)
@@ -201,7 +199,7 @@ UserController = {
         })
     end),
     change_email = capture_errors(function (self)
-        assert_logged_in(self)
+        assert_current_user_logged_in(self)
 
         local user = self.queried_user or self.current_user
 
@@ -232,7 +230,7 @@ UserController = {
         })
     end),
     change_password = capture_errors(function (self)
-        assert_logged_in(self)
+        assert_current_user_logged_in(self)
         if (self.current_user.password ~=
             hash_password(self.params.old_password, self.current_user.salt))
                 then

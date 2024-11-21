@@ -20,7 +20,6 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-local capture_errors = package.loaded.capture_errors
 local yield_error = package.loaded.yield_error
 local db = package.loaded.db
 local Collections = package.loaded.Collections
@@ -31,7 +30,6 @@ local Tokens = package.loaded.Tokens
 local url = require 'socket.url'
 local exceptions = require 'lib.exceptions'
 local socket = require('socket')
-local http = require('lapis.nginx.http')
 
 require 'responses'
 require 'email'
@@ -143,6 +141,7 @@ local assert_current_user_logged_in = function(self)
     return self.current_user
 end
 
+-- The remaining functions are all global.
 assert_all = function (assertions, self)
     for _, assertion in pairs(assertions) do
         if (type(assertion) == 'string') then
@@ -154,13 +153,6 @@ assert_all = function (assertions, self)
 end
 
 -- User permissions and roles
-
--- TODO: (Should we check just the session username or self.current_user)
-assert_logged_in = function (self, message)
-    if not self.session.username then
-        yield_error(message or err.not_logged_in)
-    end
-end
 
 -- User roles:
 -- standard:  Can view published and shared projects, can do anything to own

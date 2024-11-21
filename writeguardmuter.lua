@@ -34,7 +34,7 @@ local selectors = {
     'random_password', 'secure_token', 'secure_salt', 'jsonResponse',
     'xmlResponse', 'okResponse', 'errorResponse', 'html_message_page', 'cors_options',
     'rawResponse', 'TIMEOUT', 'mail_bodies', 'mail_subjects', 'send_mail',
-    'err', 'assert_all', 'assert_logged_in', 'assert_role',
+    'err', 'assert_all', 'assert_role',
     'assert_has_one_of_roles', 'assert_admin', 'assert_can_set_role',
     'users_match', 'assert_users_match', 'assert_user_exists',
     'assert_user_can_create_accounts', 'assert_can_view_project',
