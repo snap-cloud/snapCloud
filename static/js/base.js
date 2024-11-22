@@ -130,7 +130,15 @@ Cloud.redirect = function (response) {
     if (!(response && response.redirect)) {
         location.reload();
     } else {
-        location.href = response.redirect;
+        if (response.title || response.message) {
+            alert(
+                localizer.localize(response.message),
+                { title: localizer.localize(response.title) },
+                () => location.href = response.redirect
+            );
+        } else {
+            location.href = response.redirect;
+        }
     }
 };
 

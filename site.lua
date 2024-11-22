@@ -84,6 +84,15 @@ app:get('/index', function ()
     return { redirect_to = '/' }
 end)
 
+app:match('doc', '/doc/:doc_name', respond_to({
+    GET = capture_errors(function (self)
+        return {
+            redirect_to = self:build_url(
+                '/static/doc/' ..  self.params.doc_name)
+        }
+    end)
+}))
+
 for _, page in pairs(static_pages) do
     app:get('/' .. page, capture_errors(cached(function (self)
             return { render = 'static/' .. page, layout = 'layout_bs' }
