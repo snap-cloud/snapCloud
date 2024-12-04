@@ -89,9 +89,5 @@ end
 html_message_page = function (self, title, contents)
     self.title = title
     self.contents = contents
-<<<<<<< HEAD
-    return { layout = 'layout_bs', render = 'message' }
-=======
     return { render = 'message', layout = 'layout_bs', status = 200 }
->>>>>>> master
 end

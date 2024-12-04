@@ -311,6 +311,10 @@ img.collection-thumbnail {
     text-align: right;
 }
 
+.project.big .controlbar .btn {
+    padding: 4px;
+}
+
 .project.big .controlbar i {
     width: 1.2em;
 }
@@ -331,7 +335,8 @@ img.collection-thumbnail {
     color: #ee6666;
 }
 
-.project.big .controlbar i:hover {
+.project.big .controlbar i:hover,
+.project.big .controlbar i:focus {
     filter: brightness(1.5);
 }
 
@@ -348,8 +353,11 @@ img.collection-thumbnail {
     flex-grow: 0.20; /* 20% max growth */
 }
 
-.collection a.flag,
-.project.big span.flag-container {
+.flag-container {
+    text-align: right;
+}
+
+.collection a.flag {
     text-align: right;
     font-size: 0.8em;
     margin-top: 0.5em;

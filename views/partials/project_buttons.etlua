@@ -1,9 +1,12 @@
+<% local is_users_project = (current_user and current_user.username == project.username)
+   local can_manage = current_user and current_user:has_min_role('moderator')
+   local is_admin = current_user and current_user:isadmin() %>
+
 <div class="buttons">
     <a class="btn btn-primary open" target="_blank"
         href="<%= project:url_for('open', params.devVersion) %>"
-        ><%= (current_user and current_user.username == project.username) and
-            locale.get('edit') or
-            locale.get('see_code')
+        ><%= is_users_project and locale.get('edit')
+            or locale.get('see_code')
         %></a>
     <a class="btn btn-outline-primary download"
         href="<%= project:url_for('download', params.devVersion) %>" download
@@ -14,100 +17,100 @@
     <button class="btn btn-outline-primary collect" type="button"
         onclick="collectDialog()"><%= locale.get('collect') %></button>
     <% end %>
-    <script>
-        function embedDialog () {
-            function update (form) {
-                var options =
-                    Object.values(
-                        form.querySelectorAll('input[type="checkbox"]:checked')
-                    ).map(input => '&' + input.value + '=true').join('');
-                form.querySelector('textarea#embed-url').innerText =
-                    '<%- project:url_for('embed') %>' + options;
-                form.querySelector('textarea#embed-iframe').innerText =
-                    '<iframe width="480" height="390" frameBorder=0 ' +
-                        'allowfullscreen allow="geolocation; microphone; camera" ' +
-                        'title="<%- project.projectname %> Snap! Project" ' +
-                        'src="' + '<%- project:url_for('embed') %>' +
-                        options + '"></iframe>';
-            };
-            dialog(
-                "<%= locale.get('embed_title') %>",
-                '<%- package.loaded.dialog('embed') %>',
-                nop,
-                nop,
-                // onload:
-                () => {
-                    var form = document.querySelector('form.embed-options');
-                    update(form);
-                    form.querySelectorAll('input').forEach(input => {
-                        input.onchange = function () { update(form) };
-                    });
-                }
-            );
-        };
+    <% if is_users_project or is_admin then %>
+    <button class="btn btn-danger delete"
+        onclick="confirmDelete()"
+        type="button"
+        ><%= locale.get('delete_button') %></button>
+    <% end %>
+</div>
 
-        <% if current_user then %>
-        function collectDialog () {
-            dialog(
-                "<%= locale.get('collect_title') %>",
-                '<%- package.loaded.dialog(
-                    'collect',
-                    { current_user = current_user }) %>',
-                () => {
-                    var form = document.querySelector('form.collect-form');
-                    cloud.post(
-                        '/collection/' + form.querySelector('select').value +
-                            '/project/<%= project.id %>'
-                    );
-                },
-                nop
-            );
-        };
-        <% end %>
-    </script>
-    <%
-        if current_user and
-            ((project.username == current_user.username) or
-            current_user:isadmin()) then
-    %>
-        <button class="btn btn-danger delete"
-            onclick="confirmDelete()"
-            type="button"
-            ><%= locale.get('delete_button') %></button>
-        <script>
-        function confirmDelete () {
-            confirm(
-                '<%- package.loaded.dialog(
-                    'confirm_delete',
-                    { item_name = 'project'}) %>',
-                () => { cloud.delete('/project/<%= project.id %>'); }
-            );
-        }
-    </script>
-<% end %>
-<%
-    if current_user then
-        if project.flagged then
-%>
-    <span class="flag-container"
-        title="<%= locale.get('you_flagged') %>"
+<% if current_user then %>
+<div class="flag-container" title="<%= locale.get('you_flagged') %>">
+    <% if project.flagged then %>
+    <button class="btn btn-outline-danger btn-xs" type="button"
+        onclick="unflagProject()"
     >
-        <button class="btn btn-link warning flag" type="button"
-            onclick="cloud.delete('/project/<%= project.id %>/flag')"
-        >
-            <i class="warning fas fa-exclamation-triangle"></i>
-            <%= locale.get('unflag_project') %>
-        </button>
-    </span>
+        <i class="fas fa-exclamation-triangle"></i>
+        <%= locale.get('unflag_project') %>
+    </button>
     <% else %>
-    <span class="flag-container">
-        <button class="btn btn-link warning flag" type="button"
-            onclick="confirmFlag()">
-            <i class="warning fas fa-exclamation-triangle"></i>
-            <%= locale.get('flag_project') %>
-        </button>
-    </span>
+    <button class="btn btn-outline-danger btn-xs" type="button"
+        onclick="confirmFlag()">
+        <i class="fas fa-exclamation-triangle"></i>
+        <%= locale.get('flag_project') %>
+    </button>
+    <% end %>
+    <% if is_users_project or can_manage then %>
+    <button class="btn btn-outline-secondary btn-xs" type="button"
+        onclick="markAsRemix()">
+        <i class="fas fa-fingerprint" aria-hiden=true></i>
+        Mark as a Remix of another project
+    </button>
+    <% end %>
+</div>
+<% end %>
+
 <script>
+function embedDialog () {
+    function update (form) {
+        var options =
+            Object.values(
+                form.querySelectorAll('input[type="checkbox"]:checked')
+            ).map(input => '&' + input.value + '=true').join('');
+        form.querySelector('textarea#embed-url').innerText =
+            '<%- project:url_for('embed') %>' + options;
+        form.querySelector('textarea#embed-iframe').innerText =
+            '<iframe width="480" height="390" frameBorder=0 ' +
+                'allowfullscreen allow="geolocation; microphone; camera" ' +
+                'title="<%- project.projectname %> Snap! Project" ' +
+                'src="' + '<%- project:url_for('embed') %>' +
+                options + '"></iframe>';
+    };
+    dialog(
+        "<%= locale.get('embed_title') %>",
+        '<%- package.loaded.dialog('embed') %>',
+        nop,
+        nop,
+        // onload:
+        () => {
+            var form = document.querySelector('form.embed-options');
+            update(form);
+            form.querySelectorAll('input').forEach(input => {
+                input.onchange = function () { update(form) };
+            });
+        }
+    );
+};
+
+<% if current_user then %>
+function collectDialog () {
+    dialog(
+        "<%= locale.get('collect_title') %>",
+        '<%- package.loaded.dialog(
+            'collect',
+            { current_user = current_user }) %>',
+        () => {
+            var form = document.querySelector('form.collect-form');
+            cloud.post(
+                '/collection/' + form.querySelector('select').value +
+                    '/project/<%= project.id %>'
+            );
+        },
+        nop
+    );
+};
+<% end %>
+
+function confirmDelete () {
+    confirm(
+        '<%- package.loaded.dialog(
+            'confirm_delete',
+            { item_name = 'project'}) %>',
+        () => { cloud.delete('/project/<%= project.id %>'); }
+    );
+}
+
 function confirmFlag () {
     confirm(
         "<%- locale.get('flag_prewarning' , '<br>') %>",
@@ -135,25 +138,11 @@ function confirmFlag () {
         confirmTitle('<%= locale.get('flag_project') %>')
     );
 }
-</script>
-<%
-        end
-    end
-%>
 
-<%
-    if current_user and
-        ((project.username == current_user.username) or
-        current_user:has_min_role('moderator')) then
-%>
-<span class="flag-container">
-    <button class="btn btn-outline-danger btn-xs flag" type="button"
-        onclick="markAsRemix()">
-        <i class="fas fa-fingerprint" aria-hiden=true></i>
-        Mark as a Remix of another project
-    </button>
-</span>
-<script>
+function unflagProject() {
+    cloud.delete('/project/<%= project.id %>/flag')
+}
+
 function markAsRemix () {
     prompt(
         'Original project URL?',
@@ -173,5 +162,3 @@ function markAsRemix () {
     );
 }
 </script>
-<% end %>
-</div>

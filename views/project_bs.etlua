@@ -37,14 +37,22 @@
 
             <!-- Project control bar -->
             <div class="controlbar">
-                <i class="present-button fas fa-expand clickable"
-                    onclick="toggleFullScreen();"></i>
-                <i class="start-button fas fa-flag clickable"
-                    onclick="runProject(event);"></i>
-                <i class="pause-button fas fa-pause clickable"
-                    onclick="togglePauseProject();"></i>
-                <i class="stop-button fas fa-octagon clickable"
-                    onclick="stopProject();"></i>
+                <button class="btn btn-link" aria-label="present project full-screen" type="button"
+                    onclick="toggleFullScreen();">
+                    <i aria-hidden=true class="present-button fas fa-expand"></i>
+                    </button>
+                <button class="btn btn-link" aria-label="start project" type="button"
+                    onclick="runProject(event);">
+                    <i aria-hidden=true class="start-button fas fa-flag"></i>
+                    </button>
+                <button class="btn btn-link" aria-label="pause project" type="button"
+                    onclick="togglePauseProject();">
+                    <i aria-hidden=true class="pause-button fas fa-pause"></i>
+                    </button>
+                <button class="btn btn-link" aria-label="stop project" type="button"
+                    onclick="stopProject();">
+                    <i aria-hidden=true class="stop-button fas fa-octagon"></i>
+                    </button>
             </div>
 
             <!-- Project embed -->
@@ -55,9 +63,7 @@
                 height="406"></iframe>
 
             <!-- Project Action Buttons -->
-            <%
-               render('views.partials.project_buttons', { project = project })
-            %>
+            <% render('views.partials.project_buttons', { project = project }) %>
         </div>
         <!-- just a spacer -->
         <span class="col-md-1"></span>
@@ -91,11 +97,11 @@
     )
 %>
 
-    <script>
-        // Prevent scrolling when focus is in the iframe
-        document.onscroll = function (event) {
-            if (document.activeElement.tagName === 'IFRAME') {
-                window.scrollTo(0, 0);
-            }
-        };
-    </script>
+<script>
+    // Prevent scrolling when focus is in the iframe
+    document.onscroll = function (event) {
+        if (document.activeElement.tagName === 'IFRAME') {
+            window.scrollTo(0, 0);
+        }
+    };
+</script>
