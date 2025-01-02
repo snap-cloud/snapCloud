@@ -51,7 +51,7 @@
                 sandbox="allow-scripts allow-same-origin"
                 title="project viewer"
                 src="<%= project:url_for('viewer', params.devVersion) %>"
-                height="406"></iframe>
+                height="362"></iframe>
 
             <!-- Project Action Buttons -->
             <%
