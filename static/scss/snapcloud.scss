@@ -261,3 +261,23 @@ hr {
     }
   }
 }
+
+.carousel-item {
+  .row {
+    /* widen the bootstrap gutter so carousels are full width.
+      bootstrap sets the row margin at -0.5 * bs-gutter-x
+      The default value is 1.5
+    */
+    --bs-gutter-x: 3rem;
+
+    .project {
+      &:nth-of-type(1) {
+        padding-left: 0;
+      }
+
+      &:nth-last-of-type(1) {
+        padding-right: 0;
+      }
+    }
+  }
+}
