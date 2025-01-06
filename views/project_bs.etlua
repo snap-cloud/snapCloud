@@ -1,4 +1,4 @@
-<script src="/static/js/inplace.js"></script>
+<!-- <script src="/static/js/inplace.js"></script> -->
 
 
 <!-- TODO-BS: Replace .project.big with a single CSS class. Extract to partial? -->
@@ -68,7 +68,7 @@
         <!-- just a spacer -->
         <span class="col-md-1"></span>
         <div class="col-md-5">
-            <% render('views.partials.project_details', { project = project }) %>
+            <% render('views.partials.project_details_bs', { project = project }) %>
         </div>
     </div>
 </div>

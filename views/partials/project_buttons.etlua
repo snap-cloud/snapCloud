@@ -31,20 +31,20 @@
     <button class="btn btn-outline-danger btn-xs" type="button"
         onclick="unflagProject()"
     >
-        <i class="fas fa-exclamation-triangle"></i>
+        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
         <%= locale.get('unflag_project') %>
     </button>
     <% else %>
     <button class="btn btn-outline-danger btn-xs" type="button"
         onclick="confirmFlag()">
-        <i class="fas fa-exclamation-triangle"></i>
+        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
         <%= locale.get('flag_project') %>
     </button>
     <% end %>
     <% if is_users_project or can_manage then %>
     <button class="btn btn-outline-secondary btn-xs" type="button"
         onclick="markAsRemix()">
-        <i class="fas fa-fingerprint" aria-hiden=true></i>
+        <i class="fas fa-fingerprint" aria-hidden=true></i>
         Mark as a Remix of another project
     </button>
     <% end %>
@@ -69,7 +69,7 @@ function embedDialog () {
     };
     dialog(
         "<%= locale.get('embed_title') %>",
-        '<%- package.loaded.dialog('embed') %>',
+        '<%- package.loaded.dialog('embed_form') %>',
         nop,
         nop,
         // onload:

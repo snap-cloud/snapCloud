@@ -393,7 +393,7 @@ img.collection-thumbnail {
 .collection .description small,
 .project.big .notes small {
     font-style: italic;
-    opacity: 0.5;
+    /* opacity: 0.5; disabled due to low contrast. */
 }
 
 .project.big .dates p {
@@ -428,23 +428,24 @@ img.collection-thumbnail {
     margin: 0 3em;
 }
 
-.embed-options .pure-control-group,
+/* .embed-options .pure-control-group,
 .embed-options .pure-control-group label {
     text-align: left;
     width: auto
-}
+} */
 
+/*
 .copy-text-element {
     margin: 0.5em auto
-}
+} */
 
-.copy-button {
+/* .copy-button {
     margin: 0 4px;
     padding: 4px;
-}
+} */
 
-.embed-options .pure-control-group.copy-text-element label {
-    width: 12ch; /* "Embed Code" + some space */
+.embed-options .input-group.copy-text-element label {
+    width: 14ch; /* "Embed Code" + some space */
 }
 
 .embed-code {
@@ -457,11 +458,11 @@ img.collection-thumbnail {
 }
 
 .embed-url {
-    height: 3rem;
+    height: 4rem;
 }
 
 .embed-iframe {
-    height: 6rem;
+    height: 8rem;
 }
 
 /* Reasons dialog */
