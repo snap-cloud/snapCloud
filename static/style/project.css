@@ -416,55 +416,6 @@ img.collection-thumbnail {
     margin-bottom: 0.7em;
 }
 
-/* Embed dialog */
-
-.embed-options .info {
-    margin-bottom: 0.5em;
-    display: block;
-    text-align: center;
-}
-
-.embed-options fieldset {
-    margin: 0 3em;
-}
-
-/* .embed-options .pure-control-group,
-.embed-options .pure-control-group label {
-    text-align: left;
-    width: auto
-} */
-
-/*
-.copy-text-element {
-    margin: 0.5em auto
-} */
-
-/* .copy-button {
-    margin: 0 4px;
-    padding: 4px;
-} */
-
-.embed-options .input-group.copy-text-element label {
-    width: 14ch; /* "Embed Code" + some space */
-}
-
-.embed-code {
-    font-family: monospace;
-    margin: auto 4px;
-    width: 420px;
-    font-size: 0.75em;
-    line-height: 1;
-    resize: none;
-}
-
-.embed-url {
-    height: 4rem;
-}
-
-.embed-iframe {
-    height: 8rem;
-}
-
 /* Reasons dialog */
 
 .reasons {

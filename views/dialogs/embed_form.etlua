@@ -1,16 +1,16 @@
 <form class="embed-options">
     <span class="info"><%= locale.get('embed_explanation') %></span>
     <fieldset>
-        <div class="input-group">
+        <div class="mb-1 input-group">
             <div class="form-check form-switch">
                 <input type="checkbox" id="title" value="showTitle" checked=""
-                 class="form-check-input">
+                class="form-check-input">
                 <label for="title" class="form-check-label">
                     <%= locale.get('project_title') %>
                 </label>
             </div>
         </div>
-        <div class="input-group">
+        <div class="mb-1 input-group">
             <div class="form-check form-switch">
                 <input type="checkbox" id="author" value="showAuthor" checked="" class="form-check-input">
                 <label for="author" class="form-check-label">
@@ -18,7 +18,7 @@
                 </label>
             </div>
         </div>
-        <div class="input-group">
+        <div class="mb-1 input-group">
             <div class="form-check form-switch">
                 <input type="checkbox" id="edit-button" value="editButton"
                     checked="" class="form-check-input">
@@ -27,7 +27,7 @@
                 </label>
             </div>
         </div>
-        <div class="input-group">
+        <div class="mb-2 input-group">
             <div class="form-check form-switch">
                 <input type="checkbox" id="pause-button" value="pauseButton"
                     checked="" class="form-check-input">
@@ -36,8 +36,8 @@
                 </label>
             </div>
         </div>
-        <div class="input-group">
-            <div class="copy-text-element input-group">
+        <div class="mb-2 input-group">
+            <div class="embed-options--label-container">
                 <label for="embed-url" class="form-label"><%= locale.get('embed_url') %></label>
                 <button class="btn btn-outline-primary far fa-clipboard"
                     type="button" aria-label="Click to copy Embed URL"
@@ -48,31 +48,35 @@
                             );
                         }"
                 ></button>
-                &nbsp;
+            </div>
+            <div class="">
                 <textarea
                     readonly=true
-                    id="embed-url" class="embed-code embed-url form-control"
+                    rows=4
+                    id="embed-url" class="embed-options--embed-code-textarea form-control"
                 ></textarea>
             </div>
         </div>
-        <br>
-        <div class="input-group">
-            <div class="copy-text-element input-group">
+        <div class="mb-1 input-group">
+            <div class="embed-options--label-container">
                 <label for="embed-iframe" class="form-label"><%= locale.get('embed_code') %></label>
                 <button class="btn btn-outline-primary far fa-clipboard"
                     type="button" aria-label="Click to copy Embed Code"
                     onclick="
                         if (navigator.clipboard) {
                             navigator.clipboard.writeText(
-                                this.parentElement.querySelector('textarea').value
+                               document.getElementById('embed-iframe').value
                             );
                         }"
                 ></button>
-                &nbsp;
+            </div>
+            <div class="">
                 <textarea
                     readonly=true
-                    id="embed-iframe" class="embed-code embed-iframe form-control"
+                    rows=7
+                    id="embed-iframe" class="embed-options--embed-code-textarea form-control"
                 ></textarea>
+            </div>
         </div>
     </fieldset>
 </form>

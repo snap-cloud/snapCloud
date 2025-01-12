@@ -54,18 +54,19 @@
 <script>
 function embedDialog () {
     function update (form) {
-        var options =
-            Object.values(
+        let base_embed_url = '<%- project:url_for('embed') %>',
+            project_name = '<%- project.projectname %>',
+            options = Object.values(
                 form.querySelectorAll('input[type="checkbox"]:checked')
-            ).map(input => '&' + input.value + '=true').join('');
-        form.querySelector('textarea#embed-url').innerText =
-            '<%- project:url_for('embed') %>' + options;
-        form.querySelector('textarea#embed-iframe').innerText =
-            '<iframe width="480" height="390" frameBorder=0 ' +
-                'allowfullscreen allow="geolocation; microphone; camera" ' +
-                'title="<%- project.projectname %> Snap! Project" ' +
-                'src="' + '<%- project:url_for('embed') %>' +
-                options + '"></iframe>';
+            ).map(input => `${input.value}=true`).join('&'),
+            full_embed_url = `${base_embed_url}&${options}`;
+        form.querySelector('textarea#embed-url').innerText = full_embed_url;
+        form.querySelector('textarea#embed-iframe').innerText = `
+<iframe width="480" height="390" frameBorder=0
+    allowfullscreen allow="geolocation; microphone; camera"
+    title="${project_name} Snap! Project"
+    src="${full_embed_url}">
+</iframe>`.replace(/\s+|\n/g, ' ').trim();
     };
     dialog(
         "<%= locale.get('embed_title') %>",
