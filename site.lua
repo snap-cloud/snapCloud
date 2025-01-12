@@ -108,7 +108,8 @@ end
 
 for route, view_path in pairs(user_forms) do
     app:get('/' .. route, capture_errors(cached(function (self)
-        local csrf_token = csrf.generate_token(self)
+        self.csrf_token = csrf.generate_token(self)
+        self.res.headers['Content-Security-Policy'] = "frame-src 'none'"
         return { render = view_path, layout = 'layout_bs' }
     end)))
 end

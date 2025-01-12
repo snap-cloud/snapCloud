@@ -1,6 +1,7 @@
 <h1><%- locale.get('log_into_snap', '<em>!</em>') %></h1>
 
 <form id="login" class="form-horizontal my-4">
+    <input type="hidden" name="csrf_token" id="csrf_token" value="<%- csrf_token %>">
     <fieldset>
         <div class="mb-3 row">
             <label for="username" class="col-1 col-form-label"><%= locale.get('username') %></label>
