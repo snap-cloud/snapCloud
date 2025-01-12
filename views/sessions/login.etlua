@@ -1,25 +1,25 @@
 <h1><%- locale.get('log_into_snap', '<em>!</em>') %></h1>
 
-<div id="login" class="form-horizontal">
+<form id="login" class="form-horizontal my-4">
     <fieldset>
         <div class="mb-3 row">
-            <label for="username" class="col-sm-2 col-form-label"><%= locale.get('username') %></label>
-            <div class="col-sm-10">
+            <label for="username" class="col-1 col-form-label"><%= locale.get('username') %></label>
+            <div class="col-md-6">
                 <input id="username" name="username" type="text" class="form-control"
                 placeholder="<%= locale.get('username') %>">
             </div>
         </div>
 
         <div class="mb-3 row">
-            <label for="password" class="col-sm-2 col-form-label"><%- locale.get('password') %></label>
-            <div class="col-sm-10">
+            <label for="password" class="col-1 col-form-label"><%- locale.get('password') %></label>
+            <div class="col-md-6">
                 <input id="password" name="password" type="password" class="form-control"
                 placeholder="<%- locale.get('password') %>">
             </div>
         </div>
 
         <div class="mb-3 row">
-            <div class="col-sm-10 offset-sm-2">
+            <div class="col-sm-10">
                 <div class="form-check">
                     <input id="persist" name="persist" type="checkbox" class="form-check-input">
                     <label for="persist" class="form-check-label">
@@ -30,44 +30,49 @@
         </div>
 
         <div class="mb-3 row">
-            <div class="col-sm-10 offset-sm-2">
-                <button onclick="submit()" class="btn btn-primary"><%= locale.get('login') %></button>
-            </div>
-        </div>
-        <div class="mb-3 row">
-            <div class="col-sm-10 offset-sm-2">
-                <p><small><em><a href="forgot_password">* <%= locale.get('i_forgot_password') %></a></em></small></p>
-                <p><small><em><a href="forgot_username">* <%= locale.get('i_forgot_username') %></a></em></small></p>
+            <div class="col-sm-10">
+                <button onclick="submit()" class="btn btn-primary" type="button">
+                    <%= locale.get('login') %>
+                </button>
             </div>
         </div>
     </fieldset>
-    <script type="text/javascript" src="/static/js/sha512.js"></script>
-    <script>
-        enableEnterSubmit();
-        var submit = function (event) {
-            var form = document.querySelector('div#login');
-            cloud.login(
-                form.querySelector('#username').value, // username
-                form.querySelector('#password').value,// password
-                form.querySelector('#persist').checked, // persist
-                (user, role, response) => {
-                    if (response.title) {
-                        alert(
-                            localizer.localize(response.message),
-                            { title: localizer.localize(response.title) },
-                            () => { location.href = response.redirect }
-                        );
-                    } else {
-                        location.href = '/';
-                    }
-                }, // onSuccess
-                response => {
-                    genericError(
-                        response,
-                        '<%= locale.get('err_login_failed') %>'
-                    );
-                }
-            );
-        }
-    </script>
+</form>
+
+
+<div class="mb-3 row">
+    <div class="col-sm-10">
+        <p><em><a href="/forgot_password">* <%= locale.get('i_forgot_password') %></a></em></p>
+        <p><em><a href="/forgot_username">* <%= locale.get('i_forgot_username') %></a></em></p>
+    </div>
 </div>
+
+<script type="text/javascript" src="/static/js/sha512.js"></script>
+<script>
+    enableEnterSubmit();
+    var submit = function (event) {
+        var form = document.querySelector('div#login');
+        cloud.login(
+            form.querySelector('#username').value, // username
+            form.querySelector('#password').value,// password
+            form.querySelector('#persist').checked, // persist
+            (user, role, response) => {
+                if (response.title) {
+                    alert(
+                        localizer.localize(response.message),
+                        { title: localizer.localize(response.title) },
+                        () => { location.href = response.redirect }
+                    );
+                } else {
+                    location.href = '/';
+                }
+            }, // onSuccess
+            response => {
+                genericError(
+                    response,
+                    '<%= locale.get('err_login_failed') %>'
+                );
+            }
+        );
+    }
+</script>
