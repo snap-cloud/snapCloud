@@ -1,0 +1,167 @@
+<h1><%- locale.get('signup_title', '<em>!</em>') %></h1>
+
+<form id="signup" class="col-lg-8 col-md-10" onsubmit="handleSignupSubmit(event)">
+  <input type="hidden" name="csrf_token" id="csrf_token" value="<%- csrf_token %>">
+
+  <div class="mb-3">
+    <label for="username" class="form-label"><%- locale.get('username') %></label>
+    <input id="username" name="username" type="text" class="form-control"
+            placeholder="<%- locale.get('username') %>" required minlength="4" maxlength="200">
+    <div class="form-text"><%- locale.get('signup_username_help') %></div>
+  </div>
+
+  <div class="mb-3">
+    <label for="password" class="form-label"><%- locale.get('password') %></label>
+    <input id="password" name="password" type="password" class="form-control"
+      placeholder="<%- locale.get('password') %>" required minlength="6" maxlength="200">
+    <div class="form-text"><%- locale.get('signup_password_help') %></div>
+  </div>
+
+  <div class="mb-3">
+    <label for="password-repeat" class="form-label"><%- locale.get('password_2') %></label>
+    <input id="password-repeat" name="password-repeat" type="password" class="form-control"
+      placeholder="<%- locale.get('password') %>" required minlength="6" maxlength="200">
+    <div class="form-text"><%- locale.get('signup_password_repeat_help') %></div>
+  </div>
+
+  <div class="mb-3">
+    <label for="birth-month" class="form-label"><%- locale.get('birth_month') %></label>
+    <div class="d-flex">
+      <select id="birth-month" name="birth-month" class="form-select me-2" required onchange="checkDate()">
+        <option value="1"><%- locale.get('january') %></option>
+        <option value="2"><%- locale.get('february') %></option>
+        <option value="3"><%- locale.get('march') %></option>
+        <option value="4"><%- locale.get('april') %></option>
+        <option value="5"><%- locale.get('may') %></option>
+        <option value="6"><%- locale.get('june') %></option>
+        <option value="7"><%- locale.get('july') %></option>
+        <option value="8"><%- locale.get('august') %></option>
+        <option value="9"><%- locale.get('september') %></option>
+        <option value="10"><%- locale.get('october') %></option>
+        <option value="11"><%- locale.get('november') %></option>
+        <option value="12"><%- locale.get('december') %></option>
+      </select>
+      <label for="birth-year" class="sr-only"><%- locale.get('birth_year') %></label>
+      <select id="birth-year" name="birth-year" class="form-select" onchange="checkDate()" required>
+      </select>
+    </div>
+    <div class="form-text"><%- locale.get('signup_birth_month_help') %></div>
+  </div>
+
+  <div class="mb-3">
+    <label for="email" class="form-label"><%- locale.get('email_parent') %></label>
+    <input id="email" name="email" type="email" class="form-control"
+              placeholder="<%- locale.get('email_user') %>" required>
+    <div class="form-text"><%- locale.get('signup_email_help') %></div>
+  </div>
+
+  <div class="mb-3">
+    <label for="email-repeat" class="form-label"><%- locale.get('email_2') %></label>
+    <input id="email-repeat" name="email-repeat" type="email" class="form-control"
+              placeholder="<%- locale.get('email_user') %>" required>
+    <div class="form-text"><%- locale.get('signup_email_repeat_help') %></div>
+  </div>
+
+  <div class="mb-3 form-check">
+    <input id="tos" name="tos" type="checkbox" class="form-check-input" required>
+    <label for="tos" class="form-check-label">
+      <span><%-
+          locale.get(
+              'tos_agree',
+              '<a target="_blank" href="tos">' ..
+                  locale.get('tos'),
+              '</a><a target="_blank" href="privacy">' ..
+                  locale.get('privacy_agreement') .. '</a>')
+      %></span>
+    </label>
+    <div class="form-text"><%- locale.get('signup_tos_help') %></div>
+  </div>
+
+  <div class="mb-3">
+    <input class="btn btn-primary" type="submit" value="<%- locale.get('signup') %>">
+  </div>
+</form>
+
+<script type="text/javascript" src="/static/js/sha512.js"></script>
+<script>
+    enableEnterSubmit();
+    var form = document.querySelector('form#signup'),
+        currentYear = (new Date()).getFullYear(),
+        currentMonth = (new Date()).getMonth() + 1, // months are 0-based LOL
+        yearSelector = document.querySelector('#birth-year');
+
+    for (year = currentYear; year > currentYear - 20; year --) {
+        var option = document.createElement('option');
+        option.value = year;
+        option.innerHTML = year;
+        yearSelector.append(option);
+    }
+
+    var option = document.createElement('option');
+    option.value = currentYear - 20;
+    option.innerHTML =
+        (currentYear - 20) + ' ' + "<%- locale.get('or_before') %>";
+    yearSelector.append(option);
+
+    function checkDate () {
+        var month = parseInt(form.querySelector('#birth-month').value),
+            year = parseInt(form.querySelector('#birth-year').value);
+        if ((currentYear - year < 12) ||
+                ((currentYear - year === 12) && (month >= currentMonth))) {
+            form.querySelector('label[for=email]').innerHTML =
+                "<%- locale.get('email_parent') %>";
+        } else {
+            form.querySelector('label[for=email]').innerHTML =
+                "<%- locale.get('email_user') %>";
+        }
+    };
+
+  function handleSignupSubmit(event) {
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+
+    let form = document.querySelector('#signup'),
+      username = form.querySelector('#username').value,
+      password = form.querySelector('#password').value,
+      passwordRepeat = form.querySelector('#password-repeat').value,
+      email = form.querySelector('#email').value,
+      emailRepeat = form.querySelector('#email-repeat').value,
+      agreed = form.querySelector('#tos').checked;
+
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+      if (email !== emailRepeat) {
+          genericError(
+              "<%- locale.get('err_email_mismatch', '<br>') %>",
+              "<%- locale.get('err_email_mismatch_title') %>"
+          );
+          return;
+      } else if (password !== passwordRepeat) {
+          genericError(
+              "<%- locale.get('err_password_mismatch', '<br>') %>",
+              "<%- locale.get('err_password_mismatch_title') %>",
+          );
+          return;
+      }
+
+    // TODO: the onError handler is copied from base.js but should be extracted.
+    // However, it does NOT redirect the user so the form content is saved.
+    cloud.signup(
+      username,
+      password,
+      passwordRepeat,
+      email,
+      Cloud.redirect,
+      errorMessage => {
+        alert(
+            localizer.localize(errorMessage),
+            { title: localizer.localize('Error') }
+        )
+      }
+    );
+  };
+</script>

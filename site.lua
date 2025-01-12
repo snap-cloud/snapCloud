@@ -56,11 +56,12 @@ local user_forms = {}
 -- These pages should all have a CSRF token and not allow iframes.
 -- The map is route/name to view location.
 user_forms['login'] = 'sessions/login'
+user_forms['sign_up'] = 'users/sign_up'
 
 local views = {
     -- As these pages are converted to bootstrap move them to the user_forms table.
     'change_email', 'change_password', 'delete_user', 'forgot_password',
-    'forgot_username', 'sign_up'
+    'forgot_username'
 }
 
 -- Temporary during a front-end rewrite.
