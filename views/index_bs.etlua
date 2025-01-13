@@ -51,11 +51,11 @@ for _, collection in pairs(FeaturedCollections:select(
     table.insert(features, collection)
 end
 
--- TOTM goes next
+--[[ TOTM goes next
 table.insert(features, FeaturedCollections:find({
     page_path = 'index',
     type = 'totm'
-}))
+}))]]--
 
 -- Then 3 random example collections
 for _, collection in pairs(FeaturedCollections:select([[
