@@ -7,8 +7,8 @@
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarScroll" aria-controls="navbarScroll" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarScroll">
-      <ul class="navbar-nav me-auto navbar-nav-scroll">
+    <div class="collapse navbar-collapse navbar-nav-scroll" id="navbarScroll">
+      <ul class="navbar-nav me-auto">
         <li class="nav-item">
           <a class="nav-link run"
             target="<%- prefer_new_tab and '_blank' or '_self' %>"
@@ -32,7 +32,7 @@
           </a>
         </li>
       </ul>
-      <span class="navbar-nav me-auto navbar-nav-scroll">
+      <span class="navbar-nav me-auto">
           <form role="search" action="search">
             <div class="input-group">
               <button class="btn btn-sm btn-outline-light" type="submit" aria-label="Search">
@@ -42,7 +42,7 @@
             </div>
           </form>
       </span>
-      <ul class="navbar-nav navbar-nav-scroll justify-content-end">
+      <ul class="navbar-nav justify-content-end">
         <% if current_user == nil then %>
           <li class="nav-item join">
             <a class="nav-link" href="/sign_up">
