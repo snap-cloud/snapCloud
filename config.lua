@@ -88,6 +88,11 @@ config('production', {
     primary_nginx_config = 'http-only.conf',
     secondary_nginx_config = 'include nginx.conf.d/ssl-production.conf;',
 
+    -- This is an additional security feature to prevent cookie tampering.
+    -- Currently disabled as changing the name will log out all users.
+    -- session_name = '__Secure-snapsession',
+    session_name = 'snapsession',
+
     logging = {
         queries = false,
         requests = true,
@@ -100,5 +105,7 @@ config('staging', {
     -- the staging server is a low-cpu server.
     num_workers = 2,
     primary_nginx_config = 'http-only.conf',
-    secondary_nginx_config = 'include nginx.conf.d/ssl-staging.conf;'
+    secondary_nginx_config = 'include nginx.conf.d/ssl-staging.conf;',
+
+    session_name = '__Secure-snapsession',
 })

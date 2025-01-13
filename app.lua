@@ -79,8 +79,10 @@ end
 require 'models'
 require 'responses'
 
-app.cookie_attributes = function (self)
--- A cookie is valid for 120 days from your last action on Snap!
+app.cookie_attributes = function (self, key, value)
+    -- A cookie is valid for 120 days from your last action on Snap!
+    -- TODO: We should reduce the validity window, but extend based on active use.
+    -- To do this, we would need to update the session cookie in a before_filter.
     local attributes = "Path=/; HttpOnly;"
     if (config._name == 'development') then
         attributes = attributes .. " SameSite=Lax;"
@@ -88,9 +90,11 @@ app.cookie_attributes = function (self)
         attributes = attributes .. " SameSite=Lax; Secure;"
     end
     -- Cookies are 'session cookies' unless they have an expiration date.
+    -- Cookies have a Max-Age of 35 days, because this is continually reset
+    -- using the Snap!Cloud will continue to extend the user's cookie.
     if self.session.persist_session == 'true' then
-        local expires = date(true):adddays(120):fmt("${http}")
-        attributes = "Expires=" .. expires .. "; "  .. attributes
+        local expires = 120 * 24 * 60 * 60
+        attributes = "Max-Age=" .. expires .. "; " .. attributes
     end
     return attributes
 end
