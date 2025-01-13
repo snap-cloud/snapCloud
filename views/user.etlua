@@ -61,7 +61,7 @@ end
 
 <% if current_user and current_user:has_min_role('moderator') then %>
 <!-- -- ADMIN TOOLS -->
-<div class="col-4">
+<div class="col-lg-4 col-md-6 col-sm-12">
     <h2><%- locale.get('admin_tools') %></h2>
 <%
     render(
