@@ -165,7 +165,7 @@ UserController = {
 
             -- TODO: Create and store a remember token
             self.session.username = self.queried_user.username
-            self.cookies.persist_session = tostring(self.params.persist)
+            self.session.persist_session = tostring(self.params.persist)
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
@@ -187,13 +187,13 @@ UserController = {
     logout_get = capture_errors(function (self)
         self.session.username = ''
         self.session.user_id = nil
-        self.cookies.persist_session = 'false'
+        self.session.persist_session = 'false'
         return { redirect_to = self:build_url('/') }
     end),
     logout = capture_errors(function (self)
         self.session.username = ''
         self.session.user_id = nil
-        self.cookies.persist_session = 'false'
+        self.session.persist_session = 'false'
         return jsonResponse({
             redirect = (self.params.redirect or self:build_url('/'))
         })
@@ -307,7 +307,7 @@ UserController = {
                 -- we've deleted ourselves, let's log out
                 self.session.username = ''
                 self.session.user_id = nil
-                self.cookies.persist_session = 'false'
+                self.session.persist_session = 'false'
             end
             return jsonResponse({
                 title = 'User deleted',

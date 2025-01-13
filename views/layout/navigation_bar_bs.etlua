@@ -10,7 +10,9 @@
     <div class="collapse navbar-collapse" id="navbarScroll">
       <ul class="navbar-nav me-auto navbar-nav-scroll">
         <li class="nav-item">
-          <a class="nav-link run" target="_blank" href="<%= build_url('/snap/snap.html') %>">
+          <a class="nav-link run"
+            target="<%- prefer_new_tab and '_blank' or '_self' %>"
+            href="<%= build_url('/snap/snap.html') %>">
             <%- locale.get('run_snap', '<em>!</em>') %>
           </a>
         </li>

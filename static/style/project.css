@@ -312,6 +312,10 @@ img.collection-thumbnail {
     text-align: right;
 }
 
+.project.big .controlbar .btn {
+    padding: 4px;
+}
+
 .project.big .controlbar i {
     width: 1.2em;
 }
@@ -332,7 +336,8 @@ img.collection-thumbnail {
     color: #ee6666;
 }
 
-.project.big .controlbar i:hover {
+.project.big .controlbar i:hover,
+.project.big .controlbar i:focus {
     filter: brightness(1.5);
 }
 
@@ -340,18 +345,20 @@ img.collection-thumbnail {
 .project.big .buttons {
     display: flex;
     flex-wrap: wrap;
-    margin: 0 -0.1em;
+    margin: 0 -0.2em;
 }
 
-.collection .buttons a,
-.project.big .buttons a {
-    margin: 5px 0.1em 0 0.1em; /* Edge margins get cancelled out by ↑ margin: 0 -0.1em; ↑ */
-    padding: 0.5em;
+.collection .buttons .btn,
+.project.big .buttons .btn {
+    margin: 6px 0.2em; /* Edge margins get cancelled out by ↑ margin: 0 -0.1em; ↑ */
     flex-grow: 0.20; /* 20% max growth */
 }
 
-.collection a.flag,
-.project.big span.flag-container {
+.flag-container {
+    text-align: right;
+}
+
+.collection a.flag {
     text-align: right;
     font-size: 0.8em;
     margin-top: 0.5em;
@@ -360,13 +367,10 @@ img.collection-thumbnail {
     padding: 0;
 }
 
-.project.big a.flag {
-    padding: 0;
-}
 
 .collection a.flag:hover,
-.project.big a.flag:hover {
-    filter: brightness(0.5) !important;
+.project.big button.flag:hover {
+    filter: brightness(0.8) !important;
 }
 
 .collection .description,
@@ -390,7 +394,7 @@ img.collection-thumbnail {
 .collection .description small,
 .project.big .notes small {
     font-style: italic;
-    opacity: 0.5;
+    /* opacity: 0.5; disabled due to low contrast. */
 }
 
 .project.big .dates p {
@@ -411,54 +415,6 @@ img.collection-thumbnail {
     line-height: 1em;
     margin-top: 0;
     margin-bottom: 0.7em;
-}
-
-/* Embed dialog */
-
-.embed-options .info {
-    margin-bottom: 0.5em;
-    display: block;
-    text-align: center;
-}
-
-.embed-options fieldset {
-    margin: 0 3em;
-}
-
-.embed-options .pure-control-group,
-.embed-options .pure-control-group label {
-    text-align: left;
-    width: auto
-}
-
-.copy-text-element {
-    margin: 0.5em auto
-}
-
-.copy-button {
-    margin: 0 4px;
-    padding: 4px;
-}
-
-.embed-options .pure-control-group.copy-text-element label {
-    width: 12ch; /* "Embed Code" + some space */
-}
-
-.embed-code {
-    font-family: monospace;
-    margin: auto 4px;
-    width: 420px;
-    font-size: 0.75em;
-    line-height: 1;
-    resize: none;
-}
-
-.embed-url {
-    height: 3rem;
-}
-
-.embed-iframe {
-    height: 6rem;
 }
 
 /* Reasons dialog */

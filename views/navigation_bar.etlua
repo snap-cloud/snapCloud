@@ -6,7 +6,8 @@
             </a>
             <span class="pure-u-5-12">
                 <li class="pure-menu-item">
-                    <a class="pure-menu-link run" target="_blank"
+                    <a class="pure-menu-link run"
+                        target="<%- prefer_new_tab and '_blank' or '_self' %>"
                         href="<%= build_url('/snap/snap.html') %>"
                        ><%- locale.get('run_snap', '<em>!</em>') %></a>
                 </li>
