@@ -1,6 +1,6 @@
 <h1><%- locale.get('log_into_snap', '<em>!</em>' ) %></h1>
 
-<form id="login" class="form-horizontal my-4" onsubmit="submit(event)">
+<form id="login" class="form-horizontal my-4" onsubmit="handleLoginSubmit(event)">
   <input type="hidden" name="csrf_token" id="csrf_token" value="<%- csrf_token %>">
 
   <div class="mb-3 row">
@@ -36,7 +36,7 @@
 
   <div class="mb-3 row">
     <div class="col-sm-10">
-      <button onclick="submit()" class="btn btn-primary" type="button">
+      <button onclick="handleLoginSubmit()" class="btn btn-primary" type="button">
         <%= locale.get('login') %>
       </button>
     </div>
@@ -54,12 +54,12 @@
 <script type="text/javascript" src="/static/js/sha512.js"></script>
 <script>
   enableEnterSubmit();
-  var submit = function (event) {
+  function handleLoginSubmit(event) {
     if (event && event.preventDefault) {
       event.preventDefault();
     }
 
-    var form = document.querySelector('#login');
+    let form = document.querySelector('#login');
     cloud.login(
       form.querySelector('#username').value, // username
       form.querySelector('#password').value,// password
