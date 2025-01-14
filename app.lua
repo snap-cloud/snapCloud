@@ -84,18 +84,16 @@ app.cookie_attributes = function (self)
     -- Cookies have a Max-Age of 35 days, because this is continually reset
     -- using the Snap!Cloud will continue to extend the user's cookie.
     -- Any update to `self.session.x` will extend the cookie's life.
-    local attributes = "Path=/; HttpOnly; Domain="
-    attributes = attributes .. ngx.var.host .. ';'
+    local attributes = "Domain=" .. ngx.var.host .. "; Path=/;"
     if (config._name == 'development') then
-        attributes = attributes .. " SameSite=Lax;"
+        attributes = attributes .. " HttpOnly; SameSite=Lax; "
     else
-        attributes = attributes .. " SameSite=None; Secure;"
+        attributes = attributes .. " Secure; HttpOnly; SameSite=None;"
     end
     if self.session.persist_session == 'true' then
-        local expires = 35 * 24 * 60 * 60
-        attributes = "Max-Age=" .. expires .. "; " .. attributes
+        local max_seconds = 35 * 24 * 60 * 60 -- 35 days, 24 hours, 60 minutes, 60 seconds
+        attributes = "Max-Age=" .. max_seconds .. "; " .. attributes
     end
-    debug_print('Cookie Attrs', attributes)
     return attributes
 end
 
