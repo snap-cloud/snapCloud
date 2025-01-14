@@ -57,7 +57,7 @@ local views = {
 }
 
 -- Temporary during a front-end rewrite.
--- This allows testing anypage with adding ?bootstrap=true to the URL
+-- This allows testing any page with adding ?bootstrap=true to the URL
 app:before_filter(function (self)
     if self.current_user and self.current_user:isadmin() then
         if self.params['bootstrap'] == 'true' then
@@ -66,9 +66,16 @@ app:before_filter(function (self)
     end
 end)
 
+app:before_filter(function (self)
+    -- A front-end method to prefer opening some links (the IDE, mostly) in the same window
+    self.prefer_new_tab = false
+    if self.current_user and self.session.presist_session ~= 'true' then
+        self.prefer_new_tab = true
+    end
+end)
+
 app:get('index', '/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    -- return { render = 'index' }
     return { render = 'index_bs', layout = 'layout_bs' }
 end)))
 
