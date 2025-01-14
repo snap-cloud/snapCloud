@@ -90,7 +90,8 @@ config('production', {
 
     -- This is an additional security feature to prevent cookie tampering.
     -- Currently disabled as changing the name will log out all users.
-    -- session_name = '__Secure-snapsession',
+    -- lapis needs to /not/ URL encode this name.
+    -- session_name = '__Host-snapsession',
     session_name = 'snapsession',
 
     logging = {
@@ -106,6 +107,4 @@ config('staging', {
     num_workers = 2,
     primary_nginx_config = 'http-only.conf',
     secondary_nginx_config = 'include nginx.conf.d/ssl-staging.conf;',
-
-    session_name = '__Secure-snapsession',
 })
