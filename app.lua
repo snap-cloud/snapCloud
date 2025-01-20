@@ -82,12 +82,14 @@ require 'responses'
 app.cookie_attributes = function (self)
     -- Cookies are 'session cookies' unless they have an expiration date.
     -- Cookies have a Max-Age of 35 days, because this is continually reset
-    -- using the Snap!Cloud will continue to extend the user's cookie.
+    -- using the Snap!Cloud will continue to extend the user's cookie. (See before_filter)
     -- Any update to `self.session.x` will extend the cookie's life.
+    -- See https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html
     local attributes = "Domain=" .. ngx.var.host .. "; Path=/;"
     if (config._name == 'development') then
         attributes = attributes .. " HttpOnly; SameSite=Lax; "
     else
+        -- SameSite must be None on production to allow extensions (and CORS) to work right.
         attributes = attributes .. " Secure; HttpOnly; SameSite=None;"
     end
     if self.session.persist_session == 'true' then
