@@ -291,6 +291,7 @@ img.collection-thumbnail {
     flex-direction: column;
     align-items: stretch;
     margin-bottom: 0.5em;
+    width: 482px;
 }
 
 .embed .project-loader {
