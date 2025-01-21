@@ -1,7 +1,7 @@
 TWEAKS
 ======
 [ ] unify self.per_page, self.items_per_page and self.params.items_per_page
-[ ] maybe refactor IP bans administration so it uses the grid template?
+[x] maybe refactor IP bans administration so it uses the grid template?
 [x] disregard flag and email flagger
 [x] count illegitimate flags
 
