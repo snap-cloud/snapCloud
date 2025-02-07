@@ -34,6 +34,7 @@ local locale = {
     my_collections = "My Collections",
     my_public_page = "My Public Page",
     followed_projects = "Followed Projects",
+    bookmarked_projects = "Bookmarked Projects",
     administration = "Administration",
     my_profile = "My Profile",
     logout = "Log Out",
