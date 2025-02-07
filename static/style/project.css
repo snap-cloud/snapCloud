@@ -137,6 +137,34 @@ img.collection-thumbnail {
   font-size: 1em;
 }
 
+.bookmark {
+  color: rgb(255,100,100);
+}
+
+.unbookmark {
+  color: rgb(100,50,50);
+  background: dimgray;
+}
+
+i.bookmarked {
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  color: #e66;
+  font-size: 0.75em;
+  animation: beat .5s infinite alternate;
+}
+
+span.bookmark-count {
+  position: absolute;
+  left: 2em;
+  color: #fff;
+}
+
+@keyframes beat{
+  to { transform: scale(1.4); }
+}
+
 .collection-controls:hover {
     background: rgba(255, 255, 255, .8);
 }

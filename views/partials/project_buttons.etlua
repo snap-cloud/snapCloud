@@ -11,8 +11,22 @@
     <a class="pure-button embed-button" target="_blank"
         onclick="embedDialog()" ><%= locale.get('embed') %></a>
     <% if current_user then %>
-    <a class="pure-button collect" target="_blank"
-        onclick="collectDialog()"><%= locale.get('collect') %></a>
+      <a class="pure-button collect" target="_blank"
+          onclick="collectDialog()"><%= locale.get('collect') %></a>
+      <% -- BOOKMARKING -- %>
+      <% if current_user.username ~= project.username then %>
+      <% if project:bookmarked_by(current_user) then %>
+      <a title="<%= locale.get('unbookmark') %>" class="pure-button unbookmark" target="_blank"
+          onclick="cloud.delete(
+            '/project/<%= project.id %>/bookmark/<%= current_user.id %>'
+          )"><i class="fas fa-heart"></i></a>
+      <% else %>
+      <a title="<%= locale.get('bookmark') %>" class="pure-button bookmark" target="_blank"
+          onclick="cloud.post(
+            '/project/<%= project.id %>/bookmark/<%= current_user.id %>'
+          )"><i class="fas fa-heart"></i></a>
+      <% end %>
+      <% end %>
     <% end %>
     <script>
         function embedDialog () {

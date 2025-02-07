@@ -245,6 +245,11 @@ local locale = {
     followed_users = "Users Followed by You",
     follower_users = "Users That Follow You",
 
+    -- Bookmarked projects feed
+    -- ========================
+    bookmarked_feed = "Projects I've Bookmarked",
+    no_bookmarks = "You haven't bookmarked any projects yet. Click on the heart icon under a project that you like to bookmark it.",
+
     -- User profile
     -- ============
     profile_title = "@1's profile", -- @1 becomes the user's username
@@ -310,6 +315,10 @@ Want to know more? Visit @2]],
     share_button = "Share",
     unpublish_button = "Unpublish",
     unshare_button = "Unshare",
+    -- Bookmarking tooltips
+    bookmark = "Save this project in your bookmarks",
+    unbookmark = "Remove this project from your bookmarks",
+    project_is_bookmarked = "People like your project!",
     -- Flagging
     you_flagged = "You flagged this project as inappropriate",
     unflag_project = "Unflag this project",
