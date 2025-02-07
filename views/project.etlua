@@ -37,7 +37,8 @@
             <!-- Project control bar -->
             <div class="controlbar">
                 <% if (project:get_bookmark_count() > 0) then %>
-                  <% if (current_user.username == project.username) then %>
+                  <% if (current_user.username == project.username) or
+                    current_user:isadmin() then %>
                   <i title="<%= locale.get('project_is_bookmarked') %>"
                     class="bookmarked fas fa-heart"></i>
                   <% end %>
