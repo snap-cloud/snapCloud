@@ -80,6 +80,11 @@
                   <%- locale.get('followed_projects') %>
                 </a>
               </li>
+              <li>
+                <a class="dropdown-item bookmarked-projects" href="/bookmarked">
+                  <%- locale.get('bookmarked_projects') %>
+                </a>
+              </li>
               <% if current_user:isadmin() or current_user.is_teacher then %>
               <li class="no-hover"><hr class="dropdwon-divider"></li>
               <% end %>
