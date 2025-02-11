@@ -44,7 +44,7 @@ ProjectController = {
         -- query can hold a paginator or an SQL query
         if not self.params.page_number then self.params.page_number = 1 end
         local filters = ''
-        if self.current_user:isadmin() then
+        if self.current_user and self.current_user:isadmin() then
           if self.params.filter_bookmarked == 'true' then
             filters = ' AND id IN (SELECT project_id FROM bookmarks)'
           elseif (self.params.filter_bookmarked == 'false') then -- could be nil
