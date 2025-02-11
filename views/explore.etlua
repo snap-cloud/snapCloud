@@ -7,7 +7,7 @@
 <% end %>
 <%
 local filters = {}
-if current_user:isadmin() then
+if current_user and current_user:isadmin() then
   filters = {
             {
                 selector = 'bookmarked',
