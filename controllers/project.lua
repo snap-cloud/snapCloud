@@ -43,6 +43,18 @@ ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
         if not self.params.page_number then self.params.page_number = 1 end
+        local filters = ''
+        if self.current_user:isadmin() then
+          if self.params.filter_bookmarked == 'true' then
+            filters = ' AND id IN (SELECT project_id FROM bookmarks)'
+          elseif (self.params.filter_bookmarked == 'false') then -- could be nil
+            filters = ' AND NOT id IN (SELECT project_id FROM bookmarks)'
+          end
+          if self.params.filter_order_by then
+            self.params.order = self.params.filter_order_by
+          end
+        end
+
         local paginator = Projects:paginated(
                  query ..
                     (self.params.search_term and (db.interpolate_query(
@@ -50,6 +62,7 @@ ProjectController = {
                         '%' .. self.params.search_term .. '%',
                         '%' .. self.params.search_term .. '%')
                     ) or '') ..
+                    (filters or '') ..
                     ' ORDER BY ' ..
                         (self.params.order or 'firstpublished DESC'),
                 {

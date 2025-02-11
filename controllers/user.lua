@@ -64,7 +64,7 @@ UserController = {
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
                 (filters or '') ..
-            ' ORDER BY ' .. (self.params.order or 'created'),
+                ' ORDER BY ' .. (self.params.order or 'created'),
             {
                 per_page = self.items_per_page or 15,
                 fields = self.params.fields or '*'
