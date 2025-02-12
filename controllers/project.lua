@@ -375,7 +375,7 @@ ProjectController = {
     bookmark = capture_errors(function (self)
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
-        if not self.current_user then return
+        if not self.current_user then return okResponse() end
 
         local bookmark =
             Bookmarks:select(
@@ -396,7 +396,7 @@ ProjectController = {
     unbookmark = capture_errors(function (self)
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
-        if not self.current_user then return
+        if not self.current_user then return okResponse() end
 
         local bookmark =
             Bookmarks:select(
