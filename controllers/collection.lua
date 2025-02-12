@@ -232,7 +232,8 @@ CollectionController = {
         local collection =
             Collections:find({ id = self.params.id })
 
-        if collection.creator_id ~= self.current_user.id then
+        if (self.current_user == nil) or
+              (collection.creator_id ~= self.current_user.id) then
             assert_min_role(self, 'moderator')
         end
 
