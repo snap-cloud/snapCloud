@@ -387,7 +387,8 @@ CollectionController = {
     end),
     rename = capture_errors(function (self)
         local collection = Collections:find({ id = self.params.id })
-        if collection.creator_id ~= self.current_user.id then
+        if (self.current_user == nil) or 
+              (collection.creator_id ~= self.current_user.id) then
             assert_admin(self)
         end
         -- assign the creator so we can redirect to the new collection URL
@@ -400,7 +401,8 @@ CollectionController = {
     end),
     set_description = capture_errors(function (self)
         local collection = Collections:find({ id = self.params.id })
-        if collection.creator_id ~= self.current_user.id then
+        if (self.current_user == nil) or 
+              (collection.creator_id ~= self.current_user.id) then
             assert_admin(self)
         end
         if not
