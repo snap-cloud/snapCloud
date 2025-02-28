@@ -26,6 +26,21 @@ function getUrlParameter (param) {
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
 
+function escapeHtml (text) {
+    if (text === null || text === undefined) { return; }
+
+    if (text.toString) { text = text.toString(); }
+    // Based on an answer by Kip @ StackOverflow
+    let map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+}
+
 // Error handling
 
 function genericError (errorString, title) {
@@ -59,20 +74,6 @@ function doneLoading (selector) {
     if (element) {
         element.hidden = true;
     }
-};
-
-// Other goodies
-
-function escapeHtml (text) {
-    // Based on an answer by Kip @ StackOverflow
-    var map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text ? text.replace(/[&<>"']/g, function (m) { return map[m]; }) : ''
 };
 
 function enableEnterSubmit () {
@@ -170,7 +171,7 @@ Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
             if (response && response.title) {
                 alert(
                     localizer.localize(response.message),
-                    { title: localizer.localize(response.title) },
+                    { title: escapeHtml(localizer.localize(response.title)) },
                     function () { onSuccess.call(this, response) }
                 );
             } else {
@@ -180,7 +181,7 @@ Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
         errorMessage => {
             alert(
                 localizer.localize(errorMessage),
-                { title: localizer.localize('Error') },
+                { title: escapeHtml(localizer.localize('Error')) },
                 Cloud.redirect
             )
         },
