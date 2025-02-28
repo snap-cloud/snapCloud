@@ -34,7 +34,25 @@ local function domain_name(url)
   return url:gsub('https*://', ''):gsub(':%d+$', '')
 end
 
+local function escape_html(text)
+  if text == nil then return end
+
+  text = tostring(text)
+  local map = {
+      ["&"] = "&amp;",
+      ["<"] = "&lt;",
+      [">"] = "&gt;",
+      ['"'] = "&quot;",
+      ["'"] = "&#039;"
+  }
+
+  return (text:gsub("[&<>\'\"]", function(m)
+      return map[m]
+  end))
+end
+
 return {
   capitalize = capitalize,
-  domain_name = domain_name
+  domain_name = domain_name,
+  escape_html = escape_html,
 }
