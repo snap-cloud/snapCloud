@@ -19,7 +19,7 @@ local locale = {
     lang_name = "Հայերեն",
     lang_code = "hy",
     authors = "Antrohoos Educational Foundation",
-    last_updated = "2025/01/19", -- YYYY/MM/DD
+    last_updated = "2025/03/05", -- YYYY/MM/DD
 
     -- Top navigation bar
     -- ==================
@@ -34,6 +34,7 @@ local locale = {
     my_collections = "Իմ հավաքածուները",
     my_public_page = "Իմ հանրային էջը",
     followed_projects = "Հետևած նախագծեր",
+    bookmarked_projects = "Էջանշված նախագծեր",
     administration = "Կառավարում",
     my_profile = "Իմ պրոֆիլը",
     logout = "Ելք",
@@ -60,9 +61,9 @@ local locale = {
     examples = "Նախագծերի օրինակներ",
     manual = "Տեղեկանքի ուղեցույց",
     materials = "Պաշարներ",
-    bjc = "Ծրագրավորման ուրախալի և գեղեցիկ կողմը",
+    bjc = "Ծրագրավորման ուրախ և գեղեցիկ կողմը",
     research = "Հետազոտություն",
-    wiki = "համայքային վիքի",
+    wiki = "Համայնքի վիքի",
     offline = "Անցանց տարբերակ",
     extensions = "Ընդարձակումներ",
     old_snap = "(հին Snap@1)",
@@ -75,11 +76,11 @@ local locale = {
 
     -- Index page
     -- ==========
-    welcome = "բարի գալուստ Snap@1", -- @1 becomes an italic exclamation mark (!)
+    welcome = "Բարի գալուստ", -- @1 becomes an italic exclamation mark (!)
     welcome_logged_in = "բարի գալուստ, @1!", -- @1 becomes the current user username
-    snap_description = "Snap@1 -ը համարվում է երեխաների և մեծահասակների շրջանում լայնորեն կիրառվող ծրագրավորման լեզու, ինչպես նաև հարթակ՝ համակարգչային գիտության խորը ուսումնասիրության համար։",
+    snap_description = "Snap@1 -ը համարվում է երեխաների և մեծահասակների շրջանում լայնորեն կիրառվող ծրագրավորման լեզու, ինչպես նաև հարթակ՝ համակարգչային գիտությունը խորը ուսումնասիրելու համար։",
     -- Buttons
-    run_now = "Գործարկե՛լ հիմա",
+    run_now = "Գործարկե՛լ @1 -ը",
     -- examples and manual already translated in Footer
     -- Curated Collections
     featured = "Առաջարկվող նախագծեր",
