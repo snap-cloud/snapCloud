@@ -62,6 +62,9 @@ domain_allowed['arena.csc.ncsu.edu'] = true
 domain_allowed['snapapps.fi.ncsu.edu'] = true
 -- CONTACT Saminur Islam <sislam8@ncsu.edu>,, Tiffany Barnes <tmbarnes@ncsu.edu>,, Veronica Catete <vmcatete@ncsu.edu>, Ally Limke <anlimke@ncsu.edu>
 domain_allowed['lin-class17.csc.ncsu.edu'] = true
+-- CONTACT Taylor Yang <tyang27@ncsu.edu>
+domain_allowed['sd-vm27.csc.ncsu.edu'] = true
+domain_allowed['sd-vm39.csc.ncsu.edu'] = true
 
 -- CONTACT: Ken Khan
 domain_allowed['ecraft2learn.github.io'] = true
