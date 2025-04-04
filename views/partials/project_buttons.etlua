@@ -132,7 +132,7 @@ function confirmDelete () {
 
 function confirmFlag () {
     confirm(
-        "<%- locale.get('flag_prewarning' , '<br>') %>",
+        "<p class='text-start'><%- locale.get('flag_prewarning' , '<br>') %></p>",
         () => {
             dialog(
                 "<%- locale.get('choose_flag_reason') %>",

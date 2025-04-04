@@ -1,17 +1,19 @@
-<form class="reasons">
-    <span class="option">
-        <input type="radio" name="reason" value="hack">
-        <label for="hack"><%= locale.get('flag_reason_hack') %></label>
-    </span>
-    <span class="option">
-        <input type="radio" name="reason" value="coc">
-        <label for="coc"><%= locale.get('flag_reason_coc') %></label>
-    </span>
-    <span class="option">
-        <input type="radio" name="reason" value="dmca">
-        <label for="dmca"><%= locale.get('flag_reason_dmca') %></label>
-    </span>
-    <span class="notes-title"
-        ><%= locale.get('flag_reason_notes') %></span>
-    <textarea class="notes" placeholder="<%= locale.get('flag_reason_notes_placeholder') %>"></textarea>
+<form class="m-3 reasons form">
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="reason" id="hack" value="hack">
+        <label class="form-check-label" for="hack"><%= locale.get('flag_reason_hack') %></label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="reason" id="coc" value="coc">
+        <label class="form-check-label" for="coc"><%= locale.get('flag_reason_coc') %></label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="reason" id="dmca" value="dmca">
+        <label class="form-check-label" for="dmca"><%= locale.get('flag_reason_dmca') %></label>
+    </div>
+    <div class="my-3">
+        <label class="form-label" for="project-notes"><%= locale.get('flag_reason_notes') %></label>
+        <textarea class="form-control" id="project-notes"
+            placeholder="<%= locale.get('flag_reason_notes_placeholder') %>"></textarea>
+    </div>
 </form>
