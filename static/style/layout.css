@@ -189,6 +189,11 @@
     margin-right: 1em;
 }
 
+.ucb-logo {
+    height: 30px;
+    margin-right: 16px 16px 0 0; /* roughly the size of the 'e' in Berkeley */
+}
+
 /* CUSTOM ALERT */
 
 .customalert {
