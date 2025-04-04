@@ -16,6 +16,24 @@
     <% if current_user then %>
     <button class="btn btn-outline-primary collect" type="button"
         onclick="collectDialog()"><%= locale.get('collect') %></button>
+      <% -- BOOKMARKING -- %>
+      <% if current_user.username ~= project.username then %>
+        <% if project:bookmarked_by(current_user) then %>
+            <button class="btn btn-outline-dark unbookmark" type="button"
+              aria-label="<%= locale.get('unbookmark') %>"
+              title="<%= locale.get('unbookmark') %>"
+              onclick="cloud.delete(
+                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
+            ><i class="fas fa-heart"></i></button>
+        <% else %>
+            <button class="btn btn-outline-dark bookmark" type="button"
+              aria-label="<%= locale.get('bookmark') %>"
+              title="<%= locale.get('bookmark') %>"
+              onclick="cloud.post(
+                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
+            ><i class="far fa-heart"></i></button>
+        <% end %>
+      <% end %>
     <% end %>
     <% if is_users_project or is_admin then %>
     <button class="btn btn-danger delete"

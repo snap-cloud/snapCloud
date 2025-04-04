@@ -271,6 +271,10 @@ local locale = {
     share_button = "Comparteix",
     unpublish_button = "Despublica",
     unshare_button = "Fes privat",
+    -- Bookmarking tooltips
+    bookmark = "Desa aquest projecte als teus preferits",
+    unbookmark = "Suprimeix aquest projecte dels teus preferits",
+    project_is_bookmarked = "El teu projecte agrada a la gent!",
     -- Flagging
     you_flagged = "Has denunciat aquest projecte",
     unflag_project = "Retira la denúncia",

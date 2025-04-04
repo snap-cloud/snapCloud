@@ -23,7 +23,7 @@
 
 package.loaded.Model = require('lapis.db.model').Model
 
--- TODO: This does not acutlly autoload the models
+-- TODO: This does not actually autoload the models
 -- In the meantime, we will require them manually
 -- return require("lapis.util").autoload("models")
 
@@ -33,6 +33,7 @@ package.loaded.Collections = require("models.collections" )
 package.loaded.FeaturedCollections = require("models.featured_collections")
 package.loaded.FlaggedProjects = require("models.flagged_projects")
 package.loaded.Followers = require("models.followers" )
+package.loaded.Bookmarks = require("models.bookmarks" )
 package.loaded.Projects = require("models.projects")
 package.loaded.Remixes = require("models.remixes" )
 package.loaded.Tokens = require("models.tokes" )

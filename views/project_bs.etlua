@@ -30,7 +30,7 @@
     </div>
     <div class="viewer row">
         <!-- Project viewer -->
-        <div class="embed col-md-6">
+        <div class="embed col-md-8 col-sm-6 col-12">
             <!-- Spinner shown while embed hasn't been loaded -->
             <i class="project-loader fas fa-spinner fa-spin fa-3x"
                 aria-hidden="true"></i>
@@ -65,9 +65,7 @@
             <!-- Project Action Buttons -->
             <% render('views.partials.project_buttons', { project = project }) %>
         </div>
-        <!-- just a spacer -->
-        <span class="col-md-1"></span>
-        <div class="col-md-5">
+        <div class="col-md-4 col-sm-6 col-12">
             <% render('views.partials.project_details_bs', { project = project }) %>
         </div>
     </div>

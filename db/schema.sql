@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.3 (Homebrew)
--- Dumped by pg_dump version 16.3 (Homebrew)
+-- Dumped from database version 16.7 (Homebrew)
+-- Dumped by pg_dump version 16.7 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -17,6 +17,27 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+--
 -- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -28,6 +49,20 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 --
 
 COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
+
+
+--
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 
 
 --
@@ -164,6 +199,18 @@ CREATE TABLE public.banned_ips (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     offense_count integer DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: bookmarks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.bookmarks (
+    bookmarker_id integer NOT NULL,
+    project_id integer NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
 );
 
 
@@ -481,6 +528,14 @@ ALTER TABLE ONLY public.banned_ips
 
 
 --
+-- Name: bookmarks bookmarks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.bookmarks
+    ADD CONSTRAINT bookmarks_pkey PRIMARY KEY (bookmarker_id, project_id);
+
+
+--
 -- Name: collection_memberships collection_memberships_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -671,8 +726,8 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.3 (Homebrew)
--- Dumped by pg_dump version 16.3 (Homebrew)
+-- Dumped from database version 16.7 (Homebrew)
+-- Dumped by pg_dump version 16.7 (Homebrew)
 
 
 --
@@ -699,6 +754,7 @@ COPY public.lapis_migrations (name) FROM stdin;
 1683536418
 2023-03-14:0
 2023-03-14:1
+2025-02-06:0
 \.
 
 

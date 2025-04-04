@@ -137,6 +137,35 @@ img.collection-thumbnail {
   font-size: 1em;
 }
 
+.bookmark, .unbookmark {
+  color: red;
+}
+
+.project.big .buttons .btn.bookmark,
+.project.big .buttons .btn.unbookmark {
+    flex-grow: 0;
+}
+
+
+i.bookmarked {
+  position: absolute;
+  left: 10px;
+  top: 12px;
+  color: #e66;
+  font-size: 0.75em;
+  animation: beat .5s infinite alternate;
+}
+
+span.bookmark-count {
+  position: absolute;
+  left: 2em;
+  color: #fff;
+}
+
+@keyframes beat{
+  to { transform: scale(1.4); }
+}
+
 .collection-controls:hover {
     background: rgba(255, 255, 255, .8);
 }
@@ -286,11 +315,16 @@ img.collection-thumbnail {
     position: relative;
 }
 
+/* TODO: We can make the sizing of the embed a little more dynamic.
+    We need to not set height on the iframe, then later set it via JS.xwxx
+*/
 .project.big .embed {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     margin-bottom: 0.5em;
+    min-width: 482px;
+    max-width: 564px;
 }
 
 .embed .project-loader {

@@ -307,5 +307,16 @@ return {
         db.query([[
             ALTER TYPE snap_user_role ADD VALUE 'student' BEFORE 'standard';
         ]])
+    end,
+
+    -- Create a Bookmarks table
+    ['2025-02-06:0'] = function ()
+        schema.create_table('bookmarks', {
+            { 'bookmarker_id', types.foreign_key },
+            { 'project_id', types.foreign_key },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) },
+            'PRIMARY KEY (bookmarker_id, project_id)'
+        })
     end
 }

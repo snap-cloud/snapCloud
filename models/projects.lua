@@ -77,6 +77,12 @@ local ActiveProjects =  Model:extend('active_projects', {
         }
         return urls[purpose]
     end,
+    bookmarked_by = function (self, bookmarker)
+      return package.loaded.Bookmarks:find({
+        bookmarker_id = bookmarker.id,
+        project_id = self.id
+      }) ~= nil
+    end,
     relations = {
         {'flags',
             fetch = function (self)
@@ -87,6 +93,15 @@ local ActiveProjects =  Model:extend('active_projects', {
                     self.id,
                     { fields = 'username, created_at, reason, notes' }
                 )
+            end
+        },
+        {'bookmark_count',
+            fetch = function (self)
+                return package.loaded.Bookmarks:select(
+                    'WHERE project_id = ?',
+                    self.id,
+                    { fields = 'count(*) as count' }
+                )[1].count
             end
         },
         {'public_remixes',
