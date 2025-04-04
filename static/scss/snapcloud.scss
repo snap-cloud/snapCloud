@@ -181,6 +181,13 @@ main {
   border-color: var(--bs-primary);
 }
 
+.btn-xs {
+  padding: 0.2rem;
+  font-size: 0.75rem;
+  // line-height: 1.5;
+  // border-radius: 0.2rem;
+}
+
 a {
   color: var(--lighter-link-color);
   text-decoration: none;
@@ -253,4 +260,54 @@ hr {
       box-shadow: var(--bs-navbar-toggler-border-color) 0 0 3px 3px;
     }
   }
+}
+
+.carousel-item {
+  .row {
+    /* widen the bootstrap gutter so carousels are full width.
+      bootstrap sets the row margin at -0.5 * bs-gutter-x
+      The default value is 1.5
+    */
+    --bs-gutter-x: 3rem;
+
+    .project {
+      &:nth-of-type(1) {
+        padding-left: 0;
+      }
+
+      &:nth-last-of-type(1) {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+/* Embed dialog */
+
+.embed-options .info {
+  margin-bottom: 0.5em;
+  display: block;
+  text-align: center;
+}
+
+.embed-options fieldset {
+  margin: 0 1.5em;
+}
+
+.embed-options--label-container {
+  width: 18ch; /* "Embed Code" + some space */
+  padding-right: var(--bs-gutter-x);
+  text-align: left;
+  vertical-align: middle;
+  /* Designed to match the height of the copy button. */
+  min-height: 30px;
+}
+
+.embed-options--embed-code-textarea {
+  font-family: monospace;
+  margin: auto 4px;
+  width: 420px;
+  font-size: 0.75em;
+  line-height: 1;
+  resize: none;
 }

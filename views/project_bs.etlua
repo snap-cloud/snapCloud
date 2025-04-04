@@ -1,0 +1,105 @@
+<!-- <script src="/static/js/inplace.js"></script> -->
+
+
+<!-- TODO-BS: Replace .project.big with a single CSS class. Extract to partial? -->
+<div class="project big mt-3">
+    <div class="title">
+        <h1><%= project.projectname %></h1>
+
+        <% if remixed_from then %>
+        <span class="remixed-from"><%-
+            locale.get(
+                'remixed_from',
+                '<span class="project-link"><a href="' ..
+                    remixed_from:url_for('site') ..
+                    '" >' .. remixed_from.projectname ..
+                    '</a></span>',
+                '<a href="' .. remixed_from:url_for('author') ..
+                    '"><strong>' .. remixed_from.username ..
+                    '</strong></a>')
+        %></span>
+        <% end %>
+
+        <span class="author"><%-
+            locale.get(
+                'project_by',
+                '<a href="' .. project:url_for('author') ..
+                    '"target=""><strong>' .. project.username .. '</strong></a>'
+            )
+        %></span>
+    </div>
+    <div class="viewer row">
+        <!-- Project viewer -->
+        <div class="embed col-md-8 col-sm-6 col-12">
+            <!-- Spinner shown while embed hasn't been loaded -->
+            <i class="project-loader fas fa-spinner fa-spin fa-3x"
+                aria-hidden="true"></i>
+
+            <!-- Project control bar -->
+            <div class="controlbar">
+                <button class="btn btn-link" aria-label="present project full-screen" type="button"
+                    onclick="toggleFullScreen();">
+                    <i aria-hidden=true class="present-button fas fa-expand"></i>
+                    </button>
+                <button class="btn btn-link" aria-label="start project" type="button"
+                    onclick="runProject(event);">
+                    <i aria-hidden=true class="start-button fas fa-flag"></i>
+                    </button>
+                <button class="btn btn-link" aria-label="pause project" type="button"
+                    onclick="togglePauseProject();">
+                    <i aria-hidden=true class="pause-button fas fa-pause"></i>
+                    </button>
+                <button class="btn btn-link" aria-label="stop project" type="button"
+                    onclick="stopProject();">
+                    <i aria-hidden=true class="stop-button fas fa-octagon"></i>
+                    </button>
+            </div>
+
+            <!-- Project embed -->
+            <iframe allow="geolocation; microphone; camera"
+                sandbox="allow-scripts allow-same-origin"
+                title="project viewer"
+                src="<%= project:url_for('viewer', params.devVersion) %>"
+                height="406"></iframe>
+
+            <!-- Project Action Buttons -->
+            <% render('views.partials.project_buttons', { project = project }) %>
+        </div>
+        <div class="col-md-4 col-sm-6 col-12">
+            <% render('views.partials.project_details_bs', { project = project }) %>
+        </div>
+    </div>
+</div>
+
+<%
+    -- Carousel of remixes
+    render(
+        'views.carousel_bs',
+        {
+            title = locale.get('project_remixes_title'),
+            items = project:get_public_remixes(),
+            class = 'remixes',
+            item_type = 'project'
+        }
+    )
+
+    -- Carousel of collections
+    render(
+        'views.carousel_bs',
+        {
+            title = locale.get('project_collections_title'),
+            items = project:get_public_collections(),
+            class = 'collections',
+            item_type = 'collection'
+        }
+    )
+%>
+
+<script>
+    // Prevent scrolling when focus is in the iframe
+    document.onscroll = function (event) {
+        if (document.activeElement.tagName === 'IFRAME') {
+            window.scrollTo(0, 0);
+        }
+    };
+</script>
