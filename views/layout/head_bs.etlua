@@ -26,4 +26,6 @@
 <script type="text/javascript" src="/static/js/base.js"></script>
 <script>cloud = new Cloud(); cloud.url = location.origin;</script>
 
+<!-- TODO: This is included commonly enough if should probably be in the base set. -->
+<script src="/static/js/project.js"></script>
 <!-- JS that can be delayed is loaded in the layout.delayed_scripts -->

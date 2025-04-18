@@ -66,7 +66,6 @@ local html_error = function (self, error, status)
             An unexpected error occurred.
             Reach out to contact@snap.berkeley.edu if you continue to experience trouble.
             Please include the details of the following message:
-
         ]] .. error
     end
 
@@ -90,5 +89,5 @@ end
 html_message_page = function (self, title, contents)
     self.title = title
     self.contents = contents
-    return { layout = 'layout_bs', render = 'message' }
+    return { render = 'message', layout = 'layout_bs', status = 200 }
 end
