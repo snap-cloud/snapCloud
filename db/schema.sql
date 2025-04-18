@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.5 (Ubuntu 10.5-1.pgdg16.04+1)
--- Dumped by pg_dump version 10.5 (Ubuntu 10.5-1.pgdg16.04+1)
+-- Dumped from database version 16.7 (Homebrew)
+-- Dumped by pg_dump version 16.7 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -12,48 +12,68 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: 
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
 
 --
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
 
 
 --
--- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: 
+-- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
 --
 
 CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 
 
 --
--- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: 
+-- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: -
 --
 
 COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
 
 
 --
--- Name: dom_username; Type: DOMAIN; Schema: public; Owner: cloud
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+--
+-- Name: dom_username; Type: DOMAIN; Schema: public; Owner: -
 --
 
 CREATE DOMAIN public.dom_username AS text;
 
 
-ALTER DOMAIN public.dom_username OWNER TO cloud;
-
 --
--- Name: snap_user_role; Type: TYPE; Schema: public; Owner: cloud
+-- Name: snap_user_role; Type: TYPE; Schema: public; Owner: -
 --
 
 CREATE TYPE public.snap_user_role AS ENUM (
@@ -66,10 +86,8 @@ CREATE TYPE public.snap_user_role AS ENUM (
 );
 
 
-ALTER TYPE public.snap_user_role OWNER TO cloud;
-
 --
--- Name: expire_token(); Type: FUNCTION; Schema: public; Owner: cloud
+-- Name: expire_token(); Type: FUNCTION; Schema: public; Owner: -
 --
 
 CREATE FUNCTION public.expire_token() RETURNS trigger
@@ -82,14 +100,12 @@ END;
 $$;
 
 
-ALTER FUNCTION public.expire_token() OWNER TO cloud;
-
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
--- Name: projects; Type: TABLE; Schema: public; Owner: cloud
+-- Name: projects; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.projects (
@@ -107,32 +123,28 @@ CREATE TABLE public.projects (
 );
 
 
-ALTER TABLE public.projects OWNER TO cloud;
-
 --
--- Name: active_projects; Type: VIEW; Schema: public; Owner: cloud
+-- Name: active_projects; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.active_projects AS
- SELECT projects.id,
-    projects.projectname,
-    projects.ispublic,
-    projects.ispublished,
-    projects.notes,
-    projects.created,
-    projects.lastupdated,
-    projects.lastshared,
-    projects.username,
-    projects.firstpublished,
-    projects.deleted
+ SELECT id,
+    projectname,
+    ispublic,
+    ispublished,
+    notes,
+    created,
+    lastupdated,
+    lastshared,
+    username,
+    firstpublished,
+    deleted
    FROM public.projects
-  WHERE (projects.deleted IS NULL);
+  WHERE (deleted IS NULL);
 
-
-ALTER TABLE public.active_projects OWNER TO cloud;
 
 --
--- Name: users; Type: TABLE; Schema: public; Owner: cloud
+-- Name: users; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.users (
@@ -154,36 +166,32 @@ CREATE TABLE public.users (
 );
 
 
-ALTER TABLE public.users OWNER TO cloud;
-
 --
--- Name: active_users; Type: VIEW; Schema: public; Owner: cloud
+-- Name: active_users; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.active_users AS
- SELECT users.id,
-    users.created,
-    users.username,
-    users.email,
-    users.salt,
-    users.password,
-    users.about,
-    users.location,
-    users.verified,
-    users.role,
-    users.deleted,
-    users.unique_email,
-    users.bad_flags,
-    users.is_teacher,
-    users.creator_id
+ SELECT id,
+    created,
+    username,
+    email,
+    salt,
+    password,
+    about,
+    location,
+    verified,
+    role,
+    deleted,
+    unique_email,
+    bad_flags,
+    is_teacher,
+    creator_id
    FROM public.users
-  WHERE (users.deleted IS NULL);
+  WHERE (deleted IS NULL);
 
-
-ALTER TABLE public.active_users OWNER TO cloud;
 
 --
--- Name: banned_ips; Type: TABLE; Schema: public; Owner: cloud
+-- Name: banned_ips; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.banned_ips (
@@ -194,10 +202,20 @@ CREATE TABLE public.banned_ips (
 );
 
 
-ALTER TABLE public.banned_ips OWNER TO cloud;
+--
+-- Name: bookmarks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.bookmarks (
+    bookmarker_id integer NOT NULL,
+    project_id integer NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
 
 --
--- Name: collection_memberships; Type: TABLE; Schema: public; Owner: cloud
+-- Name: collection_memberships; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.collection_memberships (
@@ -210,10 +228,8 @@ CREATE TABLE public.collection_memberships (
 );
 
 
-ALTER TABLE public.collection_memberships OWNER TO cloud;
-
 --
--- Name: collection_memberships_id_seq; Type: SEQUENCE; Schema: public; Owner: cloud
+-- Name: collection_memberships_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.collection_memberships_id_seq
@@ -225,17 +241,15 @@ CREATE SEQUENCE public.collection_memberships_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.collection_memberships_id_seq OWNER TO cloud;
-
 --
--- Name: collection_memberships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cloud
+-- Name: collection_memberships_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.collection_memberships_id_seq OWNED BY public.collection_memberships.id;
 
 
 --
--- Name: collections; Type: TABLE; Schema: public; Owner: cloud
+-- Name: collections; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.collections (
@@ -255,10 +269,8 @@ CREATE TABLE public.collections (
 );
 
 
-ALTER TABLE public.collections OWNER TO cloud;
-
 --
--- Name: collections_id_seq; Type: SEQUENCE; Schema: public; Owner: cloud
+-- Name: collections_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.collections_id_seq
@@ -270,77 +282,69 @@ CREATE SEQUENCE public.collections_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.collections_id_seq OWNER TO cloud;
-
 --
--- Name: collections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cloud
+-- Name: collections_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.collections_id_seq OWNED BY public.collections.id;
 
 
 --
--- Name: count_recent_projects; Type: VIEW; Schema: public; Owner: cloud
+-- Name: count_recent_projects; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.count_recent_projects AS
  SELECT count(*) AS count
    FROM public.projects
-  WHERE (projects.lastupdated > (('now'::text)::date - '1 day'::interval));
+  WHERE (lastupdated > (('now'::text)::date - '1 day'::interval));
 
-
-ALTER TABLE public.count_recent_projects OWNER TO cloud;
 
 --
--- Name: deleted_projects; Type: VIEW; Schema: public; Owner: cloud
+-- Name: deleted_projects; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.deleted_projects AS
- SELECT projects.id,
-    projects.projectname,
-    projects.ispublic,
-    projects.ispublished,
-    projects.notes,
-    projects.created,
-    projects.lastupdated,
-    projects.lastshared,
-    projects.username,
-    projects.firstpublished,
-    projects.deleted
+ SELECT id,
+    projectname,
+    ispublic,
+    ispublished,
+    notes,
+    created,
+    lastupdated,
+    lastshared,
+    username,
+    firstpublished,
+    deleted
    FROM public.projects
-  WHERE (projects.deleted IS NOT NULL);
+  WHERE (deleted IS NOT NULL);
 
-
-ALTER TABLE public.deleted_projects OWNER TO cloud;
 
 --
--- Name: deleted_users; Type: VIEW; Schema: public; Owner: cloud
+-- Name: deleted_users; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.deleted_users AS
- SELECT users.id,
-    users.created,
-    users.username,
-    users.email,
-    users.salt,
-    users.password,
-    users.about,
-    users.location,
-    users.verified,
-    users.role,
-    users.deleted,
-    users.unique_email,
-    users.bad_flags,
-    users.is_teacher,
-    users.creator_id
+ SELECT id,
+    created,
+    username,
+    email,
+    salt,
+    password,
+    about,
+    location,
+    verified,
+    role,
+    deleted,
+    unique_email,
+    bad_flags,
+    is_teacher,
+    creator_id
    FROM public.users
-  WHERE (users.deleted IS NOT NULL);
+  WHERE (deleted IS NOT NULL);
 
-
-ALTER TABLE public.deleted_users OWNER TO cloud;
 
 --
--- Name: featured_collections; Type: TABLE; Schema: public; Owner: cloud
+-- Name: featured_collections; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.featured_collections (
@@ -353,10 +357,8 @@ CREATE TABLE public.featured_collections (
 );
 
 
-ALTER TABLE public.featured_collections OWNER TO cloud;
-
 --
--- Name: flagged_projects; Type: TABLE; Schema: public; Owner: cloud
+-- Name: flagged_projects; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.flagged_projects (
@@ -370,10 +372,8 @@ CREATE TABLE public.flagged_projects (
 );
 
 
-ALTER TABLE public.flagged_projects OWNER TO cloud;
-
 --
--- Name: flagged_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: cloud
+-- Name: flagged_projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.flagged_projects_id_seq
@@ -385,17 +385,15 @@ CREATE SEQUENCE public.flagged_projects_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.flagged_projects_id_seq OWNER TO cloud;
-
 --
--- Name: flagged_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cloud
+-- Name: flagged_projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.flagged_projects_id_seq OWNED BY public.flagged_projects.id;
 
 
 --
--- Name: followers; Type: TABLE; Schema: public; Owner: cloud
+-- Name: followers; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.followers (
@@ -406,10 +404,8 @@ CREATE TABLE public.followers (
 );
 
 
-ALTER TABLE public.followers OWNER TO cloud;
-
 --
--- Name: lapis_migrations; Type: TABLE; Schema: public; Owner: cloud
+-- Name: lapis_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.lapis_migrations (
@@ -417,10 +413,8 @@ CREATE TABLE public.lapis_migrations (
 );
 
 
-ALTER TABLE public.lapis_migrations OWNER TO cloud;
-
 --
--- Name: projects_id_seq; Type: SEQUENCE; Schema: public; Owner: cloud
+-- Name: projects_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.projects_id_seq
@@ -431,29 +425,25 @@ CREATE SEQUENCE public.projects_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.projects_id_seq OWNER TO cloud;
-
 --
--- Name: projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cloud
+-- Name: projects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
 
 
 --
--- Name: recent_projects_2_days; Type: VIEW; Schema: public; Owner: cloud
+-- Name: recent_projects_2_days; Type: VIEW; Schema: public; Owner: -
 --
 
 CREATE VIEW public.recent_projects_2_days AS
  SELECT count(*) AS count
    FROM public.projects
-  WHERE (projects.lastupdated > (('now'::text)::date - '2 days'::interval));
+  WHERE (lastupdated > (('now'::text)::date - '2 days'::interval));
 
-
-ALTER TABLE public.recent_projects_2_days OWNER TO cloud;
 
 --
--- Name: remixes; Type: TABLE; Schema: public; Owner: cloud
+-- Name: remixes; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.remixes (
@@ -463,10 +453,8 @@ CREATE TABLE public.remixes (
 );
 
 
-ALTER TABLE public.remixes OWNER TO cloud;
-
 --
--- Name: tokens; Type: TABLE; Schema: public; Owner: cloud
+-- Name: tokens; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.tokens (
@@ -477,10 +465,8 @@ CREATE TABLE public.tokens (
 );
 
 
-ALTER TABLE public.tokens OWNER TO cloud;
-
 --
--- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: cloud
+-- Name: users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
 CREATE SEQUENCE public.users_id_seq
@@ -491,52 +477,50 @@ CREATE SEQUENCE public.users_id_seq
     CACHE 1;
 
 
-ALTER TABLE public.users_id_seq OWNER TO cloud;
-
 --
--- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cloud
+-- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
 ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- Name: collection_memberships id; Type: DEFAULT; Schema: public; Owner: cloud
+-- Name: collection_memberships id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collection_memberships ALTER COLUMN id SET DEFAULT nextval('public.collection_memberships_id_seq'::regclass);
 
 
 --
--- Name: collections id; Type: DEFAULT; Schema: public; Owner: cloud
+-- Name: collections id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collections ALTER COLUMN id SET DEFAULT nextval('public.collections_id_seq'::regclass);
 
 
 --
--- Name: flagged_projects id; Type: DEFAULT; Schema: public; Owner: cloud
+-- Name: flagged_projects id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.flagged_projects ALTER COLUMN id SET DEFAULT nextval('public.flagged_projects_id_seq'::regclass);
 
 
 --
--- Name: projects id; Type: DEFAULT; Schema: public; Owner: cloud
+-- Name: projects id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.projects ALTER COLUMN id SET DEFAULT nextval('public.projects_id_seq'::regclass);
 
 
 --
--- Name: users id; Type: DEFAULT; Schema: public; Owner: cloud
+-- Name: users id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_id_seq'::regclass);
 
 
 --
--- Name: banned_ips banned_ips_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: banned_ips banned_ips_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.banned_ips
@@ -544,7 +528,15 @@ ALTER TABLE ONLY public.banned_ips
 
 
 --
--- Name: collection_memberships collection_memberships_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: bookmarks bookmarks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.bookmarks
+    ADD CONSTRAINT bookmarks_pkey PRIMARY KEY (bookmarker_id, project_id);
+
+
+--
+-- Name: collection_memberships collection_memberships_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collection_memberships
@@ -552,7 +544,7 @@ ALTER TABLE ONLY public.collection_memberships
 
 
 --
--- Name: collections collections_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: collections collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.collections
@@ -560,7 +552,7 @@ ALTER TABLE ONLY public.collections
 
 
 --
--- Name: featured_collections featured_collections_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: featured_collections featured_collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.featured_collections
@@ -568,7 +560,7 @@ ALTER TABLE ONLY public.featured_collections
 
 
 --
--- Name: flagged_projects flagged_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: flagged_projects flagged_projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.flagged_projects
@@ -576,7 +568,7 @@ ALTER TABLE ONLY public.flagged_projects
 
 
 --
--- Name: followers followers_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: followers followers_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.followers
@@ -584,7 +576,7 @@ ALTER TABLE ONLY public.followers
 
 
 --
--- Name: lapis_migrations lapis_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: lapis_migrations lapis_migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.lapis_migrations
@@ -592,7 +584,7 @@ ALTER TABLE ONLY public.lapis_migrations
 
 
 --
--- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: projects projects_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.projects
@@ -600,7 +592,7 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- Name: projects unique_id; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: projects unique_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.projects
@@ -608,7 +600,7 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
@@ -616,7 +608,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users users_unique_email_key; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: users users_unique_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
@@ -624,7 +616,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: tokens value_pkey; Type: CONSTRAINT; Schema: public; Owner: cloud
+-- Name: tokens value_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tokens
@@ -632,70 +624,70 @@ ALTER TABLE ONLY public.tokens
 
 
 --
--- Name: collection_memberships_collection_id_idx; Type: INDEX; Schema: public; Owner: cloud
+-- Name: collection_memberships_collection_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX collection_memberships_collection_id_idx ON public.collection_memberships USING btree (collection_id);
 
 
 --
--- Name: collection_memberships_collection_id_project_id_user_id_idx; Type: INDEX; Schema: public; Owner: cloud
+-- Name: collection_memberships_collection_id_project_id_user_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX collection_memberships_collection_id_project_id_user_id_idx ON public.collection_memberships USING btree (collection_id, project_id, user_id);
 
 
 --
--- Name: collection_memberships_project_id_idx; Type: INDEX; Schema: public; Owner: cloud
+-- Name: collection_memberships_project_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX collection_memberships_project_id_idx ON public.collection_memberships USING btree (project_id);
 
 
 --
--- Name: collections_creator_id_idx; Type: INDEX; Schema: public; Owner: cloud
+-- Name: collections_creator_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX collections_creator_id_idx ON public.collections USING btree (creator_id);
 
 
 --
--- Name: flagged_projects_flagger_id_project_id_idx; Type: INDEX; Schema: public; Owner: cloud
+-- Name: flagged_projects_flagger_id_project_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX flagged_projects_flagger_id_project_id_idx ON public.flagged_projects USING btree (flagger_id, project_id);
 
 
 --
--- Name: original_project_id_index; Type: INDEX; Schema: public; Owner: cloud
+-- Name: original_project_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX original_project_id_index ON public.remixes USING btree (original_project_id);
 
 
 --
--- Name: remixed_project_id_index; Type: INDEX; Schema: public; Owner: cloud
+-- Name: remixed_project_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX remixed_project_id_index ON public.remixes USING btree (remixed_project_id);
 
 
 --
--- Name: users_email_idx; Type: INDEX; Schema: public; Owner: cloud
+-- Name: users_email_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX users_email_idx ON public.users USING btree (email);
 
 
 --
--- Name: tokens expire_token_trigger; Type: TRIGGER; Schema: public; Owner: cloud
+-- Name: tokens expire_token_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
-CREATE TRIGGER expire_token_trigger AFTER INSERT ON public.tokens FOR EACH STATEMENT EXECUTE PROCEDURE public.expire_token();
+CREATE TRIGGER expire_token_trigger AFTER INSERT ON public.tokens FOR EACH STATEMENT EXECUTE FUNCTION public.expire_token();
 
 
 --
--- Name: projects projects_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cloud
+-- Name: projects projects_username_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.projects
@@ -703,7 +695,7 @@ ALTER TABLE ONLY public.projects
 
 
 --
--- Name: remixes remixes_original_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cloud
+-- Name: remixes remixes_original_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.remixes
@@ -711,7 +703,7 @@ ALTER TABLE ONLY public.remixes
 
 
 --
--- Name: remixes remixes_remixed_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cloud
+-- Name: remixes remixes_remixed_project_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.remixes
@@ -719,7 +711,7 @@ ALTER TABLE ONLY public.remixes
 
 
 --
--- Name: tokens users_fkey; Type: FK CONSTRAINT; Schema: public; Owner: cloud
+-- Name: tokens users_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.tokens
@@ -727,165 +719,43 @@ ALTER TABLE ONLY public.tokens
 
 
 --
--- Name: FUNCTION expire_token(); Type: ACL; Schema: public; Owner: cloud
+-- PostgreSQL database dump complete
 --
 
-GRANT ALL ON FUNCTION public.expire_token() TO snapanalytics;
-
-
 --
--- Name: TABLE pg_stat_bgwriter; Type: ACL; Schema: pg_catalog; Owner: postgres
+-- PostgreSQL database dump
 --
 
-GRANT SELECT ON TABLE pg_catalog.pg_stat_bgwriter TO newrelic;
+-- Dumped from database version 16.7 (Homebrew)
+-- Dumped by pg_dump version 16.7 (Homebrew)
 
 
 --
--- Name: TABLE pg_stat_database; Type: ACL; Schema: pg_catalog; Owner: postgres
+-- Data for Name: lapis_migrations; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-GRANT SELECT ON TABLE pg_catalog.pg_stat_database TO newrelic;
-
-
---
--- Name: TABLE pg_stat_database_conflicts; Type: ACL; Schema: pg_catalog; Owner: postgres
---
-
-GRANT SELECT ON TABLE pg_catalog.pg_stat_database_conflicts TO newrelic;
-
-
---
--- Name: TABLE projects; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.projects TO snapanalytics;
-
-
---
--- Name: TABLE active_projects; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.active_projects TO snapanalytics;
-
-
---
--- Name: TABLE users; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.users TO snapanalytics;
-
-
---
--- Name: COLUMN users.email; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT UPDATE(email) ON TABLE public.users TO snapanalytics;
-
-
---
--- Name: TABLE active_users; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.active_users TO snapanalytics;
-
-
---
--- Name: TABLE banned_ips; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.banned_ips TO snapanalytics;
-
-
---
--- Name: TABLE collection_memberships; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.collection_memberships TO snapanalytics;
-
-
---
--- Name: TABLE collections; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.collections TO snapanalytics;
-
-
---
--- Name: TABLE count_recent_projects; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.count_recent_projects TO snapanalytics;
-
-
---
--- Name: TABLE deleted_projects; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.deleted_projects TO snapanalytics;
-
-
---
--- Name: TABLE deleted_users; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.deleted_users TO snapanalytics;
-
-
---
--- Name: TABLE featured_collections; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.featured_collections TO snapanalytics;
-
-
---
--- Name: TABLE flagged_projects; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.flagged_projects TO snapanalytics;
-
-
---
--- Name: TABLE followers; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.followers TO snapanalytics;
-
-
---
--- Name: TABLE lapis_migrations; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.lapis_migrations TO snapanalytics;
-
-
---
--- Name: TABLE recent_projects_2_days; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.recent_projects_2_days TO snapanalytics;
-
-
---
--- Name: TABLE remixes; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.remixes TO snapanalytics;
-
-
---
--- Name: TABLE tokens; Type: ACL; Schema: public; Owner: cloud
---
-
-GRANT SELECT ON TABLE public.tokens TO snapanalytics;
-
-
---
--- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: cloud
---
-
-ALTER DEFAULT PRIVILEGES FOR ROLE cloud IN SCHEMA public REVOKE ALL ON TABLES  FROM cloud;
-ALTER DEFAULT PRIVILEGES FOR ROLE cloud IN SCHEMA public GRANT SELECT ON TABLES  TO snapanalytics;
+COPY public.lapis_migrations (name) FROM stdin;
+20190140
+201901291
+20190141
+2019-01-04:0
+2019-01-29:0
+2019-02-01:0
+2019-02-05:0
+2019-02-04:0
+2020-10-22:0
+2020-11-03:0
+2020-11-09:0
+2020-11-10:0
+2022-08-16:0
+2022-08-17:0
+2022-08-18:0
+2022-09-16:0
+1683536418
+2023-03-14:0
+2023-03-14:1
+2025-02-06:0
+\.
 
 
 --
