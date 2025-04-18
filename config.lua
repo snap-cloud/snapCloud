@@ -107,4 +107,6 @@ config('staging', {
     num_workers = 2,
     primary_nginx_config = 'http-only.conf',
     secondary_nginx_config = 'include nginx.conf.d/ssl-staging.conf;',
+
+    session_name = '__Host-snapsession-staging',
 })
