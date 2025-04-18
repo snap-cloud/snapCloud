@@ -50,7 +50,7 @@ all_projects AS (
 )
 
 -- SELECT COUNT(*) FROM all_projects;
--- SELECT (id / 1000) || '/' || id as project_path, *
-SELECT '/mnt/snap_cloud_project_storage/store/' || (id / 1000) || '/' || id as project_path
+SELECT (id / 1000) || '/' || id as project_path --, *
+-- SELECT '/mnt/snap_cloud_project_storage/store/' || (id / 1000) || '/' || id as project_path
 FROM all_projects
 ORDER BY id ASC;
