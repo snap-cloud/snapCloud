@@ -1,4 +1,15 @@
-.PHONY: annotate install-annotate install-deps migrate
+.PHONY: annotate install-annotate install migrate deploy
+
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Linux)
+	open_command := xdg-open
+	luarocks_command := luarocks
+endif
+ifeq ($(UNAME), Darwin)
+	open_command := open
+	luarocks_command := bin/luarocks-macos
+endif
 
 default:
 	@echo "Please specify a target."
@@ -7,11 +18,20 @@ annotate:
 	lapis annotate --preload-module "models" models/*.lua
 
 install-annotate:
-	luarocks install --lua-version=5.1 https://raw.githubusercontent.com/snap-cloud/lapis-annotate/support-native-lua/lapis-annotate-dev-1.rockspec
+	$(luarocks_command) install --lua-version=5.1 https://raw.githubusercontent.com/snap-cloud/lapis-annotate/support-native-lua/lapis-annotate-dev-1.rockspec
 
-install-deps:
-	bin/luarocks-macos install --only-deps snapcloud-dev-0.rockspec
-	install-annotate
+install:
+	$(luarocks_command) install --only-deps snapcloud-dev-0.rockspec
+	$(MAKE) install-annotate
 
 migrate:
 	bin/lapis-migrate
+
+branch ?= $(shell git rev-parse --abbrev-ref HEAD)
+deploy:
+	ssh snap.berkeley.edu "cd snapCloud/; bin/deploy ${branch}"
+	$(open_command) "http://snap.berkeley.edu/"
+
+deploy-staging:
+	ssh staging.snap.berkeley.edu "cd snapCloud/; bin/deploy ${branch}"
+	$(open_command) "http://staging.snap.berkeley.edu/"
