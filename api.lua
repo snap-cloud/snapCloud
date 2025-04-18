@@ -45,8 +45,25 @@ local function api_route(path) return '/(api/' .. api_version .. '/)' .. path en
 app:match(api_route('version'), respond_to({
     GET = capture_errors(function (self)
         return jsonResponse({
-            name = 'Snap! Cloud',
+            name = 'Snap!Cloud',
             version = api_version
+        })
+    end)
+}))
+
+app:match(api_route('health_check'), respond_to({
+    GET = capture_errors(function (self)
+        local snapcloud = package.loaded.Users:find({ username = 'snapcloud' })
+        if not snapcloud then
+            return errorResponse(self,
+                'Snap!Cloud cannot find `snapcloud` user in the database.',
+                503)
+        end
+        return jsonResponse({
+            name = 'Snap!Cloud',
+            status = 'ok',
+            message = 'snapcloud user found',
+            time = os.date('%Y-%m-%d %H:%M:%S'),
         })
     end)
 }))
