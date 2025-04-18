@@ -30,8 +30,8 @@ migrate:
 branch ?= $(shell git rev-parse --abbrev-ref HEAD)
 deploy:
 	ssh snap.berkeley.edu "cd snapCloud/; bin/deploy ${branch}"
-	$(open_command) "http://snap.berkeley.edu/"
+	$(open_command) "https://snap.berkeley.edu/"
 
 deploy-staging:
 	ssh staging.snap.berkeley.edu "cd snapCloud/; bin/deploy ${branch}"
-	$(open_command) "http://staging.snap.berkeley.edu/"
+	$(open_command) "https://staging.snap.berkeley.edu/"
