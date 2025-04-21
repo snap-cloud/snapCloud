@@ -57,6 +57,7 @@ config({'development', 'test'}, {
     log_directive = 'stderr debug',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
 
+    session_name = 'snapsession_development',
     -- development needs no special SSL or cert config.
     primary_nginx_config = 'locations.conf',
     -- empty string when no additional configs are included.
