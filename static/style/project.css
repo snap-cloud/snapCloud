@@ -340,7 +340,7 @@ span.bookmark-count {
     box-sizing: border-box;
     z-index: 200;
     background: #2d3142;
-    padding: 0.4em 0.5em;
+    padding: 0.2em 0.5em;
     border-radius: 5px 5px 0 0;
     text-align: right;
 }
