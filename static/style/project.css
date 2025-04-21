@@ -146,19 +146,26 @@ img.collection-thumbnail {
     flex-grow: 0;
 }
 
+.bookmark-status-container {
+    position: absolute;
+    left: 1.5em;
+    top: 0.4em;
+    text-align: left;
+}
 
 i.bookmarked {
-  position: absolute;
-  left: 10px;
-  top: 12px;
   color: #e66;
   font-size: 0.75em;
   animation: beat .5s infinite alternate;
 }
 
-span.bookmark-count {
-  position: absolute;
-  left: 2em;
+@media (prefers-reduced-motion: reduce) {
+    i.bookmarked {
+        animation: none;
+    }
+}
+
+.bookmark-count {
   color: #fff;
 }
 
