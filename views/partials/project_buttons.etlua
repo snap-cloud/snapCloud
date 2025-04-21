@@ -148,7 +148,7 @@ function confirmFlag () {
                                 'input[name=\'reason\']:checked'
                                 ).value,
                             notes: form.querySelector(
-                                'textarea.notes').value
+                                '.js-flag-notes').value
                         }
                     );
                 }
