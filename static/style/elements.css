@@ -6,6 +6,7 @@ body {
     color: #2d3142;
     background: #ffffff;
     height: 100%;
+    line-height: 1.4;
     display: flex;
     flex-direction: column;
 }
@@ -45,7 +46,7 @@ h3 {
     margin: 1em 0 .5em 0;
 }
 
-h4 {
+h4, .footer-heading {
     font-size: 1.3em;
     font-weight: bold;
     margin-bottom: 1em;

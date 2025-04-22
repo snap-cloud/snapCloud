@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.10 (Homebrew)
--- Dumped by pg_dump version 14.10 (Homebrew)
+-- Dumped from database version 16.7 (Homebrew)
+-- Dumped by pg_dump version 16.7 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -17,6 +17,27 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+--
 -- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -27,7 +48,21 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 -- Name: EXTENSION pg_stat_statements; Type: COMMENT; Schema: -; Owner: -
 --
 
-COMMENT ON EXTENSION pg_stat_statements IS 'track planning and execution statistics of all SQL statements executed';
+COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
+
+
+--
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 
 
 --
@@ -93,19 +128,19 @@ CREATE TABLE public.projects (
 --
 
 CREATE VIEW public.active_projects AS
- SELECT projects.id,
-    projects.projectname,
-    projects.ispublic,
-    projects.ispublished,
-    projects.notes,
-    projects.created,
-    projects.lastupdated,
-    projects.lastshared,
-    projects.username,
-    projects.firstpublished,
-    projects.deleted
+ SELECT id,
+    projectname,
+    ispublic,
+    ispublished,
+    notes,
+    created,
+    lastupdated,
+    lastshared,
+    username,
+    firstpublished,
+    deleted
    FROM public.projects
-  WHERE (projects.deleted IS NULL);
+  WHERE (deleted IS NULL);
 
 
 --
@@ -136,23 +171,23 @@ CREATE TABLE public.users (
 --
 
 CREATE VIEW public.active_users AS
- SELECT users.id,
-    users.created,
-    users.username,
-    users.email,
-    users.salt,
-    users.password,
-    users.about,
-    users.location,
-    users.verified,
-    users.role,
-    users.deleted,
-    users.unique_email,
-    users.bad_flags,
-    users.is_teacher,
-    users.creator_id
+ SELECT id,
+    created,
+    username,
+    email,
+    salt,
+    password,
+    about,
+    location,
+    verified,
+    role,
+    deleted,
+    unique_email,
+    bad_flags,
+    is_teacher,
+    creator_id
    FROM public.users
-  WHERE (users.deleted IS NULL);
+  WHERE (deleted IS NULL);
 
 
 --
@@ -164,6 +199,18 @@ CREATE TABLE public.banned_ips (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     offense_count integer DEFAULT 0 NOT NULL
+);
+
+
+--
+-- Name: bookmarks; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.bookmarks (
+    bookmarker_id integer NOT NULL,
+    project_id integer NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
 );
 
 
@@ -249,7 +296,7 @@ ALTER SEQUENCE public.collections_id_seq OWNED BY public.collections.id;
 CREATE VIEW public.count_recent_projects AS
  SELECT count(*) AS count
    FROM public.projects
-  WHERE (projects.lastupdated > (('now'::text)::date - '1 day'::interval));
+  WHERE (lastupdated > (('now'::text)::date - '1 day'::interval));
 
 
 --
@@ -257,19 +304,19 @@ CREATE VIEW public.count_recent_projects AS
 --
 
 CREATE VIEW public.deleted_projects AS
- SELECT projects.id,
-    projects.projectname,
-    projects.ispublic,
-    projects.ispublished,
-    projects.notes,
-    projects.created,
-    projects.lastupdated,
-    projects.lastshared,
-    projects.username,
-    projects.firstpublished,
-    projects.deleted
+ SELECT id,
+    projectname,
+    ispublic,
+    ispublished,
+    notes,
+    created,
+    lastupdated,
+    lastshared,
+    username,
+    firstpublished,
+    deleted
    FROM public.projects
-  WHERE (projects.deleted IS NOT NULL);
+  WHERE (deleted IS NOT NULL);
 
 
 --
@@ -277,23 +324,23 @@ CREATE VIEW public.deleted_projects AS
 --
 
 CREATE VIEW public.deleted_users AS
- SELECT users.id,
-    users.created,
-    users.username,
-    users.email,
-    users.salt,
-    users.password,
-    users.about,
-    users.location,
-    users.verified,
-    users.role,
-    users.deleted,
-    users.unique_email,
-    users.bad_flags,
-    users.is_teacher,
-    users.creator_id
+ SELECT id,
+    created,
+    username,
+    email,
+    salt,
+    password,
+    about,
+    location,
+    verified,
+    role,
+    deleted,
+    unique_email,
+    bad_flags,
+    is_teacher,
+    creator_id
    FROM public.users
-  WHERE (users.deleted IS NOT NULL);
+  WHERE (deleted IS NOT NULL);
 
 
 --
@@ -392,7 +439,7 @@ ALTER SEQUENCE public.projects_id_seq OWNED BY public.projects.id;
 CREATE VIEW public.recent_projects_2_days AS
  SELECT count(*) AS count
    FROM public.projects
-  WHERE (projects.lastupdated > (('now'::text)::date - '2 days'::interval));
+  WHERE (lastupdated > (('now'::text)::date - '2 days'::interval));
 
 
 --
@@ -478,6 +525,14 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 ALTER TABLE ONLY public.banned_ips
     ADD CONSTRAINT banned_ips_pkey PRIMARY KEY (ip);
+
+
+--
+-- Name: bookmarks bookmarks_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.bookmarks
+    ADD CONSTRAINT bookmarks_pkey PRIMARY KEY (bookmarker_id, project_id);
 
 
 --
@@ -671,8 +726,8 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 14.10 (Homebrew)
--- Dumped by pg_dump version 14.10 (Homebrew)
+-- Dumped from database version 16.7 (Homebrew)
+-- Dumped by pg_dump version 16.7 (Homebrew)
 
 
 --
@@ -699,6 +754,7 @@ COPY public.lapis_migrations (name) FROM stdin;
 1683536418
 2023-03-14:0
 2023-03-14:1
+2025-02-06:0
 \.
 
 

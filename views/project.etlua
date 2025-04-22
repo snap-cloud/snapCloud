@@ -11,7 +11,7 @@
                 'remixed_from',
                 '<span class="project-link"><a href="' ..
                     remixed_from:url_for('site') ..
-                    '" >' .. remixed_from.projectname .. 
+                    '" >' .. remixed_from.projectname ..
                     '</a></span>',
                 '<a href="' .. remixed_from:url_for('author') ..
                     '"><strong>' .. remixed_from.username ..
@@ -36,6 +36,18 @@
 
             <!-- Project control bar -->
             <div class="controlbar">
+                <% if (project:get_bookmark_count() > 0) and current_user then %>
+                  <% if (current_user.username == project.username) or
+                    current_user:isadmin() then %>
+                  <i title="<%= locale.get('project_is_bookmarked') %>"
+                    class="bookmarked fas fa-heart"></i>
+                  <% end %>
+                  <% if current_user:isadmin() then %>
+                  <span class="bookmark-count">
+                    <%= project:get_bookmark_count() %>
+                  </span>
+                  <% end %>
+                <% end %>
                 <i class="present-button fas fa-expand clickable"
                     onclick="toggleFullScreen();"></i>
                 <i class="start-button fas fa-flag clickable"
@@ -49,8 +61,9 @@
             <!-- Project embed -->
             <iframe allow="geolocation; microphone; camera"
                 sandbox="allow-scripts allow-same-origin"
+                title="project viewer"
                 src="<%= project:url_for('viewer', params.devVersion) %>"
-                height="406"></iframe>
+                height="362"></iframe>
 
             <!-- Project Action Buttons -->
             <%
@@ -95,4 +108,3 @@
         };
     </script>
 </div>
-

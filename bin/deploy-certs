@@ -2,13 +2,18 @@
 
 ## NOTE: lets-encrypt renewals runs this using sh not bash.
 ## pushd / popd are not available.
+cwd=$(pwd);
+USER='cloud'
+REPO_DIR="/home/$USER/snapCloud";
 
+cd $REPO_DIR;
 # MUST USE -L. LetsEncrypt uses symlinks
 # TODO: Clean this up... use $RENEWED_DOMAINS?
-sourceDir=/home/cloud/lets-encrypt/live/
-destDir=/home/cloud/snapCloud/certs/
+sourceDir=/home/$USER/lets-encrypt/live/
+destDir=$REPO_DIR/certs/
 domain=''
-source /home/cloud/snapCloud/.env
+# We need to be in the correct directory since this uses git to set env variables.
+source $REPO_DIR/.env
 
 if [[ $LAPIS_ENVIRONMENT == 'production' ]]; then
     domain='cloud';
@@ -26,4 +31,6 @@ curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394
  -d "{\"message\":\"Deployed Certs to $LAPIS_ENVIRONMENT\"}"
 
 # restart for nginx to reload the certs.
-sudo service snapcloud_daemon rebuild;
+sudo service snapcloud_daemon restart;
+
+cd $cwd;

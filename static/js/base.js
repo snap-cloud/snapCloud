@@ -1,6 +1,5 @@
 var snapURL = location.origin + '/snap/snap.html',
     snapDevURL = location.origin + '/snapsource/dev/snap.html',
-    baseURL = location.protocol + '//' + location.host,
     nop = function () {},
     localizer = new Localizer(),
     buttonDefaults =
@@ -10,7 +9,7 @@ function encodeParams (params) {
     if (params) {
         return '?' +
             Object.keys(params).map(
-                paramName => 
+                paramName =>
                     encodeURIComponent(paramName) + '=' +
                         encodeURIComponent(JSON.stringify(params[paramName]))
             ).join('&');
@@ -26,6 +25,21 @@ function getUrlParameter (param) {
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
 };
+
+function escapeHtml (text) {
+    if (text === null || text === undefined) { return; }
+
+    if (text.toString) { text = text.toString(); }
+    // Based on an answer by Kip @ StackOverflow
+    let map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, (m) => map[m]);
+}
 
 // Error handling
 
@@ -62,20 +76,6 @@ function doneLoading (selector) {
     }
 };
 
-// Other goodies
-
-function escapeHtml (text) {
-    // Based on an answer by Kip @ StackOverflow
-    var map = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
-    };
-    return text ? text.replace(/[&<>"']/g, function (m) { return map[m]; }) : ''
-};
-
 function enableEnterSubmit () {
     // Submits "forms" when enter is pressed on any of their inputs
     document.querySelectorAll('.pure-form input').forEach(
@@ -93,6 +93,24 @@ function flash (element, callback, warning) {
         element.classList.remove(warning ? 'warning-flash' : 'flash');
         if (callback) { callback.call(element); }
     }, 500);
+};
+
+function setupCarouselPageIndicator (id) {
+    function setCarouselText(carousel, current, total) {
+        let textContainer = carousel.querySelector('.js-textStatus');
+        textContainer.querySelector('.page-link').innerHTML = `${current} / ${total}`;
+        textContainer.querySelector('.visually-hidden').innerHTML = `${current} of ${total}`;
+    }
+
+    let carousel = document.getElementById(`${id}_container`);
+    let totalItems = carousel.querySelectorAll('.carousel-item').length;
+    let currentIndex = Array.prototype.indexOf.call(carousel.querySelectorAll('.carousel-item'), carousel.querySelector('div.active')) + 1;
+    setCarouselText(carousel, currentIndex, totalItems);
+
+    carousel.addEventListener('slid.bs.carousel', function() {
+        currentIndex = Array.prototype.indexOf.call(carousel.querySelectorAll('.carousel-item'), carousel.querySelector('div.active')) + 1;
+        setCarouselText(carousel, currentIndex, totalItems);
+    });
 };
 
 // JS additions
@@ -113,7 +131,15 @@ Cloud.redirect = function (response) {
     if (!(response && response.redirect)) {
         location.reload();
     } else {
-        location.href = response.redirect;
+        if (response.title || response.message) {
+            alert(
+                localizer.localize(response.message),
+                { title: localizer.localize(response.title) },
+                () => location.href = response.redirect
+            );
+        } else {
+            location.href = response.redirect;
+        }
     }
 };
 
@@ -145,7 +171,7 @@ Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
             if (response && response.title) {
                 alert(
                     localizer.localize(response.message),
-                    { title: localizer.localize(response.title) },
+                    { title: escapeHtml(localizer.localize(response.title)) },
                     function () { onSuccess.call(this, response) }
                 );
             } else {
@@ -155,7 +181,7 @@ Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
         errorMessage => {
             alert(
                 localizer.localize(errorMessage),
-                { title: localizer.localize('Error') },
+                { title: escapeHtml(localizer.localize('Error')) },
                 Cloud.redirect
             )
         },

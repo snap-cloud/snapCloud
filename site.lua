@@ -33,7 +33,6 @@ local Projects = package.loaded.Projects
 local Remixes = package.loaded.Remixes
 local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
-local db = package.loaded.db
 local assert_exists = require('validation').assert_exists
 
 require 'controllers.user'
@@ -45,20 +44,39 @@ require 'dialogs'
 app:enable('etlua')
 app.layout = require 'views.layout'
 
-local views = {
-    -- Static pages
-    'about', 'bjc', 'coc', 'contact', 'credits', 'dmca', 'extensions',
+local static_pages = {
+    'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
     'materials', 'mirrors', 'offline', 'partners', 'privacy', 'research',
-    'snapinator', 'snapp', 'source', 'tos',
-
-    -- Simple pages
-    'blog', 'change_email', 'change_password', 'delete_user', 'forgot_password',
-    'forgot_username', 'sign_up', 'login',
+    'snapinator', 'snapp', 'source', 'tos'
 }
+
+local views = {
+    -- Simple pages
+    'change_email', 'change_password', 'delete_user', 'forgot_password',
+    'forgot_username', 'sign_up', 'login'
+}
+
+-- Temporary during a front-end rewrite.
+-- This allows testing any page with adding ?bootstrap=true to the URL
+app:before_filter(function (self)
+    if self.current_user and self.current_user:isadmin() then
+        if self.params['bootstrap'] == 'true' then
+            app.layout = 'layout_bs'
+        end
+    end
+end)
+
+app:before_filter(function (self)
+    -- A front-end method to prefer opening some links (the IDE, mostly) in the same window
+    self.prefer_new_tab = false
+    if self.current_user and self.session.presist_session ~= 'true' then
+        self.prefer_new_tab = true
+    end
+end)
 
 app:get('index', '/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'index' }
+    return { render = 'index_bs', layout = 'layout_bs' }
 end)))
 
 -- Backwards compatibility.
@@ -66,9 +84,28 @@ app:get('/index', function ()
     return { redirect_to = '/' }
 end)
 
+app:match('doc', '/doc/:doc_name', respond_to({
+    GET = capture_errors(function (self)
+        return {
+            redirect_to = self:build_url(
+                '/static/doc/' ..  self.params.doc_name)
+        }
+    end)
+}))
+
+for _, page in pairs(static_pages) do
+    app:get('/' .. page, capture_errors(cached(function (self)
+            return { render = 'static/' .. page, layout = 'layout_bs' }
+    end)))
+end
+
 for _, view in pairs(views) do
     app:get('/' .. view, capture_errors(cached(function (self)
-        return { render = view }
+        if self.params['bootstrap'] then
+            return { render = view .. '_bs', layout = 'layout_bs'}
+        else
+            return { render = view }
+        end
     end)))
 end
 
@@ -84,30 +121,30 @@ end))
 
 app:get('/explore', capture_errors(cached(function (self)
     self.items = ProjectController.fetch(self)
-    return { render = 'explore' }
+    return { render = 'explore', layout = 'layout_bs' }
 end)))
 
 app:get('/collections', capture_errors(cached(function (self)
     self.items = CollectionController.fetch(self)
-    return { render = 'collections' }
+    return { render = 'collections', layout = 'layout_bs' }
 end)))
 
 app:get('/all_totms', capture_errors(cached(function (self)
     self.items = CollectionController.totms(self)
-    return { render = 'all_totms' }
+    return { render = 'all_totms', layout = 'layout_bs' }
 end)))
 
 app:get('/users', capture_errors(cached(function (self)
     self.items_per_page = 51
     self.items = UserController.fetch(self)
     if not self.params.search_term then self.params.search_term = '' end
-    return { render = 'users' }
+    return { render = 'users', layout = 'layout_bs' }
 end)))
 
 app:get('/my_projects', capture_errors(function (self)
     if self.current_user then
         self.items = ProjectController.my_projects(self)
-        return { render = 'my_projects' }
+        return { render = 'my_projects', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -116,7 +153,7 @@ end))
 app:get('/my_collections', capture_errors(function (self)
     if self.current_user then
         self.items = CollectionController.my_collections(self)
-        return { render = 'my_collections' }
+        return { render = 'my_collections', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -153,20 +190,20 @@ app:get('/user', capture_errors(function (self)
     assert_user_exists(self)
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
-    return { render = 'user' }
+    return { render = 'user', layout = 'layout_bs' }
 end))
 
 app:get('/user_collections/:username', capture_errors(cached(function (self)
     assert_user_exists(self)
     self.params.user_id = self.queried_user.id
     self.items = CollectionController.user_collections(self)
-    return { render = 'collections' }
+    return { render = 'collections', layout = 'layout_bs' }
 end)))
 
 app:get('/user_projects/:username', capture_errors(cached(function (self)
     assert_user_exists(self)
     self.items = ProjectController.user_projects(self)
-    return { render = 'explore' }
+    return { render = 'explore', layout = 'layout_bs' }
 end)))
 
 -- Display an embedded collection view.
@@ -187,7 +224,7 @@ end)))
 app:get('/followed', capture_errors(cached(function (self)
     if self.current_user then
         self.items = ProjectController.followed_projects(self)
-        return { render = 'followed' }
+        return { render = 'followed', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -196,7 +233,7 @@ end)))
 app:get('/followed_users', capture_errors(cached(function (self)
     if self.current_user then
         self.items = UserController.followed_users(self)
-        return { render = 'followed_users' }
+        return { render = 'followed_users', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -205,7 +242,16 @@ end)))
 app:get('/my_followers', capture_errors(cached(function (self)
     if self.current_user then
         self.items = UserController.follower_users(self)
-        return { render = 'my_followers' }
+    return { render = 'my_followers', layout = 'layout_bs' }
+    else
+        return { redirect_to = self:build_url('/') }
+    end
+end)))
+
+app:get('/bookmarked', capture_errors(cached(function (self)
+    if self.current_user then
+        self.items = ProjectController.bookmarked_projects(self)
+        return { render = 'bookmarked', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -253,26 +299,26 @@ app:match('project', '/project', capture_errors(function (self)
             )[1] ~= nil
     end
 
-    return { render = 'project' }
+    return { render = 'project_bs', layout = 'layout_bs' }
 end))
 
+-- TODO: Should be able to consolidate these pages.
 app:get('/examples', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'examples' }
+    return { render = 'examples', layout = 'layout_bs' }
 end)))
 
 app:get('/events', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'events' }
+    return { render = 'events', layout = 'layout_bs' }
 end)))
 
 app:get('/search', capture_errors(function (self)
     self.reviewer_controls =
         self.current_user and self.current_user:has_min_role('reviewer')
-    return { render = 'search' }
+    return { render = 'search', layout = 'layout_bs' }
 end))
 
--- Administration and data management pages
 
 app:get('/profile', capture_errors(function (self)
     if self.current_user then
@@ -283,10 +329,12 @@ app:get('/profile', capture_errors(function (self)
     end
 end))
 
+-- Administration and data management pages
+
 app:get('/admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'reviewer')
-        return { render = 'admin' }
+        return { render = 'admin/index', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -296,7 +344,7 @@ app:get('/flags', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'reviewer')
         items = ProjectController.flagged_projects(self)
-        return { render = 'flags' }
+        return { render = 'admin/flags' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -307,7 +355,7 @@ app:get('/user_admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'moderator')
         self.items = UserController.fetch(self)
-        return { render = 'user_admin' }
+        return { render = 'admin/user_admin', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -318,17 +366,17 @@ app:get('/zombie_admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'moderator')
         self.items = UserController.zombies(self)
-        return { render = 'zombie_admin' }
+        return { render = 'admin/zombie_admin' }
     else
         return { redirect_to = self:build_url('/') }
     end
 end))
 
-app:match('/totm', respond_to({
+app:match('admin/totm', '/totm', respond_to({
     GET = capture_errors(function (self)
         if self.current_user then
             assert_min_role(self, 'moderator')
-            return { render = 'totm' }
+            return { render = true, layout = 'layout_bs' }
         else
             return { redirect_to = self:build_url('/') }
         end
@@ -339,7 +387,7 @@ app:match('/totm', respond_to({
         if file then
             local disk = package.loaded.disk
             if disk:save_totm_banner(file) then
-                return { render = 'totm' }
+                return { render = true, layout = 'layout_bs' }
             end
         end
         return errorResponse(self)
@@ -348,43 +396,49 @@ app:match('/totm', respond_to({
 
 app:get('/carousel_admin', capture_errors(function (self)
     assert_min_role(self, 'moderator')
-    return { render = 'carousel_admin' }
+    return { render = 'admin/carousel_admin' }
 end))
 
 app:get('/ip_admin', capture_errors(function (self)
     assert_min_role(self, 'admin')
     self.ips = SiteController.banned_ips(self)
-    return { render = 'ip_admin' }
+    return { render = 'admin/ip_admin' }
 end))
 
 -- Teachers
 
 app:get('/teacher', capture_errors(function (self)
+    assert_exists(self.current_user)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'teacher' }
+    return { render = 'teacher/index', layout = 'layout_bs' }
 end))
 
 app:get('/bulk', capture_errors(function (self)
+    assert_exists(self.current_user)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'bulk' }
+    return { render = 'teacher/bulk', layout = 'layout_bs' }
 end))
 
 app:get('/learners', capture_errors(function (self)
+    assert_exists(self.current_user)
+    if (not self.current_user.is_teacher) then
+        assert_admin(self)
+    end
+
     self.items_per_page = 150
     if self.current_user and self.current_user.is_teacher then
         self.items = UserController.learners(self)
-        return { render = 'learners' }
+        return { render = 'teacher/learners', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('index') }
     end
 end))
 
 -- Tools
-
 --[[
 app:get('/localize', capture_errors(function (self)
     return { render = 'localize' }

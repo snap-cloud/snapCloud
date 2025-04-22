@@ -78,7 +78,7 @@ local locale = {
     welcome_logged_in = "Hola, @1!", -- @1 becomes the current user username
     snap_description = "Snap@1 és un llenguatge àmpliament acollidor tant per a nens i nenes com per a adults, així com una plataforma per a un estudi rigorós de les ciències de la computació.",
     -- Buttons
-    run_now = "Obre Snap@1 ara",
+    run_now = "Obre @1 ara",
     -- examples and manual already translated in Footer
     -- Curated Collections
     featured = "Projectes destacats",
@@ -271,6 +271,10 @@ local locale = {
     share_button = "Comparteix",
     unpublish_button = "Despublica",
     unshare_button = "Fes privat",
+    -- Bookmarking tooltips
+    bookmark = "Desa aquest projecte als teus preferits",
+    unbookmark = "Suprimeix aquest projecte dels teus preferits",
+    project_is_bookmarked = "El teu projecte agrada a la gent!",
     -- Flagging
     you_flagged = "Has denunciat aquest projecte",
     unflag_project = "Retira la denúncia",

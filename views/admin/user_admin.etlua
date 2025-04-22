@@ -1,0 +1,47 @@
+<link rel="stylesheet" href="/static/style/admin.css">
+<h1>User Administration</h1>
+<%
+render(
+    'views.grid_bs',
+    {
+        class = 'user_admin',
+        item_type = 'profile_bs',
+        items_per_row = 2,
+        with_search = true,
+        show_if_empty = true,
+        filter_descriptors = {
+            {
+                selector = 'verified',
+                label = 'Verified',
+                options = {
+                    { label = 'Any', value = '' },
+                    { label = 'Verified', value = true },
+                    { label = 'Unverified', value = false }
+                }
+            },
+            {
+                selector = 'is_teacher',
+                label = 'Teacher',
+                options = {
+                    { label = 'Any', value = '' },
+                    { label = 'True', value = true },
+                    { label = 'False', value = false },
+                }
+            },
+            {
+                selector = 'role',
+                label = 'Role',
+                options = {
+                    { label = 'Any', value = '' },
+                    { label = 'Standard', value = 'standard' },
+                    { label = 'Reviewer', value = 'reviewer' },
+                    { label = 'Moderator', value = 'moderator' },
+                    { label = 'Administrator', value = 'admin' },
+                    { label = 'Student', value = 'student' },
+                    { label = 'Banned', value = 'banned' },
+                }
+            }
+        }
+    }
+)
+%>

@@ -1,0 +1,13 @@
+<script src="/static/js/discourse.js"></script>
+<link rel="stylesheet" href="/static/style/blog.css">
+
+<h1>Blog</h1>
+<div class="blog"></div>
+
+<script>
+    new DiscourseBlog(
+        'https://forum.snap.berkeley.edu',
+        'announcements/blog',
+        document.querySelector('.blog')
+    );
+</script>

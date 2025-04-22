@@ -1,7 +1,8 @@
-<h1><%- locale.get('my_projects') %></h1>
+<h1 class="mb-3"><%- locale.get('my_projects') %></h1>
+
 <%
 render(
-    'views.grid',
+    'views.grid_bs',
     {
         class = 'my_projects',
         item_type = 'project',

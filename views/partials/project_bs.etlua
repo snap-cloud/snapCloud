@@ -1,0 +1,60 @@
+<% col_class = column_width and "col-lg-" .. column_width or '' %>
+<div class="project small <%= col_class %> col-md-3 col-sm-4 col-xs-5">
+    <% if (item.thumbnail == nil) then %>
+    <i class="no-image fas fa-question-circle"></i>
+    <span class="sr-only">no thumbnail aet</span>
+    <% end %>
+    <a target="_self" href="<%= item:url_for('site') %>">
+        <img class="thumbnail" title="" alt="<%- item.projectname %> thumbnail"
+            src="<%- item.thumbnail or '' %>"
+            width=160 height=120>
+        <span class="project-name"><%- item.projectname %></span>
+    </a>
+
+<% if show_icons then %>
+    <% local shared_label = locale.get('item_' .. (item.ispublic and 'shared' or 'not_shared') .. '_info') %>
+    <span class="is-public" title="<%= shared_label %>" aria-label="<%= shared_label %>"
+      ><small><i class="fas <%= item.ispublic and 'fa-link' or 'fa-unlink' %>"
+            aria-hidden="true"></i>
+        </small>
+    </span>
+    <% local published_label = locale.get('item_' ..
+                (item.ispublished and 'published' or 'not_published')
+                .. '_info') %>
+    <span class="is-published" title="<%- published_label %>">
+        <small><i
+            class="fas <%= item.ispublished and 'fa-eye' or 'fa-eye-slash' %>"
+            aria-hidden="true"></i>
+        </small>
+    </span>
+<% end %>
+<% if show_author then %>
+    <span class="author"><%-
+        locale.get('project_by_thumb',
+            '<a href="' .. item:url_for('author') .. '"><strong>' ..
+                item.username .. '</strong></a>')
+    %></span>
+<% end %>
+
+<% if item.flag_count then %>
+    <span class="flag-count"
+        >Flagged <strong><%= item.flag_count %></strong> time</span>
+<% end %>
+
+<% if show_collection_controls then %>
+    <div class="collection-controls">
+        <a title="<%= locale.get('remove_from_collection_tooltip') %>"
+            class="clickable remove"
+            onclick="confirmRemove(<%= item.id %>);"
+            ><i class="fas fa-times-circle"></i></a>
+        <a title="<%= locale.get('collection_thumbnail_tooltip') %>"
+            class="clickable thumbnail"
+            onclick="cloud.post(
+                '/collection/<%= collection.id %>/thumbnail',
+                Cloud.redirect,
+                { project_id: <%= item.id %> }
+            );"
+        ><i class="fas fa-image"></i></a>
+    </div>
+<% end %>
+</div>
