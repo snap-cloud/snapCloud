@@ -6,10 +6,7 @@ config({'development', 'staging', 'production', 'test'}, {
         port = os.getenv('DATABASE_PORT') or '5432',
         user = os.getenv('DATABASE_USERNAME') or 'cloud',
         password = os.getenv('DATABASE_PASSWORD') or 'snap-cloud-password',
-        database = os.getenv('DATABASE_NAME') or 'snapcloud',
-        -- Socket Options, unused until tested.
-        backlog = 1,
-        pool = 1,
+        database = os.getenv('DATABASE_NAME') or 'snapcloud'
     },
     session_name = 'snapsession',
 
@@ -56,7 +53,7 @@ config({'development', 'test'}, {
     mail_smtp_port = os.getenv('MAIL_SMTP_PORT') or 1025,
     dns_resolver = '8.8.8.8',
     code_cache = 'off',
-    num_workers = 4,
+    num_workers = 1,
     log_directive = 'stderr debug',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
 
