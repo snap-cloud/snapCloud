@@ -35,6 +35,7 @@ local Projects = package.loaded.Projects
 local Remixes = package.loaded.Remixes
 local FlaggedProjects = package.loaded.FlaggedProjects
 local DeletedProjects = package.loaded.DeletedProjects
+local Bookmarks = package.loaded.Bookmarks
 local Collections = package.loaded.Collections
 local Users = package.loaded.Users
 
@@ -42,6 +43,18 @@ ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
         if not self.params.page_number then self.params.page_number = 1 end
+        local filters = ''
+        if self.current_user and self.current_user:isadmin() then
+          if self.params.filter_bookmarked == 'true' then
+            filters = ' AND id IN (SELECT project_id FROM bookmarks)'
+          elseif (self.params.filter_bookmarked == 'false') then -- could be nil
+            filters = ' AND NOT id IN (SELECT project_id FROM bookmarks)'
+          end
+          if self.params.filter_order_by then
+            self.params.order = self.params.filter_order_by
+          end
+        end
+
         local paginator = Projects:paginated(
                  query ..
                     (self.params.search_term and (db.interpolate_query(
@@ -49,6 +62,7 @@ ProjectController = {
                         '%' .. self.params.search_term .. '%',
                         '%' .. self.params.search_term .. '%')
                     ) or '') ..
+                    (filters or '') ..
                     ' ORDER BY ' ..
                         (self.params.order or 'firstpublished DESC'),
                 {
@@ -135,6 +149,18 @@ ProjectController = {
                     SELECT username FROM users WHERE id IN
                         (SELECT followed_id FROM followers
                             WHERE follower_id = ?)
+                )
+            ]], self.current_user.id)
+        )
+    end),
+    bookmarked_projects = capture_errors(function (self)
+        self.params.order = 'lastupdated DESC'
+        return ProjectController.run_query(
+            self,
+            db.interpolate_query([[
+                WHERE id IN (
+                    SELECT project_id FROM bookmarks
+                        WHERE bookmarker_id = ?
                 )
             ]], self.current_user.id)
         )
@@ -342,6 +368,50 @@ ProjectController = {
                 mail_subjects.bad_flag,
                 mail_bodies.bad_flag(flagger, project)
             )
+        end
+
+        return okResponse()
+    end),
+    bookmark = capture_errors(function (self)
+        local project = Projects:find({ id = self.params.id })
+        assert_project_exists(self, project)
+        if not self.current_user then return okResponse() end
+
+        local bookmark =
+            Bookmarks:select(
+                'WHERE project_id = ? AND bookmarker_id = ?',
+                project.id,
+                self.current_user.id
+            )[1]
+
+        if not bookmark then
+          Bookmarks:create({
+              bookmarker_id = self.current_user.id,
+              project_id = project.id
+          })
+        end
+
+        return okResponse()
+    end),
+    unbookmark = capture_errors(function (self)
+        local project = Projects:find({ id = self.params.id })
+        assert_project_exists(self, project)
+        if not self.current_user then return okResponse() end
+
+        local bookmark =
+            Bookmarks:select(
+                'WHERE project_id = ? AND bookmarker_id = ?',
+                project.id,
+                self.current_user.id
+            )[1]
+
+        if bookmark then
+          db.delete(
+              'bookmarks',
+              'project_id = ? and bookmarker_id = ?',
+              project.id,
+              self.current_user.id
+          );
         end
 
         return okResponse()

@@ -49,7 +49,7 @@
       <div class="credits col">
         <a href="/partners">
           <p>Snap<em>!</em> is brought to you by UC Berkeley and SAP.</p>
-          <img src="/static/img/ucb-logo-footer.png" alt="UC Berkeley Logo">
+          <img src="/static/img/berkeley-logo-white.svg" class="ucb-logo"alt="UC Berkeley Logo">
           <img src="/static/img/sap-logo-footer.png" alt="SAP Logo">
         </a>
       </div>

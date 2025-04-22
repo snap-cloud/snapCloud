@@ -30,29 +30,44 @@
     </div>
     <div class="viewer row">
         <!-- Project viewer -->
-        <div class="embed col-md-6">
+        <div class="embed col-md-8 col-sm-6 col-12">
             <!-- Spinner shown while embed hasn't been loaded -->
             <i class="project-loader fas fa-spinner fa-spin fa-3x"
                 aria-hidden="true"></i>
 
             <!-- Project control bar -->
             <div class="controlbar">
+                <% if (project:get_bookmark_count() > 0) and current_user then %>
+                  <span class="bookmark-status-container">
+                    <% if (current_user.username == project.username) or
+                        current_user:isadmin() then %>
+                    <i title="<%= locale.get('project_is_bookmarked') %>"
+                        aria-label="<%= locale.get('project_is_bookmarked') %>"
+                        class="bookmarked fas fa-heart"></i>
+                    <% end %>
+                    <% if current_user:isadmin() then %>
+                    <span class="bookmark-count">
+                        <%= project:get_bookmark_count() %>
+                    </span>
+                    <% end %>
+                  </span>
+                <% end %>
                 <button class="btn btn-link" aria-label="present project full-screen" type="button"
                     onclick="toggleFullScreen();">
                     <i aria-hidden=true class="present-button fas fa-expand"></i>
-                    </button>
+                </button>
                 <button class="btn btn-link" aria-label="start project" type="button"
                     onclick="runProject(event);">
                     <i aria-hidden=true class="start-button fas fa-flag"></i>
-                    </button>
+                </button>
                 <button class="btn btn-link" aria-label="pause project" type="button"
                     onclick="togglePauseProject();">
                     <i aria-hidden=true class="pause-button fas fa-pause"></i>
-                    </button>
+                </button>
                 <button class="btn btn-link" aria-label="stop project" type="button"
                     onclick="stopProject();">
                     <i aria-hidden=true class="stop-button fas fa-octagon"></i>
-                    </button>
+                </button>
             </div>
 
             <!-- Project embed -->
@@ -65,9 +80,7 @@
             <!-- Project Action Buttons -->
             <% render('views.partials.project_buttons', { project = project }) %>
         </div>
-        <!-- just a spacer -->
-        <span class="col-md-1"></span>
-        <div class="col-md-5">
+        <div class="col-md-4 col-sm-6 col-12">
             <% render('views.partials.project_details_bs', { project = project }) %>
         </div>
     </div>

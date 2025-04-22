@@ -264,6 +264,15 @@ app:get('/my_followers', capture_errors(cached(function (self)
     end
 end)))
 
+app:get('/bookmarked', capture_errors(cached(function (self)
+    if self.current_user then
+        self.items = ProjectController.bookmarked_projects(self)
+        return { render = 'bookmarked', layout = 'layout_bs' }
+    else
+        return { redirect_to = self:build_url('/') }
+    end
+end)))
+
 app:match('project', '/project', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     if self.params.user and self.params.project then

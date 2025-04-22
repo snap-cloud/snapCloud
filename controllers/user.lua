@@ -40,6 +40,9 @@ require 'responses'
 require 'passwords'
 local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
+-- Local Snap!Cloud functions
+local utils = require('lib.util')
+local escape_html = utils.escape_html
 
 UserController = {
     run_query = function (self, query)
@@ -64,7 +67,7 @@ UserController = {
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
                 (filters or '') ..
-            ' ORDER BY ' .. (self.params.order or 'created'),
+                ' ORDER BY ' .. (self.params.order or 'created'),
             {
                 per_page = self.items_per_page or 15,
                 fields = self.params.fields or '*'
@@ -448,7 +451,7 @@ UserController = {
         create_token(self, 'verify_user', user)
 
         return jsonResponse({
-            message = 'User ' .. self.params.username ..
+            message = 'User ' .. escape_html(self.params.username) ..
                 ' created.\nPlease check your email and validate your\n' ..
                 'account within the next 3 days.\nYou can now log in.',
             title = 'Account Created',

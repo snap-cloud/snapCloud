@@ -65,6 +65,10 @@
                         <a class="pure-menu-link followed-projects"
                            href="/followed"
                            ><%- locale.get('followed_projects') %></a></li>
+                    <li class="pure-menu-item">
+                        <a class="pure-menu-link bookmarked-projects"
+                           href="/bookmarked"
+                           ><%- locale.get('bookmarked_projects') %></a></li>
                 <% if current_user:isadmin() or current_user.is_teacher then %>
                     <hr>
                     <% if current_user:isadmin() then %>

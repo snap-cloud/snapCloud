@@ -80,17 +80,21 @@ require 'models'
 require 'responses'
 
 app.cookie_attributes = function (self)
--- A cookie is valid for 120 days from your last action on Snap!
-    local attributes = "Path=/; HttpOnly;"
-    if (config._name == 'development') then
-        attributes = attributes .. " SameSite=Lax;"
-    else
-        attributes = attributes .. " SameSite=Lax; Secure;"
-    end
     -- Cookies are 'session cookies' unless they have an expiration date.
+    -- Cookies have a Max-Age of 35 days, because this is continually reset
+    -- using the Snap!Cloud will continue to extend the user's cookie. (See before_filter)
+    -- Any update to `self.session.x` will extend the cookie's life.
+    -- See https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html
+    local attributes = "Domain=" .. ngx.var.host .. "; Path=/;"
+    if (config._name == 'development') then
+        attributes = attributes .. " HttpOnly; SameSite=Lax; "
+    else
+        -- SameSite must be None on production to allow extensions (and CORS) to work right.
+        attributes = attributes .. " Secure; HttpOnly; SameSite=None;"
+    end
     if self.session.persist_session == 'true' then
-        local expires = date(true):adddays(120):fmt("${http}")
-        attributes = "Expires=" .. expires .. "; "  .. attributes
+        local max_seconds = 35 * 24 * 60 * 60 -- 35 days, 24 hours, 60 minutes, 60 seconds
+        attributes = "Max-Age=" .. max_seconds .. "; " .. attributes
     end
     return attributes
 end
@@ -236,6 +240,7 @@ app:before_filter(function (self)
     if self.session.username and self.session.username ~= '' then
         self.current_user =
             package.loaded.Users:find({ username = self.session.username })
+        self.session.last_access_at = date(true):fmt('${http}')
     else
         self.session.username = ''
         self.current_user = nil
