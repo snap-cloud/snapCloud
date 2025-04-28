@@ -149,7 +149,7 @@ local ActiveUsers =  Model:extend('active_users', {
         return unique_email
     end,
     shares_email_with_others = function (self)
-        local count = package.loaded.Users:count("unique_email ilike ?", self.email)
+        local count = package.loaded.AllUsers:count("unique_email ilike ?", self.email)
         return count > 0
     end,
     cannot_access_forum = function (self)
