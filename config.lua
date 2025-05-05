@@ -59,9 +59,9 @@ config({'development', 'test'}, {
 
     session_name = 'snapsession_development',
     -- development needs no special SSL or cert config.
-    primary_nginx_config = 'locations.conf',
+    non_ssl_nginx_config = 'locations.conf',
     -- empty string when no additional configs are included.
-    secondary_nginx_config = ''
+    ssl_nginx_server_config = ''
 })
 
 config({'test'}, {
@@ -86,8 +86,8 @@ config({'production', 'staging'}, {
 config('production', {
     site_name = 'Snap Cloud',
     num_workers = 8,
-    primary_nginx_config = 'http-only.conf',
-    secondary_nginx_config = 'include nginx.conf.d/ssl-production.conf;',
+    non_ssl_nginx_config = 'http-only.conf',
+    ssl_nginx_server_config = 'include nginx.conf.d/ssl-production.conf;',
 
     -- This is an additional security feature to prevent cookie tampering.
     -- Currently disabled as changing the name will log out all users.
@@ -106,8 +106,8 @@ config('staging', {
     site_name = 'staging | Snap Cloud',
     -- the staging server is a low-cpu server.
     num_workers = 2,
-    primary_nginx_config = 'http-only.conf',
-    secondary_nginx_config = 'include nginx.conf.d/ssl-staging.conf;',
+    non_ssl_nginx_config = 'http-only.conf',
+    ssl_nginx_server_config = 'include nginx.conf.d/ssl-staging.conf;',
 
     session_name = '__Host-snapsession-staging',
 })
