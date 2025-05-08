@@ -1,5 +1,7 @@
 <link rel="stylesheet" href="/static/style/research.css">
+<% content_for('title', 'Research') %>
 <h1>Research</h1>
+
 <ul class="article-list">
     <li>
         <a href="/static/doc/Kolar Moser Goldenberg—Building a Microworld in Snap.pdf" target="_blank" class="article-title">Building a Microworld in Snap<em>!</em></a>

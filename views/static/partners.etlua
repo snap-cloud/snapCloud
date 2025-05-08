@@ -1,4 +1,6 @@
+<% content_for('title', 'Partners, Sponsors, and Collaborators') %>
 <h1 localizable>Partners, sponsors and collaborators</h1>
+
 <ul class="flex list-unstyled">
     <!-- TODO: Cleanup this list. Include UC Berkeley? -->
     <li>
