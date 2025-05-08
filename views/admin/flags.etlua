@@ -1,3 +1,5 @@
+<% content_for('title', 'Flagged Projects') %>
+
 <h1>Flagged Projects</h1>
 <%
 render(

@@ -1,4 +1,6 @@
+<% content_for('title', 'About') %>
 <h1 localizable>About Snap<em>!</em></h1>
+
 <p>Snap<em>!</em> (formerly BYOB) is a visual, drag-and-drop programming language. It is an extended reimplementation of <a href="https://scratch.mit.edu/">Scratch</a> (a project of the <a href="https://llk.media.mit.edu/">Lifelong Kindergarten Group</a> at the <a href="https://media.mit.edu/">MIT Media Lab</a>) that allows you to Build Your Own Blocks. It also features first class<sup><a href="#firstclass">[1]</a></sup> lists, first class procedures, and first class continuations<sup><a href="#continuations">[2]</a></sup>. These added capabilities make it suitable for a serious introduction to computer science for high school or college students.</p>
 
 <p>In the example below, a Snap<em>!</em> user can create new control structures, such as a <code>for</code> loop, by writing a script as shown at the left. Once the <code>for</code> block is created, it can be used even to make nested loops, as shown in the center. A sprite carries out that script at the right.</p> </section>

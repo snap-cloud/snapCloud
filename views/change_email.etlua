@@ -1,3 +1,5 @@
+<% content_for('title', locale.get('change_my_email')) %>
+
 <h1><%- locale.get('change_my_email') %></h1>
 <div id="change-email" class="pure-form pure-form-aligned">
     <fieldset>

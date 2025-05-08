@@ -1,5 +1,5 @@
 <!-- <script src="/static/js/inplace.js"></script> -->
-
+<% content_for('title', project.projectname .. " " .. locale.get('project_by', project.username)) %>
 
 <!-- TODO-BS: Replace .project.big with a single CSS class. Extract to partial? -->
 <div class="project big mt-3">

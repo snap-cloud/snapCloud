@@ -1,3 +1,4 @@
+<% content_for('title', 'Contact') %>
 <h1 localizable>Contact</h1>
 <p>You can contact the development team at:</p>
 

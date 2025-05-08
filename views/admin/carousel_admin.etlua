@@ -1,4 +1,6 @@
 <link rel="stylesheet" href="/static/style/project.css">
+<% content_for('title', 'Carousel Adminstration') %>
+
 <h1>Carousel Administration</h1>
 <%
     for _, section in ipairs({
@@ -64,6 +66,6 @@
                 );
             }
         )
-        
+
     }
 </script>

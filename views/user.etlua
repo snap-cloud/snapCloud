@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="/static/style/admin.css">
 <% end %>
 
+<% content_for('title', locale.get('public_page', username)) %>
 <h1><%= locale.get('public_page', username) %></h1>
 
 <%
@@ -61,7 +62,7 @@ end
 
 <% if current_user and current_user:has_min_role('moderator') then %>
 <!-- -- ADMIN TOOLS -->
-<div class="col-4">
+<div class="col-4 col-sm-12">
     <h2><%- locale.get('admin_tools') %></h2>
 <%
     render(

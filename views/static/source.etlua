@@ -1,4 +1,6 @@
+<% content_for('title', 'Source Code') %>
 <h1>Source Code</h1>
+
 <span><p>All components of the Snap<em>!</em> Programming System are free and open source under a GNU General Public License. You are welcome to explore and tinker with our code, to remix, extend and share.</p></span>
 <h2>The Snap<em>!</em> programming language/environment</h2>
 <span><p>IDE and the Snap<em>!</em> runtime environment, including the graphical blocks, widgets, evaluator and timesharing multiplexer.</p></span>

@@ -1,3 +1,4 @@
+<% content_for('title', locale.get('signup_title', '<em>!</em>')) %>
 <h1><%- locale.get('signup_title', '<em>!</em>') %></h1>
 <div id="signup" class="pure-form pure-form-aligned">
     <fieldset>
@@ -134,4 +135,3 @@
         };
     </script>
 </div>
-

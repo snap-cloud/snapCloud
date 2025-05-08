@@ -1,3 +1,4 @@
+<% content_for('title', locale.get('my_collections')) %>
 <h1><%- locale.get('my_collections') %></h1>
 <%
 render(

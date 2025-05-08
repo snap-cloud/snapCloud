@@ -1,3 +1,5 @@
+<% content_for('title', 'Snapp') %>
 <h1>Snapp</h1>
+
 <p>Snapp is an external web service that packages a Snap<em>!</em> project as a stand-alone executable for different operating systems. Please note that while we love Snapp it is currently not part of Snap<em>!</em> and not maintained by the Snap<em>!</em> dev team. Also, Snapp might not support the latest additions and features of Snap<em>!</em>.</p>
 <h4><a href="http://snapp.citilab.eu/">http://snapp.citilab.eu/</a></h4>

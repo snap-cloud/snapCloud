@@ -1,3 +1,4 @@
+<% content_for('title', locale.get('tos')) %>
 <h1 localizable>Terms of Service</h1>
 
 <p>Welcome to the <img src="static/img/small-logo.png" alt="Snap!" height="20px"> user community!</p>

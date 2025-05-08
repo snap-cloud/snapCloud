@@ -1,4 +1,6 @@
 <link rel="stylesheet" href="/static/style/admin.css">
+<% content_for('title', 'Zombie Adminstration') %>
+
 <h1>Zombie Administration</h1>
 <%
 render(

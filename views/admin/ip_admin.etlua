@@ -1,4 +1,6 @@
 <link rel="stylesheet" href="/static/style/admin.css">
+<% content_for('title', locale.get('suspicious_ips')) %>
+
 <h1><%- locale.get('suspicious_ips') %></h1>
 
 <div class="ips container">

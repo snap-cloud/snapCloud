@@ -1,4 +1,6 @@
-<h1 tabindex="-1">Using Snap! Without an Internet Connection</h1>
+<% content_for('title', locale.get('offline')) %>
+<h1>Using Snap! Without an Internet Connection</h1>
+
 <p>last updated on Nov. 25, 2021</p>
 <p>Snap! is a web application hosted at
 <a href="https://snap.berkeley.edu/run" title="Snap! online" rel="nofollow">https://snap.berkeley.edu/run</a>.</p>
