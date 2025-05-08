@@ -1,5 +1,9 @@
 <script src="/static/js/project.js"></script>
 <script src="/static/js/inplace.js"></script>
+<% content_for('title',
+    collection.name .. " " .. locale.get('collection_by', collection.creator.username)) %>
+
+
 <link rel="stylesheet" href="/static/style/project.css">
 <div class="collection">
     <div class="title">
