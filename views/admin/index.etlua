@@ -1,4 +1,7 @@
 <link rel="stylesheet" href="/static/style/admin.css">
+<% content_for('title', locale.get('administration')) %>
+
+
 <h1><%- locale.get('administration') %></h1>
 
 <div class="admin-buttons">

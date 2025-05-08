@@ -2,6 +2,7 @@
 <link rel="stylesheet" href="/static/style/admin.css">
 <% end %>
 
+<% content_for('title', locale.get('public_page', username)) %>
 <h1><%= locale.get('public_page', username) %></h1>
 
 <%

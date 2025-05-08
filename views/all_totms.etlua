@@ -1,5 +1,5 @@
+<% content_for('title', locale.get('totms_title')) %>
 <h1><%- locale.get('totms_title') %></h1>
-
 
 <%
 render(

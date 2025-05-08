@@ -1,4 +1,5 @@
 <link rel="stylesheet" href="/static/style/profile.css">
+<% content_for('title', locale.get('profile_title', user.username)) %>
 <h1><%- locale.get('profile_title', user.username) %></h1>
 <div class="pure-g profile">
     <div class="pure-u-1-2 fields">

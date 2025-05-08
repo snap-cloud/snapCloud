@@ -1,3 +1,4 @@
+<% content_for('title', 'FInd Our Your Username') %>
 <h1 localizable>Find Out Your Username</h1>
 <div id="get-username" class="pure-form pure-form-aligned">
     <fieldset>

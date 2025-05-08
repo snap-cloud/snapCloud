@@ -1,4 +1,6 @@
 <link rel="stylesheet" href="/static/style/admin.css">
+<% content_for('title', 'User Adminstration') %>
+
 <h1>User Administration</h1>
 <%
 render(

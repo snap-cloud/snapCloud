@@ -1,10 +1,14 @@
 <% if params.username then %>
+<% content_for('title', locale.get('user_collections_title', params.username)) %>
 <h1><%= locale.get('user_collections_title', params.username) %></h1>
 <% elseif params.search_term then %>
+<% content_for('title', locale.get('collection_search_results', params.search_term)) %>
 <h1><%= locale.get('collection_search_results', params.search_term) %></h1>
 <% else %>
+<% content_for('title', locale.get('collections_title')) %>
 <h1><%= locale.get('collections_title') %></h1>
 <% end %>
+
 <%
 render(
     'views.grid_bs',
