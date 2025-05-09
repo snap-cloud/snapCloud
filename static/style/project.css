@@ -330,8 +330,10 @@ i.bookmarked {
     flex-direction: column;
     align-items: stretch;
     margin-bottom: 0.5em;
-    min-width: max(482px, calc(100% - 3em));
-    max-width: min(564px, calc(100% - 3em));
+    min-width: 482px;
+    max-width: 564px;
+    /* min-width: max(482px, calc(100% - 3em));
+    max-width: min(564px, calc(100% - 3em)); */
 }
 
 .embed .project-loader {
