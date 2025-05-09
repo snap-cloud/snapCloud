@@ -3,30 +3,34 @@
 
 <!-- TODO-BS: Replace .project.big with a single CSS class. Extract to partial? -->
 <div class="project big mt-3">
-    <div class="title">
-        <h1><%= project.projectname %></h1>
+    <div class="title row">
+        <div class="col-md-8 col-sm-12">
+            <h1><%= project.projectname %></h1>
+        </div>
 
-        <% if remixed_from then %>
-        <span class="remixed-from"><%-
-            locale.get(
-                'remixed_from',
-                '<span class="project-link"><a href="' ..
-                    remixed_from:url_for('site') ..
-                    '" >' .. remixed_from.projectname ..
-                    '</a></span>',
-                '<a href="' .. remixed_from:url_for('author') ..
-                    '"><strong>' .. remixed_from.username ..
-                    '</strong></a>')
-        %></span>
-        <% end %>
+        <div class="col-md-4 col-sm-12 text-end">
+            <% if remixed_from then %>
+            <span class="remixed-from"><%-
+                locale.get(
+                    'remixed_from',
+                    '<span class="project-link"><a href="' ..
+                        remixed_from:url_for('site') ..
+                        '" >' .. remixed_from.projectname ..
+                        '</a></span>',
+                    '<a href="' .. remixed_from:url_for('author') ..
+                        '"><strong>' .. remixed_from.username ..
+                        '</strong></a>')
+            %></span>
+            <% end %>
 
-        <span class="author"><%-
-            locale.get(
-                'project_by',
-                '<a href="' .. project:url_for('author') ..
-                    '"target=""><strong>' .. project.username .. '</strong></a>'
-            )
-        %></span>
+            <span class="author"><%-
+                locale.get(
+                    'project_by',
+                    '<a href="' .. project:url_for('author') ..
+                        '"target=""><strong>' .. project.username .. '</strong></a>'
+                )
+            %></span>
+        </div>
     </div>
     <div class="viewer row">
         <!-- Project viewer -->

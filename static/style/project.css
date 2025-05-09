@@ -253,8 +253,7 @@ i.bookmarked {
     margin-right: 0.5em;
 }
 
-.collection .author,
-.project .author {
+.collection .author {
     font-size: .8em;
 }
 
@@ -284,15 +283,9 @@ i.bookmarked {
     margin-bottom: .5em;
 }
 
-.collection .title h1,
-.project.big .title h1 {
+.collection .title h1 {
     display: inline-block;
     margin: 0;
-}
-
-.project.big .title h1 {
-    max-width: 540px;
-    word-wrap: break-word;
 }
 
 .collection .title {
@@ -300,21 +293,7 @@ i.bookmarked {
 }
 
 .remixed-from {
-    position: absolute;
-    right: 0;
-    bottom: .4em;
     font-size: 0.8em;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-}
-
-.remixed-from .author {
-    font-size: 1em;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    position: relative !important;
 }
 
 .embed {
@@ -330,10 +309,10 @@ i.bookmarked {
     flex-direction: column;
     align-items: stretch;
     margin-bottom: 0.5em;
-    min-width: 482px;
-    max-width: 564px;
-    /* min-width: max(482px, calc(100% - 3em));
-    max-width: min(564px, calc(100% - 3em)); */
+    /* min-width: 482px;
+    max-width: 564px; */
+    min-width: min(482px, calc(100% - 2em));
+    max-width: min(564px, calc(100% - 2em));
 }
 
 .embed .project-loader {
