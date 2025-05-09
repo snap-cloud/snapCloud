@@ -323,15 +323,15 @@ i.bookmarked {
 }
 
 /* TODO: We can make the sizing of the embed a little more dynamic.
-    We need to not set height on the iframe, then later set it via JS.xwxx
+    We need to not set height on the iframe, then later set it via JS.
 */
 .project.big .embed {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     margin-bottom: 0.5em;
-    min-width: 482px;
-    max-width: 564px;
+    min-width: max(482px, calc(100% - 3em));
+    max-width: min(564px, calc(100% - 3em));
 }
 
 .embed .project-loader {
