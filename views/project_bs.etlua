@@ -9,6 +9,13 @@
         </div>
 
         <div class="col-md-4 col-sm-12 text-end">
+            <div class="author"><%-
+                locale.get(
+                    'project_by',
+                    '<a href="' .. project:url_for('author') ..
+                        '"target=""><strong>' .. project.username .. '</strong></a>'
+                )
+            %></div>
             <% if remixed_from then %>
             <span class="remixed-from"><%-
                 locale.get(
@@ -22,14 +29,6 @@
                         '</strong></a>')
             %></span>
             <% end %>
-
-            <span class="author"><%-
-                locale.get(
-                    'project_by',
-                    '<a href="' .. project:url_for('author') ..
-                        '"target=""><strong>' .. project.username .. '</strong></a>'
-                )
-            %></span>
         </div>
     </div>
     <div class="viewer row">
