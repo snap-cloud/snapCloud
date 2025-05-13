@@ -27,6 +27,11 @@
           </a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="/learn">
+            <%- locale.get('learn') %>
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" target="_blank" href="https://www.snapcon.org">
             Snap<em>!</em>Con
           </a>

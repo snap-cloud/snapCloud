@@ -46,7 +46,7 @@ app.layout = require 'views.layout'
 
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
-    'materials', 'mirrors', 'offline', 'partners', 'privacy', 'research',
+    'learn', 'mirrors', 'offline', 'partners', 'privacy', 'research',
     'snapinator', 'snapp', 'source', 'tos'
 }
 
@@ -98,6 +98,10 @@ for _, page in pairs(static_pages) do
             return { render = 'static/' .. page, layout = 'layout_bs' }
     end)))
 end
+
+app:get('/materials', function ()
+    return { redirect_to = '/learn' }
+end)
 
 for _, view in pairs(views) do
     app:get('/' .. view, capture_errors(cached(function (self)
