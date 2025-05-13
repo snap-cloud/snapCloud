@@ -18,7 +18,9 @@
   --navbar-height: 64px;
   /* this is the minimum I think w/ all 5 columns of links */
   --estimated-footer-height: 450px;
-  --white-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  --white-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(255,255,255,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+  --dark-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(0,38,118,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+
 }
 
 // We often use 1/5 width items.
@@ -69,6 +71,15 @@ nav.navbar {
     --bs-navbar-toggler-border-color: #FFF;
     --bs-navbar-color: #FFF;
     margin: 12px;
+  }
+
+  & .navbar-toggler[aria-expanded="true"] {
+    --bs-navbar-color: var(--bs-navbar-dark-color);
+    background-color: #FFF;
+
+    &  .navbar-toggler-icon {
+      --bs-navbar-toggler-icon-bg: var(--dark-hamburger);
+    }
   }
 
   .nav-link.show {
