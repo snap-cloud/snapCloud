@@ -50,7 +50,13 @@ nav.navbar {
   font-weight: 600;
   padding: 0;
 
+  // Improvements for nested menus on mobile.
+  max-height: calc(100vh - var(--navbar-height));
+  overflow-y: auto;
+
   .trapezoid {
+    position: absolute;
+    top: var(--navbar-height);
     color: var(--bs-navbar-dark-color);
   }
 
@@ -80,16 +86,26 @@ nav.navbar {
     &  .navbar-toggler-icon {
       --bs-navbar-toggler-icon-bg: var(--dark-hamburger);
     }
+
+    & + .navbar-collapse,
+    & + .navbar-collapse .nav-item {
+      --bs-nav-link-padding-y: 0.1rem;
+      --bs-nav-link-padding-x: 0.1rem;
+      padding: 0.2rem;
+    }
+
+    & + .navbar-collapse [role="search"] {
+      margin: 0.3rem;
+    }
   }
+
 
   .nav-link.show {
     color: var(--bs-navbar-dark-color);
   }
 
   li {
-    --bs-nav-link-padding-x: 1em;
-    padding: 0.75em 0.5em;
-    height: 100%;
+    padding: 0.5em;
     margin: 0;
 
     > a {
@@ -127,11 +143,6 @@ nav.navbar {
         opacity: 1;
       }
     }
-  }
-
-  .trapezoid {
-    position: absolute;
-    top: var(--navbar-height);
   }
 }
 
