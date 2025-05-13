@@ -17,7 +17,7 @@
                 )
             %></div>
             <% if remixed_from then %>
-            <span class="remixed-from"><%-
+            <div class="remixed-from"><%-
                 locale.get(
                     'remixed_from',
                     '<span class="project-link"><a href="' ..
@@ -27,7 +27,7 @@
                     '<a href="' .. remixed_from:url_for('author') ..
                         '"><strong>' .. remixed_from.username ..
                         '</strong></a>')
-            %></span>
+            %></div>
             <% end %>
         </div>
     </div>
@@ -35,7 +35,7 @@
         <!-- Project viewer -->
         <!-- TODO: The project description size should be set
             with the remaining space from the embedded viewer.-->
-        <div class="embed col-md-8 col-sm-6 col-12">
+        <div class="embed col-sm-12 col-md-8 col-lg-6">
             <!-- Spinner shown while embed hasn't been loaded -->
             <i class="project-loader fas fa-spinner fa-spin fa-3x"
                 aria-hidden="true"></i>
@@ -79,13 +79,13 @@
             <iframe allow="geolocation; microphone; camera"
                 sandbox="allow-scripts allow-same-origin"
                 title="project viewer"
-                src="<%= project:url_for('viewer', params.devVersion) %>"
-                height="406"></iframe>
+                src="<%= project:url_for('viewer', params.devVersion) %>">
+            </iframe>
 
             <!-- Project Action Buttons -->
             <% render('views.partials.project_buttons', { project = project }) %>
         </div>
-        <div class="col-lg-6 col-md-4 col-sm-6 col-12">
+        <div class="col-sm-12 col-md-4 col-lg-6">
             <% render('views.partials.project_details_bs', { project = project }) %>
         </div>
     </div>

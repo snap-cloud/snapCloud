@@ -257,17 +257,6 @@ i.bookmarked {
     font-size: .8em;
 }
 
-.project.big .title .author {
-    position: absolute;
-    right: 0;
-}
-
-.project.big .title.author {
-    position: absolute;
-    line-height: 4em;
-    margin-left: 1em;
-}
-
 .project.big.embed .title .author {
     position: relative !important;
 }
@@ -312,7 +301,12 @@ i.bookmarked {
     /* min-width: 482px;
     max-width: 564px; */
     min-width: min(482px, calc(100% - 2em));
-    max-width: min(564px, calc(100% - 2em));
+    /* max-width: min(564px, calc(100% - 2em)); */
+}
+
+/* Ensure the project embed matches Snap!'s default aspect ratio */
+.embed iframe {
+    aspect-ratio: 4/3;
 }
 
 .embed .project-loader {
