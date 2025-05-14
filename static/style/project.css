@@ -50,6 +50,10 @@
     box-sizing: border-box;
 }
 
+.project .details {
+    flex-grow: 2;
+}
+
 .collection .info .no-image {
     left: 59px;
     top: 34px;

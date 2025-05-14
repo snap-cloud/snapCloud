@@ -54,7 +54,7 @@ nav.navbar {
   max-height: calc(100vh - var(--navbar-height));
   overflow-y: auto;
 
-  .trapezoid {
+  & .trapezoid {
     position: absolute;
     top: var(--navbar-height);
     color: var(--bs-navbar-dark-color);
