@@ -152,6 +152,7 @@ function toggleFullScreen () {
         buttons = document.querySelector('.buttons');
     if (embed.fullScreen) {
         embed.fullScreen = false;
+        embed.className = embed.oldClasses
         embed.style = embed.oldStyle;
         iframe.style = iframe.oldStyle;
         buttons.style = buttons.oldStyle;
@@ -160,13 +161,16 @@ function toggleFullScreen () {
     } else {
         embed.fullScreen = true;
         embed.oldStyle = embed.style;
+        embed.oldClasses = embed.className;
+        embed.className = 'embed';
         iframe.oldStyle = iframe.style;
         buttons.oldStyle = buttons.style
         embed.style.position = 'fixed';
         embed.style.left = 0;
-        embed.style.top = 0;
+        // Navbar height
+        embed.style.top = 'calc(var(--navbar-height) + 24px)';
         embed.style.width = '100vw';
-        embed.style.height = '100vh';
+        embed.style.height = 'calc(96vh - var(--navbar-height) - 24px)';
         iframe.style.height = '100%';
         document.body.style.overflow = 'hidden';
         buttons.style.display = 'none';
