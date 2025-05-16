@@ -50,7 +50,7 @@
 
 .in-place:hover {
     padding: 0 2px;
-    border: 2px dashed #2d3142;
+    border: 2px dashed var(--snap-dark-blue);
 }
 
 pre.proto-in-place,
@@ -66,7 +66,7 @@ pre.in-place {
 }
 
 @keyframes flasher {
-    0% { background: #2d3142; }
+    0% { background: var(--snap-dark-blue); }
     50% { opacity: 0.0; }
     100% {
         background: auto;
@@ -111,7 +111,7 @@ pre.in-place {
 }
 
 .pure-button {
-    color: #2d3142;
+    color: var(--snap-dark-blue);
     background-color: #bfc0c0;
 }
 

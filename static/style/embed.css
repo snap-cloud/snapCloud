@@ -25,7 +25,7 @@ iframe {
 }
 
 .author a {
-    color: #7070A0;
+    color: var(--lighter-link-color);
     text-decoration: none;
 }
 
