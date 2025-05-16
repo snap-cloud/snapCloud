@@ -1,70 +1,32 @@
-<% content_for('title', 'Materials') %>
-<h1 localizable>Materials</h1>
+<% content_for('title', locale.get('learn_snap', 'Snap!')) %>
+<h1 ><%- locale.get('learn_snap', 'Snap<em>!</em>') %></h1>
 
-<div class="materials"></div>
-<h2>MOOCS and Online Courses</h2>
-<ul>
-    <li>
-        <a href="https://open.sap.com/courses/snap1"
-            >Get Coding with Snap<em>!</em></a> at openSAP
-    </li>
-    <li>
-        <a href="https://open.sap.com/courses/snap2"
-            >From Media Computation to Data Science</a> at openSAP
-    <li>
-        <a href="https://bjc.berkeley.edu/">The Beauty and Joy of Computing</a>
-    </li>
-    <li>
-        <a href="https://tealsk12.github.io/introduction-to-computer-science/"
-            >Introduction to Computer Science</a> at TEALS
-    </li>
-</ul>
-<h2>Manuals and Documentation</h2>
-<ul>
-    <li><a href="https://snap.berkeley.edu/snap/help/SnapManual.pdf"
-            >Reference Manual</a></li>
-    <li><a href="https://blogs.sap.com/2022/01/13/a-summary-of-snap-learning-modules/"
-            >Learning Modules for Beginners</a> by SAP Young Thinkers</li>
-</ul>
-<h2>Class Materials</h2>
-<ul>
-    <li><a href="https://computingeducation.de/algorithmen-mit-snap/"
-            >Algorithmen mit Snap<em>!</em></a> at ComputingEducation.de (in German)
-    </li>
-</ul>
-<h2>Books</h2>
-<ul>
-    <li>
-        <a href="http://codiertekunst.joachim-wedekind.de/"
-            >Codierte Kunst</a>, by Joachim Wedekind (in German)
-    </li>
-    <li>
-        <a href="https://www.hinkler.com.au/the-coding-book"
-            >The Coding Book</a
-        >, by Virginia King, Lee Ryall and Invent the World
-    </li>
-    <li>
-        <a href="http://ddi-mod.uni-goettingen.de/ComputerScienceWithSnap.pdf"
-            >Computer Science with Snap<em>!</em></a>, by Eckart Modrow
-    </li>
-    <li>
-        <a href="static/doc/TuneScope%20Book.pdf"
-            >TUNESCOPE, Creating Digital Music in Snap<em>!</em></a>, by Glen Bull, Rachel Gibson, Jo Watts, and N. Rich Nguyen
-    </li>
-    <li>
-        <a href="static/doc/StapelListeBaum.pdf"
-            >Stapel, Schlange, Liste, Baum mit Snap<em>!</em></a>, by Fritz Hasselhorn (in German)
-    </li>
-    <li>
-        <a href="static/doc/AutomatenGrammatiken.pdf"
-            >Automaten und Grammatiken</a>, by Fritz Hasselhorn (in German)
-    </li>
-    <li>
-        <a href="static/doc/Codierung.pdf"
-            >Fehlerkorrigierende und komprimierende Codes mit Snap<em>!</em></a>, by Fritz Hasselhorn (in German)
-    </li>
-    <li>
-        <a href="static/doc/Einf%C3%BChrung%20Programmierung.pdf"
-            >Einf ̈uhrung in die Programmierung mit Snap<em>!</em></a>, by Fritz Hasselhorn (in German)
-    </li>
-</ul>
+<% for _, typeKey in pairs(typesOrder) do
+     local typeInfo = types[typeKey]
+     local items = materials_by_type[typeKey] %>
+<section class="my-4">
+    <h2><%= typeInfo.heading %></h2>
+    <% if typeInfo.description then %>
+    <p><%= typeInfo.description %></p>
+    <% end %>
+    <ul class="list-group my-2">
+    <% for _, item in ipairs(items) do %>
+        <li class="list-group-item">
+        <a href="<%= item.url %>"><%= item.title %></a>
+        <% if item.author then %>
+            by <%= item.author %>
+        <% end %>
+        <span class="mt-1">
+            <% for _, lang in ipairs(item.language) do %>
+                <span class="badge text-bg-primary"><%= (lang) %></span>
+            <% end %>
+            <% if item.level then %>
+            <span class="badge text-bg-info"><%= item.level %></span>
+            <% end %>
+        </span>
+        </li>
+    <% end %>
+    </ul>
+    </div>
+</section>
+<% end %>

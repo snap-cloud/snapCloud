@@ -145,4 +145,4 @@
     </div>
   </div>
 </nav>
-<div class="trapezoid"></div>
+<div class="trapezoid fixed-top"></div>

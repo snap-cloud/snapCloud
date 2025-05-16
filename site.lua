@@ -35,6 +35,10 @@ local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
 local assert_exists = require('validation').assert_exists
 
+local materials = require('views.static.resources').materials
+local material_types = require('views.static.resources').types
+local group_by_type = require("lib.util").group_by_type
+
 require 'controllers.user'
 require 'controllers.project'
 require 'controllers.collection'
@@ -46,7 +50,7 @@ app.layout = require 'views.layout'
 
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
-    'learn', 'mirrors', 'offline', 'partners', 'privacy', 'research',
+    'mirrors', 'offline', 'partners', 'privacy', 'research',
     'snapinator', 'snapp', 'source', 'tos'
 }
 
@@ -98,6 +102,13 @@ for _, page in pairs(static_pages) do
             return { render = 'static/' .. page, layout = 'layout_bs' }
     end)))
 end
+
+app:get('/learn', capture_errors(cached(function (self)
+    self.materials_by_type = group_by_type(materials)
+    self.typesOrder = {"documentation", "course", "book"}
+    self.types = material_types
+    return { render = 'static/learn', layout = 'layout_bs'}
+end)))
 
 app:get('/materials', function ()
     return { redirect_to = '/learn' }

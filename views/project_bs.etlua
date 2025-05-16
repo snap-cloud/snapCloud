@@ -33,7 +33,7 @@
     </div>
     <div class="viewer row">
         <!-- Project viewer -->
-        <div class="embed col-lg-6 col-md-8 col-sm-12">
+    <div class="embed col-lg-6 col-md-8 col-sm-12">
             <!-- Spinner shown while embed hasn't been loaded -->
             <i class="project-loader fas fa-spinner fa-spin fa-3x"
                 aria-hidden="true"></i>

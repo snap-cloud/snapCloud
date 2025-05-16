@@ -167,14 +167,12 @@ function toggleFullScreen () {
         buttons.oldStyle = buttons.style
         embed.style.position = 'fixed';
         embed.style.left = 0;
-        // Navbar height
         embed.style.top = 'calc(var(--navbar-height) + 24px)';
         embed.style.width = '100vw';
         embed.style.height = 'calc(96vh - var(--navbar-height) - 24px)';
         iframe.style.height = '100%';
         document.body.style.overflow = 'hidden';
         buttons.style.display = 'none';
-
     }
     world.worldCanvas.focus();
 };
