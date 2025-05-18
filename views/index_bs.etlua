@@ -21,16 +21,17 @@
             '<img src="/static/img/snap-logo-white.svg" alt="Snap!" style="height: 1.5rem" />') %>
         </a>
         <% if current_user then %>
-            <a href="/my_projects" class="m-1 btn btn-lg btn-outline-success"
-                ><%- locale.get('my_projects') %></a>
-            <a href="<%- current_user:url_for('site') %>" class="m-1 btn btn-lg btn-outline-success"
-                ><%- locale.get('my_public_page') %></a>
-        <% end %>
+        <a href="/my_projects" class="m-1 btn btn-lg btn-outline-success"
+            ><%- locale.get('my_projects') %></a>
+        <a href="<%- current_user:url_for('site') %>" class="m-1 btn btn-lg btn-outline-success"
+            ><%- locale.get('my_public_page') %></a>
+        <% else %>
         <a href="/examples" class="m-1 btn btn-lg btn-outline-secondary">
             <%- locale.get('examples') %>
         </a>
-        <a href="/snap/help/SnapManual.pdf" class="m-1 btn btn-lg btn-outline-secondary" target="_blank"
-            ><%- locale.get('manual') %></a>
+        <a href="/learn" class="m-1 btn btn-lg btn-outline-secondary" target="_blank"
+            ><%- locale.get('learn_snap', 'Snap<em>!</em>') %></a>
+        <% end %>
     </div>
 </div>
 
