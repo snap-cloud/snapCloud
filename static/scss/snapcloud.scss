@@ -362,6 +362,22 @@ hr {
   }
 }
 
+/* Designed to be the last element in a section / nav
+/ Makes a little "puzzle piece" connector. */
+.trapezoid {
+    position: relative;
+    margin-left: 60px;
+    border-top: 14px solid;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    height: 0;
+    width: 64px;
+}
+
+.trapezoid-footer {
+    top: -14px;
+}
+
 /* Embed dialog */
 
 .embed-options .info {
@@ -391,3 +407,11 @@ hr {
   line-height: 1;
   resize: none;
 }
+
+// Move this to a utils file.
+.ucb-logo {
+    height: 30px;
+    margin-right: 16px 16px 0 0; /* roughly the size of the 'e' in Berkeley */
+}
+
+@import './custom-alert-additions';
