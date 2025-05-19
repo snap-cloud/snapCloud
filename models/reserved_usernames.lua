@@ -27,6 +27,7 @@ reserved_names['system'] = true
 reserved_names['current'] = true
 reserved_names['admin'] = true
 reserved_names['adminstrator'] = true
+reserved_names['cloud'] = true
 reserved_names['mod'] = true
 reserved_names['mods'] = true
 reserved_names['moderator'] = true
@@ -34,5 +35,10 @@ reserved_names['moderators'] = true
 reserved_names['reviewer'] = true
 reserved_names['reviewers'] = true
 reserved_names['root'] = true
+reserved_names['superuser'] = true
+reserved_names['snapcloud'] = true
+reserved_names['snap'] = true
+reserved_names['snap.*cloud'] = true
+reserved_names['snap.*cloud.*'] = true
 
 return reserved_names
