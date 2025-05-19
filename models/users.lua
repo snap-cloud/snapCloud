@@ -47,7 +47,7 @@ local escape = require('lapis.util').escape
 --
 
 -- A (lua) table of patterns for reserved usernames.
-local reserved_usernames = require("reserved_usernames").reserved_usernames
+local reserved_usernames = require("models.reserved_usernames").reserved_usernames
 
 local ActiveUsers = Model:extend('active_users', {
     type = 'user',
