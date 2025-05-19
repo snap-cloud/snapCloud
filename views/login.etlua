@@ -1,63 +1,74 @@
 <% content_for('title', locale.get('log_into_snap', '<em>!</em>')) %>
 <h1><%- locale.get('log_into_snap', '<em>!</em>') %></h1>
 
-<div id="login" class="pure-form pure-form-aligned">
-    <fieldset>
-        <div class="pure-control-group">
-            <label for="username"><%= locale.get('username') %></label>
-            <input id="username" name="username" type="text" class="pure-input-1-2"
-                placeholder="<%= locale.get('username') %>">
-        </div>
+<div class="col-12 col-md-6">
+    <form id="js-login" onsubmit="event.preventDefault(); submitLogin(event);">
+        <fieldset>
+            <div class="mb-3">
+                <label for="username" class="form-label"><%= locale.get('username') %></label>
+                <input id="username" name="username" type="text" class="form-control"
+                    placeholder="<%= locale.get('username') %>" required>
+            </div>
 
-        <div class="pure-control-group">
-            <label for="password"><%- locale.get('password') %></label>
-            <input id="password" name="password" type="password" class="pure-input-1-2"
-                placeholder="<%- locale.get('password') %>">
-        </div>
+            <div class="mb-3">
+                <label for="password" class="form-label"><%- locale.get('password') %></label>
+                <input id="password" name="password" type="password" class="form-control"
+                    placeholder="<%- locale.get('password') %>" required>
+            </div>
 
-        <div class="pure-controls">
-            <label for="persist" class="pure-checkbox">
-                <input id="persist" name="persist" type="checkbox">
-                <span><%= locale.get('keep_logged_in') %></span>
-            </label>
+            <div class="mb-3">
+                <div class="form-check">
+                    <input id="persist" name="persist" type="checkbox" class="form-check-input">
+                    <label class="form-check-label" for="persist">
+                        <span><%= locale.get('keep_logged_in') %></span>
+                    </label>
+                </div>
+            </div>
 
-            <button onclick="submit()"
-                class="pure-button"><%= locale.get('login') %></button>
-        </div>
-        <div class="pure-controls">
-            <p><small><em><a href="forgot_password"
-                 >* <%= locale.get('i_forgot_password') %></a></em></small></p>
-            <p><small><em><a href="forgot_username"
-                 >* <%= locale.get('i_forgot_username') %></a></em></small></p>
-        </div>
-    </fieldset>
-    <script type="text/javascript" src="/static/js/sha512.js"></script>
-    <script>
-        enableEnterSubmit();
-        var submit = function (event) {
-            var form = document.querySelector('div#login');
-            cloud.login(
-                form.querySelector('#username').value, // username
-                form.querySelector('#password').value,// password
-                form.querySelector('#persist').checked, // persist
-                (user, role, response) => {
-                    if (response.title) {
-                        alert(
-                            localizer.localize(response.message),
-                            { title: localizer.localize(response.title) },
-                            () => { location.href = response.redirect }
-                        );
-                    } else {
-                        location.href = '/';
-                    }
-                }, // onSuccess
-                response => {
-                    genericError(
-                        response,
-                        '<%= locale.get('err_login_failed') %>'
-                    );
-                }
-            );
-        }
-    </script>
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">
+                    <%= locale.get('login') %>
+                </button>
+            </div>
+
+            <div class="mb-3">
+                <p><small><em><a href="forgot_password">* <%= locale.get('i_forgot_password') %></a></em></small></p>
+                <p><small><em><a href="forgot_username">* <%= locale.get('i_forgot_username') %></a></em></small></p>
+            </div>
+        </fieldset>
+    </form>
 </div>
+
+<script type="text/javascript" src="/static/js/sha512.js"></script>
+<script>
+    enableEnterSubmit();
+    var submitLogin = function (event) {
+        var form = document.querySelector('#js-login');
+
+        if (form.reportValidity() === false) {
+            return;
+        }
+        cloud.login(
+            form.querySelector('#username').value, // username
+            form.querySelector('#password').value,// password
+            form.querySelector('#persist').checked, // persist
+            (user, role, response) => {
+                if (response.title) {
+                    alert(
+                        localizer.localize(response.message),
+                        { title: localizer.localize(response.title) },
+                        () => { location.href = response.redirect }
+                    );
+                } else {
+                    location.href = '/';
+                }
+            }, // onSuccess
+            response => {
+                genericError(
+                    response,
+                    '<%= locale.get('err_login_failed') %>'
+                );
+            }
+        );
+    }
+</script>
