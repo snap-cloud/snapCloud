@@ -9,27 +9,36 @@
                 <span class="text-danger">*</span>
             </label>
             <input id="username" name="username" type="text" class="form-control"
-                 placeholder="<%- locale.get('username') %>" required minlength="4">
+                 placeholder="<%- locale.get('username') %>" required aria-required=true
+                 minlength="4">
             <div class="form-text">Your username will be visible to other users. Please do not include personally identifying information.</div>
         </div>
 
         <div class="mb-3">
-            <label for="password" class="form-label"><%- locale.get('password') %></label>
+            <label for="password" class="form-label"><%- locale.get('password') %>
+                <span class="text-danger">*</span>
+            </label>
             <input id="password" name="password" type="password" class="form-control"
-                placeholder="<%- locale.get('password') %>" required>
+                placeholder="<%- locale.get('password') %>" aria-required=true required>
         </div>
 
         <div class="mb-3">
-            <label for="password-repeat" class="form-label"><%- locale.get('password_2') %></label>
+            <label for="password-repeat" class="form-label"
+                ><%- locale.get('password_2') %>
+                <span class="text-danger">*</span>
+            </label>
             <input id="password-repeat" name="password-repeat" type="password" class="form-control"
-                placeholder="<%- locale.get('password') %>" required>
+                placeholder="<%- locale.get('password') %>" aria-required=true required>
         </div>
 
         <div class="mb-3">
-            <label for="birth-month" class="form-label"><%- locale.get('birth_month') %></label>
+            <label for="birth-month" class="form-label"
+                ><%- locale.get('birth_month') %>
+                <span class="text-danger">*</span>
+            </label>
             <div class="row g-2">
                 <div class="col">
-                    <select id="birth-month" name="birth-month" class="form-select" onchange="checkDate()" required>
+                    <select id="birth-month" name="birth-month" class="form-select" onchange="checkDate()" aria-required=true required>
                         <option value="1"><%- locale.get('january') %></option>
                         <option value="2"><%- locale.get('february') %></option>
                         <option value="3"><%- locale.get('march') %></option>
@@ -44,29 +53,36 @@
                         <option value="12"><%- locale.get('december') %></option>
                     </select>
                 </div>
-                <label for="birth-year" class="sr-only">Birth Year</label>
+                    <label for="birth-year" class="sr-only">Birth Year</label>
                 <div class="col">
-                    <select id="birth-year" name="birth-year" class="form-select" onchange="checkDate()" required>
+                    <select id="birth-year" name="birth-year" class="form-select" onchange="checkDate()" aria-required=true required>
                     </select>
                 </div>
             </div>
         </div>
 
         <div class="mb-3">
-            <label for="email" class="form-label"><%- locale.get('email_parent') %></label>
+            <label for="email" class="form-label"
+                ><%- locale.get('email_parent') %>
+                <span class="text-danger">*</span>
+            </label>
             <input id="email" name="email" type="email" class="form-control"
-                placeholder="<%- locale.get('email_user') %>" required>
+                placeholder="<%- locale.get('email_user') %>" aria-required=true required>
         </div>
 
         <div class="mb-3">
-            <label for="email-repeat" class="form-label"><%- locale.get('email_2') %></label>
+            <label for="email-repeat" class="form-label"
+            ><%- locale.get('email_2') %>
+                <span class="text-danger">*</span>
+            </label>
             <input id="email-repeat" name="email-repeat" type="email" class="form-control"
-                placeholder="<%- locale.get('email_user') %>" required>
+                placeholder="<%- locale.get('email_user') %>" aria-required=true required>
         </div>
 
         <div class="mb-3">
             <div class="form-check">
-                <input id="tos" name="tos" type="checkbox" class="form-check-input" required>
+                <input id="tos" name="tos" type="checkbox" class="form-check-input"
+                    aria-required=true required>
                 <label class="form-check-label" for="tos">
                     <span><%-
                         locale.get(
@@ -76,6 +92,7 @@
                             '</a><a target="_blank" href="privacy">' ..
                                 locale.get('privacy_agreement') .. '</a>')
                         %></span>
+                <span class="text-danger">*</span>
                 </label>
             </div>
         </div>
