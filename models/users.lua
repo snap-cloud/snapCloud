@@ -22,7 +22,10 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
 local Model = package.loaded.Model
-local escape = require('lapis.util').escape
+local util = package.loaded.util
+local escape = util.escape
+-- A (lua) table of patterns for reserved usernames.
+local reserved_usernames = require("models.reserved_usernames")
 
 -- Generated schema dump: (do not edit)
 --
@@ -45,9 +48,6 @@ local escape = require('lapis.util').escape
 --    FROM public.users
 --   WHERE (users.deleted IS NULL);
 --
-
--- A (lua) table of patterns for reserved usernames.
-local reserved_usernames = require("models.reserved_usernames").reserved_usernames
 
 local ActiveUsers = Model:extend('active_users', {
     type = 'user',
@@ -94,7 +94,7 @@ local ActiveUsers = Model:extend('active_users', {
     },
     constraints = {
         username = function(self, value)
-            local cleaned_username = value:lower():strip()
+            local cleaned_username = util.trim(value:lower())
             if cleaned_username == '' then
                 return 'The username cannot be empty.'
             end
@@ -107,9 +107,9 @@ local ActiveUsers = Model:extend('active_users', {
                 return 'The username must be at most 200 characters long.'
             end
             -- must not be in the reserved list
-            for _, pattern in pairs(reserved_usernames) do
+            for pattern, _ in pairs(reserved_usernames) do
                 if cleaned_username:match(pattern) then
-                    return 'The username .. "' .. cleaned_username .. '" is reserved.'
+                    return 'The username "' .. cleaned_username .. '" is reserved.'
                 end
             end
         end
