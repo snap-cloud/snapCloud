@@ -11,6 +11,6 @@ cp -r ${config}/renewal lets-encrypt/
 cp deploy-certs ~/lets-encrypt/renewal-hooks/deploy/1-deploy.sh
 echo 'certbot configs in place.'
 
-(crontab -l 2>/dev/null; echo "00 02 * * * ~/snapCloud/bin/renew-certs.sh") | crontab -
+(crontab -l 2>/dev/null; echo "00 02 * * * ~/snapCloud/bin/renew-certs") | crontab -
 
 echo 'Please login to certbot.'

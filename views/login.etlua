@@ -1,3 +1,4 @@
+<% content_for('title', locale.get('log_into_snap', '<em>!</em>')) %>
 <h1><%- locale.get('log_into_snap', '<em>!</em>') %></h1>
 
 <div id="login" class="pure-form pure-form-aligned">

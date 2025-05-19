@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= locale.language %>">
     <head>
         <meta charset="UTF-8">
         <title>Snap! Build Your Own Blocks</title>
@@ -23,10 +23,15 @@
         <script type="text/javascript">modules = [];</script>
         <script type="text/javascript" src="/snap/src/cloud.js"></script>
         <script type="text/javascript" src="/static/js/base.js"></script>
-        <script>cloud = new Cloud(); cloud.url = baseURL;</script>
+        <script>cloud = new Cloud(); cloud.url = location.origin;</script>
         <style type="text/css">
+          body {
+            background-color: transparent;
+            padding: 0;
+            margin: 0;
+          }
+
           #wrapper {
-            padding: 0.5em;
             min-width: 640px;
             margin: 0 auto;
             flex: 1 0 auto;
@@ -39,5 +44,6 @@
     </head>
     <body>
         <div id="wrapper"><% content_for('inner') %></div>
+        <script src="https://js.sentry-cdn.com/3fad777945ae45818919b964c044f475.min.js" crossorigin="anonymous"></script>
     </body>
 </html>

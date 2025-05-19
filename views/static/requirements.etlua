@@ -1,0 +1,18 @@
+<% content_for('title', 'Techinical Requirements') %>
+<h1 localizable>Technical Requirements</h1>
+
+<div class="pure-g">
+    <div class="pure-u-1-12"><strong>Browser</strong></div><div class="pure-u-1-6"><strong>Minimum Version</strong></div><div class="pure-u-3-4"><strong>Additional Notes</strong></div>
+    <div class="pure-u-1-12">Chrome</div><div class="pure-u-1-6">43</div><div class="pure-u-3-4">Chrome is currently the <em>recommended</em> browser for Snap<em>!</em></div>
+    <div class="pure-u-1-12">Safari</div><div class="pure-u-1-6">8.4</div><div class="pure-u-3-4"></div>
+    <div class="pure-u-1-12">Firefox</div><div class="pure-u-1-6">38</div><div class="pure-u-3-4"></div>
+    <div class="pure-u-1-12">Edge</div><div class="pure-u-1-6">12</div><div class="pure-u-3-4"></div>
+    <div class="pure-u-1-12">Opera</div><div class="pure-u-1-6">32</div><div class="pure-u-3-4"></div>
+    <div class="pure-u-1-12">IE</div><div class="pure-u-1-6">11</div><div class="pure-u-3-4">Internet<a name="ie" class="anchor"> </a>Explorer <a href="https://www.google.com/search?q=internet+explorer+standards+compliance" target="_blank">does not comply with web standards.</a> Some features (such as audio) may not work with <em>any</em> version.</div>
+</div>
+<h3>For mobile browsers</h3>
+<div class="pure-g">
+    <div class="pure-u-1-12"><strong>Device</strong></div><div class="pure-u-11-12"><strong>Version Notes</strong></div>
+    <div class="pure-u-1-12">iPhone</div><div class="pure-u-11-12">iOS 8 or higher. However on iOS, uploaded sound files can't be played in a script. (All iOS versions have this restriction.)</div>
+    <div class="pure-u-1-12">Android</div><div class="pure-u-11-12">Use Chrome for Android and not the stock browser that comes with some older devices.</div>
+</div>

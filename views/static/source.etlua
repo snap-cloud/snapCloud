@@ -1,0 +1,10 @@
+<% content_for('title', 'Source Code') %>
+<h1>Source Code</h1>
+
+<span><p>All components of the Snap<em>!</em> Programming System are free and open source under a GNU General Public License. You are welcome to explore and tinker with our code, to remix, extend and share.</p></span>
+<h2>The Snap<em>!</em> programming language/environment</h2>
+<span><p>IDE and the Snap<em>!</em> runtime environment, including the graphical blocks, widgets, evaluator and timesharing multiplexer.</p></span>
+<a class="indent" href="https://github.com/jmoenig/Snap">Source Code</a>
+<h2>The Snap<em>!</em> cloud</h2>
+<span><p>Database system for storing, retrieving and sharing projects, user account administration, hooks for community tools and this very website.</p></span>
+<a class="indent" href="https://github.com/bromagosa/snapCloud">Source Code</a>

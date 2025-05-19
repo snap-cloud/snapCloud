@@ -1,7 +1,9 @@
+<% content_for('title', locale.get('search_results', params.query)) %>
 <h1><%= locale.get('search_results', params.query) %></h1>
+
 <%
 render(
-    'views.carousel',
+    'views.carousel_bs',
     {
         class = 'projects',
         title = locale.get('projects'),
@@ -18,7 +20,7 @@ render(
 )
 
 render(
-    'views.carousel',
+    'views.carousel_bs',
     {
         class = 'collections',
         title = locale.get('collections'),
@@ -35,7 +37,7 @@ render(
 )
 
 render(
-    'views.carousel',
+    'views.carousel_bs',
     {
         class = 'users',
         title = locale.get('users'),

@@ -88,6 +88,8 @@ end
 
 
 -- Show latest projects next
+-- Disabled for now because of too high DB use
+--[[
 render(
     'views.carousel',
     {
@@ -102,6 +104,7 @@ render(
         href = 'explore'
     }
 )
+]]--
 %>
 
 <a href="/collections" class="pure-button"

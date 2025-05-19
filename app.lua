@@ -1,4 +1,4 @@
--- Snap Cloud
+-- Snap!Cloud
 -- ==========
 --
 -- A cloud backend for Snap!
@@ -30,7 +30,6 @@ local lapis = require('lapis')
 package.loaded.app = lapis.Application()
 package.loaded.db = require('lapis.db')
 package.loaded.validate = require('lapis.validate')
-package.loaded.Model = require('lapis.db.model').Model
 package.loaded.util = require('lapis.util')
 package.loaded.resty_sha512 = require('resty.sha512')
 package.loaded.resty_string = require('resty.string')
@@ -80,17 +79,24 @@ end
 require 'models'
 require 'responses'
 
--- Make cookies persistent
-app.cookie_attributes = function(self)
-    local expires = date(true):adddays(365):fmt("${http}")
-    local secure = " " .. "Secure"
-    local sameSite = "None"
+app.cookie_attributes = function (self)
+    -- Cookies are 'session cookies' unless they have an expiration date.
+    -- Cookies have a Max-Age of 35 days, because this is continually reset
+    -- using the Snap!Cloud will continue to extend the user's cookie. (See before_filter)
+    -- Any update to `self.session.x` will extend the cookie's life.
+    -- See https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html
+    local attributes = "Domain=" .. ngx.var.host .. "; Path=/;"
     if (config._name == 'development') then
-        secure = ""
-        sameSite = "Lax"
+        attributes = attributes .. " HttpOnly; SameSite=Lax; "
+    else
+        -- SameSite must be None on production to allow extensions (and CORS) to work right.
+        attributes = attributes .. " Secure; HttpOnly; SameSite=None;"
     end
-    return "Expires=" .. expires .. "; Path=/; HttpOnly; SameSite=" ..
-                sameSite .. ";" .. secure
+    if self.session.persist_session == 'true' then
+        local max_seconds = 35 * 24 * 60 * 60 -- 35 days, 24 hours, 60 minutes, 60 seconds
+        attributes = "Max-Age=" .. max_seconds .. "; " .. attributes
+    end
+    return attributes
 end
 
 -- CACHING UTILITIES
@@ -158,6 +164,8 @@ end
 
 -- Before filter
 app:before_filter(function (self)
+    -- Temporarily disable IP bans because of too many false positives
+    --[[
     local ip_entry = package.loaded.BannedIPs:find(ngx.var.remote_addr)
     if (ip_entry and ip_entry.offense_count > 2) then
         self:write(
@@ -165,6 +173,7 @@ app:before_filter(function (self)
         )
         return
     end
+    ]]--
 
     -- Make locale available to all routes and templates
     self.locale = package.loaded.locale
@@ -231,6 +240,7 @@ app:before_filter(function (self)
     if self.session.username and self.session.username ~= '' then
         self.current_user =
             package.loaded.Users:find({ username = self.session.username })
+        self.session.last_access_at = date(true):fmt('${http}')
     else
         self.session.username = ''
         self.current_user = nil
@@ -276,7 +286,7 @@ function app:handle_error(err, trace)
             ngx.log(ngx.ERR, send_err)
         end
     end
-    return errorResponse(self, "An unexpected error occured: " .. err_msg, 500)
+    return errorResponse(self, "An unexpected error occurred: " .. err_msg, 500)
 end
 
 -- Enable the ability to have a maintenance mode
@@ -294,7 +304,8 @@ require 'api'
 require 'discourse'
 
 -- We don't keep spam/exploit paths in the API
-require 'spambots'
+-- Disabled for now to prevent false positives
+-- require 'spambots'
 
 -- The community site is handled in the site.lua file
 require 'site'

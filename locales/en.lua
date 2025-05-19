@@ -34,6 +34,7 @@ local locale = {
     my_collections = "My Collections",
     my_public_page = "My Public Page",
     followed_projects = "Followed Projects",
+    bookmarked_projects = "Bookmarked Projects",
     administration = "Administration",
     my_profile = "My Profile",
     logout = "Log Out",
@@ -62,6 +63,7 @@ local locale = {
     materials = "Materials",
     bjc = "The Beauty and Joy of Computing",
     research = "Research",
+    wiki = "Community Wiki",
     offline = "Offline Version",
     extensions = "Extensions",
     old_snap = "(old Snap@1)",
@@ -78,7 +80,7 @@ local locale = {
     welcome_logged_in = "Welcome, @1!", -- @1 becomes the current user username
     snap_description = "Snap@1 is a broadly inviting programming language for kids and adults that's also a platform for serious study of computer science.",
     -- Buttons
-    run_now = "Run Snap@1 Now",
+    run_now = "Run @1 Now",
     -- examples and manual already translated in Footer
     -- Curated Collections
     featured = "Featured Projects",
@@ -187,7 +189,7 @@ local locale = {
     -- Buttons
     new_collection = "New Collection",
     -- New collection dialog
-    collection_name = "Collection name?",
+    collection_name = "Collection name",
     collection_by_thumb = "by @1", -- @1 is the author's username
 
     -- Collection page
@@ -244,11 +246,16 @@ local locale = {
     followed_users = "Users Followed by You",
     follower_users = "Users That Follow You",
 
+    -- Bookmarked projects feed
+    -- ========================
+    bookmarked_feed = "Projects I've Bookmarked",
+    no_bookmarks = "You haven't bookmarked any projects yet. Click on the heart icon under a project that you like to bookmark it.",
+
     -- User profile
     -- ============
     profile_title = "@1's profile", -- @1 becomes the user's username
-    join_date = "Joined in", -- date of user creation follows
-    delete_date = "Deleted in", -- date of user deletion follows
+    join_date = "Joined", -- date of user creation follows
+    delete_date = "Deleted", -- date of user deletion follows
     email = "Email",
     role = "Role",
     teacher = "Teacher",
@@ -309,6 +316,10 @@ Want to know more? Visit @2]],
     share_button = "Share",
     unpublish_button = "Unpublish",
     unshare_button = "Unshare",
+    -- Bookmarking tooltips
+    bookmark = "Save this project in your bookmarks",
+    unbookmark = "Remove this project from your bookmarks",
+    project_is_bookmarked = "People like your project!",
     -- Flagging
     you_flagged = "You flagged this project as inappropriate",
     unflag_project = "Unflag this project",

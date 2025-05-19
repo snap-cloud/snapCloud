@@ -1,0 +1,20 @@
+<% content_for('title', locale.get('bookmarked_feed')) %>
+
+<h1 class="mb-3"><%= locale.get('bookmarked_feed') %></h1>
+
+<%
+if items[1] then
+    render(
+        'views.grid_bs',
+        {
+            class = 'my_projects',
+            item_type = 'project',
+            items_per_page = 15,
+            items_per_row = 5,
+            with_search = true
+        }
+    )
+else
+%>
+<span><%- locale.get('no_bookmarks') %></span>
+<% end %>

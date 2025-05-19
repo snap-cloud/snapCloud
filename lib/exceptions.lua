@@ -93,8 +93,12 @@ raven.get_request_data = function()
       request.data = 'ERROR READING POST ARGS'
     else
       -- Parse post as JSON if possible.
-      local success, _error = pcall(function() return body_data and util.from_json(body_data) end)
-      request.data = (success and util.from_json(body_data)) or args
+      local success, result = pcall(function() return body_data and util.from_json(body_data) end)
+      if success then
+        request.data = result
+      else
+        request.data = args
+      end
     end
   end
   return request

@@ -6,14 +6,13 @@
 -- Do not modify a migration once it has been run or commited!
 -- To change what a migration does, create a new one.
 --
--- Add a new migration with the key 'YYYY-MM-DD:X'
--- Where X is a value [0-9]
+-- Use `lapis generate migration` to scaffold a new migration.
 -- NOTES:
 -- use _at for timestamps, and always add { timezone = true }
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
+-- Copyright (C) 2024 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --
@@ -308,5 +307,16 @@ return {
         db.query([[
             ALTER TYPE snap_user_role ADD VALUE 'student' BEFORE 'standard';
         ]])
+    end,
+
+    -- Create a Bookmarks table
+    ['2025-02-06:0'] = function ()
+        schema.create_table('bookmarks', {
+            { 'bookmarker_id', types.foreign_key },
+            { 'project_id', types.foreign_key },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) },
+            'PRIMARY KEY (bookmarker_id, project_id)'
+        })
     end
 }

@@ -23,25 +23,26 @@
 local util = package.loaded.util
 local validate = package.loaded.validate
 local db = package.loaded.db
-local cached = package.loaded.cached
 local yield_error = package.loaded.yield_error
 local assert_error = package.loaded.app_helpers.assert_error
 local capture_errors = package.loaded.capture_errors
 local socket = require('socket')
 local app = package.loaded.app
-local json = require('cjson')
 
 local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
 local AllUsers = package.loaded.AllUsers
-local Projects = package.loaded.Projects
 local Collections = package.loaded.Collections
 local Tokens = package.loaded.Tokens
 local Followers = package.loaded.Followers
 
 require 'responses'
-require 'validation'
 require 'passwords'
+local validations = require('validation')
+local assert_current_user_logged_in = validations.assert_current_user_logged_in
+-- Local Snap!Cloud functions
+local utils = require('lib.util')
+local escape_html = utils.escape_html
 
 UserController = {
     run_query = function (self, query)
@@ -66,7 +67,7 @@ UserController = {
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
                 (filters or '') ..
-            ' ORDER BY ' .. (self.params.order or 'created'),
+                ' ORDER BY ' .. (self.params.order or 'created'),
             {
                 per_page = self.items_per_page or 15,
                 fields = self.params.fields or '*'
@@ -118,20 +119,19 @@ UserController = {
     login = capture_errors(function (self)
         assert_user_exists(self)
         local password = self.params.password
+        -- TODO: self.queried_user:verify_password(self.params.password)
         if (hash_password(password, self.queried_user.salt) ==
                 self.queried_user.password) then
             -- Check whether user has a verification token
-            local token =
-                Tokens:find({
-                    username = self.queried_user.username,
-                    purpose = 'verify_user'
-                })
+            local token = Tokens:find({
+                username = self.queried_user.username,
+                purpose = 'verify_user'
+            })
+
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
-                if self.queried_user.is_student then
-                    self.session.username = self.queried_user.username
-                    self.cookies.persist_session = tostring(self.params.persist)
+                if self.queried_user:is_student() then
                     self.queried_user:update({ verified = true })
                     return jsonResponse({
                         title = 'Welcome to Snap!',
@@ -165,8 +165,10 @@ UserController = {
                 -- User is verified but the token is still there
                 token:delete()
             end
+
+            -- TODO: Create and store a remember token
             self.session.username = self.queried_user.username
-            self.cookies.persist_session = tostring(self.params.persist)
+            self.session.persist_session = tostring(self.params.persist)
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
@@ -188,19 +190,19 @@ UserController = {
     logout_get = capture_errors(function (self)
         self.session.username = ''
         self.session.user_id = nil
-        self.cookies.persist_session = 'false'
+        self.session.persist_session = 'false'
         return { redirect_to = self:build_url('/') }
     end),
     logout = capture_errors(function (self)
         self.session.username = ''
         self.session.user_id = nil
-        self.cookies.persist_session = 'false'
+        self.session.persist_session = 'false'
         return jsonResponse({
             redirect = (self.params.redirect or self:build_url('/'))
         })
     end),
     change_email = capture_errors(function (self)
-        assert_logged_in(self)
+        assert_current_user_logged_in(self)
 
         local user = self.queried_user or self.current_user
 
@@ -231,7 +233,7 @@ UserController = {
         })
     end),
     change_password = capture_errors(function (self)
-        assert_logged_in(self)
+        assert_current_user_logged_in(self)
         if (self.current_user.password ~=
             hash_password(self.params.old_password, self.current_user.salt))
                 then
@@ -259,16 +261,12 @@ UserController = {
             end
         end
         create_token(self, 'password_reset', self.queried_user)
-        if self.req and (self.req.source == 'snap') then
-            return okResponse()
-        else
             return jsonResponse({
                 title = 'Password reset',
                 message = 'A link to reset your password has been sent to ' ..
-                    'your email account.',
+                    'your email address for your account.',
                 redirect = self:build_url('/')
             })
-        end
     end),
     remind_username = capture_errors(function (self)
         rate_limit(self)
@@ -312,7 +310,7 @@ UserController = {
                 -- we've deleted ourselves, let's log out
                 self.session.username = ''
                 self.session.user_id = nil
-                self.cookies.persist_session = 'false'
+                self.session.persist_session = 'false'
             end
             return jsonResponse({
                 title = 'User deleted',
@@ -453,7 +451,7 @@ UserController = {
         create_token(self, 'verify_user', user)
 
         return jsonResponse({
-            message = 'User ' .. self.params.username ..
+            message = 'User ' .. escape_html(self.params.username) ..
                 ' created.\nPlease check your email and validate your\n' ..
                 'account within the next 3 days.\nYou can now log in.',
             title = 'Account Created',
@@ -557,7 +555,7 @@ UserController = {
         })
     end),
     learners = capture_errors(function (self)
-        self.params.fields = 'username, created, email, creator_id'
+        self.params.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
         return UserController.run_query(
             self,
             db.interpolate_query(
@@ -626,7 +624,7 @@ UserController = {
         })
     end),
     set_teacher = capture_errors(function (self)
-        assert_admin(self)
+        assert_min_role(self, 'moderator')
         if self.queried_user then
             self.queried_user:update({ is_teacher = self.params.is_teacher })
         end
@@ -749,7 +747,7 @@ app:match(
                         password .. '</h2></p>'
                     )
 
-                    return htmlPage(
+                    return html_message_page(
                         self,
                         'Password reset',
                         '<p>A new random password has been generated for ' ..
@@ -765,16 +763,16 @@ app:match(
     )
 )
 
+-- TODO: We should have this route accept a user
+-- If a token is invalid, but the user is present we can still give them a useful message.
 app:match(
     'verify_user',
     '/verify_me/:token',
     capture_errors(
         function (self)
             local token = Tokens:find(self.params.token)
-            if not token then yield_error(err.invalid_token) end
-            local user = Users:find({ username = token.username })
-            local user_page = function ()
-                return htmlPage(
+            local user_page = function (user)
+                return html_message_page(
                     self,
                     'User verified | Welcome to Snap<em>!</em>',
                     '<p>Your account <strong>' .. user.username ..
@@ -785,9 +783,16 @@ app:match(
                 )
             end
 
+            if self.current_user and self.current_user.verified then
+                return user_page(self.current_user)
+            end
+
+            if not token then yield_error(err.invalid_token) end
+            local user = Users:find({ username = token.username })
+
             -- Check whether user had already been verified
             if user.verified then
-                return user_page()
+                return user_page(user)
             else
                 return check_token(
                     self,
@@ -797,7 +802,7 @@ app:match(
                         -- success callback
                         user:update({ verified = true })
                         self.session.verified = true
-                        return user_page()
+                        return user_page(user)
                     end
                 )
             end

@@ -1,0 +1,85 @@
+<%
+--[[
+    I am a project or collection carousel. I hold and preload data and
+    thumbnails for a number of pages, but only display a smaller number of them
+    at a time.
+]]--
+
+-- set defaults
+
+if show_author == nil then show_author = true end
+item_type = item_type or 'project'
+if items == nil then items = {} end
+items_per_page = items_per_page or 5
+num_pages = (math.ceil(#(items) / items_per_page) or 0)
+id = package.loaded.util.slugify(title):gsub('-', '_')
+class = 'id_' .. id
+items_per_row = items_per_row or 5
+bootstrap_column_width = items_per_row == 5 and 20 or (12 / items_per_row)
+%>
+
+
+<div id="<%= id %>_container" class="<%= item_type %>s my-2 container-fluid">
+
+<% if ((num_pages > 0) or show_if_empty) then %>
+  <div class="row">
+    <div class="col-md-9 col-sm-12 my-2">
+        <% if title then %>
+            <% if href then %><a href="<%=href%>" title="Show all"><% end %>
+            <h2 class="my-0 <%= item_type %>s"><%= title %></h2>
+            <% if href then %></a><% end %>
+        <% elseif title_selector then %>
+            <h2 class="my-0 <%= item_type %>s"
+                ><%= locale.get(title_selector) %></h2>
+        <% end %>
+    </div>
+
+    <% if num_pages > 1 then %>
+    <div class="col-md-3 col-sm-12 my-2">
+        <%
+            render(
+                'views.partials.carousel_paginator_bs',
+                { num_pages = num_pages, id = id, title = title }
+            )
+        %>
+    </div>
+    <% end %>
+
+    <% if num_pages > 0 then %>
+    <div id="<%= id %>" class="carousel p-0" data-bs-ride="false" data-bs-interval="false">
+        <div class="carousel-inner">
+            <% for idx, item in pairs(items) do %>
+                <% local new_row = (idx - 1) % items_per_row == 0
+                   local end_row = idx % items_per_row == 0 or idx == #items
+                   local new_page = (idx - 1) % items_per_page == 0
+                   local end_page = idx % items_per_page == 0 or idx == #items
+                   local is_active = idx == 1 and 'active' or ''
+                %>
+                <% if new_page then %>
+                    <div class="<%= item_type .. 's ' .. is_active %> carousel-item">
+                <% end %>
+                <% if new_row then %>
+                    <div class="row">
+                <% end %>
+                <% render('views.partials.' .. item_type .. '_bs', {
+                        item = item,
+                        show_author = show_author,
+                        column_width = bootstrap_column_width
+                    }) %>
+                <% if end_row then %>
+                    </div>
+                <% end %>
+                <% if end_page then %>
+                    </div>
+                <% end %>
+            <% end %>
+        </div>
+    </div>
+    <% end %>
+
+    <% if num_pages > 1 then %>
+    <script>setupCarouselPageIndicator('<%- id %>');</script>
+    <% end %>
+    </div>
+<% end %> <!-- show if empty -->
+</div>

@@ -1,3 +1,4 @@
+/* This file is not used on any page which loads bootstrap! */
 /* WRAPPER */
 #wrapper {
     padding-top: 2em;
@@ -30,10 +31,6 @@
 #top-bar .run,
 #top-bar .explore {
     margin-right: 1em;
-}
-
-#top-bar .language-select {
-    position: relative;
 }
 
 #top-bar .languages {
@@ -190,6 +187,11 @@
 
 #footer .credits img {
     margin-right: 1em;
+}
+
+.ucb-logo {
+    height: 30px;
+    margin-right: 16px 16px 0 0; /* roughly the size of the 'e' in Berkeley */
 }
 
 /* CUSTOM ALERT */

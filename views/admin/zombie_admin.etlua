@@ -1,0 +1,17 @@
+<link rel="stylesheet" href="/static/style/admin.css">
+<% content_for('title', 'Zombie Adminstration') %>
+
+<h1>Zombie Administration</h1>
+<%
+render(
+    'views.grid',
+    {
+        class = 'user_admin',
+        item_type = 'profile',
+        zombie = true,
+        items_per_row = 2,
+        with_search = true,
+        show_if_empty = true,
+    }
+)
+%>

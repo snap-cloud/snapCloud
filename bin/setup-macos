@@ -16,12 +16,12 @@ if [[ -z `which brew` ]]; then
 fi
 
 if [[ -z `which npm` ]]; then
-    echo 'Skipping installing maildev (an email catcher).'
-    echo 'To install maildev, first install node (npm), then do:'
-    echo '"npm install -g maildev"'
+    echo 'Skipping installing sass (css) maildev (an email catcher).'
+    echo 'To install, first install node (npm), then do:'
+    echo '"npm install -g sass maildev"'
 else
-    print_ok 'Installing maildev...'
-    npm install -g maildev
+    print_ok 'Installing dependecies from package.json ...'
+    npm install
 fi
 
 # Install basic dependencies via brew
@@ -43,7 +43,7 @@ print_ok "Setting Git to use https:// instead of unsecured git:// for GitHub"
 git config --global url."https://github".insteadOf git://github
 
 print_ok "Installing Lapis & Lua Dependencies"
-bin/luarocks-macos install snapcloud-dev-0.rockspec;
+make install
 
 print_ok 'Adding luarocks path info to bashrc'
 echo "" >> ~/.bashrc
@@ -51,4 +51,9 @@ echo "# Luarocks 3 and Lua 5.1 tools (added by snapCloud)." >> ~/.bashrc
 echo $(luarocks path --lua-version 5.1) >> ~/.bashrc
 
 print_ok "Prerequisites installed."
-print_ok "Please follow all instructions after 'Setting up the database' in INSTALL.md"
+print_ok "Setting up postgres database."
+
+export LAPIS_ENVIRONMENT=development
+bin/lapis-migrate
+
+# print_ok "Please follow all instructions after 'Setting up the database' in INSTALL.md"

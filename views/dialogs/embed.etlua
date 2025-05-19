@@ -34,7 +34,7 @@
                         );
                     }"
             ></button>
-            <textarea id="embed-url" class="embed-code embed-url"></textarea>
+            <textarea id="embed-url" class="embed-options--embed-code-textarea embed-url"></textarea>
         </div>
         <div class="copy-text-element pure-control-group">
             <label for="embed-iframe"><%= locale.get('embed_code') %></label>
@@ -47,7 +47,7 @@
                         );
                     }"
             ></button>
-            <textarea id="embed-iframe" class="embed-code embed-iframe">
+            <textarea id="embed-iframe" class="embed-options--embed-code-textarea embed-iframe">
             </textarea>
         </div>
     </fieldset>

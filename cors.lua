@@ -31,7 +31,6 @@ domain_allowed['extensions.snap.berkeley.edu'] = true
 -- By Default CORS is not needed on the same domain.
 -- However, we want to allow access on http hosted versions of Snap!.
 domain_allowed['snap-cloud.cs10.org'] = true
-domain_allowed['cloud.snap.berkeley.edu'] = true
 -- App Server Staging Domains
 domain_allowed['snap-staging.cs10.org'] = true
 domain_allowed['staging.snap.berkeley.edu'] = true
@@ -110,6 +109,10 @@ domain_allowed['bjc.techlit.org'] = true
 domain_allowed['amazingrobots.net'] = true
 -- CONTACT: Bernat
 domain_allowed['microblocks.fun'] = true
+
+-- StudyGiggle
+-- CONTACT: Ben S <bfrstudios.apps@gmail.com>
+domain_allowed['studygiggle.onrender.com'] = true
 
 -- Development
 -- CONTACT: Snap! Team

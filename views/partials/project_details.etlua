@@ -1,6 +1,7 @@
 <div class="details pure-u-11-24">
     <!-- Notes -->
     <pre class="notes"
+        tabindex="0"
         title="<%= locale.get('shift_enter_note') %>"
             ><%= project.notes %><%-
                 (project.notes ~= '') and ''

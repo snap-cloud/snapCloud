@@ -1,0 +1,315 @@
+/* This sets CSS Variables which override Bootstrap's config. */
+:root {
+  // Berkeley Colors are not currently used, but probably in the future.
+  --berkeley-blue-2023: #003262;
+  --berkeley-blue-2024: #002676;
+  --california-gold: #fdb515;
+  // Current nav+footer color.
+  --snap-dark-blue: #2d3142;
+  --snap-icon-blue: #496AD5;
+  --snap-logo-gold: #E6AD1B;
+  // Links must have a 3:1 ratio against the text color AND 4.5:1 against white.
+  // The text color must have a 4.5:1 ratio against the white background.
+  --lighter-link-color: #7070A0;
+  // This is a dark blue a hybrid of the current Snap! dark, and berkeley dark blues.
+  --dark-text-color: #102040;
+  --bs-dark: var(--snap-dark-blue);
+  --bs-body-color: var(--dark-text-color);
+  --navbar-height: 64px;
+  /* this is the minimum I think w/ all 5 columns of links */
+  --estimated-footer-height: 450px;
+  --white-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255,255,255,1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+// We often use 1/5 width items.
+// Bootstrap's grid system uses 12ths.
+// So we use col-20 for 20% width.
+// TODO: This need to really be a SASS utility.
+@media screen and (min-width: 950px) {
+  .col-lg-20 {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+}
+
+[data-bs-theme=dark] {
+  /* Ensure the hamburger icon is solid white. Seems to be no easier way to fix this. */
+  & .navbar-toggler-icon {
+    --bs-navbar-toggler-icon-bg: var(--white-hamburger);
+  }
+}
+
+nav.navbar {
+  --bs-navbar-dark-color: var(--snap-dark-blue);
+  --bs-navbar-color: #FFF;
+  --bs-navbar-link-color: #FFF;
+  --bs-navbar-toggler-border-color: #FFF;
+  background-color: var(--bs-navbar-dark-color);
+  font-weight: 600;
+  padding: 0;
+
+  .trapezoid {
+    color: var(--bs-navbar-dark-color);
+  }
+
+  /* Remove extra padding so the li elements are full-height */
+  ul {
+    padding: 0;
+  }
+
+  .form-control {
+    border-color: #FFF;
+    background-color: #FFF;
+    color: var(--bs-navbar-dark-color);
+    margin: auto 0;
+  }
+
+  /* spacing for the toggle button */
+  & .navbar-toggler {
+    --bs-navbar-toggler-border-color: #FFF;
+    --bs-navbar-color: #FFF;
+    margin: 12px;
+  }
+
+  .nav-link.show {
+    color: var(--bs-navbar-dark-color);
+  }
+
+  li {
+    --bs-nav-link-padding-x: 1em;
+    padding: 0.75em 0.5em;
+    height: 100%;
+    margin: 0;
+
+    > a {
+      color: #FFF;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    &:hover,
+    &:focus-within,
+    .dropdown-item:hover,
+    .dropdown-item:focus-within {
+      background-color: #FFF;
+      color: var(--bs-navbar-dark-color);
+
+      & form {
+        background-color: unset;
+      }
+
+      > a {
+        color: var(--bs-navbar-dark-color);
+      }
+    }
+
+    .dropdown-menu {
+      background-color: var(--bs-navbar-dark-color);
+      color: #FFF;
+    }
+
+    li.no-hover {
+      padding: 0 0;
+      background: var(--bs-navbar-dark-color);
+
+      & hr {
+        opacity: 1;
+      }
+    }
+  }
+
+  .trapezoid {
+    position: absolute;
+    top: var(--navbar-height);
+  }
+}
+
+
+html {
+  height: 100%;
+}
+
+body {
+  margin: var(--navbar-height) 0 0 0;
+  // color: var(--snap-dark-blue);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  margin: 1em auto;
+  flex: 1 0 auto;
+}
+
+.footer {
+  background: var(--snap-dark-blue);
+  padding: 1em;
+  color: var(--bs-light);
+  font-size: 0.75em;
+
+  h2 {
+    font-size: 1.5em;
+    font-weight: bold;
+  }
+
+  .trapezoid-footer {
+    top: -14px;
+    color: white;
+    margin-left: calc(60px - 1em);
+  }
+
+  a {
+    color: #ffffff;
+    text-decoration: underline;
+  }
+
+  .credits {
+    margin: 2em 1em;
+    padding: 1em;
+    border-top: 1px solid #ffffff;
+
+    a {
+      text-decoration: none;
+    }
+
+    img {
+      margin-right: 1em;
+    }
+  }
+}
+
+.btn-outline-primary + .form-control {
+  border-color: var(--bs-primary);
+}
+
+.btn-xs {
+  padding: 0.2rem;
+  font-size: 0.75rem;
+  // line-height: 1.5;
+  // border-radius: 0.2rem;
+}
+
+a {
+  color: var(--lighter-link-color);
+  text-decoration: none;
+
+  // We sometimes have heading text _inside_ the <a> (and not the other way around...)
+  & h1, h2, h3, h4 {
+    color: var(--lighter-link-color);
+  }
+}
+
+em {
+  font-style: italic;
+}
+
+p {
+  margin: 1em 0;
+}
+
+p {
+  line-height: 1.2em;
+}
+
+ol {
+  list-style: decimal inside;
+  padding: .5em 0;
+}
+
+h2 {
+  font-size: 1.5em;
+  margin: 1em 0 .5em 0;
+}
+
+h3 {
+  font-size: 1.3em;
+  margin: 1em 0 .5em 0;
+}
+
+h4 {
+  font-size: 1.3em;
+  font-weight: bold;
+  margin-bottom: 1em;
+}
+
+hr {
+  margin: 0;
+  border: 0;
+  height: 1px;
+  background: #ffffff;
+}
+
+#homepage-carousel {
+  .carousel-item img {
+    border-radius: 10px;
+    max-width: 100%;
+    max-height: 400px;
+  }
+
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    border-radius: 6px;
+    height: 3ch;
+    width: 3ch;
+    font-weight: bold;
+    background-color: #222;
+    backdrop-filter: opacity(0.9) blur(4px);
+    -webkit-backdrop-filter: opacity(0.9) blur(4px);
+
+    &:focus-visible,
+    &:hover {
+      box-shadow: var(--bs-navbar-toggler-border-color) 0 0 3px 3px;
+    }
+  }
+}
+
+.carousel-item {
+  .row {
+    /* widen the bootstrap gutter so carousels are full width.
+      bootstrap sets the row margin at -0.5 * bs-gutter-x
+      The default value is 1.5
+    */
+    --bs-gutter-x: 3rem;
+
+    .project {
+      &:nth-of-type(1) {
+        padding-left: 0;
+      }
+
+      &:nth-last-of-type(1) {
+        padding-right: 0;
+      }
+    }
+  }
+}
+
+/* Embed dialog */
+
+.embed-options .info {
+  margin-bottom: 0.5em;
+  display: block;
+  text-align: center;
+}
+
+.embed-options fieldset {
+  margin: 0 1.5em;
+}
+
+.embed-options--label-container {
+  width: 18ch; /* "Embed Code" + some space */
+  padding-right: var(--bs-gutter-x);
+  text-align: left;
+  vertical-align: middle;
+  /* Designed to match the height of the copy button. */
+  min-height: 30px;
+}
+
+.embed-options--embed-code-textarea {
+  font-family: monospace;
+  margin: auto 4px;
+  width: 420px;
+  font-size: 0.75em;
+  line-height: 1;
+  resize: none;
+}

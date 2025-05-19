@@ -1,0 +1,71 @@
+<link rel="stylesheet" href="/static/style/project.css">
+<% content_for('title', 'Carousel Adminstration') %>
+
+<h1>Carousel Administration</h1>
+<%
+    for _, section in ipairs({
+        {
+            title = 'Front Page',
+            query = "where page_path = 'index' and not type = 'totm'",
+            page_path = 'index'
+        },
+        {
+            title = 'Examples',
+            query = "where page_path = 'examples'",
+            page_path = 'examples'
+        },
+        {
+            title = 'Events',
+            query = "where page_path = 'events'",
+            page_path = 'events'
+        },
+    }) do
+%>
+
+    <h2><%= section.title %></h2>
+    <div class = "collection featured container">
+    <%
+        for _, descriptor in
+                ipairs(package.loaded.FeaturedCollections:select(section.query))
+        do
+            local collection = package.loaded.Collections:find({
+                    id = descriptor.collection_id
+            })
+            render(
+                'views.partials.collection',
+                {
+                    item = collection,
+                    items_per_row = 5,
+                    show_unfeature = true,
+                    page_path = section.page_path
+                }
+            )
+        end
+    %>
+    </div>
+    <a class = 'pure-button'
+        onclick="addCarousel('<%= section.page_path %>')">Add Carousel</a>
+
+<% end %>
+
+<script>
+    function addCarousel (page_path) {
+        dialog(
+            "Feature a Collection",
+            '<%- package.loaded.dialog('feature_carousel') %>',
+            () => {
+                var form = document.querySelector('form.carousel-form');
+                cloud.post(
+                    '/feature_carousel',
+                    null,
+                    {
+                        page_path: page_path,
+                        collection_id: form.querySelector('select').value,
+                        type: form.querySelector('input').value
+                    }
+                );
+            }
+        )
+
+    }
+</script>
