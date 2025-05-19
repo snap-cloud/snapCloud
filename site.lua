@@ -46,7 +46,8 @@ require 'controllers.collection'
 require 'dialogs'
 
 app:enable('etlua')
-app.layout = require 'views.layout'
+
+app.layout = require 'views.layout_bs'
 
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
@@ -338,7 +339,7 @@ end))
 app:get('/profile', capture_errors(function (self)
     if self.current_user then
         self.user = self.current_user
-        return { render = 'profile' }
+        return { render = 'profile', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end
