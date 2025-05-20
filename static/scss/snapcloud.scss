@@ -409,18 +409,12 @@ hr {
   top: 0;
   margin: 0;
   padding: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100dvw;
+  height: 100dvh;
   z-index: 2000;
 
-  // Normal project action buttons
-  & .details,
-  & .buttons,
-  & .flag-container{
-    display: none;
-  }
-
   // The entire Snap! player container
+  // Must override the Bootstrap col-* CSS attributes.
   & .embed {
     position: fixed;
     left: 0;
@@ -428,8 +422,15 @@ hr {
     margin: 0;
     padding: 0;
     z-index: 2000;
-    width: 100vw;
-    height: 100vh;
+    width: 100dvw;
+    height: 100dvh;
+  }
+
+  // Normal project action buttons
+  & .details,
+  & .buttons,
+  & .flag-container{
+    display: none;
   }
 
   // The Snap! player iframe
