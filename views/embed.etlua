@@ -5,7 +5,10 @@
         <title><%= project.projectname %></title>
 
         <script type="text/javascript" src="/static/js/locale.js"></script>
+        <script type="text/javascript">modules = [];</script>
+        <script type="text/javascript" src="/snap/src/cloud.js"></script>
         <script type="text/javascript" src="/static/js/base.js"></script>
+        <script>cloud = new Cloud(); cloud.url = location.origin;</script>
         <script type="text/javascript" src="/static/js/project.js"></script>
 
         <link rel="icon" href="favicon.png">
@@ -15,6 +18,13 @@
             href="https://use.fontawesome.com/releases/v5.5.0/css/all.css"
             integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU"
             crossorigin="anonymous">
+        <style tyle="text/css">
+            :root {
+                --snap-dark-blue: #2d3142;
+                --lighter-link-color: #7070A0;
+                --dark-text-color: #102040;
+            }
+        </style>
         <link rel="stylesheet" href="/static/style/classes.css">
         <link rel="stylesheet" href="/static/style/project.css">
         <link rel="stylesheet" href="/static/style/embed.css">
