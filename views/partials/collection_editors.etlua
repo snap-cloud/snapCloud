@@ -3,23 +3,25 @@
     <ul class="editor-list">
     <% for _, editor in pairs(collection.editors) do %>
     <li class="editor">
-        <a href="<%= editor:url_for('site') %>">
-            <strong><%= editor.username %></strong>
-        </a>
+        <span class="badge rounded-pill text-bg-primary">
+            <a href="<%= editor:url_for('site') %>">
+                <%= editor.username %>
+            </a>
 
-        <% if current_user and
-            ((collection.creator.id == current_user.id)
-                or current_user:isadmin())
-            then %>
-            <a class="remove clickable" onclick="
-                removeEditor('<%= editor.id %>');
-                flash(
-                    this.parentElement,
-                    () => { this.hidden = true },
-                    true // warning flash
-                );
-            "><i class="fas fa-times-circle"></i></a>
-    <% end %>
+            <% if current_user and
+                ((collection.creator.id == current_user.id)
+                    or current_user:isadmin())
+                then %>
+                <a class="remove clickable" onclick="
+                    removeEditor('<%= editor.id %>');
+                    flash(
+                        this.parentElement,
+                        () => { this.hidden = true },
+                        true // warning flash
+                    );
+                "><i class="fas fa-times-circle"></i></a>
+        <% end %>
+        </span>
     </li>
     <% end %>
     </ul>
@@ -77,10 +79,10 @@ if current_user and current_user:has_min_role('moderator') and
         collection.published then
     if not(collection.free_for_all) then
 %>
-    <a class="pure-button ffa" onclick="confirmFFA()
+    <a class="btn btn-secondary ffa" onclick="confirmFFA()
     "><%= locale.get('make_ffa') %></a>
 <%  else %>
-    <a class="pure-button un-ffa" onclick="confirmUnFFA()
+    <a class="btn btn-danger un-ffa" onclick="confirmUnFFA()
     "><%= locale.get('unmake_ffa') %></a>
 <%
     end
@@ -102,7 +104,7 @@ end
         );
     };
 </script>
-    <a class="pure-button pure-button-warning unenroll" onclick="
+    <a class="btn btn-danger unenroll" onclick="
         confirmUnenroll();"><%= locale.get('unenroll') %></a>
 <%
                 break

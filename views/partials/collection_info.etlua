@@ -1,10 +1,10 @@
-<div class="pure-g">
+<div class="row">
     <% render('views.partials.collection_thumbnail') %>
-    <div class="dates pure-u-1-2">
+    <div class="dates col-6">
         <% render('views.partials.collection_dates') %>
     </div>
 </div>
-<pre class="description"><%= collection.description or '' %></pre>
+<pre tabindex=-1 class="description"><%= collection.description or '' %></pre>
 <script>
     new InPlaceEditor(
         document.querySelector('pre.description'),

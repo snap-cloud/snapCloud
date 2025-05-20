@@ -192,27 +192,30 @@ i.bookmarked {
 
 .editor-list {
     display: inline;
+    list-style: none;
+    padding: 1rem 0;
+    margin: 1rem 0;
 }
 
 .editor-list .editor {
     display: inline-block;
-    margin: 0.2em;
-    padding: 0.2em 0.5em;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
 }
 
-.editor-list a strong {
-    font-weight: normal;
+.editor span a,
+.editor span a:active,
+.editor span a:visited {
+    text-decoration: none;
+    color: #FFF;
 }
 
-.editor-list .editor .remove {
+/* .editor-list .editor .remove {
     display: none;
     margin-left: 0.2em;
 }
+
 .editor-list .editor:hover .remove {
     display: inline;
-}
+} */
 
 .editors .unenroll,
 .editors .ffa,
