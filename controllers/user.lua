@@ -451,8 +451,8 @@ UserController = {
         create_token(self, 'verify_user', user)
 
         return jsonResponse({
-            message = 'User ' .. escape_html(self.params.username) ..
-                ' created.\nPlease check your email and validate your\n' ..
+            message = 'User "' .. escape_html(self.params.username) ..
+                '" created.\nPlease check your email and validate your\n' ..
                 'account within the next 3 days.\nYou can now log in.',
             title = 'Account Created',
             redirect = self:build_url('login')

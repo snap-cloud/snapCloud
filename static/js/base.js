@@ -78,7 +78,8 @@ function doneLoading (selector) {
 
 function enableEnterSubmit () {
     // Submits "forms" when enter is pressed on any of their inputs
-    document.querySelectorAll('.pure-form input').forEach(
+    // TODO-BS: Remove pure CSS when transition to Bootstrap 5 is complete
+    document.querySelectorAll('.pure-form input, input.form-control').forEach(
         input => {
             input.onkeypress = function (evt) {
                 if (evt.keyCode == 13) { submit(); }
@@ -153,6 +154,7 @@ Cloud.prototype.delete = function (path, onSuccess, body) {
     this.apiRequest('DELETE', path, onSuccess, body);
 };
 
+// TODO: We should extract the onSuccess / onError handlers to a better location.
 Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
     // By default, redirect. If you don't want to do that,
     // set onSuccess to nop or any other value.
