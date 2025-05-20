@@ -33,6 +33,7 @@ local Projects = package.loaded.Projects
 local Remixes = package.loaded.Remixes
 local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
+local csrf = require("lapis.csrf")
 local assert_exists = require('validation').assert_exists
 
 local materials = require('views.static.resources').materials
@@ -46,7 +47,8 @@ require 'controllers.collection'
 require 'dialogs'
 
 app:enable('etlua')
-app.layout = require 'views.layout'
+
+app.layout = require 'views.layout.layout_original'
 
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
@@ -54,21 +56,17 @@ local static_pages = {
     'snapinator', 'snapp', 'source', 'tos'
 }
 
-local views = {
-    -- Simple pages
-    'change_email', 'change_password', 'delete_user', 'forgot_password',
-    'forgot_username', 'sign_up', 'login'
-}
-
--- Temporary during a front-end rewrite.
--- This allows testing any page with adding ?bootstrap=true to the URL
-app:before_filter(function (self)
-    if self.current_user and self.current_user:isadmin() then
-        if self.params['bootstrap'] == 'true' then
-            app.layout = 'layout_bs'
-        end
-    end
-end)
+local user_forms = {}
+-- Simple static pages that contain user interactions.
+-- These pages should all have a CSRF token and not allow iframes.
+-- The map is route/name to view location.
+user_forms['login'] = 'sessions/login'
+user_forms['forgot_password'] = 'sessions/forgot_password'
+user_forms['forgot_username'] = 'sessions/forgot_username'
+user_forms['change_password'] = 'sessions/change_password'
+user_forms['change_email'] = 'users/change_email'
+user_forms['sign_up'] = 'users/sign_up'
+user_forms['delete_user'] = 'users/delete_user'
 
 app:before_filter(function (self)
     -- A front-end method to prefer opening some links (the IDE, mostly) in the same window
@@ -99,7 +97,15 @@ app:match('doc', '/doc/:doc_name', respond_to({
 
 for _, page in pairs(static_pages) do
     app:get('/' .. page, capture_errors(cached(function (self)
-            return { render = 'static/' .. page, layout = 'layout_bs' }
+        return { render = 'static/' .. page, layout = 'layout_bs' }
+    end)))
+end
+
+for route, view_path in pairs(user_forms) do
+    app:get('/' .. route, capture_errors(cached(function (self)
+        self.csrf_token = csrf.generate_token(self)
+        self.res.headers['Content-Security-Policy'] = "frame-src 'none'"
+        return { render = view_path, layout = 'layout_bs' }
     end)))
 end
 
@@ -113,16 +119,6 @@ end)))
 app:get('/materials', function ()
     return { redirect_to = '/learn' }
 end)
-
-for _, view in pairs(views) do
-    app:get('/' .. view, capture_errors(cached(function (self)
-        if self.params['bootstrap'] then
-            return { render = view .. '_bs', layout = 'layout_bs'}
-        else
-            return { render = view }
-        end
-    end)))
-end
 
 app:get('/embed', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
@@ -338,7 +334,7 @@ end))
 app:get('/profile', capture_errors(function (self)
     if self.current_user then
         self.user = self.current_user
-        return { render = 'profile' }
+        return { render = 'profile', layout = 'layout_bs' }
     else
         return { redirect_to = self:build_url('/') }
     end

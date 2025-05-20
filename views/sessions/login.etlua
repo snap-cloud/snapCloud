@@ -1,0 +1,87 @@
+<% content_for('title', locale.get('log_into_snap', '!')) %>
+<h1><%- locale.get('log_into_snap', '<em>!</em>' ) %></h1>
+
+<form id="login" class="form-horizontal my-4" onsubmit="handleLoginSubmit(event)">
+  <input type="hidden" name="csrf_token" id="csrf_token" value="<%- csrf_token %>">
+
+  <div class="mb-3 row">
+    <label for="username" class="col-1 col-form-label">
+      <%= locale.get('username') %>
+    </label>
+    <div class="col-md-6">
+      <input id="username" name="username" type="text" class="form-control" placeholder="<%= locale.get('username') %>"
+        required>
+    </div>
+  </div>
+
+  <div class="mb-3 row">
+    <label for="password" class="col-1 col-form-label"><%- locale.get('password') %></label>
+    <div class="col-md-6">
+      <input id="password" name="password" type="password" class="form-control"
+        placeholder="<%- locale.get('password') %>" required>
+    </div>
+  </div>
+
+  <div class="mb-3 row">
+    <div class="col-sm-10">
+      <div class="form-check">
+        <input id="persist" name="persist" type="checkbox" class="form-check-input">
+        <label for="persist" class="form-check-label">
+          <span>
+            <%= locale.get('keep_logged_in') %>
+          </span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-3 row">
+    <div class="col-sm-10">
+      <button onclick="handleLoginSubmit()" class="btn btn-primary" type="button">
+        <%= locale.get('login') %>
+      </button>
+    </div>
+  </div>
+</form>
+
+
+<div class="mb-3 row">
+  <div class="col-sm-10">
+    <p><em><a href="/forgot_password"><%= locale.get('i_forgot_password') %></a></em></p>
+    <p><em><a href="/forgot_username"><%= locale.get('i_forgot_username') %></a></em></p>
+  </div>
+</div>
+
+<script type="text/javascript" src="/static/js/sha512.js"></script>
+<script>
+  enableEnterSubmit();
+  function handleLoginSubmit(event) {
+    if (event && event.preventDefault) {
+      event.preventDefault();
+    }
+
+    let form = document.querySelector('#login');
+    cloud.login(
+      form.querySelector('#username').value, // username
+      form.querySelector('#password').value,// password
+      form.querySelector('#persist').checked, // persist
+      (user, role, response) => {
+        if (response.title) {
+          alert(
+            localizer.localize(response.message),
+            { title: localizer.localize(response.title) },
+            () => { location.href = response.redirect }
+          );
+        } else {
+          location.href = '/';
+        }
+      }, // onSuccess
+      response => {
+        genericError(
+          response,
+          '<%= locale.get('err_login_failed') %>'
+        );
+      }
+    );
+  }
+</script>
