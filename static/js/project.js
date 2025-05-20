@@ -146,33 +146,16 @@ function setupCollectionEditorControls (collection, editorsElement) {
 };
 
 function toggleFullScreen () {
-    var embed = document.querySelector('.embed'),
+    var container = document.querySelector('.js-embed-container'),
         iframe = document.querySelector('.embed iframe'),
-        world = iframe.contentWindow.world,
-        buttons = document.querySelector('.buttons');
-    if (embed.fullScreen) {
-        embed.fullScreen = false;
-        embed.className = embed.oldClasses
-        embed.style = embed.oldStyle;
-        iframe.style = iframe.oldStyle;
-        buttons.style = buttons.oldStyle;
+        world = iframe.contentWindow.world;
+
+    if (container.classList.contains('full-screen')) {
+        container.classList.remove('full-screen');
         document.body.style.overflow = 'auto';
-        buttons.style = buttons.oldStyle;
     } else {
-        embed.fullScreen = true;
-        embed.oldStyle = embed.style;
-        embed.oldClasses = embed.className;
-        embed.className = 'embed';
-        iframe.oldStyle = iframe.style;
-        buttons.oldStyle = buttons.style
-        embed.style.position = 'fixed';
-        embed.style.left = 0;
-        embed.style.top = 'calc(var(--navbar-height) + 24px)';
-        embed.style.width = '100vw';
-        embed.style.height = 'calc(96vh - var(--navbar-height) - 24px)';
-        iframe.style.height = '100%';
+        container.classList.add('full-screen');
         document.body.style.overflow = 'hidden';
-        buttons.style.display = 'none';
     }
     world.worldCanvas.focus();
 };
