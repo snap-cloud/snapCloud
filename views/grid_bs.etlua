@@ -70,7 +70,7 @@ if items == nil then items = {} end
     </div>
 
     <% if (num_pages > 0) then %>
-        <div class="<%= class %> row g-2 rol-cols-sm-1 row-cols-md-<%= items_per_row %>">
+        <div class="<%= class %> row g-2 row-cols-sm-1 row-cols-md-<%= items_per_row %>">
         <% for _, item in pairs(items) do %>
             <%
                 params = {

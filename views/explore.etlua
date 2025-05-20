@@ -36,9 +36,9 @@ render(
     'views.grid_bs',
     {
         class = 'projects',
-        item_type = 'project',
-        items_per_page = 15,
-        items_per_row = 5,
+        item_type = 'project_bs',
+        items_per_page = 18,
+        items_per_row = 6,
         show_if_empty = true,
         with_search = true,
         filter_descriptors = filters
