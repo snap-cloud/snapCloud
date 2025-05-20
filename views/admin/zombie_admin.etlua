@@ -4,12 +4,12 @@
 <h1>Zombie Administration</h1>
 <%
 render(
-    'views.grid',
+    'views.grid_bs',
     {
         class = 'user_admin',
-        item_type = 'profile',
+        item_type = 'profile_bs',
         zombie = true,
-        items_per_row = 2,
+        items_per_row = 3,
         with_search = true,
         show_if_empty = true,
     }

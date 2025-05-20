@@ -1,5 +1,5 @@
 <%
-  card_classes = (item.role or '') .. ' ' .. (not zombie and (item.verified and '' or 'unverified'))
+  card_classes = (item.role or '') .. ' ' .. (item.verified and '' or 'unverified')
   role_bg_color = ({
     moderator = 'info',
     admin = 'primary',
@@ -23,7 +23,7 @@
             <span class="badge rounded-pill text-bg-<%- role_bg_color %>"><%- item.role %></span>
           <% end %>
       </div>
-        <ul class="list-group list-group-flush">
+      <ul class="list-group list-group-flush">
             <li class="list-group-item">
             <% if item.email ~= '' then %>
                 <a href="mailto:<%= item.email %>"><%= item.email %></a>
@@ -158,7 +158,7 @@
                 </div>
             <% end %>
             <% if current_user:has_min_role('moderator') then %>
-                  <div class="btn-group m-1">
+            <div class="btn-group m-1">
                 <a class="btn btn-sm btn-outline-info"
                     onclick="
                         dialog(
@@ -211,8 +211,7 @@
                                 %>',
                                 () => {
                                     cloud.delete(
-                                        '/<%= zombie and 'zombies' or 'users'
-                                            %>/<%= item.username %>'
+                                        '/<%= zombie and 'zombies' or 'users' %>/<%= item.username %>'
                                     );
                                 }
                             );
