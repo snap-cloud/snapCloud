@@ -354,6 +354,7 @@ end))
 app:get('/flags', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'reviewer')
+        self.params.items_per_page = self.params.items_per_page or 18
         items = ProjectController.flagged_projects(self)
         return { render = 'admin/flags' }
     else

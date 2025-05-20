@@ -3,13 +3,13 @@
 <h1>Flagged Projects</h1>
 <%
 render(
-    'views.grid',
+    'views.grid_bs',
     {
         class = 'flags',
         title = locale.get('flagged_projects'),
         item_type = 'project',
-        items_per_page = 15,
-        items_per_row = 5
+        items_per_page = 18,
+        items_per_row = 6
     }
 )
 %>
