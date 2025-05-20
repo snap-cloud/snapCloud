@@ -434,7 +434,7 @@ UserController = {
         end
 
         local salt = secure_salt()
-        local user = Users:create({
+        local user = assert(Users:create({
             created = db.format_date(),
             username = self.params.username,
             salt = salt,
@@ -443,7 +443,8 @@ UserController = {
             email = self.params.email,
             verified = false,
             role = 'standard'
-        })
+        }))
+
 
         -- Create a verify_user-type token and send an email to the user
         -- asking to verify the account.
