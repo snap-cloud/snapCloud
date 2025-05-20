@@ -1,4 +1,5 @@
 <%
+    items_per_row = items_per_row or 6
     col_width = col_width or (12 / items_per_row)
     column_width = math.floor(col_width)
     col_class = "col-lg-" .. column_width %>
