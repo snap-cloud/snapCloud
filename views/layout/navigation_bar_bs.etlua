@@ -10,7 +10,7 @@
     <div class="collapse navbar-collapse navbar-nav-scroll" id="navbarScroll">
       <ul class="navbar-nav me-auto">
         <li class="nav-item">
-          <a class="nav-link run"
+          <a class="nav-link run min-width"
             target="<%- prefer_new_tab and '_blank' or '_self' %>"
             href="<%= build_url('/snap/snap.html') %>">
             <%- locale.get('run_snap', '<em>!</em>') %>
@@ -34,7 +34,7 @@
       </ul>
       <span class="navbar-nav me-auto">
           <form role="search" action="search">
-            <div class="input-group">
+            <div class="input-group min-width">
               <button class="btn btn-sm btn-outline-light" type="submit" aria-label="Search">
                 <i class="fas fa-search" aria-hidden="true"></i>
               </button>
