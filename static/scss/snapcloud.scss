@@ -411,7 +411,9 @@ hr {
   z-index: 2000;
 
   // Normal project action buttons
-  & .details {
+  & .details,
+  & .buttons,
+  & .flag-container{
     display: none;
   }
 
