@@ -1,34 +1,50 @@
 <% content_for('title', locale.get('signup_title', '!')) %>
 <h1><%- locale.get('signup_title', '<em>!</em>') %></h1>
 
-<form id="js-signup" class="col-lg-8 col-md-10" onsubmit="handleSignupSubmit(event)">
+<form id="js-signup" class="col-12 col-md-6 col-lg-5" onsubmit="handleSignupSubmit(event)">
   <input type="hidden" name="csrf_token" id="csrf_token" value="<%- csrf_token %>">
 
   <div class="mb-3">
-    <label for="username" class="form-label"><%- locale.get('username') %></label>
+    <label for="username" class="form-label
+      "><%- locale.get('username') %>
+      <span class="text-danger">*</span>
+    </label>
     <input id="username" name="username" type="text" class="form-control"
-            placeholder="<%- locale.get('username') %>" required minlength="4" maxlength="200">
+            placeholder="<%- locale.get('username') %>" aria-required=true required
+            minlength="4" maxlength="200">
     <div class="form-text"><%- locale.get('signup_username_help') %></div>
   </div>
 
   <div class="mb-3">
-    <label for="password" class="form-label"><%- locale.get('password') %></label>
+    <label for="password" class="form-label"
+      ><%- locale.get('password') %>
+      <span class="text-danger">*</span>
+    </label>
     <input id="password" name="password" type="password" class="form-control"
-      placeholder="<%- locale.get('password') %>" required minlength="6" maxlength="200">
+      placeholder="<%- locale.get('password') %>" aria-required=true required
+      minlength="6" maxlength="200">
     <div class="form-text"><%- locale.get('signup_password_help') %></div>
   </div>
 
   <div class="mb-3">
-    <label for="password-repeat" class="form-label"><%- locale.get('password_2') %></label>
+    <label for="password-repeat" class="form-label"
+      ><%- locale.get('password_2') %>
+      <span class="text-danger">*</span>
+    </label>
     <input id="password-repeat" name="password-repeat" type="password" class="form-control"
-      placeholder="<%- locale.get('password') %>" required minlength="6" maxlength="200">
+      placeholder="<%- locale.get('password') %>" aria-required=true required
+      minlength="6" maxlength="200">
     <div class="form-text"><%- locale.get('signup_password_repeat_help') %></div>
   </div>
 
   <div class="mb-3">
-    <label for="birth-month" class="form-label"><%- locale.get('birth_month') %></label>
+    <label for="birth-month" class="form-label"
+      ><%- locale.get('birth_month') %>
+      <span class="text-danger">*</span>
+    </label>
     <div class="d-flex">
-      <select id="birth-month" name="birth-month" class="form-select me-2" required onchange="checkDate()">
+      <select id="birth-month" name="birth-month" class="form-select me-2" aria-required=true
+        required onchange="checkDate()">
         <option value="1"><%- locale.get('january') %></option>
         <option value="2"><%- locale.get('february') %></option>
         <option value="3"><%- locale.get('march') %></option>
@@ -43,28 +59,35 @@
         <option value="12"><%- locale.get('december') %></option>
       </select>
       <label for="birth-year" class="sr-only"><%- locale.get('birth_year') %></label>
-      <select id="birth-year" name="birth-year" class="form-select" onchange="checkDate()" required>
+      <select id="birth-year" name="birth-year" class="form-select" onchange="checkDate()"
+        aria-required=true required>
       </select>
     </div>
     <div class="form-text"><%- locale.get('signup_birth_month_help') %></div>
   </div>
 
   <div class="mb-3">
-    <label for="email" class="form-label"><%- locale.get('email_parent') %></label>
+    <label for="email" class="form-label"
+      ><%- locale.get('email_parent') %>
+      <span class="text-danger">*</span>
+    </label>
     <input id="email" name="email" type="email" class="form-control"
-              placeholder="<%- locale.get('email_user') %>" required>
+      placeholder="<%- locale.get('email_user') %>" aria-required=true required>
     <div class="form-text"><%- locale.get('signup_email_help') %></div>
   </div>
 
   <div class="mb-3">
-    <label for="email-repeat" class="form-label"><%- locale.get('email_2') %></label>
+    <label for="email-repeat" class="form-label"
+      ><%- locale.get('email_2') %>
+      <span class="text-danger">*</span>
+    </label>
     <input id="email-repeat" name="email-repeat" type="email" class="form-control"
-              placeholder="<%- locale.get('email_user') %>" required>
+        placeholder="<%- locale.get('email_user') %>" aria-required=true required>
     <div class="form-text"><%- locale.get('signup_email_repeat_help') %></div>
   </div>
 
   <div class="mb-3 form-check">
-    <input id="tos" name="tos" type="checkbox" class="form-check-input" required>
+    <input id="tos" name="tos" type="checkbox" class="form-check-input" aria-required=true required>
     <label for="tos" class="form-check-label">
       <span><%-
           locale.get(
@@ -74,6 +97,7 @@
               '</a><a target="_blank" href="privacy">' ..
                   locale.get('privacy_agreement') .. '</a>')
       %></span>
+      <span class="text-danger">*</span>
     </label>
     <div class="form-text"><%- locale.get('signup_tos_help') %></div>
   </div>
