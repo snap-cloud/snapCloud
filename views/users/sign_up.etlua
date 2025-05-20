@@ -1,6 +1,7 @@
+<% content_for('title', locale.get('signup_title', '!')) %>
 <h1><%- locale.get('signup_title', '<em>!</em>') %></h1>
 
-<form id="signup" class="col-lg-8 col-md-10" onsubmit="handleSignupSubmit(event)">
+<form id="js-signup" class="col-lg-8 col-md-10" onsubmit="handleSignupSubmit(event)">
   <input type="hidden" name="csrf_token" id="csrf_token" value="<%- csrf_token %>">
 
   <div class="mb-3">
@@ -85,7 +86,7 @@
 <script type="text/javascript" src="/static/js/sha512.js"></script>
 <script>
     enableEnterSubmit();
-    var form = document.querySelector('form#signup'),
+    var form = document.querySelector('#js-signup'),
         currentYear = (new Date()).getFullYear(),
         currentMonth = (new Date()).getMonth() + 1, // months are 0-based LOL
         yearSelector = document.querySelector('#birth-year');
@@ -121,7 +122,7 @@
       event.preventDefault();
     }
 
-    let form = document.querySelector('#signup'),
+    let form = document.querySelector('#js-signup'),
       username = form.querySelector('#username').value,
       password = form.querySelector('#password').value,
       passwordRepeat = form.querySelector('#password-repeat').value,

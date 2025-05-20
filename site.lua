@@ -56,23 +56,15 @@ local user_forms = {}
 -- These pages should all have a CSRF token and not allow iframes.
 -- The map is route/name to view location.
 user_forms['login'] = 'sessions/login'
+user_forms['forgot_password'] = 'sessions/forgot_password'
+user_forms['forgot_username'] = 'sessions/forgot_username'
+
 user_forms['sign_up'] = 'users/sign_up'
 
 local views = {
     -- As these pages are converted to bootstrap move them to the user_forms table.
-    'change_email', 'change_password', 'delete_user', 'forgot_password',
-    'forgot_username'
+    'change_email', 'change_password', 'delete_user',
 }
-
--- Temporary during a front-end rewrite.
--- This allows testing any page with adding ?bootstrap=true to the URL
-app:before_filter(function (self)
-    if self.current_user and self.current_user:isadmin() then
-        if self.params['bootstrap'] == 'true' then
-            app.layout = 'layout_bs'
-        end
-    end
-end)
 
 app:before_filter(function (self)
     -- A front-end method to prefer opening some links (the IDE, mostly) in the same window
@@ -117,11 +109,7 @@ end
 
 for _, view in pairs(views) do
     app:get('/' .. view, capture_errors(cached(function (self)
-        if self.params['bootstrap'] then
-            return { render = view .. '_bs', layout = 'layout_bs'}
-        else
-            return { render = view }
-        end
+        return { render = view }
     end)))
 end
 
