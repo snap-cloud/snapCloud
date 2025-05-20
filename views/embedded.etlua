@@ -9,20 +9,20 @@
         <link rel="icon" href="/static/img/favicon.ico">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- External libs, both stylesheets and JS -->
-        <link rel="stylesheet" href="/static/style/reset.css">
-        <link rel="stylesheet" href="/static/style/pure-min.css">
+        <link rel="stylesheet" href="/static/style/reset.css?<%= cache_buster %>"">
+        <link rel="stylesheet" href="/static/style/pure-min.css?<%= cache_buster %>"">
         <link rel="stylesheet"
             href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
             integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
             crossorigin="anonymous">
         <!-- Stylesheets -->
-        <link rel="stylesheet" href="/static/style/elements.css">
-        <link rel="stylesheet" href="/static/style/classes.css">
+        <link rel="stylesheet" href="/static/style/elements.css?<%= cache_buster %>"">
+        <link rel="stylesheet" href="/static/style/classes.css?<%= cache_buster %>"">
         <!-- JS -->
-        <script type="text/javascript" src="/static/js/locale.js"></script>
+        <script type="text/javascript" src="/static/js/locale.js?<%= cache_buster %>""></script>
         <script type="text/javascript">modules = [];</script>
-        <script type="text/javascript" src="/snap/src/cloud.js"></script>
-        <script type="text/javascript" src="/static/js/base.js"></script>
+        <script type="text/javascript" src="/snap/src/cloud.js?<%= cache_buster %>""></script>
+        <script type="text/javascript" src="/static/js/base.js?<%= cache_buster %>""></script>
         <script>cloud = new Cloud(); cloud.url = location.origin;</script>
         <style type="text/css">
           body {

@@ -22,6 +22,9 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local os = require('os')
+local config = package.loaded.config
+
 local function capitalize(str)
     return str:gsub("^%l", string.upper)
 end
@@ -83,10 +86,23 @@ local function group_by_type(items)
   return result
 end
 
+local function cache_buster ()
+  if config._name == "development" then
+    return os.time()
+  else
+    if not cache_buster._cached then
+      cache_buster._cached = os.time()
+    end
+    return cache_buster._cached
+  end
+end
+
+
 return {
   capitalize = capitalize,
   domain_name = domain_name,
   escape_html = escape_html,
   visualize_whitespace_html = visualize_whitespace_html,
   group_by_type = group_by_type,
+  cache_buster = cache_buster,
 }
