@@ -1,0 +1,32 @@
+<% content_for('title', locale.get('learn_snap', 'Snap!')) %>
+<h1 ><%- locale.get('learn_snap', 'Snap<em>!</em>') %></h1>
+
+<% for _, typeKey in pairs(typesOrder) do
+     local typeInfo = types[typeKey]
+     local items = materials_by_type[typeKey] %>
+<section class="my-4">
+    <h2><%= typeInfo.heading %></h2>
+    <% if typeInfo.description then %>
+    <p><%= typeInfo.description %></p>
+    <% end %>
+    <ul class="list-group my-2">
+    <% for _, item in ipairs(items) do %>
+        <li class="list-group-item">
+        <a href="<%= item.url %>"><%= item.title %></a>
+        <% if item.author then %>
+            by <%= item.author %>
+        <% end %>
+        <span class="mt-1">
+            <% for _, lang in ipairs(item.language) do %>
+                <span class="badge text-bg-primary"><%= (lang) %></span>
+            <% end %>
+            <% if item.level then %>
+            <span class="badge text-bg-info"><%= item.level %></span>
+            <% end %>
+        </span>
+        </li>
+    <% end %>
+    </ul>
+    </div>
+</section>
+<% end %>

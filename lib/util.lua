@@ -51,7 +51,7 @@ local function escape_html(text)
   end))
 end
 
-function visualize_whitespace_html(str)
+local function visualize_whitespace_html(str)
     if not str then
         return "<code>[nil]</code>"
     end
@@ -72,9 +72,21 @@ function visualize_whitespace_html(str)
     end)
 end
 
+local function group_by_type(items)
+  local result = {}
+  for _, item in ipairs(items) do
+    if not result[item.type] then
+      result[item.type] = {}
+    end
+    table.insert(result[item.type], item)
+  end
+  return result
+end
+
 return {
   capitalize = capitalize,
   domain_name = domain_name,
   escape_html = escape_html,
   visualize_whitespace_html = visualize_whitespace_html,
+  group_by_type = group_by_type,
 }

@@ -16,7 +16,7 @@
         <p><a href="/events"><%- locale.get('events') %></a></p>
         <p><a href="/all_totms"><%- locale.get('totms_title') %></a></p>
         <p><a href="/snap/help/SnapManual.pdf" target="_blank"><%- locale.get('manual') %></a></p>
-        <p><a href="/materials"><%- locale.get('materials') %></a></p>
+        <p><a href="/learn"><%- locale.get('materials') %></a></p>
         <p><a href="/bjc"><%- locale.get('bjc') %></a></p>
         <p><a href="/research"><%- locale.get('research') %></a></p>
         <p><a href="https://snapwiki.miraheze.org"><%- locale.get('wiki') %></a></p>

@@ -173,14 +173,25 @@
           return;
       }
 
+    // Ensure we do not redirect or reload if there is an error.
     // TODO: the onError handler is copied from base.js but should be extracted.
-    // However, it does NOT redirect the user so the form content is saved.
+    // This method is used by snap! and pull outs the `message` from API response.
     cloud.signup(
       username,
       password,
       passwordRepeat,
       email,
-      Cloud.redirect,
+      successMessage => {
+        if (successMessage) {
+            alert(
+                localizer.localize(successMessage),
+                { title: localizer.localize('Account Created') },
+                () => location.href = '/login'
+            );
+        } else {
+            location.href = '/login';
+        }
+      },
       errorMessage => {
         alert(
             localizer.localize(errorMessage),
