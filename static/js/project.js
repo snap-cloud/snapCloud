@@ -146,17 +146,14 @@ function setupCollectionEditorControls (collection, editorsElement) {
 };
 
 function toggleFullScreen () {
-    var embed = document.querySelector('.embed'),
-        container = document.querySelector('.viewer'),
+    var container = document.querySelector('.js-embed-container'),
         iframe = document.querySelector('.embed iframe'),
         world = iframe.contentWindow.world;
 
-    if (embed.fullScreen) {
-        embed.fullScreen = false;
+    if (container.classList.contains('full-screen')) {
         container.classList.remove('full-screen');
         document.body.style.overflow = 'auto';
     } else {
-        embed.fullScreen = true;
         container.classList.add('full-screen');
         document.body.style.overflow = 'hidden';
     }

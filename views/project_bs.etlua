@@ -31,7 +31,7 @@
             <% end %>
         </div>
     </div>
-    <div class="viewer row">
+    <div class="viewer row js-embed-container">
         <!-- Project viewer -->
         <div class="embed col-lg-6 col-md-8 col-12">
             <!-- Spinner shown while embed hasn't been loaded -->
@@ -121,4 +121,13 @@
             window.scrollTo(0, 0);
         }
     };
+    // bind esc to exit full-screen mode
+    document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+            let container = document.querySelector('.js-embed-container')
+            if (container.classList.contains('full-screen')) {
+                toggleFullScreen();
+            }
+        }
+    });
 </script>

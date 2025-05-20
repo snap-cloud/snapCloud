@@ -403,14 +403,15 @@ hr {
 
 .project.big .viewer.full-screen {
   position: fixed;
-  top: calc(var(--navbar-height) + 24px);
-  margin: 0 .5rem;
-  width: calc(100vw - 1rem);
-  height: calc(100vh - var(--navbar-height) - 24px);
+  top: 0;
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 2000;
 
   // Normal project action buttons
-  & .buttons,
-  & .flag-container {
+  & .details {
     display: none;
   }
 
@@ -418,15 +419,16 @@ hr {
   & .embed {
     position: fixed;
     left: 0;
-    top: calc(var(--navbar-height) + 24px);
-    width: calc(100vw - 1rem);
-    margin: 0 0.5rem;
-    height: calc(98vh - var(--navbar-height) - 24px);
+    top: 0;
+    margin: 0;
+    padding: 0;
+    z-index: 2000;
+    width: 100vw;
+    height: 100vh;
   }
 
   // The Snap! player iframe
   & iframe {
     height: 100%;
-    background: #FFF;
   }
 }
