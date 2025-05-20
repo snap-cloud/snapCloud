@@ -44,10 +44,11 @@
 </div>
 
 <% if current_user then %>
-<div class="flag-container" title="<%= locale.get('you_flagged') %>">
+<div class="flag-container">
     <% if project.flagged then %>
     <button class="btn btn-outline-danger btn-xs" type="button"
         onclick="unflagProject()"
+        title="<%= locale.get('you_flagged') %>"
     >
         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
         <%= locale.get('unflag_project') %>

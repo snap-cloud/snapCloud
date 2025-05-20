@@ -103,6 +103,10 @@ end
 -- Custom caching to take in account current locale
 local lapis_cached = require('lapis.cache').cached
 package.loaded.cached = function (func, options)
+    if config._name == 'development' then
+        return func
+    end
+
     local options = options or {}
     local cache_key = function (path, params, request)
         local key = path

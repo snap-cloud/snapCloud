@@ -36,6 +36,10 @@ local FlaggedProjects = package.loaded.FlaggedProjects
 local csrf = require("lapis.csrf")
 local assert_exists = require('validation').assert_exists
 
+local materials = require('views.static.resources').materials
+local material_types = require('views.static.resources').types
+local group_by_type = require("lib.util").group_by_type
+
 require 'controllers.user'
 require 'controllers.project'
 require 'controllers.collection'
@@ -47,7 +51,7 @@ app.layout = require 'views.layout'
 
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
-    'materials', 'mirrors', 'offline', 'partners', 'privacy', 'research',
+    'mirrors', 'offline', 'partners', 'privacy', 'research',
     'snapinator', 'snapp', 'source', 'tos'
 }
 
@@ -103,6 +107,17 @@ for route, view_path in pairs(user_forms) do
         return { render = view_path, layout = 'layout_bs' }
     end)))
 end
+
+app:get('/learn', capture_errors(cached(function (self)
+    self.materials_by_type = group_by_type(materials)
+    self.typesOrder = {"documentation", "course", "book"}
+    self.types = material_types
+    return { render = 'static/learn', layout = 'layout_bs'}
+end)))
+
+app:get('/materials', function ()
+    return { redirect_to = '/learn' }
+end)
 
 app:get('/embed', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
