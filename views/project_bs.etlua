@@ -122,6 +122,7 @@
         }
     };
     // bind esc to exit full-screen mode
+    // This only works if Snap! is not active, but it allows clicking on the background to exit.
     document.addEventListener('keydown', function (event) {
         if (event.key === 'Escape') {
             let container = document.querySelector('.js-embed-container')
