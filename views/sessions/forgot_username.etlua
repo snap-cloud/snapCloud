@@ -1,0 +1,43 @@
+<% content_for('title', 'Find Our Your Username') %>
+<h1 localizable>Find Out Your Username</h1>
+
+<div class="col-12 col-md-6">
+    <form id="js-forgot-username" onsubmit="handleForgotUsernameSubmit(event)">
+        <fieldset>
+            <div class="mb-3">
+                <label for="email" class="form-label" localizable>
+                    Email address <span class="text-danger">*</span>
+                </label>
+                <input id="email" name="email" type="email" class="form-control"
+                       placeholder="Email address" aria-required="true" required>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary" localizable>
+                    Email me my username(s)
+                </button>
+            </div>
+        </fieldset>
+    </form>
+</div>
+
+<script type="text/javascript" src="/static/js/sha512.js"></script>
+<script>
+    enableEnterSubmit();
+    var handleForgotUsernameSubmit = function (event) {
+        if (event) {
+            event.preventDefault();
+        }
+        var form = document.querySelector('#js-forgot-username');
+        if (form.reportValidity() === false) {
+            return;
+        }
+
+        cloud.post(
+            '/emails/' +
+                encodeURIComponent(
+                    document.querySelector('input#email').value) +
+                '/remind_username',
+        );
+    };
+</script>

@@ -58,13 +58,10 @@ local user_forms = {}
 user_forms['login'] = 'sessions/login'
 user_forms['forgot_password'] = 'sessions/forgot_password'
 user_forms['forgot_username'] = 'sessions/forgot_username'
-
+user_forms['change_password'] = 'sessions/change_password'
+user_forms['change_email'] = 'users/change_email'
 user_forms['sign_up'] = 'users/sign_up'
-
-local views = {
-    -- As these pages are converted to bootstrap move them to the user_forms table.
-    'change_email', 'change_password', 'delete_user',
-}
+user_forms['delete_user'] = 'users/delete_user'
 
 app:before_filter(function (self)
     -- A front-end method to prefer opening some links (the IDE, mostly) in the same window
@@ -104,12 +101,6 @@ for route, view_path in pairs(user_forms) do
         self.csrf_token = csrf.generate_token(self)
         self.res.headers['Content-Security-Policy'] = "frame-src 'none'"
         return { render = view_path, layout = 'layout_bs' }
-    end)))
-end
-
-for _, view in pairs(views) do
-    app:get('/' .. view, capture_errors(cached(function (self)
-        return { render = view }
     end)))
 end
 
