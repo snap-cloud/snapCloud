@@ -110,19 +110,6 @@ pre.in-place {
     margin-left: -44px;
 }
 
-.pure-button {
-    color: var(--snap-dark-blue);
-    background-color: #bfc0c0;
-}
-
-.pure-button-warning {
-    background-color: Tomato;
-}
-
-.warning {
-    color: Tomato;
-}
-
 .clickable {
     cursor: pointer;
 }

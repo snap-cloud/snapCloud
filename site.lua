@@ -53,7 +53,7 @@ app.layout = require 'views.layout.application'
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
     'mirrors', 'offline', 'partners', 'privacy', 'research',
-    'snapinator', 'snapp', 'source', 'tos'
+    'snapinator', 'snapp', 'source', 'tos', 'requirements',
 }
 
 local user_forms = {}

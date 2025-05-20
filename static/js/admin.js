@@ -28,7 +28,7 @@ function deleteZombieButton (user) {
                 confirmTitle('Delete user')
             );
         },
-        'pure-button-warning'
+        'btn btn-danger'
     );
 };
 
@@ -63,7 +63,7 @@ function reviveZombieButton (user) {
                 confirmTitle('Revive user')
             );
         },
-        'pure-button'
+        'btn btn-secondary'
     );
 };
 
