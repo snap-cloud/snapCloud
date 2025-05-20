@@ -48,7 +48,7 @@ require 'dialogs'
 
 app:enable('etlua')
 
-app.layout = require 'views.layout'
+app.layout = require 'views.layout.layout_original'
 
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
