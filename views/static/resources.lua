@@ -26,6 +26,17 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 local materials = {
+    {
+    title = "Reference Manual",
+    author = 'the Snap! Team',
+    url = "https://snap.berkeley.edu/snap/help/SnapManual.pdf",
+    language = {"English"},
+    type = "documentation",
+    level = 'beginner',
+    date = nil,
+    description = nil,
+    image = nil
+  },
   {
     title = "Get Coding with Snap!",
     author = 'openSAP',
@@ -77,17 +88,6 @@ local materials = {
     language = {"English"},
     type = "course",
     level = 'High School',
-    date = nil,
-    description = nil,
-    image = nil
-  },
-  {
-    title = "Reference Manual",
-    author = 'the Snap! Team',
-    url = "https://snap.berkeley.edu/snap/help/SnapManual.pdf",
-    language = {"English"},
-    type = "documentation",
-    level = 'all',
     date = nil,
     description = nil,
     image = nil
