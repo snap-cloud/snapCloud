@@ -51,6 +51,27 @@ local function escape_html(text)
   end))
 end
 
+local function visualize_whitespace_html(str)
+    if not str then
+        return "<code>[nil]</code>"
+    end
+
+    if str == "" then
+        return "<code>[empty]</code>"
+    end
+
+    local map = {
+        [" "] = "·",
+        ["\t"] = "→",
+        ["\n"] = "↵",
+        ["\r"] = "⏎"
+    }
+
+    return escape_html(str):gsub("[\t\n\r ]", function(m)
+        return '<code>' .. map[m] .. '</code>'
+    end)
+end
+
 local function group_by_type(items)
   local result = {}
   for _, item in ipairs(items) do
@@ -66,5 +87,6 @@ return {
   capitalize = capitalize,
   domain_name = domain_name,
   escape_html = escape_html,
+  visualize_whitespace_html = visualize_whitespace_html,
   group_by_type = group_by_type,
 }

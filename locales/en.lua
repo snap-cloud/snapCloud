@@ -121,6 +121,8 @@ local locale = {
     password = "Password",
     password_2 = "Repeat Password",
     birth_month = "Month of Birth",
+    -- this field is visually hidden.
+    birth_year = "Year of birth",
     or_before = "or before", -- is preceded by a year, like "1995 or before"
     email_parent = "Email address of parent or guardian",
     email_user = "Email address",
@@ -129,6 +131,18 @@ local locale = {
     -- tos already translated in footer
     privacy_agreement = "Privacy Agreement",
     signup = "Sign Up",
+
+    -- User signup information.
+    -- One entry follows each form.
+    -- Leave empty to show no help text.
+    signup_username_help = "Please make sure your username does not contain personal data, like a student id.",
+    signup_password_help = "Your password must be at least 6 characters",
+    signup_password_repeat_help = "",
+    signup_birth_month_help = "We do not store your birthday after sign up.",
+    signup_email_help = "Your email is used so you can recover your account if necessary.",
+    signup_email_repeat_help = "",
+    signup_tos_help = "",
+
 
     -- Log in page
     -- ===========
