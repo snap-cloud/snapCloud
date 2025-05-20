@@ -55,9 +55,8 @@ local ActiveProjects =  Model:extend('active_projects', {
         end
     },
     url_for = function (self, purpose, dev_version)
-        local base = 'https://snap.berkeley.edu/' ..
-            (dev_version and 'snapsource/dev/' or '') ..
-            'snap.html'
+        local base = ngx and ngx.var and ngx.var.scheme .. '://' .. ngx.var.http_host .. '/' or ''
+        base = base .. (dev_version and 'snap/dev/' or 'snap/') .. 'snap.html'
         local urls = {
             viewer = base ..
                 '#present:Username=' .. escape(self.username) ..

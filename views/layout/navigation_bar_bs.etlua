@@ -27,6 +27,11 @@
           </a>
         </li>
         <li class="nav-item">
+          <a class="nav-link" href="/learn">
+            Learn
+          </a>
+        </li>
+        <li class="nav-item">
           <a class="nav-link" target="_blank" href="https://www.snapcon.org">
             Snap<em>!</em>Con
           </a>
@@ -139,5 +144,5 @@
       </ul>
     </div>
   </div>
-  <div class="trapezoid"></div>
 </nav>
+<div class="trapezoid fixed-top"></div>

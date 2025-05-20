@@ -166,6 +166,10 @@ local locale = {
     published_projects = "Published Projects",
     published_collections = "Published Collections",
 
+    -- Learn Snap! Page
+    -- ==============
+    learn_snap = "Learn @1", -- @1 becomes Snap!
+
     -- Search results page
     -- ===================
     search_results = "Search Results: @1",
