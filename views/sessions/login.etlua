@@ -1,3 +1,4 @@
+<% content_for('title', locale.get('log_into_snap', '!')) %>
 <h1><%- locale.get('log_into_snap', '<em>!</em>' ) %></h1>
 
 <form id="login" class="form-horizontal my-4" onsubmit="handleLoginSubmit(event)">
@@ -46,8 +47,8 @@
 
 <div class="mb-3 row">
   <div class="col-sm-10">
-    <p><em><a href="/forgot_password">* <%= locale.get('i_forgot_password') %></a></em></p>
-    <p><em><a href="/forgot_username">* <%= locale.get('i_forgot_username') %></a></em></p>
+    <p><em><a href="/forgot_password"><%= locale.get('i_forgot_password') %></a></em></p>
+    <p><em><a href="/forgot_username"><%= locale.get('i_forgot_username') %></a></em></p>
   </div>
 </div>
 

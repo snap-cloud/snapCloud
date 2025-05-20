@@ -1,4 +1,5 @@
 <script src="/static/js/project.js"></script>
+<% content_for('title', locale.get('examples')) %>
 <h1 class="mb-3"><%= locale.get('examples') %></h1>
 
 <%

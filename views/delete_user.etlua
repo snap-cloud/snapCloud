@@ -1,3 +1,5 @@
+<% content_for('title', locale.get('delete_my_user')) %>
+
 <h1 localizable>Delete your Account</h1>
 <h2 localizable>Please confirm your password</h2>
 

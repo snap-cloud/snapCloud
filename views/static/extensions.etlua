@@ -1,5 +1,7 @@
+<% content_for('title', 'Extensions') %>
 <h1 localizable>Extensions</h1>
-<h3>Use devices with Snap<em>!</em>:</h3>
+
+<h2>Use devices with Snap<em>!</em>:</h2>
 <ul class="indent">
     <li>BBC <a href="https://snap.berkeley.edu/snap/snap.html#cloud:Username=birdbraintech&ProjectName=MicrobitStarterProject">micro:bit</a> bluetooth package by Krissie Lauwers.</li>
     <li>Orbotix <a href="https://docs.google.com/document/d/11wR53OTnofRtTtxZCmxnCUjIlFQjnGewM21A0vmjtFw/edit?usp=sharing">Sphero</a> guide by Connor Hudson and Dan Garcia.</li>
@@ -16,7 +18,7 @@
     <li><a href="https://github.com/rasplay/PiSnap_Project">Snap<em>!</em> for Raspberry Pi</a> by Rasplay.</li>
 </ul>
 
-<h3>More Snap<em>!</em> extensions for CS education</h3>
+<h2>More Snap<em>!</em> extensions for CS education</h2>
 <ul class="indent">
     <li><a href="http://beetleblocks.com">Beetle Blocks</a> is a complete Snap<em>!</em> modification for 3D design and fabrication.</li>
     <li><a href="http://turtlestitch.org">TurtleStitch</a> lets you generate patterns for embroidery machines.</li>
@@ -27,7 +29,7 @@
     <li><a href="https://progkids.ru">ProgKids</a> is a Snap<em>!</em> extension that lets you program MineCraft (in Russian).</li>
 </ul>
 
-<h3>Tools</h3>
+<h2>Tools</h2>
 <ul class="indent">
     <li>Turn your project into a standalone executable with <a target="_blank" href="http://snapp.citilab.eu">Snapp<em>!</em>.</a></li>
     <li>Import Scratch 2.0 projects with <a target="_blank" href="https://djsrv.github.io/Snapin8r2/">Snapin8r2</a>.</li>

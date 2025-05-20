@@ -1,3 +1,4 @@
+<% content_for('title', locale.get('my_projects')) %>
 <h1 class="mb-3"><%- locale.get('my_projects') %></h1>
 
 <%

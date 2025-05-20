@@ -1,4 +1,6 @@
+<% content_for('title', 'Materials') %>
 <h1 localizable>Materials</h1>
+
 <div class="materials"></div>
 <h2>MOOCS and Online Courses</h2>
 <ul>

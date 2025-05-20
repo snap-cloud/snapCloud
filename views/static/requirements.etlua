@@ -1,4 +1,6 @@
+<% content_for('title', 'Techinical Requirements') %>
 <h1 localizable>Technical Requirements</h1>
+
 <div class="pure-g">
     <div class="pure-u-1-12"><strong>Browser</strong></div><div class="pure-u-1-6"><strong>Minimum Version</strong></div><div class="pure-u-3-4"><strong>Additional Notes</strong></div>
     <div class="pure-u-1-12">Chrome</div><div class="pure-u-1-6">43</div><div class="pure-u-3-4">Chrome is currently the <em>recommended</em> browser for Snap<em>!</em></div>

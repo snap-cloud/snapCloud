@@ -1,3 +1,5 @@
+<% content_for('title', locale.get('bookmarked_feed')) %>
+
 <h1 class="mb-3"><%= locale.get('bookmarked_feed') %></h1>
 
 <%

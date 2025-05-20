@@ -1,3 +1,5 @@
+<% content_for('title', 'Current Topic of the Month') %>
+
 <h1>Current Topic of the Month</h1>
 
 <div class="row">
