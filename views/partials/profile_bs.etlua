@@ -1,4 +1,5 @@
 <%
+  local util = require 'lib.util'
   card_classes = (item.role or '') .. ' ' .. (item.verified and '' or 'unverified')
   role_bg_color = ({
     moderator = 'info',
@@ -12,7 +13,7 @@
           <% if not zombie then %>
           <a class="card-title" href="<%= item:url_for('site') %>">
           <% end %>
-              <strong><%= item.username %></strong>
+              <strong><%- util.visualize_whitespace_html(item.username) %></strong>
           <% if not zombie then %>
           </a>
           <% end %>

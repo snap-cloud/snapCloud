@@ -1,19 +1,25 @@
+@use './custom-alert-additions';
+
 /* This sets CSS Variables which override Bootstrap's config. */
 :root {
   // Berkeley Colors are not currently used, but probably in the future.
   --berkeley-blue-2024: #002676;
   --california-gold: #fdb515;
-  // Current nav+footer color.
-  --snap-dark-blue: #2d3142;
   --snap-icon-blue: #496AD5;
   --snap-logo-gold: #E6AD1B;
   // Links must have a 3:1 ratio against the text color AND 4.5:1 against white.
   // The text color must have a 4.5:1 ratio against the white background.
-  --lighter-link-color: #7070A0;
+  // Current nav+footer color.
+  // --snap-dark-blue: #2d3142;
+  // --lighter-link-color: #7070A0;
   // This is a dark blue a hybrid of the current Snap! dark, and berkeley dark blues.
-  --dark-text-color: #102040;
+  // --dark-text-color: #102040;
+  // Trying Berkeley colors:
+  --snap-dark-blue: #010133;
+  --lighter-link-color: #002676;
+  --dark-text-color: #010133;
   --bs-dark: var(--snap-dark-blue);
-  --bs-body-color: var(--dark-text-color);
+  --bs-body-color: var(--snap-dark-blue);
   --navbar-height: 4rem;
   /* this is the minimum I think w/ all 5 columns of links */
   --estimated-footer-height: 450px;
@@ -190,7 +196,7 @@ nav.navbar {
     .dropdown-menu {
       background-color: var(--bs-navbar-dark-color);
       color: #FFF;
-      overflow-y: scroll;
+      overflow-y: auto;
       max-height: 60vh;
     }
 
@@ -349,24 +355,20 @@ hr {
   }
 }
 
-.carousel-item {
-  .row {
-    /* widen the bootstrap gutter so carousels are full width.
-      bootstrap sets the row margin at -0.5 * bs-gutter-x
-      The default value is 1.5
-    */
-    --bs-gutter-x: 3rem;
+/* Designed to be the last element in a section / nav
+/ Makes a little "puzzle piece" connector. */
+.trapezoid {
+    position: relative;
+    margin-left: 60px;
+    border-top: 14px solid;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    height: 0;
+    width: 64px;
+}
 
-    .project {
-      &:nth-of-type(1) {
-        padding-left: 0;
-      }
-
-      &:nth-last-of-type(1) {
-        padding-right: 0;
-      }
-    }
-  }
+.trapezoid-footer {
+    top: -14px;
 }
 
 /* Embed dialog */
@@ -399,8 +401,13 @@ hr {
   resize: none;
 }
 
-// Project Page Viewer
+// Move this to a utils file.
+.ucb-logo {
+    height: 30px;
+    margin-right: 16px 16px 0 0; /* roughly the size of the 'e' in Berkeley */
+}
 
+// Project Page Viewer
 .project.big .viewer.full-screen {
   position: fixed;
   top: 0;
