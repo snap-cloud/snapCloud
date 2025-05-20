@@ -190,7 +190,7 @@ nav.navbar {
     .dropdown-menu {
       background-color: var(--bs-navbar-dark-color);
       color: #FFF;
-      overflow-y: scroll;
+      overflow-y: auto;
       max-height: 60vh;
     }
 
