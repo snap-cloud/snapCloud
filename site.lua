@@ -36,9 +36,9 @@ local FlaggedProjects = package.loaded.FlaggedProjects
 local csrf = require("lapis.csrf")
 local assert_exists = require('validation').assert_exists
 
+local util = require("lib.util")
 local materials = require('views.static.resources').materials
 local material_types = require('views.static.resources').types
-local group_by_type = require("lib.util").group_by_type
 
 require 'controllers.user'
 require 'controllers.project'
@@ -69,6 +69,7 @@ user_forms['sign_up'] = 'users/sign_up'
 user_forms['delete_user'] = 'users/delete_user'
 
 app:before_filter(function (self)
+    self.cache_buster = util.cache_buster()
     -- A front-end method to prefer opening some links (the IDE, mostly) in the same window
     self.prefer_new_tab = false
     if self.current_user and self.session.presist_session ~= 'true' then
@@ -110,8 +111,8 @@ for route, view_path in pairs(user_forms) do
 end
 
 app:get('/learn', capture_errors(cached(function (self)
-    self.materials_by_type = group_by_type(materials)
-    self.typesOrder = {"documentation", "course", "book"}
+    self.materials_by_type = util.group_by_type(materials)
+    self.resources_order = {"documentation", "course", "book"}
     self.types = material_types
     return { render = 'static/learn', layout = 'layout_bs'}
 end)))
