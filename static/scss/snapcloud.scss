@@ -1,3 +1,5 @@
+@use './custom-alert-additions';
+
 /* This sets CSS Variables which override Bootstrap's config. */
 :root {
   // Berkeley Colors are not currently used, but probably in the future.
@@ -393,5 +395,3 @@ hr {
     height: 30px;
     margin-right: 16px 16px 0 0; /* roughly the size of the 'e' in Berkeley */
 }
-
-@import './custom-alert-additions';
