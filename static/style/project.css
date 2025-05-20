@@ -28,9 +28,10 @@
     height: 406px;
 }
 
+/* 40px icon width */
 .project.small .no-image,
 .collection.small .no-image {
-    left: 88px;
+    left: calc(50% - 20px);
     top: 38px;
 }
 
@@ -87,7 +88,7 @@ img.collection-thumbnail {
     justify-content: space-evenly;
     position: absolute;
     top: 2px;
-    right: 19px;
+    right: calc(50% - 168px/2 + 0.3rem);
     flex-direction: row-reverse;
 }
 
@@ -96,12 +97,12 @@ img.collection-thumbnail {
 }
 
 .collection-controls .remove {
-    margin-right: -1px;
+    margin-right: -3px;
 }
 
 .featured .collection-controls {
-    right: 35px;
-    width: 15px;
+    right: calc(50% - 168px/2 + 0.75rem);
+    width: 1rem;
 }
 
 .flagged .collection-controls {
