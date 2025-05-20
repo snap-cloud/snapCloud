@@ -221,7 +221,8 @@ end)))
 app:get('/carousel', capture_errors(cached(function (self)
     assert_user_exists(self)
     local creator = self.queried_user
-    self.params.items_per_row = self.params.items_per_page or 5
+    self.params.items_per_page = self.params.items_per_page or 4
+    self.params.items_per_row = self.params.items_per_row or 4
     self.params.page_number = self.params.page_number or 1
     self.collection = assert_exists(Collections:find(creator.id, self.params.collection))
     assert_can_view_collection(self, self.collection)
@@ -229,7 +230,7 @@ app:get('/carousel', capture_errors(cached(function (self)
     self.items = CollectionController.projects(self)
     self.title = self.collection.name
     self.show_if_empty = true
-    return { render = 'carousel', layout = 'embedded' }
+    return { render = 'carousel_bs', layout = 'embedded' }
 end)))
 
 app:get('/followed', capture_errors(cached(function (self)
