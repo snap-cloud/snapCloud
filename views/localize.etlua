@@ -1,35 +1,88 @@
 <% local source_lang = params.source_lang or 'en' %>
-<h1>Localization tool</h1>
-<span>Source: </span>
-<script>var url = new URL(location.href);</script>
-<select onchange="
-    url.searchParams.set('source_lang', this.value);
-    location.href = url.href;
-    ">
-    <% for k, _ in pairs(locale.locales) do %>
-    <option 
-        <%= (k == source_lang) and 'selected' or '' %>
-        value="<%= k %>"><%= k %></option>
-    <% end %>
-</select>
-<br>
-<br>
+<div class="container my-4">
+    <h1 class="mb-4">Localization tool</h1>
 
-<% for _, entry in ipairs(locale.sorted_keys()) do %>
-    <% if entry.key then %>
-    <div class="locale-entry">
-        <h3><%= entry.key %></h3>
-        <label><%= source_lang %> : <input readonly value="<%= locale.locales[source_lang][entry.key] or '' %>"></input></label>
-        <% if entry.comment then %> <span><%= entry.comment %></span> <% end %>
-        <br>
-        <label for="<%=entry.key%>"><%=locale.language%> : </label><input for="<%= entry.key %>" value="<%= locale.at(entry.key) %>"></input>
+    <div class="row mb-4 align-items-center">
+        <div class="col-auto">
+            <span>Source: </span>
+        </div>
+        <div class="col-md-3">
+            <script>var url = new URL(location.href);</script>
+            <select class="form-select" onchange="
+                url.searchParams.set('source_lang', this.value);
+                location.href = url.href;
+                ">
+                <% for k, _ in pairs(locale.locales) do %>
+                <option
+                    <%= (k == source_lang) and 'selected' or '' %>
+                    value="<%= k %>"><%= k %></option>
+                <% end %>
+            </select>
+        </div>
     </div>
-    <% elseif entry.comment then %>
-    <div class="locale-comment">
-        <p><%= entry.comment %></p>
-    </div>
-    <% end %>
-<% end %>
 
-<br>
-<a class="pure-button" onclick="alert('yes')">Download</a>
+    <%
+    local comments = {}
+    local function output_comments()
+        if #comments > 0 then
+    %>
+        <div class="alert alert-secondary mb-3">
+            <% for _, comment in ipairs(comments) do %>
+                <p class="<%= _ < #comments and 'mb-2' or 'mb-0' %>"><%= comment %></p>
+            <% end %>
+        </div>
+    <%
+            comments = {}
+        end
+    end
+
+    for _, entry in ipairs(locale.sorted_keys()) do
+        if entry.key then
+            -- Output any pending comments before an entry
+            output_comments()
+    %>
+        <div class="card mb-3">
+            <div class="card-body">
+                <h3 class="card-title"><%= entry.key %></h3>
+
+                <div class="mb-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <label class="form-label"><%= source_lang %>:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input class="form-control" readonly value="<%= locale.locales[source_lang][entry.key] or '' %>">
+                            <% if entry.comment then %>
+                                <div class="form-text text-muted"><%= entry.comment %></div>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-2">
+                    <div class="row align-items-center">
+                        <div class="col-md-2 mb-2 mb-md-0">
+                            <label class="form-label" for="<%=entry.key%>"><%=locale.language%>:</label>
+                        </div>
+                        <div class="col-md-10">
+                            <input class="form-control" id="<%= entry.key %>" value="<%= locale.at(entry.key) %>">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <%
+        elseif entry.comment then
+            -- Collect comments
+            table.insert(comments, entry.comment)
+        end
+    end
+
+    -- Output any remaining comments at the end
+    output_comments()
+    %>
+
+    <div class="my-4">
+        <button class="btn btn-primary" onclick="alert('yes')">Download</button>
+    </div>
+</div>
