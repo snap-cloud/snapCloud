@@ -398,3 +398,35 @@ hr {
   line-height: 1;
   resize: none;
 }
+
+// Project Page Viewer
+
+.project.big .viewer.full-screen {
+  position: fixed;
+  top: calc(var(--navbar-height) + 24px);
+  margin: 0 .5rem;
+  width: calc(100vw - 1rem);
+  height: calc(100vh - var(--navbar-height) - 24px);
+
+  // Normal project action buttons
+  & .buttons,
+  & .flag-container {
+    display: none;
+  }
+
+  // The entire Snap! player container
+  & .embed {
+    position: fixed;
+    left: 0;
+    top: calc(var(--navbar-height) + 24px);
+    width: calc(100vw - 1rem);
+    margin: 0 0.5rem;
+    height: calc(98vh - var(--navbar-height) - 24px);
+  }
+
+  // The Snap! player iframe
+  & iframe {
+    height: 100%;
+    background: #FFF;
+  }
+}

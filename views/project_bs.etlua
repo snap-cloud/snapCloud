@@ -4,11 +4,11 @@
 <!-- TODO-BS: Replace .project.big with a single CSS class. Extract to partial? -->
 <div class="project big mt-3">
     <div class="title row">
-        <div class="col-md-8 col-sm-12">
+        <div class="col-md-8 col-12">
             <h1><%= project.projectname %></h1>
         </div>
 
-        <div class="col-md-4 col-sm-12 text-end">
+        <div class="col-md-4 col-12 text-end">
             <div class="author"><%-
                 locale.get(
                     'project_by',
@@ -33,7 +33,7 @@
     </div>
     <div class="viewer row">
         <!-- Project viewer -->
-    <div class="embed col-lg-6 col-md-8 col-sm-12">
+        <div class="embed col-lg-6 col-md-8 col-12">
             <!-- Spinner shown while embed hasn't been loaded -->
             <i class="project-loader fas fa-spinner fa-spin fa-3x"
                 aria-hidden="true"></i>
@@ -115,9 +115,9 @@
 %>
 
 <script>
-    // Prevent scrolling when focus is in the iframe
+    // Prevent scrolling when the iframe is in full-screen mode
     document.onscroll = function (event) {
-        if (document.activeElement.tagName === 'IFRAME') {
+        if (document.querySelector('.viewer.full-screen') !== null) {
             window.scrollTo(0, 0);
         }
     };
