@@ -454,6 +454,6 @@ app:get('/learners', capture_errors(function (self)
 end))
 
 -- Tools
-app:get('/localize', capture_errors(function (self)
-    return { render = 'localize' }
-end))
+-- app:get('/localize', capture_errors(function (self)
+--     return { render = 'localize' }
+-- end))
