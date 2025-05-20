@@ -23,7 +23,7 @@
 %>
 
     <h2><%= section.title %></h2>
-    <div class = "collection featured container">
+    <div class = "collection featured row">
     <%
         for _, descriptor in
                 ipairs(package.loaded.FeaturedCollections:select(section.query))
@@ -32,10 +32,10 @@
                     id = descriptor.collection_id
             })
             render(
-                'views.partials.collection',
+                'views.partials.collection_bs',
                 {
                     item = collection,
-                    items_per_row = 5,
+                    items_per_row = 6,
                     show_unfeature = true,
                     page_path = section.page_path
                 }
@@ -43,8 +43,8 @@
         end
     %>
     </div>
-    <a class = 'pure-button'
-        onclick="addCarousel('<%= section.page_path %>')">Add Carousel</a>
+    <button type="button" class='btn btn-primary'
+        onclick="addCarousel('<%= section.page_path %>')">Add Carousel</button>
 
 <% end %>
 

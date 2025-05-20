@@ -194,7 +194,7 @@ app:get('/collection', capture_errors(function (self)
     self.items_per_page = 12
     self.items = CollectionController.projects(self)
 
-    return { render = 'collection' }
+    return { render = 'collection', layout = 'layout/layout_original' }
 end))
 
 app:get('/user', capture_errors(function (self)
