@@ -19,7 +19,7 @@
 .project iframe,
 .project .embed-placeholder {
     background: rgba(0, 0, 0, 0.2);
-    border: 1px solid #2d3142;
+    border: 1px solid var(--snap-dark-blue);
     box-sizing: border-box;
 }
 
@@ -46,7 +46,7 @@
     position: relative;
     border-radius: 5px;
     height: 120px;
-    border: 1px solid #2d3142;
+    border: 1px solid var(--snap-dark-blue);
     box-sizing: border-box;
 }
 
@@ -325,7 +325,7 @@ i.bookmarked {
 .project.big .controlbar {
     box-sizing: border-box;
     z-index: 200;
-    background: #2d3142;
+    background: var(--snap-dark-blue);
     padding: 0.2em 0.5em;
     border-radius: 5px 5px 0 0;
     text-align: right;
@@ -464,7 +464,7 @@ i.bookmarked {
   resize: none;
   line-height: 1.2em;
   border-radius: 5px;
-  border: 1px solid #2d3142;
+  border: 1px solid var(--snap-dark-blue);
   padding: 0 .5em;
   height: 2.9em;
   background: #f3eeeb;

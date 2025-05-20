@@ -1,3 +1,5 @@
+@use './custom-alert-additions';
+
 /* This sets CSS Variables which override Bootstrap's config. */
 :root {
   // Berkeley Colors are not currently used, but probably in the future.
@@ -349,24 +351,20 @@ hr {
   }
 }
 
-.carousel-item {
-  .row {
-    /* widen the bootstrap gutter so carousels are full width.
-      bootstrap sets the row margin at -0.5 * bs-gutter-x
-      The default value is 1.5
-    */
-    --bs-gutter-x: 3rem;
+/* Designed to be the last element in a section / nav
+/ Makes a little "puzzle piece" connector. */
+.trapezoid {
+    position: relative;
+    margin-left: 60px;
+    border-top: 14px solid;
+    border-left: 9px solid transparent;
+    border-right: 9px solid transparent;
+    height: 0;
+    width: 64px;
+}
 
-    .project {
-      &:nth-of-type(1) {
-        padding-left: 0;
-      }
-
-      &:nth-last-of-type(1) {
-        padding-right: 0;
-      }
-    }
-  }
+.trapezoid-footer {
+    top: -14px;
 }
 
 /* Embed dialog */
@@ -399,8 +397,13 @@ hr {
   resize: none;
 }
 
-// Project Page Viewer
+// Move this to a utils file.
+.ucb-logo {
+    height: 30px;
+    margin-right: 16px 16px 0 0; /* roughly the size of the 'e' in Berkeley */
+}
 
+// Project Page Viewer
 .project.big .viewer.full-screen {
   position: fixed;
   top: 0;
