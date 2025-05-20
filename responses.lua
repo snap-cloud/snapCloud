@@ -69,7 +69,7 @@ local html_error = function (self, error, status)
         ]] .. error
     end
 
-    return { layout = 'layout_bs', render = 'message', status = status }
+    return { render = 'message', status = status }
 end
 
 errorResponse = function (self, err, status)
@@ -89,5 +89,5 @@ end
 html_message_page = function (self, title, contents)
     self.title = title
     self.contents = contents
-    return { render = 'message', layout = 'layout_bs', status = 200 }
+    return { render = 'message', status = 200 }
 end
