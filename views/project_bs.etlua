@@ -77,6 +77,7 @@
             <iframe allow="geolocation; microphone; camera"
                 sandbox="allow-scripts allow-same-origin"
                 title="project viewer"
+                autofocus=false
                 src="<%= project:url_for('viewer', params.devVersion) %>">
             </iframe>
 
