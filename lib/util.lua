@@ -87,14 +87,31 @@ local function group_by_type(items)
 end
 
 local function cache_buster ()
-  if config._name == "development" then
-    return os.time()
-  else
-    if not cache_buster._cached then
-      cache_buster._cached = os.time()
+    -- if config._name == "development" then
+    --   return os.time()
+    -- end
+    local cache = ngx.shared.session_cache
+
+    -- Check if cache exists
+    if not cache then
+      ngx.log(ngx.ERR, "Shared dict 'session_cache' not found")
+      return nil
+    else
+      debug_print("Cache found")
+      debug_print(cache)
     end
-    return cache_buster._cached
-  end
+
+    local value = cache:get("my_key")
+      debug_print(value)
+    if cache:get('cache_buster') then
+      return cache:get('cache_buster')
+    end
+    local cache_buster_value = os.time()
+    if config.release_sha then
+      cache_buster_value = config.release_sha
+    end
+    cache:set('cache_buster', cache_buster_value)
+    return cache_buster_value
 end
 
 
