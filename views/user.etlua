@@ -34,7 +34,7 @@ render(
         title = locale.get('latest_published_collections'),
         items = CollectionController.user_collections({
             params = {
-                per_page = 20,
+                per_page = 24,
                 user_id = queried_user.id
             },
             session = session
