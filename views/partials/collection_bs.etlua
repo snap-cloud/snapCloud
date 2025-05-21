@@ -1,5 +1,5 @@
 <% col_class = column_width and "col-lg-" .. column_width or '' %>
-<div class="collection small <%- col_class %> col-md-3 col-sm-4 col-6">
+<div class="collection small col-md col-sm-4 col-6">
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle" aria-hidden=true></i>
     <span class="sr-only">no thumbnail aet</span>
