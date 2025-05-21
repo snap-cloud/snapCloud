@@ -409,8 +409,6 @@ hr {
   top: 0;
   margin: 0;
   padding: 0;
-  width: 100dvw;
-  height: 100dvh;
   z-index: 2000;
 
   // The entire Snap! player container
@@ -422,8 +420,8 @@ hr {
     margin: 0;
     padding: 0;
     z-index: 2000;
-    width: 100dvw;
-    height: 100dvh;
+    width: 100svw;
+    height: 100svh;
   }
 
   // Normal project action buttons
@@ -435,6 +433,7 @@ hr {
 
   // The Snap! player iframe
   & iframe {
-    height: 100%;
+    height: calc(100dvh - 2.6em);
+    max-height: 100%;
   }
 }
