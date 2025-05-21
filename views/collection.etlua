@@ -17,13 +17,13 @@
                 }
             );
         </script>
-        <small class="author"><%-
+        <span class="small author"><%-
             locale.get(
                 'collection_by',
                 '<a href="' .. collection:url_for('author') .. '"><strong>' ..
                     collection.creator.username .. '</strong></a>'
                 )
-        %></small>
+        %></span>
     </div>
 </div>
 
