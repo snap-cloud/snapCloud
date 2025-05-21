@@ -21,6 +21,7 @@ render(
             req = { source = 'site' }
         }),
         class = 'projects',
+        items_per_row = 6,
         show_author = false,
         href = build_url('/user_projects/' .. queried_user.username)
     }
@@ -62,7 +63,7 @@ end
 
 <% if current_user and current_user:has_min_role('moderator') then %>
 <!-- -- ADMIN TOOLS -->
-<div class="col-lg-4 col-md-6 col-sm-12">
+<div class="col">
     <h2><%- locale.get('admin_tools') %></h2>
 <%
     render(
