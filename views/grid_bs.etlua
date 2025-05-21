@@ -31,7 +31,7 @@
 if show_author == nil then show_author = true end
 items_per_page = items_per_page or 18
 items_per_row = items_per_row or 6
-item_type = item_type or 'project_bs'
+item_type = item_type or 'project'
 num_pages = num_pages or 0
 if items == nil then items = {} end
 %>
@@ -88,7 +88,7 @@ if items == nil then items = {} end
                 if item_params then
                     for k, v in pairs(item_params) do params[k] = v end
                 end
-                render('views.partials.' .. item_type, params)
+                render('views.partials.' .. item_type .. '_bs', params)
             %>
         <% end %>
         </div>

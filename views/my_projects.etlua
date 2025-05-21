@@ -6,7 +6,7 @@ render(
     'views.grid_bs',
     {
         class = 'my_projects',
-        item_type = 'project_bs',
+        item_type = 'project',
         items_per_page = 18,
         items_per_row = 6,
         with_search = true,
