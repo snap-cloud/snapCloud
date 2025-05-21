@@ -2,13 +2,12 @@
 <% content_for('title',
     collection.name .. " " .. locale.get('collection_by', collection.creator.username)) %>
 
-
 <div class="collection row">
     <div class="title">
-        <h1><%= collection.name %></h1>
+        <h1 class="js-collection-title"><%= collection.name %></h1>
         <script>
             new InPlaceEditor(
-                document.querySelector('div.title h1'),
+                document.querySelector('.js-collection-title'),
                 (value) => {
                     cloud.post(
                         '/collection/<%= collection.id %>/name',
@@ -18,49 +17,50 @@
                 }
             );
         </script>
-        <span class="author"><%-
+        <small class="author"><%-
             locale.get(
                 'collection_by',
                 '<a href="' .. collection:url_for('author') .. '"><strong>' ..
                     collection.creator.username .. '</strong></a>'
                 )
-        %></span>
+        %></small>
     </div>
-    <div class="row">
-        <div class="col-4 info">
-            <%
-                render(
-                    'views.partials.collection_info',
-                     { collection = collection }
-                )
-            %>
-        </div>
-        <div class="col-8 projects">
-            <%
-                render(
-                    'views.grid_bs',
-                    {
-                        class = 'collection_projects',
-                        item_type = 'project_bs',
-                        items_per_row = 4,
-                        show_icons = true,
-                        show_collection_controls = true
-                    }
-                )
-            %>
-            <script>
-            function confirmRemove (project_id) {
-                confirm(
-                    "<%- locale.get('confirm_uncollect', '<br>') %>",
-                    () => {
-                        cloud.delete(
-                            '/collection/<%= collection.id %>/project/' +
-                                project_id
-                        );
-                    }
-                );
-            };
-            </script>
-        </div>
+</div>
+
+<div class="collection row">
+    <div class="col-md-4 col-sm-6 col-12 info">
+        <%
+            render(
+                'views.partials.collection_info',
+                    { collection = collection }
+            )
+        %>
+    </div>
+    <div class="col-md 8 col-sm-12 col-12 projects">
+        <%
+            render(
+                'views.grid_bs',
+                {
+                    class = 'collection_projects',
+                    item_type = 'project_bs',
+                    items_per_row = 4,
+                    show_icons = true,
+                    show_collection_controls = true
+                }
+            )
+        %>
+        <script>
+        function confirmRemove (project_id) {
+            confirm(
+                "<%- locale.get('confirm_uncollect', '<br>') %>",
+                () => {
+                    cloud.delete(
+                        '/collection/<%= collection.id %>/project/' +
+                            project_id
+                    );
+                }
+            );
+        };
+        </script>
     </div>
 </div>

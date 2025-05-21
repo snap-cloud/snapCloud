@@ -44,11 +44,14 @@
 }
 
 .thumbnail-container {
-    position: relative;
-    border-radius: 5px;
+    width: auto;
+}
+
+.collection-thumbnail {
+    width: 160px;
     height: 120px;
+    border-radius: 5px;
     border: 1px solid var(--snap-dark-blue);
-    box-sizing: border-box;
 }
 
 .project .details {
@@ -56,14 +59,9 @@
 }
 
 .collection .info .no-image {
-    left: 59px;
-    top: 34px;
-}
-
-img.collection-thumbnail {
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
+    position: relative;
+    left: calc(50% - 20px);
+    top: calc(50% - 20px);
 }
 
 .collection.small .author,
@@ -83,12 +81,12 @@ img.collection-thumbnail {
     background: rgba(255, 255, 255, .5);
     border-radius: 3px;
     padding: 1px 4px;
-    margin: 0 -5px;
+    margin: 0 5px;
     display: flex;
     justify-content: space-evenly;
     position: absolute;
-    top: 2px;
-    right: calc(50% - 168px/2 + 0.3rem);
+    top: 3px;
+    right: calc(50% - 168px/2 + 0.2rem);
     flex-direction: row-reverse;
 }
 
@@ -182,12 +180,19 @@ i.bookmarked {
     background: rgba(255, 255, 255, .8);
 }
 
-.new-editor {
-    border: 1px solid #AAAAAA;
-    width: 160px;
-    border-radius: 15px;
-    padding-left: 0.75em;
-    box-sizing: border-box;
+.editors .new-editor {
+    font-size: 0.75rem;
+    line-height: 1.3em;
+    width: 10ch;
+    border: 1px solid var(--bs-success);
+    border-radius: var(--bs-border-radius-sm);
+    padding: 0.1em;
+    margin: 0.1em;
+}
+
+.editors .new-editor:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.12rem #FFF;
 }
 
 .editor-list {
@@ -199,29 +204,37 @@ i.bookmarked {
 
 .editor-list .editor {
     display: inline-block;
+    margin: 0.1em;
 }
 
-.editor span a,
-.editor span a:active,
-.editor span a:visited {
+.editors .badge {
+    font-size: 0.75em;
+    line-height: 2em;
+    height: 2rem;
+    padding: 0.25rem 0.3rem;
+}
+
+.editors .badge a,
+.editors .badge a:visited {
     text-decoration: none;
     color: #FFF;
 }
 
-/* .editor-list .editor .remove {
-    display: none;
-    margin-left: 0.2em;
+.editors .badge a:hover,
+.editors .badge a:focus {
+    text-decoration: underline;
 }
 
-.editor-list .editor:hover .remove {
-    display: inline;
-} */
+.editors .badge .clickable {
+    cursor: pointer;
+    padding: 0.1rem;
+    margin: 0.1em;
+}
 
-.editors .unenroll,
-.editors .ffa,
-.editors .un-ffa {
-    display: block;
-    margin: 0.2em;
+.editors .badge .clickable:hover,
+.editors .badge .clickable:focus {
+    border: 1px solid white;
+    border-radius: 50%;
 }
 
 .project iframe,
@@ -261,29 +274,20 @@ i.bookmarked {
     margin-right: 0.5em;
 }
 
-.collection .author {
-    font-size: .8em;
-}
 
 .project.big.embed .title .author {
     position: relative !important;
 }
 
-.collection,
 .project.big {
     margin-top: 1em;
 }
 
-.collection .title,
 .project.big .title {
     position: relative;
     margin-bottom: .5em;
 }
 
-.collection .title h1 {
-    display: inline-block;
-    margin: 0;
-}
 
 .collection .title {
     margin-bottom: 1em;
@@ -431,14 +435,10 @@ i.bookmarked {
     margin-right: 0.5em;
 }
 
-.collection .dates p {
-    font-size: 0.7em;
-    padding-left: .5em;
-    box-sizing: border-box;
-    line-height: 1em;
+/* .collection .dates {
     margin-top: 0;
     margin-bottom: 0.7em;
-}
+} */
 
 /* Reasons dialog */
 

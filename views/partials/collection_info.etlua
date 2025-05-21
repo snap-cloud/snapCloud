@@ -1,8 +1,6 @@
 <div class="row">
     <% render('views.partials.collection_thumbnail') %>
-    <div class="dates col-6">
-        <% render('views.partials.collection_dates') %>
-    </div>
+    <% render('views.partials.collection_dates') %>
 </div>
 <pre tabindex=-1 class="description"><%= collection.description or '' %></pre>
 <script>

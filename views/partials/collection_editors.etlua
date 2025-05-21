@@ -3,10 +3,9 @@
     <ul class="editor-list">
     <% for _, editor in pairs(collection.editors) do %>
     <li class="editor">
-        <span class="badge rounded-pill text-bg-primary">
+        <span class="badge text-bg-primary">
             <a href="<%= editor:url_for('site') %>">
-                <%= editor.username %>
-            </a>
+                <%= editor.username %></a>
 
             <% if current_user and
                 ((collection.creator.id == current_user.id)
@@ -31,17 +30,19 @@
     ((collection.creator.id == current_user.id)
         or current_user:isadmin())
     then %>
-    <a
-        onclick="
-            this.nextElementSibling.hidden = false;
-            this.nextElementSibling.focus();"
-        class="clickable add-editor"><i class="fas fa-plus-circle"></i>
-    </a>
-    <input placeholder='username' hidden class="new-editor" onchange="
+    <span class="badge text-bg-success">
+        <a
+            onclick="
+                this.nextElementSibling.hidden = false;
+                this.nextElementSibling.focus();"
+            class="clickable add-editor"><i class="fas fa-plus-circle"></i>
+        </a>
+        <input placeholder='username' hidden class="new-editor" onchange="
         addEditor(this.value);
         this.value = '';
-        flash(this, () => { this.hidden = true });
-    "></input>
+        flash(this, () => { this.hidden = true });"
+        onblur="flash(this, () => { this.hidden = true });"></input>
+    </span>
     <script>
         addEditor = function (username) {
             cloud.post(
@@ -74,20 +75,19 @@
             );
         };
     </script>
-<% end
-if current_user and current_user:has_min_role('moderator') and
+<% end %>
+<div class="vstack gap-2 my-2">
+<% if current_user and current_user:has_min_role('moderator') and
         collection.published then
     if not(collection.free_for_all) then
 %>
-    <a class="btn btn-secondary ffa" onclick="confirmFFA()
+    <a class="btn btn-outline-warning ffa" onclick="confirmFFA()
     "><%= locale.get('make_ffa') %></a>
 <%  else %>
     <a class="btn btn-danger un-ffa" onclick="confirmUnFFA()
     "><%= locale.get('unmake_ffa') %></a>
-<%
-    end
-end
-%>
+<%  end
+end %>
 <%
     if current_user and (collection.creator.id ~= current_user.id) and
             collection.editor_ids then
@@ -112,5 +112,5 @@ end
         end
     end
 %>
-
+  </div> <!-- vstack -->
 </div>
