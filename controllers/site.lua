@@ -41,7 +41,7 @@ SiteController = {
                 '%' .. self.params.search_term .. '%'
             )) or ' ') .. 'ORDER BY updated_at ASC',
             {
-                per_page = self.params.items_per_page or 249
+                per_page = self.params.items_per_page or 256
             }
         )
         self.num_pages = paginator:num_pages()

@@ -66,7 +66,7 @@ ProjectController = {
                     ' ORDER BY ' ..
                         (self.params.order or 'firstpublished DESC'),
                 {
-                    per_page = self.params.items_per_page or 15,
+                    per_page = self.params.items_per_page or 18,
                     fields = self.params.fields or '*'
                 }
             )
