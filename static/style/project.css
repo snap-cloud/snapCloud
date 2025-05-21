@@ -260,13 +260,13 @@ i.bookmarked {
     line-height: 1.5em;
 }
 
-.collection.small span.collection-name,
-.project.small span.project-name {
-    display: block;
-    white-space: nowrap;
+.collection.small .collection-name,
+.project.small .project-name {
+    margin: 0 auto;
+    /* white-space: nowrap; */
+    max-width: 20ch;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 0 2px;
 }
 
 .collection.small span.is-public,

@@ -10,7 +10,7 @@
                 src="<%= item.thumbnail %>"
             <% end %>
         >
-        <span class="collection-name"><%= item.name %></span>
+        <div class="collection-name"><%= item.name %></span>
     </a>
 <% if show_icons then %>
     <span class="is-public" title="This item <%= item.shared and 'can be shared via URL' or 'is private'%>"><small><i class="fas <%= item.shared and 'fa-link' or 'fa-unlink' %>" aria-hidden="true"></i></small></span>
