@@ -70,10 +70,10 @@ if items == nil then items = {} end
     </div>
 
     <% if (num_pages > 0) then %>
-        <!-- TODO: Explicitly make a new .row every N items. -->
-        <div class="<%= class %> row g-2 row-cols-auto">
-        <% for _, item in pairs(items) do %>
+        <% for idx, item in pairs(items) do %>
             <%
+                local new_row = (idx - 1) % items_per_row == 0
+                local end_row = idx % items_per_row == 0 or idx == #items
                 params = {
                     item = item,
                     items_per_row = items_per_row,
@@ -88,10 +88,15 @@ if items == nil then items = {} end
                 if item_params then
                     for k, v in pairs(item_params) do params[k] = v end
                 end
-                render('views.partials.' .. item_type .. '_bs', params)
-            %>
+                %>
+            <% if new_row then %>
+            <div class="<%= class %> row g-2 row-cols-auto">
+            <% end %>
+                <% render('views.partials.' .. item_type .. '_bs', params) %>
+            <% if end_row then %>
+            </div>
+            <% end %>
         <% end %>
-        </div>
     <% end %>
     </section>
 <% end %>
