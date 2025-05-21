@@ -1,5 +1,4 @@
-<% col_class = column_width and "col-lg-" .. column_width or '' %>
-<div class="project small <%= col_class %> col-md-3 col-sm-4 col-6">
+<div class="project small col-md col-sm-4 col-6">
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle"></i>
     <span class="sr-only">no thumbnail aet</span>
@@ -8,7 +7,7 @@
         <img class="thumbnail" title="" alt="<%- item.projectname %> thumbnail"
             src="<%- item.thumbnail or '' %>"
             width=160 height=120>
-        <span class="project-name"><%- item.projectname %></span>
+        <div class="project-name"><%- item.projectname %></div>
     </a>
 
 <% if show_icons then %>

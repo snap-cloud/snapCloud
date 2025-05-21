@@ -1,7 +1,11 @@
 :root {
-    --snap-dark-blue: #2d3142;
+    /* --snap-dark-blue: #2d3142;
     --lighter-link-color: #7070A0;
-    --dark-text-color: #102040;
+    --dark-text-color: #102040; */
+    /* These are Berkeley's 2024 brand colors. */
+  --snap-dark-blue: #010133;
+  --lighter-link-color: #002676;
+  --dark-text-color: #010133;
 }
 
 html {

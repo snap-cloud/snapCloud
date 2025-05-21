@@ -6,7 +6,7 @@ render(
     {
         class = 'my_collections',
         item_type = 'collection',
-        items_per_page = 15,
+        items_per_page = 18,
         with_search = true,
         show_if_empty = true,
         show_author = false,

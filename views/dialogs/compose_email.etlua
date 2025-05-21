@@ -1,12 +1,16 @@
-<form class="email-compose pure-form pure-form-aligned">
+<form class="email-compose col-12 col-md-8">
     <fieldset>
-        <div class="pure-control-group">
-            <label for="subject"><%- locale.get('msg_subject') %></label>
-            <input name="subject" type="text">
+        <div class="mb-3">
+            <label for="subject" class="form-label">
+                <%- locale.get('msg_subject') %>
+            </label>
+            <input name="subject" id="subject" type="text" class="form-control">
         </div>
-        <div class="pure-control-group">
-            <label for="body"><%- locale.get('msg_body') %></label>
-            <textarea name="body"></textarea>
+        <div class="mb-3">
+            <label for="body" class="form-label">
+                <%- locale.get('msg_body') %>
+            </label>
+            <textarea name="body" id="body" class="form-control" rows="5"></textarea>
         </div>
     </fieldset>
 </form>

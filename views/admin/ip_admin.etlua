@@ -5,12 +5,12 @@
 
 <div class="ips container">
     <div class="bar">
-        <% render('views.partials.grid_search', { class = 'ips' }) %>
-        <% render('views.partials.grid_paginator') %>
+        <% render('views.partials.grid_search_bs', { class = 'ips' }) %>
+        <% render('views.partials.grid_paginator_bs') %>
     </div>
-    <div class="ips pure-g">
+    <div class="ips row">
     <% for _, entry in ipairs(ips) do %>
-        <div class="ip pure-u-1-3">
+        <div class="ip col-3">
             <div class="details count-<%= entry.offense_count %>">
                 <p><strong><%= entry.ip %></strong></p>
                 <p><span>Counts:</span> <%= entry.offense_count %></p>

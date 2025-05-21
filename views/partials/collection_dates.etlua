@@ -1,20 +1,19 @@
-    <p class="created">
+<div class="dates col-md-6 col-sm-8 small m-0">
+    <p class="m-0">
         <strong><%= locale.get('collection_created_date') %></strong>
         <span><%= string.from_sql_date(collection.created_at) %></span>
-    </p>
-    <p class="updated">
+        <br>
         <strong><%= locale.get('collection_updated_date') %></strong>
         <span><%= string.from_sql_date(collection.updated_at) %></span>
-    </p>
 <% if collection.shared then %>
-    <p class="shared">
+        <br>
         <strong><%= locale.get('collection_shared_date') %></strong>
         <span><%= string.from_sql_date(collection.shared_at) %></span>
-    </p>
 <% end %>
 <% if collection.published then %>
-    <p class="published">
+        <br>
         <strong><%= locale.get('collection_published_date') %></strong>
         <span><%= string.from_sql_date(collection.published_at) %></span>
-    </p>
 <% end %>
+    </p>
+</div>

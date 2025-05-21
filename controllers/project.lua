@@ -66,7 +66,7 @@ ProjectController = {
                     ' ORDER BY ' ..
                         (self.params.order or 'firstpublished DESC'),
                 {
-                    per_page = self.params.items_per_page or 15,
+                    per_page = self.params.items_per_page or 18,
                     fields = self.params.fields or '*'
                 }
             )
@@ -183,7 +183,7 @@ ProjectController = {
                 #(Projects:select(query, {fields = self.params.fields}))
             self.num_pages =
                 math.ceil(total_flag_count /
-                    (self.params.items_per_page or 15))
+                    (self.params.items_per_page or 18))
         end
         return ProjectController.run_query(self, query)
     end),

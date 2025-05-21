@@ -85,6 +85,7 @@ CollectionController = {
     end),
     my_collections = capture_errors(function (self)
         self.params.order = 'updated_at DESC'
+        self.params.per_page = self.params.per_page or 18
         return CollectionController.run_query(
             self,
             db.interpolate_query(
@@ -387,7 +388,7 @@ CollectionController = {
     end),
     rename = capture_errors(function (self)
         local collection = Collections:find({ id = self.params.id })
-        if (self.current_user == nil) or 
+        if (self.current_user == nil) or
               (collection.creator_id ~= self.current_user.id) then
             assert_admin(self)
         end
@@ -401,7 +402,7 @@ CollectionController = {
     end),
     set_description = capture_errors(function (self)
         local collection = Collections:find({ id = self.params.id })
-        if (self.current_user == nil) or 
+        if (self.current_user == nil) or
               (collection.creator_id ~= self.current_user.id) then
             assert_admin(self)
         end

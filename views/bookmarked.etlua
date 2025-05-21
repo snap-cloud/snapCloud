@@ -9,8 +9,8 @@ if items[1] then
         {
             class = 'my_projects',
             item_type = 'project',
-            items_per_page = 15,
-            items_per_row = 5,
+            items_per_page = 18,
+            items_per_row = 6,
             with_search = true
         }
     )
