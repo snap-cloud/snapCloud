@@ -6,9 +6,9 @@ render(
     'views.grid_bs',
     {
         class = 'collections',
-        item_type = 'collection',
-        items_per_page = 15,
-        items_per_row = 5
+        item_type = 'collection_bs',
+        items_per_page = 18,
+        items_per_row = 6
     }
 )
 %>

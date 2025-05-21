@@ -6,7 +6,7 @@ render(
     'views.grid_bs',
     {
         class = 'users',
-        item_type = 'user',
+        item_type = 'user_bs',
         items_per_row = 3,
         with_search = false,
         show_if_empty = true,
