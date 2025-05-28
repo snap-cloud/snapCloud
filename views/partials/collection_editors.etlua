@@ -4,8 +4,8 @@
     <% for _, editor in pairs(collection.editors) do %>
     <li class="editor">
         <span class="badge text-bg-primary">
-            <a href="<%= editor:url_for('site') %>">
-                <%= editor.username %></a>
+            <a href="<%= editor:url_for('site') %>"
+              ><%= editor.username %></a>
 
             <% if current_user and
                 ((collection.creator.id == current_user.id)
@@ -35,8 +35,8 @@
             onclick="
                 this.nextElementSibling.hidden = false;
                 this.nextElementSibling.focus();"
-            class="clickable add-editor"><i class="fas fa-plus-circle"></i>
-        </a>
+            class="clickable add-editor"
+            ><i class="fas fa-plus-circle"></i></a>
         <input placeholder='username' hidden class="new-editor" onchange="
         addEditor(this.value);
         this.value = '';
@@ -81,7 +81,7 @@
         collection.published then
     if not(collection.free_for_all) then
 %>
-    <a class="btn btn-outline-warning ffa" onclick="confirmFFA()
+    <a class="btn btn-warning ffa" onclick="confirmFFA()
     "><%= locale.get('make_ffa') %></a>
 <%  else %>
     <a class="btn btn-danger un-ffa" onclick="confirmUnFFA()
