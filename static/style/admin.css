@@ -4,32 +4,20 @@
     box-sizing: border-box;
 }
 
-.ip .details,
-.user .details {
+.ip .details {
     position: relative;
     background: rgba(0, 0, 0, 0.1);
     padding: 0.5em;
     border: 1px solid #AAAAAA;
 }
 
-.user .details.unverified {
-    filter: opacity(0.7);
-    border-style: dashed;
-}
-
-.user .details.admin {
-    background: rgba(255,0,0,0.1);
-}
-
-.ip .details.count-3,
-.user .details.banned {
+.ip .details.count-3 {
     overflow: hidden;
     border: 1px solid rgba(255,0,0,0.3);
     opacity: 0.75;
 }
 
-.ip .details.count-3:before,
-.user .details.banned:before {
+.ip .details.count-3:before {
     position: absolute;
     content: '';
     background: rgba(255, 0, 0, 0.3);
@@ -51,29 +39,11 @@
     top: 5px;
 }
 
-.user .details span {
-    display: block;
-    margin-top: 0.5em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
 .bar {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     margin-bottom: 1em;
-}
-
-.user .buttons {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-
-.user .buttons .pure-button {
-    margin-top: 0.5em;
 }
 
 .ips.search,
