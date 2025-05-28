@@ -7,7 +7,7 @@
     banned = 'danger'
 })[item.role] or 'secondary' %>
 
-<div class="col-6 col-sm-4 mb-3">
+<div class="col-12 col-sm-6 col-md-4 mb-3">
   <div class="card <%- card_classes %>">
       <div class=card-header>
           <% if not zombie then %>
