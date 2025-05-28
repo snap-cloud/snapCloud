@@ -10,7 +10,7 @@
     </div>
     <div class="ips row">
     <% for _, entry in ipairs(ips) do %>
-        <div class="ip col-3">
+        <div class="ip col-4 col-sm-3">
             <div class="details count-<%= entry.offense_count %>">
                 <p><strong><%= entry.ip %></strong></p>
                 <p><span>Counts:</span> <%= entry.offense_count %></p>
