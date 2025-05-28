@@ -62,7 +62,6 @@
             <div class="input-group">
                 <span class="input-group-text"><%- locale.get('role') %></span>
                 <select class="form-select form-select-sm"
-                    style="width: 12ch;"
                     aria-label="Select a role"
                     onchange="cloud.post(
                         '/users/<%= item.username %>/set_role',
@@ -108,7 +107,7 @@
         <div class="card-footer">
             <div class="btn-toolbar" role="toolbar" aria-label="user actions">
             <% if not zombie then %>
-                <div class="btn-group m-1" role="group" aria-label="safe actions">
+                <div class="btn-group m-1">
                 <% if current_user:has_min_role('admin') then %>
                 <a class="btn btn-sm btn-outline-secondary become"
                     onclick="cloud.post('/users/<%= item.username %>/become');"
@@ -120,6 +119,8 @@
                     onclick="cloud.post('/users/<%= item.username %>/verify');"
                     ><%- locale.get('verify') %></a>
                 <% end %>
+                </div>
+                <div class="btn-group m-1" role="group" aria-label="password actions">
                 <% if current_user:has_min_role('moderator') or
                         (current_user.is_teacher and
                             item.creator_id == current_user.id) then %>
