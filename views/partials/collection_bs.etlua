@@ -1,5 +1,4 @@
-<% col_class = column_width and "col-lg-" .. column_width or '' %>
-<div class="collection small <%- col_class %> col-md-3 col-sm-4 col-6">
+<div class="collection small col-md col-sm-4 col-6">
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle" aria-hidden=true></i>
     <span class="sr-only">no thumbnail aet</span>
@@ -11,7 +10,7 @@
                 src="<%= item.thumbnail %>"
             <% end %>
         >
-        <span class="collection-name"><%= item.name %></span>
+        <div class="collection-name"><%= item.name %></div>
     </a>
 <% if show_icons then %>
     <span class="is-public" title="This item <%= item.shared and 'can be shared via URL' or 'is private'%>"><small><i class="fas <%= item.shared and 'fa-link' or 'fa-unlink' %>" aria-hidden="true"></i></small></span>

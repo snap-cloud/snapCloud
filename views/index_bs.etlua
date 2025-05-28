@@ -83,7 +83,7 @@ for _, descriptor in pairs(features) do
             title = title_for(descriptor, collection.name),
             items = CollectionController.projects({
                 params = {},
-                items_per_page = 24, -- 20 projects to query from DB.
+                items_per_page = 24, -- 24 projects to query from DB.
                 collection = collection,
                 cached = true
             }),
@@ -104,7 +104,7 @@ render(
         title = locale.get('latest'),
         items = ProjectController.fetch(
             {
-                params = { items_per_page = 20 },
+                params = { items_per_page = 24 },
                 session = session,
                 cached = true
             }

@@ -14,13 +14,14 @@ render(
         items = ProjectController.user_projects({
             params = {
                 username = username,
-                items_per_page = 20,
+                items_per_page = 24,
                 show_public = true
             },
             session = session,
             req = { source = 'site' }
         }),
         class = 'projects',
+        items_per_row = 6,
         show_author = false,
         href = build_url('/user_projects/' .. queried_user.username)
     }
@@ -34,7 +35,7 @@ render(
         title = locale.get('latest_published_collections'),
         items = CollectionController.user_collections({
             params = {
-                per_page = 20,
+                per_page = 24,
                 user_id = queried_user.id
             },
             session = session
@@ -62,7 +63,7 @@ end
 
 <% if current_user and current_user:has_min_role('moderator') then %>
 <!-- -- ADMIN TOOLS -->
-<div class="col-lg-4 col-md-6 col-sm-12">
+<div class="col">
     <h2><%- locale.get('admin_tools') %></h2>
 <%
     render(

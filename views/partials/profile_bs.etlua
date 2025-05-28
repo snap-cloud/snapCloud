@@ -1,13 +1,13 @@
 <%
   local util = require 'lib.util'
-  card_classes = (item.role or '') .. ' ' .. (not zombie and (item.verified and '' or 'unverified'))
+  card_classes = (item.role or '') .. ' ' .. (item.verified and '' or 'unverified')
   role_bg_color = ({
     moderator = 'info',
     admin = 'primary',
     banned = 'danger'
 })[item.role] or 'secondary' %>
 
-<div class="col">
+<div class="col-12 col-sm-6 col-md-4 mb-3">
   <div class="card <%- card_classes %>">
       <div class=card-header>
           <% if not zombie then %>
@@ -24,7 +24,7 @@
             <span class="badge rounded-pill text-bg-<%- role_bg_color %>"><%- item.role %></span>
           <% end %>
       </div>
-        <ul class="list-group list-group-flush">
+      <ul class="list-group list-group-flush">
             <li class="list-group-item">
             <% if item.email ~= '' then %>
                 <a href="mailto:<%= item.email %>"><%= item.email %></a>
@@ -62,7 +62,6 @@
             <div class="input-group">
                 <span class="input-group-text"><%- locale.get('role') %></span>
                 <select class="form-select form-select-sm"
-                    style="width: 12ch;"
                     aria-label="Select a role"
                     onchange="cloud.post(
                         '/users/<%= item.username %>/set_role',
@@ -105,21 +104,22 @@
         </li>
         <% end %>
         </ul>
-        <div class="card-footer">
-            <div class="btn-toolbar" role="toolbar" aria-label="user actions">
-            <% if not zombie then %>
-                <div class="btn-group m-1" role="group" aria-label="safe actions">
-                <% if current_user:has_min_role('admin') then %>
+    <div class="card-footer user-profile-actions">
+        <% if not zombie then %>
+            <% if current_user:has_min_role('admin') then %>
+            <div class="btn-group">
                 <a class="btn btn-sm btn-outline-secondary become"
                     onclick="cloud.post('/users/<%= item.username %>/become');"
                     ><%- locale.get('become') %></a>
-                <% end %>
-                <% if not item.verified and
-                    (current_user:has_min_role('moderator')) then %>
-                <a class="btn btn-sm btn-outline-secondary verify"
+            <% if not item.verified and
+                (current_user:has_min_role('moderator')) then %>
+                <a class="btn btn-sm btn-outline-success verify"
                     onclick="cloud.post('/users/<%= item.username %>/verify');"
                     ><%- locale.get('verify') %></a>
-                <% end %>
+            <% end %>
+            </div>
+            <% end %>
+            <div class="btn-group" role="group" aria-label="password actions">
                 <% if current_user:has_min_role('moderator') or
                         (current_user.is_teacher and
                             item.creator_id == current_user.id) then %>
@@ -156,86 +156,84 @@
                         );
                     "><%- locale.get('reset_password') %></a>
                 <% end %>
-                </div>
-            <% end %>
-            <% if current_user:has_min_role('moderator') then %>
-                  <div class="btn-group m-1">
-                <a class="btn btn-sm btn-outline-info"
-                    onclick="
-                        dialog(
-                            '<%- locale.get('compose_email') %>',
-                            '<%= package.loaded.dialog('compose_email') %>',
-                            () => {
-                                var form =
-                                    document.querySelector('form.email-compose'),
-                                    subject = form.querySelector('input').value,
-                                    contents = form.querySelector('textarea').value;
-                                cloud.post(
-                                    '/users/<%= item.username %>/send_email',
-                                    null,
-                                    {
-                                        subject: subject,
-                                        contents: contents
-                                    }
-                                );
-                            },
-                            nop
-                        );
-                    "><%- locale.get('send_msg') %></a>
-                </div>
-                <div class="btn-group m-1" role="group" aria-label="unsafe actions">
-                    <% if not zombie then %>
-                    <a class="btn btn-sm ban btn-outline-danger"
-                        onclick="
+        </div>
+        <% end %>
+        <% if current_user:has_min_role('moderator') then %>
+        <div class="btn-group">
+            <a class="btn btn-sm btn-outline-info"
+                onclick="
+                    dialog(
+                        '<%- locale.get('compose_email') %>',
+                        '<%= package.loaded.dialog('compose_email') %>',
+                        () => {
+                            var form =
+                                document.querySelector('form.email-compose'),
+                                subject = form.querySelector('input').value,
+                                contents = form.querySelector('textarea').value;
                             cloud.post(
-                                '/users/<%= item.username %>/set_role',
+                                '/users/<%= item.username %>/send_email',
                                 null,
                                 {
-                                    username: '<%= item.username %>',
-                                    role: <%-
-                                        item.role == 'banned'
-                                            and "'standard'"
-                                            or "'banned'" %>
-                                }
-                            );"
-                        ><%= item.role == 'banned' and
-                            locale.get('unban') or
-                            locale.get('ban') %></a>
-                    <% end %>
-                    <a class="btn btn-sm delete btn-outline-danger"
-                        onclick="
-                            confirm(
-                                '<%=
-                                    package.loaded.dialog(
-                                        'delete_user',
-                                        { username = item.username })
-                                %>',
-                                () => {
-                                    cloud.delete(
-                                        '/<%= zombie and 'zombies' or 'users'
-                                            %>/<%= item.username %>'
-                                    );
+                                    subject: subject,
+                                    contents: contents
                                 }
                             );
-                        "
-                        ><%-
-                            locale.get(zombie and 'perma_delete_usr' or 'delete_usr')
-                        %></a>
-                    <% if zombie then %>
-                    <a class="btn btn-sm btn-outline-secondary"
-                        onclick="
-                            confirm(
-                                '<%= locale.get('confirm_revive', item.username) %>',
-                                () => {
-                                    cloud.post('/zombies/<%= item.username %>/revive');
-                                }
-                            );
-                        "
-                        ><%- locale.get('revive_usr') %></a>
-                    <% end %>
-                </div>
-            <% end %>
+                        },
+                        nop
+                    );
+                "><%- locale.get('send_msg') %></a>
             </div>
+            <div class="btn-group" role="group" aria-label="unsafe actions">
+                <% if not zombie then %>
+                <a class="btn btn-sm ban btn-outline-danger"
+                    onclick="
+                        cloud.post(
+                            '/users/<%= item.username %>/set_role',
+                            null,
+                            {
+                                username: '<%= item.username %>',
+                                role: <%-
+                                    item.role == 'banned'
+                                        and "'standard'"
+                                        or "'banned'" %>
+                            }
+                        );"
+                    ><%= item.role == 'banned' and
+                        locale.get('unban') or
+                        locale.get('ban') %></a>
+                <% end %>
+                <a class="btn btn-sm delete btn-outline-danger"
+                    onclick="
+                        confirm(
+                            '<%=
+                                package.loaded.dialog(
+                                    'delete_user',
+                                    { username = item.username })
+                            %>',
+                            () => {
+                                cloud.delete(
+                                    '/<%= zombie and 'zombies' or 'users' %>/<%= item.username %>'
+                                );
+                            }
+                        );
+                    "
+                    ><%-
+                        locale.get(zombie and 'perma_delete_usr' or 'delete_usr')
+                    %></a>
+                <% if zombie then %>
+                <a class="btn btn-sm btn-outline-secondary"
+                    onclick="
+                        confirm(
+                            '<%= locale.get('confirm_revive', item.username) %>',
+                            () => {
+                                cloud.post('/zombies/<%= item.username %>/revive');
+                            }
+                        );
+                    "
+                    ><%- locale.get('revive_usr') %></a>
+                <% end %>
+            </div>
+        <% end %>
         </div>
     </div>
 </div>
