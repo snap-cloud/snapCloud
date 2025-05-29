@@ -22,7 +22,10 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
 local Model = package.loaded.Model
-local escape = require('lapis.util').escape
+local util = package.loaded.util
+local escape = util.escape
+-- A (lua) table of patterns for reserved usernames.
+local reserved_usernames = require("models.reserved_usernames")
 
 -- Generated schema dump: (do not edit)
 --
@@ -45,7 +48,8 @@ local escape = require('lapis.util').escape
 --    FROM public.users
 --   WHERE (users.deleted IS NULL);
 --
-local ActiveUsers =  Model:extend('active_users', {
+
+local ActiveUsers = Model:extend('active_users', {
     type = 'user',
     relations = {
         {'collections', has_many = 'Collections'},
@@ -87,6 +91,28 @@ local ActiveUsers =  Model:extend('active_users', {
                 )[1].count
             end
         },
+    },
+    constraints = {
+        username = function(self, value)
+            local cleaned_username = util.trim(value:lower())
+            if cleaned_username == '' then
+                return 'The username cannot be empty.'
+            end
+            -- must be at least 4 characters
+            if #cleaned_username < 4 then
+                return 'The username must be at least 4 characters long.'
+            end
+            -- must be at most 200 characters
+            if #cleaned_username > 200 then
+                return 'The username must be at most 200 characters long.'
+            end
+            -- must not be in the reserved list
+            for pattern, _ in pairs(reserved_usernames) do
+                if cleaned_username:match(pattern) then
+                    return 'The username "' .. cleaned_username .. '" is reserved.'
+                end
+            end
+        end
     },
     follows = function (self, a_user)
         return package.loaded.Followers:find({
