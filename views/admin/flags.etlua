@@ -1,15 +1,13 @@
-<% content_for('title', 'Flagged Projects') %>
+<% content_for('title', locale.get(page_title)) %>
 
-<h1>Flagged Projects</h1>
+<h1><%= locale.get(page_title) %></h1>
+
 <%
 render(
     'views.grid',
     {
-        class = 'flags',
-        title = locale.get('flagged_projects'),
+        items = items,
         item_type = 'project',
         items_per_page = 24,
-        items_per_row = 6
     }
-)
-%>
+) %>
