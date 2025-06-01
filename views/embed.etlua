@@ -1,3 +1,6 @@
+<% local title = project.projectname .. ' by ' .. project.username
+    content_for('title', title) %>
+
 <!DOCTYPE html>
 <html lang="<%= locale.language %>">
     <head>
@@ -25,8 +28,9 @@
                 <a title="See source code" class="edit" href="<%= project:url_for('open', params.devVersion) %>" target="_blank"><i class="far fa-eye"></i></a>
         <% end %>
             </div>
-            <iframe allow="geolocation; microphone; camera" sandbox="allow-scripts allow-same-origin" src="<%= project:url_for('viewer', params.devVersion) %>" height="406"></iframe>
-
+            <iframe
+                title="<%= title %>"
+                allow="geolocation; microphone; camera" sandbox="allow-scripts allow-same-origin" src="<%= project:url_for('viewer', params.devVersion) %>" height="406"></iframe>
         </div>
         <script type="text/javascript">
             document.body.style.overflow = 'hidden';
