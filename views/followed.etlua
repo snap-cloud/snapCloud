@@ -4,7 +4,7 @@
 <%
 if items[1] then
     render(
-        'views.grid_bs',
+        'views.grid',
         {
             class = 'my_projects',
             item_type = 'project',

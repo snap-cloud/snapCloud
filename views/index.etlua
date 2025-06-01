@@ -1,6 +1,6 @@
 <script src="/static/js/project.js"></script>
 
-<% render('views.partials.slideshow_bs') %>
+<% render('views.partials.slideshow') %>
 
 <h1>
     <% if current_user then %>
@@ -78,7 +78,7 @@ for _, descriptor in pairs(features) do
     local collection =
         package.loaded.Collections:find({ id = descriptor.collection_id })
     render(
-        'views.carousel_bs',
+        'views.carousel',
         {
             title = title_for(descriptor, collection.name),
             items = CollectionController.projects({

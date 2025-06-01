@@ -13,7 +13,7 @@ for _, descriptor in ipairs(
         package.loaded.Collections:find({ id = descriptor.collection_id })
 
     render(
-        'views.carousel_bs',
+        'views.carousel',
         {
             title = collection.name,
             items = CollectionController.projects({

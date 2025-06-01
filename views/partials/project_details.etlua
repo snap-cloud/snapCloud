@@ -72,7 +72,7 @@
     </div>
     <%
         if current_user and current_user:has_min_role('reviewer') then
-            render('views.partials.flag_list_bs', { project = project })
+            render('views.partials.flag_list', { project = project })
         end
     %>
     <script>

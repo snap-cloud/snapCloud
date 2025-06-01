@@ -81,7 +81,7 @@ end)
 
 app:get('index', '/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'index_bs' }
+    return { render = 'index' }
 end)))
 
 -- Backwards compatibility.
@@ -233,7 +233,7 @@ app:get('/carousel', capture_errors(cached(function (self)
     self.items = CollectionController.projects(self)
     self.title = self.collection.name
     self.show_if_empty = true
-    return { render = 'carousel_bs', layout = 'embedded' }
+    return { render = 'carousel', layout = 'embedded' }
 end)))
 
 app:get('/followed', capture_errors(cached(function (self)
@@ -314,7 +314,7 @@ app:match('project', '/project', capture_errors(function (self)
             )[1] ~= nil
     end
 
-    return { render = 'project_bs' }
+    return { render = 'project' }
 end))
 
 -- TODO: Should be able to consolidate these pages.

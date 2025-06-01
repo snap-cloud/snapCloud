@@ -4,7 +4,7 @@
 <h1>User Administration</h1>
 <%
 render(
-    'views.grid_bs',
+    'views.grid',
     {
         class = 'user_admin',
         item_type = 'profile',

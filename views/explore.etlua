@@ -33,7 +33,7 @@ if current_user and current_user:isadmin() then
         }
 end
 render(
-    'views.grid_bs',
+    'views.grid',
     {
         class = 'projects',
         item_type = 'project',

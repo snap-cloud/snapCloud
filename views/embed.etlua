@@ -5,7 +5,7 @@
 <html lang="<%= locale.language %>">
     <head>
         <!-- We can optimize this a bit to not include a couple CSS files (snapcloud?) -->
-        <% render('views.layout.head_bs') %>
+        <% render('views.layout.head') %>
         <link rel="stylesheet" href="/static/style/embed.css?<%= cache_buster %>"">
     </head>
     <body>
