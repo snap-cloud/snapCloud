@@ -360,7 +360,7 @@ app:get('/admin/bookmarks_feed', capture_errors(function (self)
         assert_min_role(self, 'reviewer')
         self.items = ProjectController.all_recent_bookmarks(self)
         self.page_title = 'recent_bookmarks'
-        return { render = 'admin/flags' }
+        return { render = 'admin/basic_project_list' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -372,7 +372,7 @@ app:get('/flags', capture_errors(function (self)
         self.params.items_per_page = self.params.items_per_page or 18
         self.items = ProjectController.flagged_projects(self)
         self.page_title = 'flagged_projects'
-        return { render = 'admin/flags' }
+        return { render = 'admin/basic_project_list' }
     else
         return { redirect_to = self:build_url('/') }
     end
