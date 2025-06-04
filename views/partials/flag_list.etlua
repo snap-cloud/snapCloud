@@ -11,9 +11,10 @@
     for k, flag in pairs(flags) do
         flag.reason = reasons[flag.reason]
 %>
-    <span class="flag" title="<%= flag.notes %>">
+    <div class="flag" title="<%= flag.notes %>">
         <span class="header">
             <span class="reason warning" ><%= flag.reason %></span>
+            <!-- Convert these to bs buttons... -->
             <a
                 class="remove clickable"
                 onclick="confirmRemoveFlag('<%= flag.username %>')"
@@ -23,6 +24,9 @@
                 onclick="confirmBadFlag('<%= flag.username %>')"
                 ><i class="fas fa-thumbs-down"></i></a>
         </span>
+        <% if flag.notes then %>
+          <div><strong>Notes:</strong> <%= flag.notes %> </div>
+        <% end %>
         <span>Flagged</span>
         <span class="author"> by <a
             href="user?username=<%= flag.username %>"
@@ -31,7 +35,7 @@
         </span>
         <span> on </span>
         <span><%= string.from_sql_date(flag.created_at) %></span>
-    </span>
+    </div>
 <% end %>
     <script>
     function confirmRemoveFlag (flagger) {
@@ -63,4 +67,3 @@
 <% end %>
 
 </div>
-

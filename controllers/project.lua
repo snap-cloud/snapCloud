@@ -66,7 +66,7 @@ ProjectController = {
                     ' ORDER BY ' ..
                         (self.params.order or 'firstpublished DESC'),
                 {
-                    per_page = self.params.items_per_page or 15,
+                    per_page = self.params.items_per_page or 18,
                     fields = self.params.fields or '*'
                 }
             )
@@ -153,6 +153,13 @@ ProjectController = {
             ]], self.current_user.id)
         )
     end),
+    all_recent_bookmarks = capture_errors(function (self)
+        self.params.page_number = 1
+        local projects = Projects:recently_bookmarked()
+        self.num_pages = math.ceil(#projects /
+            (self.items_per_page or 18))
+        return projects
+    end),
     bookmarked_projects = capture_errors(function (self)
         self.params.order = 'lastupdated DESC'
         return ProjectController.run_query(
@@ -183,7 +190,7 @@ ProjectController = {
                 #(Projects:select(query, {fields = self.params.fields}))
             self.num_pages =
                 math.ceil(total_flag_count /
-                    (self.params.items_per_page or 15))
+                    (self.params.items_per_page or 18))
         end
         return ProjectController.run_query(self, query)
     end),

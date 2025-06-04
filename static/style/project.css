@@ -28,9 +28,10 @@
     height: 406px;
 }
 
+/* 40px icon width */
 .project.small .no-image,
 .collection.small .no-image {
-    left: 88px;
+    left: calc(50% - 20px);
     top: 38px;
 }
 
@@ -43,11 +44,14 @@
 }
 
 .thumbnail-container {
-    position: relative;
-    border-radius: 5px;
+    width: auto;
+}
+
+.collection-thumbnail {
+    width: 160px;
     height: 120px;
+    border-radius: 5px;
     border: 1px solid var(--snap-dark-blue);
-    box-sizing: border-box;
 }
 
 .project .details {
@@ -55,14 +59,9 @@
 }
 
 .collection .info .no-image {
-    left: 59px;
-    top: 34px;
-}
-
-img.collection-thumbnail {
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
+    position: relative;
+    left: calc(50% - 20px);
+    top: calc(50% - 20px);
 }
 
 .collection.small .author,
@@ -82,12 +81,12 @@ img.collection-thumbnail {
     background: rgba(255, 255, 255, .5);
     border-radius: 3px;
     padding: 1px 4px;
-    margin: 0 -5px;
+    margin: 0 5px;
     display: flex;
     justify-content: space-evenly;
     position: absolute;
-    top: 2px;
-    right: 19px;
+    top: 3px;
+    right: calc(50% - 168px/2 + 0.2rem);
     flex-direction: row-reverse;
 }
 
@@ -96,12 +95,12 @@ img.collection-thumbnail {
 }
 
 .collection-controls .remove {
-    margin-right: -1px;
+    margin-right: -3px;
 }
 
 .featured .collection-controls {
-    right: 35px;
-    width: 15px;
+    right: calc(50% - 168px/2 + 0.75rem);
+    width: 1rem;
 }
 
 .flagged .collection-controls {
@@ -181,43 +180,61 @@ i.bookmarked {
     background: rgba(255, 255, 255, .8);
 }
 
-.new-editor {
-    border: 1px solid #AAAAAA;
-    width: 160px;
-    border-radius: 15px;
-    padding-left: 0.75em;
-    box-sizing: border-box;
+.editors .new-editor {
+    font-size: 0.75rem;
+    line-height: 1.3em;
+    width: 10ch;
+    border: 1px solid var(--bs-success);
+    border-radius: var(--bs-border-radius-sm);
+    padding: 0.1em;
+    margin: 0.1em;
+}
+
+.editors .new-editor:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.12rem #FFF;
 }
 
 .editor-list {
     display: inline;
+    list-style: none;
+    padding: 1rem 0;
+    margin: 1rem 0;
 }
 
 .editor-list .editor {
     display: inline-block;
-    margin: 0.2em;
-    padding: 0.2em 0.5em;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 10px;
+    margin: 0.1em;
 }
 
-.editor-list a strong {
-    font-weight: normal;
+.editors .badge {
+    font-size: 0.75em;
+    line-height: 2em;
+    height: 2rem;
+    padding: 0.25rem 0.3rem;
 }
 
-.editor-list .editor .remove {
-    display: none;
-    margin-left: 0.2em;
-}
-.editor-list .editor:hover .remove {
-    display: inline;
+.editors .badge a,
+.editors .badge a:visited {
+    text-decoration: none;
+    color: #FFF;
 }
 
-.editors .unenroll,
-.editors .ffa,
-.editors .un-ffa {
-    display: block;
-    margin: 0.2em;
+.editors .badge a:hover,
+.editors .badge a:focus {
+    text-decoration: underline;
+}
+
+.editors .badge .clickable {
+    cursor: pointer;
+    padding: 0.1rem;
+    margin: 0.1em;
+}
+
+.editors .badge .clickable:hover,
+.editors .badge .clickable:focus {
+    border: 1px solid white;
+    border-radius: 50%;
 }
 
 .project iframe,
@@ -243,13 +260,13 @@ i.bookmarked {
     line-height: 1.5em;
 }
 
-.collection.small span.collection-name,
-.project.small span.project-name {
-    display: block;
-    white-space: nowrap;
+.collection.small .collection-name,
+.project.small .project-name {
+    margin: 0 auto;
+    /* white-space: nowrap; */
+    max-width: 20ch;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 0 2px;
 }
 
 .collection.small span.is-public,
@@ -257,32 +274,24 @@ i.bookmarked {
     margin-right: 0.5em;
 }
 
-.collection .author {
-    font-size: .8em;
-}
 
 .project.big.embed .title .author {
     position: relative !important;
 }
 
-.collection,
 .project.big {
     margin-top: 1em;
 }
 
-.collection .title,
 .project.big .title {
     position: relative;
     margin-bottom: .5em;
 }
 
-.collection .title h1 {
-    display: inline-block;
-    margin: 0;
-}
 
-.collection .title {
-    margin-bottom: 1em;
+.collection .title h1 {
+    display: inline;
+    margin-bottom: 2rem;
 }
 
 .remixed-from {
@@ -427,14 +436,10 @@ i.bookmarked {
     margin-right: 0.5em;
 }
 
-.collection .dates p {
-    font-size: 0.7em;
-    padding-left: .5em;
-    box-sizing: border-box;
-    line-height: 1em;
+/* .collection .dates {
     margin-top: 0;
     margin-bottom: 0.7em;
-}
+} */
 
 /* Reasons dialog */
 

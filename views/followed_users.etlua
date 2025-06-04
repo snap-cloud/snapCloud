@@ -3,7 +3,7 @@
 
 <%
 render(
-    'views.grid_bs',
+    'views.grid',
     {
         class = 'users',
         item_type = 'user',

@@ -1,77 +1,60 @@
-<!-- Thanks to www.w3schools.com -->
-<link rel="stylesheet" href="/static/style/banner.css">
+<div class="row">
+  <div id="homepage-carousel" class="carousel slide col-12 my-3" data-bs-ride="carousel">
+    <div class="carousel-inner">
+      <!-- Ensure 1 item is always active. -->
+<!--
+      <div class="carousel-item active">
+        <a href="https://snapcon.org" aria-label="Check out Snap!Con" target=_blank>
+          <img src="/static/img/snapcon.png" aria-hidden=true>
+        </a>
+      </div>
+-->
 
-<div class="slideshow">
-    <a href="https://snapcon.org">
-        <div class="slide fade">
-            <img src="/static/img/snapcon.png" style="width:100%">
-        </div>
-    </a>
     <%
-    local totms = package.loaded.db.select([[
-        name FROM collections
-            WHERE id = (
-                SELECT collection_id FROM featured_collections
-                WHERE page_path = 'index' AND type = 'totm'
-                LIMIT 1)]])
+      local totms = package.loaded.db.select([[
+          name FROM collections
+              WHERE id = (
+                  SELECT collection_id FROM featured_collections
+                  WHERE page_path = 'index' AND type = 'totm'
+                  LIMIT 1)]])
     --if totms and totms[1] then
     if false then
     %>
-    <a href="collection?username=snapcloud&collection=<%= totms[1].name %>">
-        <div class="slide fade">
-            <img src="/static/img/totm.png" style="width:100%">
-        </div>
-    </a>
+    <div class="carousel-item">
+      <a href="/collection?username=snapcloud&collection=<%= totms[1].name %>">
+        <img src="/static/img/totm.png"
+          alt="View Topic of the Month '<%= totms[1].name %>'" />
+      </a>
+    </div>
     <% end %>
+      <div class="carousel-item active">
+        <img src="/static/img/snapcon.png" alt="Snap! - Build Your Own Blocks">
+      </div>
 
-    <div class="slide fade">
-        <img src="/static/img/snapcon.png" style="width:100%">
+      <div class="carousel-item">
+        <img src="/static/img/snap-byob.png" alt="Snap! - Build Your Own Blocks">
+      </div>
+
+      <div class="carousel-item">
+        <img src="/static/img/lowfloor.png" alt="Snap! - Low Floor (showing flowers)">
+      </div>
+
+      <div class="carousel-item">
+        <img src="/static/img/widewalls.png" alt="Snap! - Wide Walls">
+      </div>
+
+      <div class="carousel-item">
+        <img src="/static/img/noceiling.png" alt="Snap! - No Ceiling">
+      </div>
     </div>
 
-    <div class="slide fade">
-        <img src="/static/img/snap-byob.png" style="width:100%">
-    </div>
-
-    <div class="slide fade">
-        <img src="/static/img/lowfloor.png" style="width:100%">
-    </div>
-
-    <div class="slide fade">
-        <img src="/static/img/widewalls.png" style="width:100%">
-    </div>
-
-    <div class="slide fade">
-        <img src="/static/img/noceiling.png" style="width:100%">
-    </div>
-
-    <a class="previous" onclick="plusSlides(-1)">&#10094;</a>
-    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+    <button class="carousel-control-prev" type="button" data-bs-target="#homepage-carousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#homepage-carousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
 </div>
-<br>
-
-<script>
-    var slideIndex = 1;
-
-    showSlide(slideIndex);
-
-    function plusSlides (n) {
-        showSlide(slideIndex += n);
-    };
-
-    function currentSlide (n) {
-        showSlide(slideIndex = n);
-    };
-
-    function showSlide (n) {
-        var slides = document.querySelectorAll('.slide'),
-            i;
-        if (n > slides.length) { slideIndex = 1 }
-        if (n < 1) { slideIndex = slides.length }
-        slides.forEach(function (slide) {
-            slide.style.display = 'none';
-        });
-        slides[slideIndex-1].style.display = 'block';
-    };
-
-    setInterval(() => { plusSlides(1); }, 8000);
-</script>

@@ -1,7 +1,7 @@
 <% content_for('title', locale.get('learn_snap', 'Snap!')) %>
 <h1 ><%- locale.get('learn_snap', 'Snap<em>!</em>') %></h1>
 
-<% for _, typeKey in pairs(typesOrder) do
+<% for _, typeKey in pairs(resources_order) do
      local typeInfo = types[typeKey]
      local items = materials_by_type[typeKey] %>
 <section class="my-4">

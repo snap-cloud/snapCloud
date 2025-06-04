@@ -1,21 +1,32 @@
-<nav class="paginator">
-    <a class="clickable"
-        onclick="change_page_<%=id%>('first');"
-    ><i class="fas fa-caret-left"></i></a>
-    <a class="clickable"
-        onclick="change_page_<%=id%>(-5);"
-        ><i class="fas fa-angle-double-left"></i></a>
-    <a class="clickable"
-        onclick="change_page_<%=id%>(-1);"
-        ><i class="fas fa-angle-left"></i></a>
-    <span class="page"></span> / <span class="total-pages"><%= num_pages %></span>
-    <a class="clickable"
-        onclick="change_page_<%=id%>(1);"
-        ><i class="fas fa-angle-right"></i></a>
-    <a class="clickable"
-        onclick="change_page_<%=id%>(5);"
-        ><i class="fas fa-angle-double-right"></i></a>
-    <a class="clickable"
-        onclick="change_page_<%=id%>('last');"
-        ><i class="fas fa-caret-right"></i></a>
+<nav aria-label="<%- title %> carousel pages">
+  <ul class="pagination pagination-sm justify-content-end">
+    <li class="page-item">
+        <button class="page-link" type="button" data-bs-target="#<%=id%>" data-bs-slide="first">
+            <i class="fas fa-caret-left" aria-hidden=true></i>
+            <span class="visually-hidden">first page</span>
+        </button>
+    </li>
+    <li class="page-item">
+        <button class="page-link" type="button" data-bs-target="#<%=id%>" data-bs-slide="prev">
+            <i class="fas fa-angle-left" aria-hidden="true"></i>
+            <span class="visually-hidden">previous page</span>
+        </button>
+    </li>
+    <li class="page-item disabled js-textStatus">
+        <span class="page-link" aria-hidden="true">1 / <%- num_pages %></span>
+        <span class="visually-hidden">1 of <%- num_pages %> pages</span>
+    </li>
+    <li class="page-item">
+        <button class="page-link" type="button" data-bs-target="#<%=id%>" data-bs-slide="next">
+            <i class="fas fa-angle-right" aria-hidden=true></i>
+            <span class="visually-hidden">next page</span>
+        </button>
+    </li>
+    <li class="page-item">
+        <button class="page-link" type="button" data-bs-target="#<%=id%>" data-bs-slide="last">
+            <i class="fas fa-caret-right" aria-hidden=true></i>
+            <span class="visually-hidden">last page</span>
+        </button>
+    </li>
+  </ul>
 </nav>

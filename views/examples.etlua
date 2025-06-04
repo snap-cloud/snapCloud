@@ -11,14 +11,15 @@ for _, descriptor in pairs(
         package.loaded.Collections:find({id = descriptor.collection_id })
 
     render(
-        'views.carousel_bs',
+        'views.carousel',
         {
             title = collection.name, -- TODO localize titles
             items = CollectionController.projects({
                 params = {},
-                items_per_page = 20,
+                items_per_page = 24,
                 collection = collection
             }),
+            items_per_row = 6,
             href = collection:url_for('site')
         }
     )

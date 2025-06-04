@@ -3,7 +3,7 @@
 
 <%
 render(
-    'views.carousel_bs',
+    'views.carousel',
     {
         class = 'projects',
         title = locale.get('projects'),
@@ -11,7 +11,8 @@ render(
         items = ProjectController.fetch({
             params = {
                 search_term = params.query,
-                items_per_page = 20
+                items_per_page = 24,
+                items_per_row = 6,
             },
             session = session
         }),
@@ -20,7 +21,7 @@ render(
 )
 
 render(
-    'views.carousel_bs',
+    'views.carousel',
     {
         class = 'collections',
         title = locale.get('collections'),
@@ -28,7 +29,7 @@ render(
         items = CollectionController.fetch({
             params = {
                 search_term = params.query,
-                per_page = 20
+                per_page = 24
             },
             session = session
         }),
@@ -37,7 +38,7 @@ render(
 )
 
 render(
-    'views.carousel_bs',
+    'views.carousel',
     {
         class = 'users',
         title = locale.get('users'),

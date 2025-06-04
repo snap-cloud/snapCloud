@@ -1,9 +1,0 @@
-.user_results.paginator {
-    text-align: left;
-}
-
-.user_results .user {
-    margin-bottom: 0.5em;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}

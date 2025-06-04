@@ -1,3 +1,4 @@
+
 .bigger {
     font-size: 1.2em;
     line-height: 1.2em;
@@ -108,19 +109,6 @@ pre.in-place {
     border-bottom: 0;
     margin-top: -22px;
     margin-left: -44px;
-}
-
-.pure-button {
-    color: var(--snap-dark-blue);
-    background-color: #bfc0c0;
-}
-
-.pure-button-warning {
-    background-color: Tomato;
-}
-
-.warning {
-    color: Tomato;
 }
 
 .clickable {

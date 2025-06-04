@@ -22,6 +22,9 @@
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+local os = require('os')
+local config = package.loaded.config
+
 local function capitalize(str)
     return str:gsub("^%l", string.upper)
 end
@@ -83,10 +86,28 @@ local function group_by_type(items)
   return result
 end
 
+local function cache_buster ()
+    if config._name == "development" then
+      return os.time()
+    end
+    local cache = ngx.shared.session_cache
+    if cache:get('cache_buster') then
+      return cache:get('cache_buster')
+    end
+    local cache_buster_value = os.time()
+    if config.release_sha then
+      cache_buster_value = config.release_sha
+    end
+    cache:set('cache_buster', cache_buster_value)
+    return cache_buster_value
+end
+
+
 return {
   capitalize = capitalize,
   domain_name = domain_name,
   escape_html = escape_html,
   visualize_whitespace_html = visualize_whitespace_html,
   group_by_type = group_by_type,
+  cache_buster = cache_buster,
 }

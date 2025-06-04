@@ -152,9 +152,11 @@ function toggleFullScreen () {
 
     if (container.classList.contains('full-screen')) {
         container.classList.remove('full-screen');
-        document.body.style.overflow = 'auto';
+        document.body.parentElement.style = null;
+        document.body.style = null;
     } else {
         container.classList.add('full-screen');
+        document.body.parentElement.style.overflow = 'hidden';
         document.body.style.overflow = 'hidden';
     }
     world.worldCanvas.focus();

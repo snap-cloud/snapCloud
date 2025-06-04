@@ -29,47 +29,51 @@
 -- set defaults
 
 if show_author == nil then show_author = true end
-items_per_page = items_per_page or 15
-items_per_row = items_per_row or 5
+items_per_page = items_per_page or 18
+items_per_row = items_per_row or 6
 item_type = item_type or 'project'
-num_pages = num_pages or 0
 if items == nil then items = {} end
+num_pages = num_pages or math.ceil(#items / items_per_page)
 %>
 
-<link rel="stylesheet" href="/static/style/project.css">
-<div class="<%= class %> container">
+<% if (num_pages > 0) or show_if_empty then %>
+    <section class="<%= class %> container-fluid">
 
-<%
-if ((num_pages > 0) or show_if_empty) then %>
-    <% if (title) then %>
-    <h2 class="<%= class %> header"><%= title %></h2>
+    <% if title then %>
+        <h2 class="<%= class %> header"><%= title %></h2>
     <% elseif title_selector then %>
-    <h2 class="<%= class %> header"
-        ><%= locale.get(title_selector) %></h2>
+        <h2 class="<%= class %> header"
+            ><%= locale.get(title_selector) %></h2>
     <% end %>
-    <div class="bar">
-        <%
-        if with_search then
-            render(
-                'views.partials.grid_search',
-                 { class = class }
-            )
-        end
-        if filter_descriptors then
-            render(
-                'views.partials.grid_filters',
-                { filter_descriptors = filter_descriptors }
-            )
-        end
-        render('views.partials.grid_paginator')
-        %>
 
-
+    <% --[[%> TODO: When no search or filter render pagination in the same row as the title. <%]]%>
+    <div class="row g-2">
+        <div class="col-lg-3 col-md-2 col-12">
+            <% if with_search then
+                render(
+                    'views.partials.grid_search',
+                    { class = class }
+                )
+            end %>
+        </div>
+        <div class="col-lg-5 col-md-5 col-12">
+            <% if filter_descriptors then
+                render(
+                    'views.partials.grid_filters',
+                    { filter_descriptors = filter_descriptors }
+                )
+            end %>
+        </div>
+        <div class="col-lg-4 col-md-5 col-12">
+            <% render('views.partials.grid_paginator') %>
+        </div>
     </div>
+
     <% if (num_pages > 0) then %>
-    <div class="<%= class %> list pure-g">
-        <% for _, item in pairs(items) do %>
+        <% for idx, item in pairs(items) do %>
             <%
+                local new_row = (idx - 1) % items_per_row == 0
+                local end_row = idx % items_per_row == 0 or idx == #items
                 params = {
                     item = item,
                     items_per_row = items_per_row,
@@ -84,11 +88,15 @@ if ((num_pages > 0) or show_if_empty) then %>
                 if item_params then
                     for k, v in pairs(item_params) do params[k] = v end
                 end
-                render('views.partials.' .. item_type, params)
-            %>
+                %>
+            <% if new_row then %>
+            <div class="<%= class %> row g-2 row-cols-auto">
+            <% end %>
+                <% render('views.partials.' .. item_type .. '', params) %>
+            <% if end_row then %>
+            </div>
+            <% end %>
         <% end %>
-    </div>
-    <% end -- show items, if there are any %>
-<% end -- show if empty %>
-    </script>
-</div>
+    <% end %>
+    </section>
+<% end %>

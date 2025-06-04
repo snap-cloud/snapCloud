@@ -36,9 +36,9 @@ local FlaggedProjects = package.loaded.FlaggedProjects
 local csrf = require("lapis.csrf")
 local assert_exists = require('validation').assert_exists
 
+local util = require("lib.util")
 local materials = require('views.static.resources').materials
 local material_types = require('views.static.resources').types
-local group_by_type = require("lib.util").group_by_type
 
 require 'controllers.user'
 require 'controllers.project'
@@ -48,12 +48,14 @@ require 'dialogs'
 
 app:enable('etlua')
 
-app.layout = require 'views.layout.layout_original'
+app.layout = require 'views.layout.application'
 
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
     'mirrors', 'offline', 'partners', 'privacy', 'research',
-    'snapinator', 'snapp', 'source', 'tos'
+    'snapinator', 'snapp', 'source', 'tos',
+    -- Disabled because this is out of date.
+    -- 'requirements',
 }
 
 local user_forms = {}
@@ -69,6 +71,7 @@ user_forms['sign_up'] = 'users/sign_up'
 user_forms['delete_user'] = 'users/delete_user'
 
 app:before_filter(function (self)
+    self.cache_buster = util.cache_buster()
     -- A front-end method to prefer opening some links (the IDE, mostly) in the same window
     self.prefer_new_tab = false
     if self.current_user and self.session.presist_session ~= 'true' then
@@ -78,7 +81,7 @@ end)
 
 app:get('index', '/', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'index_bs', layout = 'layout_bs' }
+    return { render = 'index' }
 end)))
 
 -- Backwards compatibility.
@@ -90,14 +93,14 @@ app:match('doc', '/doc/:doc_name', respond_to({
     GET = capture_errors(function (self)
         return {
             redirect_to = self:build_url(
-                '/static/doc/' ..  self.params.doc_name)
+                '/static/doc/' .. self.params.doc_name)
         }
     end)
 }))
 
 for _, page in pairs(static_pages) do
     app:get('/' .. page, capture_errors(cached(function (self)
-        return { render = 'static/' .. page, layout = 'layout_bs' }
+        return { render = 'static/' .. page }
     end)))
 end
 
@@ -105,15 +108,15 @@ for route, view_path in pairs(user_forms) do
     app:get('/' .. route, capture_errors(cached(function (self)
         self.csrf_token = csrf.generate_token(self)
         self.res.headers['Content-Security-Policy'] = "frame-src 'none'"
-        return { render = view_path, layout = 'layout_bs' }
+        return { render = view_path }
     end)))
 end
 
 app:get('/learn', capture_errors(cached(function (self)
-    self.materials_by_type = group_by_type(materials)
-    self.typesOrder = {"documentation", "course", "book"}
+    self.materials_by_type = util.group_by_type(materials)
+    self.resources_order = {"documentation", "course", "book"}
     self.types = material_types
-    return { render = 'static/learn', layout = 'layout_bs'}
+    return { render = 'static/learn'}
 end)))
 
 app:get('/materials', function ()
@@ -132,30 +135,30 @@ end))
 
 app:get('/explore', capture_errors(cached(function (self)
     self.items = ProjectController.fetch(self)
-    return { render = 'explore', layout = 'layout_bs' }
+    return { render = 'explore' }
 end)))
 
 app:get('/collections', capture_errors(cached(function (self)
     self.items = CollectionController.fetch(self)
-    return { render = 'collections', layout = 'layout_bs' }
+    return { render = 'collections' }
 end)))
 
 app:get('/all_totms', capture_errors(cached(function (self)
     self.items = CollectionController.totms(self)
-    return { render = 'all_totms', layout = 'layout_bs' }
+    return { render = 'all_totms' }
 end)))
 
 app:get('/users', capture_errors(cached(function (self)
     self.items_per_page = 51
     self.items = UserController.fetch(self)
     if not self.params.search_term then self.params.search_term = '' end
-    return { render = 'users', layout = 'layout_bs' }
+    return { render = 'users' }
 end)))
 
 app:get('/my_projects', capture_errors(function (self)
     if self.current_user then
         self.items = ProjectController.my_projects(self)
-        return { render = 'my_projects', layout = 'layout_bs' }
+        return { render = 'my_projects' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -164,7 +167,7 @@ end))
 app:get('/my_collections', capture_errors(function (self)
     if self.current_user then
         self.items = CollectionController.my_collections(self)
-        return { render = 'my_collections', layout = 'layout_bs' }
+        return { render = 'my_collections' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -201,27 +204,28 @@ app:get('/user', capture_errors(function (self)
     assert_user_exists(self)
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
-    return { render = 'user', layout = 'layout_bs' }
+    return { render = 'user' }
 end))
 
 app:get('/user_collections/:username', capture_errors(cached(function (self)
     assert_user_exists(self)
     self.params.user_id = self.queried_user.id
     self.items = CollectionController.user_collections(self)
-    return { render = 'collections', layout = 'layout_bs' }
+    return { render = 'collections' }
 end)))
 
 app:get('/user_projects/:username', capture_errors(cached(function (self)
     assert_user_exists(self)
     self.items = ProjectController.user_projects(self)
-    return { render = 'explore', layout = 'layout_bs' }
+    return { render = 'explore' }
 end)))
 
 -- Display an embedded collection view.
 app:get('/carousel', capture_errors(cached(function (self)
     assert_user_exists(self)
     local creator = self.queried_user
-    self.params.items_per_row = self.params.items_per_page or 5
+    self.params.items_per_page = self.params.items_per_page or 4
+    self.params.items_per_row = self.params.items_per_row or 4
     self.params.page_number = self.params.page_number or 1
     self.collection = assert_exists(Collections:find(creator.id, self.params.collection))
     assert_can_view_collection(self, self.collection)
@@ -235,7 +239,7 @@ end)))
 app:get('/followed', capture_errors(cached(function (self)
     if self.current_user then
         self.items = ProjectController.followed_projects(self)
-        return { render = 'followed', layout = 'layout_bs' }
+        return { render = 'followed' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -244,7 +248,7 @@ end)))
 app:get('/followed_users', capture_errors(cached(function (self)
     if self.current_user then
         self.items = UserController.followed_users(self)
-        return { render = 'followed_users', layout = 'layout_bs' }
+        return { render = 'followed_users' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -253,7 +257,7 @@ end)))
 app:get('/my_followers', capture_errors(cached(function (self)
     if self.current_user then
         self.items = UserController.follower_users(self)
-    return { render = 'my_followers', layout = 'layout_bs' }
+    return { render = 'my_followers' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -262,7 +266,7 @@ end)))
 app:get('/bookmarked', capture_errors(cached(function (self)
     if self.current_user then
         self.items = ProjectController.bookmarked_projects(self)
-        return { render = 'bookmarked', layout = 'layout_bs' }
+        return { render = 'bookmarked' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -310,31 +314,31 @@ app:match('project', '/project', capture_errors(function (self)
             )[1] ~= nil
     end
 
-    return { render = 'project_bs', layout = 'layout_bs' }
+    return { render = 'project' }
 end))
 
 -- TODO: Should be able to consolidate these pages.
 app:get('/examples', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'examples', layout = 'layout_bs' }
+    return { render = 'examples' }
 end)))
 
 app:get('/events', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id
-    return { render = 'events', layout = 'layout_bs' }
+    return { render = 'events' }
 end)))
 
 app:get('/search', capture_errors(function (self)
     self.reviewer_controls =
         self.current_user and self.current_user:has_min_role('reviewer')
-    return { render = 'search', layout = 'layout_bs' }
+    return { render = 'search' }
 end))
 
 
 app:get('/profile', capture_errors(function (self)
     if self.current_user then
         self.user = self.current_user
-        return { render = 'profile', layout = 'layout_bs' }
+        return { render = 'profile' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -345,17 +349,30 @@ end))
 app:get('/admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'reviewer')
-        return { render = 'admin/index', layout = 'layout_bs' }
+        return { render = 'admin/index' }
     else
         return { redirect_to = self:build_url('/') }
     end
 end))
 
+app:get('/admin/bookmarks_feed', capture_errors(cached(function (self)
+    if self.current_user then
+        assert_min_role(self, 'reviewer')
+        self.items = ProjectController.all_recent_bookmarks(self)
+        self.page_title = 'recent_bookmarks'
+        return { render = 'admin/basic_project_list' }
+    else
+        return { redirect_to = self:build_url('/') }
+    end
+end)))
+
 app:get('/flags', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'reviewer')
-        items = ProjectController.flagged_projects(self)
-        return { render = 'admin/flags' }
+        self.params.items_per_page = self.params.items_per_page or 18
+        self.items = ProjectController.flagged_projects(self)
+        self.page_title = 'flagged_projects'
+        return { render = 'admin/basic_project_list' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -366,7 +383,7 @@ app:get('/user_admin', capture_errors(function (self)
     if self.current_user then
         assert_min_role(self, 'moderator')
         self.items = UserController.fetch(self)
-        return { render = 'admin/user_admin', layout = 'layout_bs' }
+        return { render = 'admin/user_admin' }
     else
         return { redirect_to = self:build_url('/') }
     end
@@ -387,7 +404,7 @@ app:match('admin/totm', '/totm', respond_to({
     GET = capture_errors(function (self)
         if self.current_user then
             assert_min_role(self, 'moderator')
-            return { render = true, layout = 'layout_bs' }
+            return { render = true }
         else
             return { redirect_to = self:build_url('/') }
         end
@@ -398,7 +415,7 @@ app:match('admin/totm', '/totm', respond_to({
         if file then
             local disk = package.loaded.disk
             if disk:save_totm_banner(file) then
-                return { render = true, layout = 'layout_bs' }
+                return { render = true }
             end
         end
         return errorResponse(self)
@@ -423,7 +440,7 @@ app:get('/teacher', capture_errors(function (self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'teacher/index', layout = 'layout_bs' }
+    return { render = 'teacher/index' }
 end))
 
 app:get('/bulk', capture_errors(function (self)
@@ -431,7 +448,7 @@ app:get('/bulk', capture_errors(function (self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
-    return { render = 'teacher/bulk', layout = 'layout_bs' }
+    return { render = 'teacher/bulk' }
 end))
 
 app:get('/learners', capture_errors(function (self)
@@ -443,15 +460,13 @@ app:get('/learners', capture_errors(function (self)
     self.items_per_page = 150
     if self.current_user and self.current_user.is_teacher then
         self.items = UserController.learners(self)
-        return { render = 'teacher/learners', layout = 'layout_bs' }
+        return { render = 'teacher/learners' }
     else
         return { redirect_to = self:build_url('index') }
     end
 end))
 
 -- Tools
---[[
-app:get('/localize', capture_errors(function (self)
-    return { render = 'localize' }
-end))
-]]--
+-- app:get('/localize', capture_errors(function (self)
+--     return { render = 'localize' }
+-- end))

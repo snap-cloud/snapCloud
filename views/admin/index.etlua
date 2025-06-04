@@ -4,17 +4,21 @@
 
 <h1><%- locale.get('administration') %></h1>
 
-<div class="admin-buttons">
-    <% if current_user and current_user:has_min_role('moderator') then %>
-    <a class="btn btn-outline-success" href="/totm"><%- locale.get('totm') %></a>
-    <a class="btn btn-outline-success" href="/carousel_admin"><%- locale.get('carousel_admin') %></a>
-    <a class="btn btn-outline-primary"
-       href="/user_admin"><%- locale.get('user_admin') %></a>
-    <a class="btn btn-outline-warning"
-       href="/zombie_admin"><%- locale.get('zombie_admin') %></a>
-    <% end %>
-    <% if current_user and current_user:isadmin() then %>
-    <a class="btn btn-outline-danger" href="ip_admin"><%- locale.get('suspicious_ips') %></a>
-    <% end %>
-    <a class="btn btn-outline-danger" href="flags"><%- locale.get('flagged_projects') %></a>
+<div class="col">
+  <% if current_user and current_user:has_min_role('moderator') then %>
+  <a class="m-1 btn btn-outline-success" href="/totm"><%- locale.get('totm') %></a>
+  <a class="m-1 btn btn-outline-success" href="/carousel_admin"
+    ><%- locale.get('carousel_admin') %></a>
+  <a class="m-1 btn btn-outline-success" href="/admin/bookmarks_feed"
+    ><%- locale.get('recent_bookmarks') %></a>
+  <a class="m-1 btn btn-outline-primary"
+    href="/user_admin"><%- locale.get('user_admin') %></a>
+  <br>
+  <a class="m-1 btn btn-warning"
+    href="/zombie_admin"><%- locale.get('zombie_admin') %></a>
+  <% end %>
+  <% if current_user and current_user:isadmin() then %>
+  <a class="m-1 btn btn-danger" href="ip_admin"><%- locale.get('suspicious_ips') %></a>
+  <% end %>
+  <a class="m-1 btn btn-danger" href="flags"><%- locale.get('flagged_projects') %></a>
 </div>
