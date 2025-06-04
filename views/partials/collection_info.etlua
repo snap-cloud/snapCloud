@@ -2,7 +2,14 @@
     <% render('views.partials.collection_thumbnail') %>
     <% render('views.partials.collection_dates') %>
 </div>
-<pre tabindex=-1 class="description"><%= collection.description or '' %></pre>
+
+<!-- TODO: We need to add some edit icon you can click/focus on to enter edit mode -->
+<pre tabindex=-1 class="description" aria-hidden=true><%= collection.description or '' %></pre>
+<div class="visually-hidden">
+    <p>Collection Description</p>
+    <%= collection.description or '' %>
+</div>
+
 <script>
     new InPlaceEditor(
         document.querySelector('pre.description'),
