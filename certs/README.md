@@ -34,12 +34,12 @@ We need to concatenate the proper files for nginx to be able to read them.
 You need to include the individual cert along with the intermediate certs in a single file.
 
 ```
-cp cloud_snap_berkeley_edu_cert.cer cloud_snap_berkeley_edu_combined.cer
-echo '' >> cloud_snap_berkeley_edu_combined.cer
-cat cloud_snap_berkeley_edu_interm-reversed.cer >> cloud_snap_berkeley_edu_combined.cer
+cp snap.berkeley.edu_cert.cer snap.berkeley.edu_combined.cer
+echo '' >> snap.berkeley.edu_combined.cer
+cat snap.berkeley.edu_interm-reversed.cer >> snap.berkeley.edu_combined.cer
 ```
 
-The concatenation combined the cert for the main domain, i.e. `cloud.snap.berkeley.edu` along with certs for the intermediate domains, i.e. `snap.berkeley.edu` and `berkeley.edu`. Combining the certs helps to improve the speed of making the SSL handshake because we have turned on "OCSP Stapling" in the nginx config. Otherwise, including the intermediate certs is a best practice, but not required.
+The concatenation combined the cert for the main domain, i.e. `snap.berkeley.edu` along with certs for the intermediate domains, i.e. `snap.berkeley.edu` and `berkeley.edu`. Combining the certs helps to improve the speed of making the SSL handshake because we have turned on "OCSP Stapling" in the nginx config. Otherwise, including the intermediate certs is a best practice, but not required.
 
 Use the combined file as the `ssl_certificate` in the nginx configuration.
 

@@ -92,9 +92,3 @@
 .filter select:focus {
     outline: none;
 }
-
-.admin-buttons {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-}

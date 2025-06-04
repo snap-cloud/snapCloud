@@ -40,6 +40,11 @@
         >Flagged <strong><%= item.flag_count %></strong> time</span>
 <% end %>
 
+<% if item.recent_bookmarks then %>
+    <span class="flag-count"
+        >Bookmarked <strong><%= item.recent_bookmarks %></strong> time</span>
+<% end %>
+
 <% if show_collection_controls then %>
     <div class="collection-controls">
         <a title="<%= locale.get('remove_from_collection_tooltip') %>"

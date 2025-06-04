@@ -44,7 +44,7 @@ local disk = package.loaded.disk
 --    FROM public.projects
 --   WHERE (projects.deleted IS NULL);
 --
-local ActiveProjects =  Model:extend('active_projects', {
+local ActiveProjects = Model:extend('active_projects', {
     type = 'project',
     primary_key = {'username', 'projectname'},
     constraints = {
@@ -54,6 +54,53 @@ local ActiveProjects =  Model:extend('active_projects', {
             end
         end
     },
+    recently_bookmarked = function ()
+        -- This query was gerneted by Claude, insprite by the Hacker News
+        -- algorithm for ranking projects based on recent bookmarks.
+        -- We rank projects based on the number of bookmarks in last 30 days,
+        -- giving more weight to recent bookmarks.
+        -- 86400 is the number of seconds in a day
+        -- * 5 boosts the score of based on the recency of the last update of the project
+        local rows = db.query([[
+            WITH recent_bookmark_activity AS (
+                SELECT
+                    project_id,
+                    COUNT(*) as recent_bookmarks,
+                    SUM(
+                        CASE
+                            WHEN created_at > NOW() - INTERVAL '1 day' THEN 10
+                            WHEN created_at > NOW() - INTERVAL '3 days' THEN 5
+                            WHEN created_at > NOW() - INTERVAL '7 days' THEN 2
+                            ELSE 0
+                        END
+                    ) as weighted_recent_score
+                FROM bookmarks
+                WHERE created_at > NOW() - INTERVAL '30 days'
+                GROUP BY project_id
+            )
+            SELECT p.id,
+                COALESCE(r.recent_bookmarks, 0) as recent_bookmarks,
+                COALESCE(r.weighted_recent_score, 0) as bookmark_score,
+                (COALESCE(r.weighted_recent_score, 0) +
+                GREATEST(0, 1 - EXTRACT(EPOCH FROM (NOW() - p.lastupdated)) / (86400 * 30)) * 5) as final_score
+            FROM recent_bookmark_activity r
+            JOIN active_projects p ON p.id = r.project_id
+            WHERE p.ispublic AND p.ispublished
+            ORDER BY final_score DESC
+            LIMIT 240
+        ]])
+
+        local result = {}
+        for i, item in ipairs(rows) do
+            local project = package.loaded.Projects:find({ id = item.id})
+            if project then
+                project.recent_bookmarks = item.recent_bookmarks
+                project.final_score = item.final_score
+                result[i] = project
+            end
+        end
+        return result
+    end,
     url_for = function (self, purpose, dev_version)
         local base = ngx and ngx.var and ngx.var.scheme .. '://' .. ngx.var.http_host .. '/' or ''
         base = base .. (dev_version and 'snap/dev/' or 'snap/') .. 'snap.html'
@@ -130,7 +177,7 @@ local ActiveProjects =  Model:extend('active_projects', {
                 disk:process_thumbnails(items, 'thumbnail_id')
                 return items
             end
-        }
+        },
     }
 })
 

@@ -153,6 +153,13 @@ ProjectController = {
             ]], self.current_user.id)
         )
     end),
+    all_recent_bookmarks = capture_errors(function (self)
+        self.params.page_number = 1
+        local projects = Projects:recently_bookmarked()
+        self.num_pages = math.ceil(#projects /
+            (self.items_per_page or 18))
+        return projects
+    end),
     bookmarked_projects = capture_errors(function (self)
         self.params.order = 'lastupdated DESC'
         return ProjectController.run_query(

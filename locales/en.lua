@@ -269,6 +269,7 @@ local locale = {
     -- ========================
     bookmarked_feed = "Projects I've Bookmarked",
     no_bookmarks = "You haven't bookmarked any projects yet. Click on the heart icon under a project that you like to bookmark it.",
+    recent_bookmarks = "Recently Bookmarked Projects",
 
     -- User profile
     -- ============
