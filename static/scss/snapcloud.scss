@@ -42,8 +42,8 @@
 
   // Trying Berkeley colors:
   --snap-dark-blue: #010133;
-  --lighter-link-color: #002676;
-  --dark-text-color: #010133;
+  --lighter-link-color: var(--blue-medium);
+  --dark-text-color: #000;
   --color-body-text: #000;
   --bs-dark: var(--snap-dark-blue);
   --bs-body-color: var(--snap-dark-blue);
@@ -52,6 +52,8 @@
   --estimated-footer-height: 450px;
   --white-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(255,255,255,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
   --dark-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(0,38,118,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+
+  --heading-color: var(--snap-dark-blue);
 }
 
 html {
@@ -71,11 +73,6 @@ body {
 main {
   margin: 1em auto;
   flex: 1 0 auto;
-}
-
-h1, h2, h3, h4, h5, h6,
-.h1, .h2, .h3, .h4, .h5, .h6 {
-  color: var(--snap-dark-blue);
 }
 
 // We often use 1/5 width items.
@@ -109,6 +106,10 @@ nav.navbar {
     position: fixed;
     top: var(--navbar-height);
     color: var(--bs-dark);
+  }
+
+  & h2 {
+    color: #FFF;
   }
 
   /* Remove extra padding so the li elements are full-height */
@@ -221,6 +222,7 @@ nav.navbar {
   font-size: 0.75em;
 
   h2 {
+    --heading-color: #FFF;
     font-size: 1.5em;
     font-weight: bold;
   }
@@ -234,6 +236,10 @@ nav.navbar {
   a {
     color: #ffffff;
     text-decoration: underline;
+
+    &::after {
+      content: "";
+    }
   }
 
   .credits {
@@ -262,9 +268,40 @@ nav.navbar {
   // border-radius: 0.2rem;
 }
 
+// For accessibility, we need to ensure that links are visible
+// We will add an icon after a link when it is used in "normal text".
+// We want to exclude navs, headings, footers, etc.
+p a,
+ul.bullets a,
+ol a {
+  &::after {
+   font-family: "Font Awesome 5 Free";
+   content: "\f0c1"; // link icon
+   display: inline-block;
+   font-size: 0.65em;
+   padding-left: 3px;
+   vertical-align: middle;
+   font-weight: 900;
+  }
+
+  // &[target="_blank"]::after {
+  //   content: "\f08e"; // external link icon
+  //   font-family: "Font Awesome 5 Free";
+  //   display: inline-block;
+  //   padding-right: 3px;
+  //   vertical-align: middle;
+  //   font-weight: 900;
+  // }
+}
+
 a {
   color: var(--lighter-link-color);
   text-decoration: none;
+
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+  }
 
   // We sometimes have heading text _inside_ the <a> (and not the other way around...)
   & h1, h2, h3, h4 {
