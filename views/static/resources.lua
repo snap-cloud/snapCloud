@@ -32,7 +32,7 @@ local materials = {
     url = "https://snap.berkeley.edu/snap/help/SnapManual.pdf",
     language = {"English"},
     type = "documentation",
-    level = 'beginner',
+    level = 'everyone',
     date = nil,
     description = nil,
     image = nil
@@ -62,7 +62,7 @@ local materials = {
   {
     title = "The Beauty and Joy of Computing",
     author = 'UC Berkeley and EDC',
-    url = "https://bjc.berkeley.edu/ap-csp/",
+    url = "https://bjc.berkeley.edu/ap-cs-principles/",
     language = {"English", "Spanish"},
     type = "course",
     level = 'High School',
