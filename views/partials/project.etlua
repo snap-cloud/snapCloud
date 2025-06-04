@@ -12,7 +12,7 @@
 
 <% if show_icons then %>
     <% local shared_label = locale.get('item_' .. (item.ispublic and 'shared' or 'not_shared') .. '_info') %>
-    <span class="is-public" title="<%= shared_label %>" aria-label="<%= shared_label %>"
+    <span class="is-public" title="<%= shared_label %>"
       ><small><i class="fas <%= item.ispublic and 'fa-link' or 'fa-unlink' %>"
             aria-hidden="true"></i>
         </small>
