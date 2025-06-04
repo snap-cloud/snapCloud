@@ -11,7 +11,7 @@ for _, descriptor in pairs(
         package.loaded.Collections:find({id = descriptor.collection_id })
 
     render(
-        'views.carousel_bs',
+        'views.carousel',
         {
             title = collection.name, -- TODO localize titles
             items = CollectionController.projects({

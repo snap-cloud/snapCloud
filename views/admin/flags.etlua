@@ -3,7 +3,7 @@
 <h1>Flagged Projects</h1>
 <%
 render(
-    'views.grid_bs',
+    'views.grid',
     {
         class = 'flags',
         title = locale.get('flagged_projects'),

@@ -5,8 +5,8 @@
 
 <div class="ips container">
     <div class="bar">
-        <% render('views.partials.grid_search_bs', { class = 'ips' }) %>
-        <% render('views.partials.grid_paginator_bs') %>
+        <% render('views.partials.grid_search', { class = 'ips' }) %>
+        <% render('views.partials.grid_paginator') %>
     </div>
     <div class="ips row">
     <% for _, entry in ipairs(ips) do %>

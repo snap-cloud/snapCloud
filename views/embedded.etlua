@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="<%= locale.language %>">
   <head>
-    <% render('views.layout.head_bs') %>
+    <% render('views.layout.head') %>
     <style type="text/css">
         html, body {
           background-color: transparent;

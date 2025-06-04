@@ -3,7 +3,7 @@
 
 <%
 render(
-    'views.carousel_bs',
+    'views.carousel',
     {
         class = 'projects',
         title = locale.get('projects'),
@@ -21,7 +21,7 @@ render(
 )
 
 render(
-    'views.carousel_bs',
+    'views.carousel',
     {
         class = 'collections',
         title = locale.get('collections'),
@@ -38,7 +38,7 @@ render(
 )
 
 render(
-    'views.carousel_bs',
+    'views.carousel',
     {
         class = 'users',
         title = locale.get('users'),

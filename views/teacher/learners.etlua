@@ -3,7 +3,7 @@
 <h1><%= locale.get('learners_title') %></h1>
 <%
 render(
-    'views.grid_bs',
+    'views.grid',
     {
         class = 'user_admin',
         item_type = 'profile',

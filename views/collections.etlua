@@ -11,7 +11,7 @@
 
 <%
 render(
-    'views.grid_bs',
+    'views.grid',
     {
         class = 'collections',
         item_type = 'collection',

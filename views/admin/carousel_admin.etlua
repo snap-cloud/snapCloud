@@ -31,7 +31,7 @@
                     id = descriptor.collection_id
             })
             render(
-                'views.partials.collection_bs',
+                'views.partials.collection',
                 {
                     item = collection,
                     items_per_row = 6,

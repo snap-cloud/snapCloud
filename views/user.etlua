@@ -8,7 +8,7 @@
 <%
 -- PUBLIC PROJECTS
 render(
-    'views.carousel_bs',
+    'views.carousel',
     {
         title = locale.get('latest_published_projects'),
         items = ProjectController.user_projects({
@@ -30,7 +30,7 @@ render(
 -- PUBLIC COLLECTIONS
 
 render(
-    'views.carousel_bs',
+    'views.carousel',
     {
         title = locale.get('latest_published_collections'),
         items = CollectionController.user_collections({
@@ -68,7 +68,7 @@ end
     <h2><%- locale.get('admin_tools') %></h2>
 <%
     render(
-        'views.partials.profile_bs',
+        'views.partials.profile',
         {
             item = queried_user,
             show_project_count = true
