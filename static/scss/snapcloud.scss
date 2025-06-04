@@ -4,24 +4,6 @@
 :root {
   // Links must have a 3:1 ratio against the text color AND 4.5:1 against white.
   // The text color must have a 4.5:1 ratio against the white background.
-  // Current nav+footer color.
-  --snap-dark-blue: #2d3142;
-  --lighter-link-color: #7070A0;
-  // This is a dark blue a hybrid of the current Snap! dark, and berkeley dark blues.
-  --dark-text-color: #102040;
-  // Trying Berkeley colors:
-  // --snap-dark-blue: #010133;
-  // --lighter-link-color: #002676;
-  // --dark-text-color: #010133;
-  --bs-dark: var(--snap-dark-blue);
-  --bs-body-color: var(--snap-dark-blue);
-  --navbar-height: 4rem;
-  /* this is the minimum I think w/ all 5 columns of links */
-  --estimated-footer-height: 450px;
-  --white-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(255,255,255,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
-  --dark-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(0,38,118,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
-
-  // Berkeley Colors are not currently used, but probably in the future.
   --snap-icon-blue: #496AD5;
   --snap-logo-gold: #E6AD1B;
   // 2024 Berkeley Color Palette
@@ -51,6 +33,25 @@
   --gray-light: #F2F2F2;
   // Special colors
   --california-heritage-gold: #C09748;
+
+  // Pre-2025 Snap! colors
+  // --snap-dark-blue: #2d3142;
+  // --lighter-link-color: #7070A0;
+  // This is a dark blue a hybrid of the current Snap! dark, and berkeley dark blues.
+  // --dark-text-color: #102040;
+
+  // Trying Berkeley colors:
+  --snap-dark-blue: #010133;
+  --lighter-link-color: #002676;
+  --dark-text-color: #010133;
+  --color-body-text: #000;
+  --bs-dark: var(--snap-dark-blue);
+  --bs-body-color: var(--snap-dark-blue);
+  --navbar-height: 4rem;
+  /* this is the minimum I think w/ all 5 columns of links */
+  --estimated-footer-height: 450px;
+  --white-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(255,255,255,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+  --dark-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(0,38,118,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
 }
 
 html {
@@ -61,7 +62,7 @@ html {
 
 body {
   margin: var(--navbar-height) 0 0 0;
-  color: var(--snap-dark-blue);
+  color: var(--color-body-text);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -70,6 +71,11 @@ body {
 main {
   margin: 1em auto;
   flex: 1 0 auto;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6 {
+  color: var(--snap-dark-blue);
 }
 
 // We often use 1/5 width items.
