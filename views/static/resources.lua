@@ -1,7 +1,7 @@
--- Snap! Resources
+-- Snap<em>!</em> Resources
 -- ===============
 -- This file contains the data rendered on the /learn page.
--- Resources are any kinds of materials that are helpful to learning Snap!
+-- Resources are any kinds of materials that are helpful to learning Snap<em>!</em>
 --
 -- Routes for all community website pages. We're in the process of starting to
 -- transition the whole site to Lua.
@@ -28,17 +28,17 @@
 local materials = {
     {
     title = "Reference Manual",
-    author = 'the Snap! Team',
+    author = 'the Snap<em>!</em> Team',
     url = "https://snap.berkeley.edu/snap/help/SnapManual.pdf",
     language = {"English"},
     type = "documentation",
-    level = 'beginner',
+    level = 'everyone',
     date = nil,
     description = nil,
     image = nil
   },
   {
-    title = "Get Coding with Snap!",
+    title = "Get Coding with Snap<em>!</em>",
     author = 'openSAP',
     url = "https://open.sap.com/courses/snap1",
     language = {"English"},
@@ -62,7 +62,7 @@ local materials = {
   {
     title = "The Beauty and Joy of Computing",
     author = 'UC Berkeley and EDC',
-    url = "https://bjc.berkeley.edu/ap-csp/",
+    url = "https://bjc.berkeley.edu/ap-cs-principles/",
     language = {"English", "Spanish"},
     type = "course",
     level = 'High School',
@@ -104,7 +104,7 @@ local materials = {
     image = nil
   },
   {
-    title = "Algorithmen mit Snap!",
+    title = "Algorithmen mit Snap<em>!</em>",
     author = 'ComputingEducation.de',
     url = "https://computingeducation.de/algorithmen-mit-snap/",
     language = {"German"},
@@ -137,7 +137,7 @@ local materials = {
     image = nil
   },
   {
-    title = "Computer Science with Snap!",
+    title = "Computer Science with Snap<em>!</em>",
     author = "Eckart Modrow",
     url = "http://ddi-mod.uni-goettingen.de/ComputerScienceWithSnap.pdf",
     language = {"English"},
@@ -148,7 +148,7 @@ local materials = {
     image = nil
   },
   {
-    title = "TUNESCOPE, Creating Digital Music in Snap!",
+    title = "TUNESCOPE, Creating Digital Music in Snap<em>!</em>",
     author = "Glen Bull, Rachel Gibson, Jo Watts, and N. Rich Nguyen",
     url = "static/doc/TuneScope%20Book.pdf",
     language = {"English"},
@@ -159,7 +159,7 @@ local materials = {
     image = nil
   },
   {
-    title = "Stapel, Schlange, Liste, Baum mit Snap!",
+    title = "Stapel, Schlange, Liste, Baum mit Snap<em>!</em>",
     author = "Fritz Hasselhorn",
     url = "static/doc/StapelListeBaum.pdf",
     language = {"German"},
@@ -181,7 +181,7 @@ local materials = {
     image = nil
   },
   {
-    title = "Fehlerkorrigierende und komprimierende Codes mit Snap!",
+    title = "Fehlerkorrigierende und komprimierende Codes mit Snap<em>!</em>",
     author = "Fritz Hasselhorn",
     url = "static/doc/Codierung.pdf",
     language = {"German"},
@@ -192,7 +192,7 @@ local materials = {
     image = nil
   },
   {
-    title = "Einführung in die Programmierung mit Snap!",
+    title = "Einführung in die Programmierung mit Snap<em>!</em>",
     author = "Fritz Hasselhorn",
     url = "static/doc/Einf%C3%BChrung%20Programmierung.pdf",
     language = {"German"},

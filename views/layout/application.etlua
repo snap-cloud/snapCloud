@@ -7,7 +7,7 @@
     <% render('views.js.dialog') %>
     <script>new customAlert();</script>
     <% render('views.layout.navigation_bar') %>
-    <main class="container-lg container-fluid mx-8 py-4">
+    <main class="container-lg container-fluid mx-8 py-2">
       <% content_for('inner') %>
     </main>
     <% render('views.layout.footer') %>

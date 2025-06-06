@@ -3,11 +3,29 @@
    local is_admin = current_user and current_user:isadmin() %>
 
 <div class="buttons">
+    <% -- BOOKMARKING -- %>
+    <% if current_user and current_user.username ~= project.username then %>
+        <% if project:bookmarked_by(current_user) then %>
+            <button class="btn btn-outline-dark unbookmark" type="button"
+                aria-label="<%= locale.get('unbookmark') %>"
+                title="<%= locale.get('unbookmark') %>"
+                onclick="cloud.delete(
+                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
+            ><i class="fas fa-heart"></i></button>
+        <% else %>
+            <button class="btn btn-outline-dark bookmark" type="button"
+                aria-label="<%= locale.get('bookmark') %>"
+                title="<%= locale.get('bookmark') %>"
+                onclick="cloud.post(
+                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
+            ><i class="far fa-heart"></i></button>
+        <% end %>
+    <% end %>
     <a class="btn btn-primary open" target="_blank"
-        href="<%= project:url_for('open', params.devVersion) %>"
-        ><%= is_users_project and locale.get('edit')
-            or locale.get('see_code')
-        %></a>
+    href="<%= project:url_for('open', params.devVersion) %>"
+    ><%= is_users_project and locale.get('edit')
+        or locale.get('see_code')
+    %></a>
     <a class="btn btn-outline-primary download"
         href="<%= project:url_for('download', params.devVersion) %>" download
         ><%= locale.get('download') %></a>
@@ -16,24 +34,6 @@
     <% if current_user then %>
     <button class="btn btn-outline-primary collect" type="button"
         onclick="collectDialog()"><%= locale.get('collect') %></button>
-      <% -- BOOKMARKING -- %>
-      <% if current_user.username ~= project.username then %>
-        <% if project:bookmarked_by(current_user) then %>
-            <button class="btn btn-outline-dark unbookmark" type="button"
-              aria-label="<%= locale.get('unbookmark') %>"
-              title="<%= locale.get('unbookmark') %>"
-              onclick="cloud.delete(
-                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
-            ><i class="fas fa-heart"></i></button>
-        <% else %>
-            <button class="btn btn-outline-dark bookmark" type="button"
-              aria-label="<%= locale.get('bookmark') %>"
-              title="<%= locale.get('bookmark') %>"
-              onclick="cloud.post(
-                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
-            ><i class="far fa-heart"></i></button>
-        <% end %>
-      <% end %>
     <% end %>
     <% if is_users_project or is_admin then %>
     <button class="btn btn-danger delete"

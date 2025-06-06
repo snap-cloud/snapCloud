@@ -12,18 +12,18 @@
     <ul class="list-group my-2">
     <% for _, item in ipairs(items) do %>
         <li class="list-group-item">
-        <a href="<%= item.url %>"><%= item.title %></a>
-        <% if item.author then %>
-            by <%= item.author %>
-        <% end %>
-        <span class="mt-1">
-            <% for _, lang in ipairs(item.language) do %>
-                <span class="badge text-bg-primary"><%= (lang) %></span>
+            <a href="<%= item.url %>"><%- item.title %></a>
+            <% if item.author then %>
+                by <%- item.author %>
             <% end %>
-            <% if item.level then %>
-            <span class="badge text-bg-info"><%= item.level %></span>
-            <% end %>
-        </span>
+            <span class="mt-1">
+                <% for _, lang in ipairs(item.language) do %>
+                    <span class="badge text-bg-primary"><%= (lang) %></span>
+                <% end %>
+                <% if item.level then %>
+                <span class="badge text-bg-info"><%= item.level %></span>
+                <% end %>
+            </span>
         </li>
     <% end %>
     </ul>

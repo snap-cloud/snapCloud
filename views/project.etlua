@@ -45,8 +45,11 @@
                     <% if (current_user.username == project.username) or
                         current_user:isadmin() then %>
                     <i title="<%= locale.get('project_is_bookmarked') %>"
-                        aria-label="<%= locale.get('project_is_bookmarked') %>"
+                        aria-hidden="true"
                         class="bookmarked fas fa-heart"></i>
+                    <span class="visibility-hidden">
+                        <%= locale.get('project_is_bookmarked') %>
+                    </span>
                     <% end %>
                     <% if current_user:isadmin() then %>
                     <span class="bookmark-count">

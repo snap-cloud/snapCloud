@@ -1,15 +1,21 @@
 <div class="details">
     <!-- Notes
         Element is focusable so it can be scrolled with screen readers
+        We need to add some edit icon you can click/focus on to enter edit mode
      -->
+    <div class="visually-hidden">
+        <p>Project Description</p>
+        <%= project.notes %>
+        <%= project.notes == '' and locale.get('no_notes') or '' %>
+    </div>
     <pre class="notes"
-        tabindex="0"
+        aria-hidden="true"
         title="<%= locale.get('shift_enter_note') %>"
-            ><%= project.notes %><%-
-                (project.notes ~= '') and ''
-                    or ('<small>' .. locale.get('no_notes') ..
-                '</small>')
-            %></pre>
+        ><%= project.notes %><%-
+            (project.notes ~= '') and ''
+                or ('<small>' .. locale.get('no_notes') ..
+            '</small>')
+    %></pre>
     <!-- Dates and project meta -->
     <div class="dates">
         <p class="created">

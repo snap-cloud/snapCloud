@@ -15,13 +15,14 @@
 
 <p>If you wish to save the projects you create on our cloud server, then you must create an account on this site so that your storage is separate from other people's storage. When you create an account, we collect your email address or, if you are under 13, your parent's or guardian's email address. We use your address for five purposes:
 
-<ul class="indent bullets">
- <li>When you sign up for an account, we immediately send you a confirming email with a verification link.</li>
- <li>If you ask for a new verification link, we will also send it to your email account.</li>
- <li>If you forget your password, we use your address to send you a password-reset email.</li>
- <li>If your account is suspended for violation of our <a href="tos">Terms of Service</a>, we will notify you by email.</li>
- <li>If you ask for instant deletion of your account under the GDPR, we will send you an email asking for confirmation.</li>
-</ul>
+<p><ul class="indent bullets">
+    <li>When you sign up for an account, we immediately send you a confirming email with a verification link.</li>
+    <li>If you ask for a new verification link, we will also send it to your email account.</li>
+    <li>If you forget your password, we use your address to send you a password-reset email.</li>
+    <li>If your account is suspended for violation of our <a href="tos">Terms of Service</a>, we will notify you by email.</li>
+    <li>If you ask for instant deletion of your account under the GDPR, we will send you an email asking for confirmation.</li>
+    </ul>
+</p>
 
 <p>We do not use your address for any other purpose. You will never receive marketing emails of any kind through this site, neither from us nor from third parties.</p>
 <p>We do not share your address with anyone else, except for companies contracted with us to provide services to us. Any such companies agree to obey this privacy policy. The only exception is that we might be compelled by legal subpoena to provide information to police agencies or courts.</p>

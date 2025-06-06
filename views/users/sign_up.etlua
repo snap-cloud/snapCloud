@@ -58,7 +58,7 @@
         <option value="11"><%- locale.get('november') %></option>
         <option value="12"><%- locale.get('december') %></option>
       </select>
-      <label for="birth-year" class="sr-only"><%- locale.get('birth_year') %></label>
+      <label for="birth-year" class="visually-hidden"><%- locale.get('birth_year') %></label>
       <select id="birth-year" name="birth-year" class="form-select" onchange="checkDate()"
         aria-required=true required>
       </select>
