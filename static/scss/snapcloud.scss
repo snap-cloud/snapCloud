@@ -46,7 +46,8 @@
   --dark-text-color: #000;
   --color-body-text: #000;
   --bs-dark: var(--snap-dark-blue);
-  --bs-body-color: var(--snap-dark-blue);
+  --bs-body-color: var(--dark-text-color);
+  // We need this to be darker b/c links are brighter blue.
   --navbar-height: 4rem;
   /* this is the minimum I think w/ all 5 columns of links */
   --estimated-footer-height: 450px;
@@ -179,6 +180,11 @@ nav.navbar {
       color: #FFF;
       font-weight: bold;
       text-align: center;
+
+      &:hover,
+      &:focus {
+        text-decoration: none;
+      }
     }
 
     &:hover,
@@ -273,13 +279,14 @@ nav.navbar {
 // We want to exclude navs, headings, footers, etc.
 p a,
 ul.bullets a,
-ol a {
+ol a,
+.list-group a {
   &::after {
    font-family: "Font Awesome 5 Free";
    content: "\f0c1"; // link icon
    display: inline-block;
    font-size: 0.65em;
-   padding-left: 3px;
+   padding: 0 3px;
    vertical-align: middle;
    font-weight: 900;
   }
