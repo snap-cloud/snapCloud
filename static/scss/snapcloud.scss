@@ -372,8 +372,11 @@ hr {
 }
 
 #homepage-carousel {
+  margin-top: -2.5rem ; /* negate <main> margin + padding */
+  margin-bottom: 1rem;
+
   .carousel-item img {
-    border-radius: 10px;
+    border-radius: 0 0 12px 12px;
     max-width: 100%;
     max-height: 400px;
   }

@@ -1,20 +1,105 @@
 <script src="/static/js/project.js"></script>
-
 <% render('views.partials.slideshow') %>
 
-<h1>
-    <% if current_user then %>
-    <%= locale.get('welcome_logged_in', current_user.username) %>
-    <% else %>
-    <%- locale.get('welcome', '<em>!</em>') %>
-    <% end %>
-</h1>
+<%
+local welcome = ''
+if current_user then
+    welcome = locale.get('welcome_logged_in', current_user.username)
+else
+    welcome = locale.get('welcome', '<em>!</em>')
+end
+%>
+
+<style>
+.speech-bubble {
+  position: relative;
+  background: #fff;
+  border: 2px solid #ccc;
+  border-radius: 10px;
+  width: auto;
+  padding: 5px;
+  margin: 0.5rem;
+}
+
+/* Border tail (outer) */
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -1ch;
+  left: 30px;
+  width: 0;
+  height: 0;
+  border: 12px solid transparent;
+  border-top-color: #ccc;
+}
+
+/* Background tail (inner) */
+.speech-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 32px;
+  width: 0;
+  height: 0;
+  border: 10px solid transparent;
+  border-top-color: #fff;
+}
+</style>
 
 <div class="row">
-    <div class="col-12"><%- locale.get('snap_description', '<em>!</em>') %></div>
-
-    <div class="col-12 py-3">
-        <a href="/snap"
+    <div class="col-md-2 col-sm-3 col">
+        <svg x="0px" y="0px" viewBox="0 0 95 123" style="max-height: 200px;">
+            <style type="text/css">
+                .st0{fill:#FFC93E;stroke:#603813;stroke-width:3;}
+                .st1{fill:#FFC93E;stroke:#603813;stroke-width:4;}
+                .st2{fill:#FFC93E;stroke:#603813;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;}
+                .st3{fill:#FFFFFF;}
+                .st4{fill:#603813;}
+                .st5{fill:none;stroke:#603813;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+            </style>
+            <g id="ID0.8323829737491906" transform="matrix(1, 0, 0, 1, 0, 3)">
+                <path id="R_Leg" class="st0" d="M47.3,104.3c0-1.3,0.4-3.1,2.3-3.5c2.9-0.6,6.1,2.3,7,3.1c-0.1,0.3,1,7.2,1,7.8
+                    c0,2-0.5,2.1-0.7,2.1c-2,0.3-7.2-5.2-9.6-8.4C47.4,105.2,47.3,104.8,47.3,104.3L47.3,104.3L47.3,104.3z"/>
+                <path id="Center_Leg" class="st1" d="M39.4,113.8c-1.4-1.5-1.6-5.7-1.6-7.5c0-0.8,0-1.3,0-1.3l0,0c0,0,0-0.2,0-0.2
+                    c0-3.3,3.1-4.5,3.6-4.7c1.8,0,4.9,0.9,5.6,2.1c0.1,0.1,0.1,0.3,0.1,0.5c0,0.2-0.1,0.4-0.2,0.7c-0.1,0.1-1.3,3.1-2.4,5.4l-0.8,2.1
+                    c-0.6,1.9-1.5,3.7-2.5,3.7C40.5,114.7,39.9,114.4,39.4,113.8L39.4,113.8L39.4,113.8z"/>
+                <path id="R_Arm" class="st0" d="M79.5,89.6l-1.4-2.4c-1.5-2.6-3.3-5.1-4.8-7.2c-2-2.7-3.7-5.6-4.3-7.6c-0.2-0.7-0.1-1.4,0.2-1.8
+                    c0-0.1,0.3-0.3,0.5-0.3c2.5-0.6,13.1,5.5,15.7,8.7c3.8,4.7,5.4,11.4,4.5,14.7c-0.4,1.4-1.1,2.3-2.3,2.8
+                    C84.8,97.7,82.9,95.6,79.5,89.6L79.5,89.6L79.5,89.6z"/>
+                <path id="Body" class="st2" d="M38.1,43c0,0-3.1-9.6-6-13.6c-1.7-2.8-4.2-6.3-7.5-6c-4.1,0.1-6.3,5-10.3,6.5c-2.6,1-9.5,2.3-8.4,0
+                    c2.8-5.8,14-9.1,16.8-16.4c1.3-3.3-4.3-7.3-7.9-7.9c-2.7-0.5-4,4.2-6.5,5.6c-1.2,0.6-4.3,1.3-3.8,0c2.1-4.4,4.5-10,9.3-11.7
+                    c3.6-1.3,7.6,2.5,10.3,5.1c8.5,8.2,15.6,17.9,23.2,26.6l4.5,5.1c0,0,3.2,4,5.7,6.6c0,0,2.4-0.3,4-1.7c1.3-1.1,1.1-2.3,1.6-4.9
+                    c0.4-2.4,0.8-6.7,2.1-6.7c1.9,0,3.2,7.9,3.7,10.8l0.3,1.6c0.6,3.5,4,13.9,4.1,14.4c0,0.1,0.1,0.2,0.1,0.2l0,0.1l0,0
+                    c5.2,6.4,9,14.2,9,21.5c0,15.5-13.6,26.3-31.7,26.3c-3.4,0-6.7-0.5-9.8-1.4l-0.2,0c0,0-4.9-0.4-11.2,7.8c-1.3,1.7-1.1,3.2-2.9,2.7
+                    c-0.6-0.2-1-0.6-1.4-1.4c-0.8-1.9-0.2-6.3,0.8-9.2l0.2-0.4l-0.4-0.3c-0.1-0.1-10.3-7.5-11.3-18.1c-0.9-9.3,3.8-14.5,5.7-17.4
+                    l1.1-1.9c1.4-3.4-1.2-8.2-3.6-12.4c-1.4-2.5-3.7-6.2-3.1-7c0.6-1,2.6,0.1,4.6,1c1.7,0.8,3.2,1.9,4.4,1.2c1.1-0.8,0.4-2.7-0.6-5.3
+                    c-1-2.5-2.8-6.4-2.1-8.1c0.2-0.4,0.5-0.8,1.1-1c1.9-0.7,4.6,2.5,6.8,5C31.5,41.5,34.6,44.9,38.1,43L38.1,43L38.1,43z"/>
+                <g id="L_Eye">
+                    <path id="White_1_" class="st3" d="M41.2,79.5c0,2.8,2.3,5.1,5.1,5.1s5.1-2.3,5.1-5.1c0-2.8-2.3-5.1-5.1-5.1
+                        C43.5,74.4,41.2,76.7,41.2,79.5L41.2,79.5L41.2,79.5z"/>
+                    <path id="Pupil_1_" class="st4" d="M47,75.8c1,0,1.9,0.4,2.5,1c0.6,0.6,1,1.5,1,2.5s-0.4,1.9-1,2.5c-0.6,0.6-1.5,1-2.5,1
+                        s-1.9-0.4-2.5-1c-0.6-0.6-1-1.5-1-2.5c0-1,0.4-1.9,1-2.5C45.1,76.2,46,75.8,47,75.8L47,75.8z"/>
+                </g>
+                <g id="R_Eye">
+                    <path id="White" class="st3" d="M65.6,79.5c0,2.8,2.3,5.1,5.1,5.1c2.8,0,5.1-2.3,5.1-5.1c0-2.8-2.3-5.1-5.1-5.1
+                        C67.8,74.4,65.6,76.7,65.6,79.5L65.6,79.5L65.6,79.5z"/>
+                    <path id="Pupil" class="st4" d="M67.7,79.4c0,2,1.6,3.6,3.6,3.6c2,0,3.6-1.6,3.6-3.6c0-2-1.6-3.6-3.6-3.6
+                        C69.3,75.8,67.7,77.4,67.7,79.4L67.7,79.4L67.7,79.4z"/>
+                </g>
+                <path id="L_Arm" class="st0" d="M6.3,99c-1-0.7-1.6-1.8-1.7-3.2c-0.2-3.4,2.5-9.7,7.1-13.6c3.2-2.7,14.6-6.7,17-5.7
+                    c0.2,0.1,0.5,0.3,0.5,0.4c0.2,0.4,0.2,1.1-0.1,1.8c-0.9,1.9-3.1,4.3-5.6,6.7c-1.9,1.8-4.1,3.9-6,6.2l-1.8,2.1
+                    C11.3,98.9,9,100.7,6.3,99L6.3,99L6.3,99z"/>
+                <path id="Mouth" class="st5" d="M63.1,95.4c0,0-4.6,0-7.8-2.8"/>
+            </g>
+            </svg>
+    </div>
+    <div class="col py-3">
+        <h1 class="speech-bubble"><%- welcome %></h1>
+        <p>
+            <%- locale.get('snap_description', '<em>!</em>') %>
+        </p>
+        <div>
+                    <a href="/snap"
             target="<%- prefer_new_tab and '_blank' or '_self' %>"
             class="m-1 btn btn-lg btn-primary"
             ><%- locale.get('run_now',
