@@ -4,7 +4,7 @@
 </div>
 
 <!-- TODO: We need to add some edit icon you can click/focus on to enter edit mode -->
-<pre tabindex=-1 class="description" aria-hidden=true><%= collection.description or '' %></pre>
+<pre class="description" aria-hidden=true><%= collection.description or '' %></pre>
 <div class="visually-hidden">
     <p>Collection Description</p>
     <%= collection.description or '' %>
