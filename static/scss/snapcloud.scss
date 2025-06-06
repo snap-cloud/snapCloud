@@ -294,12 +294,14 @@ ol a {
   // }
 }
 
+// Improve the accessibility of links
+// We need to show some visual indication that a link is clickable on hover or focus.
 a {
   color: var(--lighter-link-color);
   text-decoration: none;
 
-  &:hover,
-  &:focus {
+  &:not(.btn):hover,
+  &:not(.btn):focus {
     text-decoration: underline;
   }
 
