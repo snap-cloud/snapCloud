@@ -99,6 +99,7 @@ local ActiveProjects = Model:extend('active_projects', {
                 result[i] = project
             end
         end
+        disk:process_thumbnails(result)
         return result
     end,
     url_for = function (self, purpose, dev_version)
