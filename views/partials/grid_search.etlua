@@ -3,7 +3,7 @@
         role="search">
         <div class="input-group">
             <button class="btn btn-outline-primary" type="submit">
-                <span class="sr-only"><%- locale.get('search') %></span>
+                <span class="visually-hidden"><%- locale.get('search') %></span>
                 <i class="fas fa-search" aria-hidden="true"></i>
             </button>
             <input class="form-control" type="search" placeholder="Search" aria-label="Search" name="query">
