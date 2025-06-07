@@ -309,12 +309,14 @@ a {
 
   &:not(.btn):hover,
   &:not(.btn):focus {
-    text-decoration: underline;
-  }
+    text-decoration: underline;  }
+}
 
-  // We sometimes have heading text _inside_ the <a> (and not the other way around...)
-  & h1, h2, h3, h4 {
-    color: var(--lighter-link-color);
+h1, h2, h3, h4, h5, h6 {
+  // We need to include the :not() due to CSS specificity issues.
+  & a:not(.btn):hover,
+  & a:not(.btn):focus{
+    text-decoration: none;
   }
 }
 
