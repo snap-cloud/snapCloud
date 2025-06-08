@@ -1,7 +1,5 @@
-.ips .ip,
-.user_admin .user {
+.ips .ip {
     padding: 0.5em;
-    box-sizing: border-box;
 }
 
 .ip .details {
