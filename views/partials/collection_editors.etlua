@@ -1,5 +1,6 @@
 <div class="editors">
-    <% if collection.editor_ids then %>
+    <% if #collection.editor_ids > 0 then %>
+    <span class="visually-hidden">Editors</span>
     <ul class="editor-list">
     <% for _, editor in pairs(collection.editors) do %>
     <li class="editor">
