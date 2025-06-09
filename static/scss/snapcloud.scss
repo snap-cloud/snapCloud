@@ -4,24 +4,6 @@
 :root {
   // Links must have a 3:1 ratio against the text color AND 4.5:1 against white.
   // The text color must have a 4.5:1 ratio against the white background.
-  // Current nav+footer color.
-  --snap-dark-blue: #2d3142;
-  --lighter-link-color: #7070A0;
-  // This is a dark blue a hybrid of the current Snap! dark, and berkeley dark blues.
-  --dark-text-color: #102040;
-  // Trying Berkeley colors:
-  // --snap-dark-blue: #010133;
-  // --lighter-link-color: #002676;
-  // --dark-text-color: #010133;
-  --bs-dark: var(--snap-dark-blue);
-  --bs-body-color: var(--snap-dark-blue);
-  --navbar-height: 4rem;
-  /* this is the minimum I think w/ all 5 columns of links */
-  --estimated-footer-height: 450px;
-  --white-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(255,255,255,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
-  --dark-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(0,38,118,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
-
-  // Berkeley Colors are not currently used, but probably in the future.
   --snap-icon-blue: #496AD5;
   --snap-logo-gold: #E6AD1B;
   // 2024 Berkeley Color Palette
@@ -51,6 +33,28 @@
   --gray-light: #F2F2F2;
   // Special colors
   --california-heritage-gold: #C09748;
+
+  // Pre-2025 Snap! colors
+  // --snap-dark-blue: #2d3142;
+  // --lighter-link-color: #7070A0;
+  // This is a dark blue a hybrid of the current Snap! dark, and berkeley dark blues.
+  // --dark-text-color: #102040;
+
+  // Trying Berkeley colors:
+  --snap-dark-blue: #010133;
+  --lighter-link-color: var(--blue-medium);
+  --dark-text-color: #000;
+  --color-body-text: #000;
+  --bs-dark: var(--snap-dark-blue);
+  --bs-body-color: var(--dark-text-color);
+  // We need this to be darker b/c links are brighter blue.
+  --navbar-height: 4rem;
+  /* this is the minimum I think w/ all 5 columns of links */
+  --estimated-footer-height: 450px;
+  --white-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(255,255,255,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+  --dark-hamburger: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke='rgba(0,38,118,1)' stroke-linecap='round' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg>");
+
+  --heading-color: var(--snap-dark-blue);
 }
 
 html {
@@ -61,7 +65,7 @@ html {
 
 body {
   margin: var(--navbar-height) 0 0 0;
-  color: var(--snap-dark-blue);
+  color: var(--color-body-text);
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -103,6 +107,10 @@ nav.navbar {
     position: fixed;
     top: var(--navbar-height);
     color: var(--bs-dark);
+  }
+
+  & h2 {
+    color: #FFF;
   }
 
   /* Remove extra padding so the li elements are full-height */
@@ -172,6 +180,11 @@ nav.navbar {
       color: #FFF;
       font-weight: bold;
       text-align: center;
+
+      &:hover,
+      &:focus {
+        text-decoration: none;
+      }
     }
 
     &:hover,
@@ -215,6 +228,7 @@ nav.navbar {
   font-size: 0.75em;
 
   h2 {
+    --heading-color: #FFF;
     font-size: 1.5em;
     font-weight: bold;
   }
@@ -228,6 +242,10 @@ nav.navbar {
   a {
     color: #ffffff;
     text-decoration: underline;
+
+    &::after {
+      content: "";
+    }
   }
 
   .credits {
@@ -256,13 +274,49 @@ nav.navbar {
   // border-radius: 0.2rem;
 }
 
+// For accessibility, we need to ensure that links are visible
+// We will add an icon after a link when it is used in "normal text".
+// We want to exclude navs, headings, footers, etc.
+p a,
+ul.bullets a,
+ol a,
+.list-group a {
+  &::after {
+   font-family: "Font Awesome 5 Free";
+   content: "\f0c1"; // link icon
+   display: inline-block;
+   font-size: 0.65em;
+   padding: 0 3px;
+   vertical-align: middle;
+   font-weight: 900;
+  }
+
+  // &[target="_blank"]::after {
+  //   content: "\f08e"; // external link icon
+  //   font-family: "Font Awesome 5 Free";
+  //   display: inline-block;
+  //   padding-right: 3px;
+  //   vertical-align: middle;
+  //   font-weight: 900;
+  // }
+}
+
+// Improve the accessibility of links
+// We need to show some visual indication that a link is clickable on hover or focus.
 a {
   color: var(--lighter-link-color);
   text-decoration: none;
 
-  // We sometimes have heading text _inside_ the <a> (and not the other way around...)
-  & h1, h2, h3, h4 {
-    color: var(--lighter-link-color);
+  &:not(.btn):hover,
+  &:not(.btn):focus {
+    text-decoration: underline;  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  // We need to include the :not() due to CSS specificity issues.
+  & a:not(.btn):hover,
+  & a:not(.btn):focus{
+    text-decoration: none;
   }
 }
 

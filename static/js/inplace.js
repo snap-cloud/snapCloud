@@ -15,9 +15,13 @@ InPlaceEditor.prototype.init = function (element, action, defaultText) {
     this.element.contentEditable = true;
     this.fakeInput = document.createElement('input');
     this.fakeInput.style = 'opacity: 0; filter: alpha(opacity=0);';
+    // TODO: We should have a field-specific aria-label
+    this.fakeInput.ariaLabel = 'Click to edit';
     hiddenDiv.style = 'position: fixed; width: 0; height: 0; overflow: hidden;';
     hiddenDiv.append(this.fakeInput);
-    element.append(hiddenDiv);
+    // In the case of <pre> or <h> elements, we need to insert the fake input
+    // outside the pre element so it is accessible for screen readers.
+    element.parentNode.insertBefore(hiddenDiv, element);
 
     this.element.onblur = function () {
         myself.element.classList.add('flash');
@@ -26,7 +30,7 @@ InPlaceEditor.prototype.init = function (element, action, defaultText) {
     this.element.onfocus = function () { myself.startEditing() };
     this.element.onkeypress = function (event) { myself.checkKey(event); };
 };
-        
+
 InPlaceEditor.prototype.checkKey = function (event) {
     var code = (event.keyCode ? event.keyCode : event.which);
     if (code == 13 && !event.shiftKey) {

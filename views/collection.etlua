@@ -2,7 +2,7 @@
 <% content_for('title',
     collection.name .. " " .. locale.get('collection_by', collection.creator.username)) %>
 
-<div class="collection row">
+<div class="collection row py-1">
     <div class="title">
         <h1 class="js-collection-title"><%= collection.name %></h1>
         <script>

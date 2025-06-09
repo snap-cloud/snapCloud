@@ -1,39 +1,44 @@
 <nav aria-label="project grid navigation">
   <ul class="pagination justify-content-end">
     <li class="page-item">
-      <a class="page-link" href="#" onclick="change_page('first');">
-        <i class="fas fa-caret-left" aria-label="first page"></i>
+      <a class="page-link" href="#" onclick="change_page('first');"
+        aria-label="first page">
+        <i class="fas fa-caret-left" aria-hidden=true></i>
       </a>
     </li>
     <li class="page-item d-none d-sm-block">
-      <a class="page-link" href="#" onclick="change_page(-5);">
-        <i class="fas fa-angle-double-left" aria-label="go back 5 pages"></i>
+      <a class="page-link" href="#" onclick="change_page(-5);"
+        aria-label="go back 5 pages">
+        <i class="fas fa-angle-double-left" aria-hidden=true></i>
       </a>
     </li>
     <li class="page-item">
-      <a class="page-link" href="#" onclick="change_page(-1);">
-        <i class="fas fa-angle-left" aria-label="previous page"></i>
+      <a class="page-link" href="#" onclick="change_page(-1);"
+        aria-label="previous page">
+        <i class="fas fa-angle-left" aria-hidden=true></i>
       </a>
     </li>
     <li class="page-item">
-      <span class="page-link disabled text-dark bg-light text-nowrap"
-        aria-label="page <%= params.page_number %> of <%= num_pages %>">
+      <span class="page-link disabled text-dark bg-light text-nowrap">
         <%= params.page_number %> / <%= num_pages %>
       </span>
     </li>
     <li class="page-item">
-      <a class="page-link" href="#" onclick="change_page(1);">
-        <i class="fas fa-angle-right" aria-label="next page"></i>
+      <a class="page-link" href="#" onclick="change_page(1);"
+        aria-label="next page">
+        <i class="fas fa-angle-right" aria-hidden=true></i>
       </a>
     </li>
     <li class="page-item d-none d-sm-block">
-      <a class="page-link" href="#" onclick="change_page(5);">
-        <i class="fas fa-angle-double-right" aria-label="go forward 5 pages"></i>
+      <a class="page-link" href="#" onclick="change_page(5);"
+        aria-label="go forward 5 pages">
+        <i class="fas fa-angle-double-right" aria-hidden=true></i>
       </a>
     </li>
     <li class="page-item">
-      <a class="page-link" href="#" onclick="change_page('last');">
-        <i class="fas fa-caret-right" aria-label="last page"></i>
+      <a class="page-link" href="#" onclick="change_page('last');"
+        aria-label="last page">
+        <i class="fas fa-caret-right" aria-hidden=true></i>
       </a>
     </li>
   </ul>
