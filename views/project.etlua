@@ -47,7 +47,7 @@
                     <i title="<%= locale.get('project_is_bookmarked') %>"
                         aria-hidden="true"
                         class="bookmarked fas fa-heart"></i>
-                    <span class="visibility-hidden">
+                    <span class="visually-hidden">
                         <%= locale.get('project_is_bookmarked') %>
                     </span>
                     <% end %>
