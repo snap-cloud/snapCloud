@@ -47,7 +47,7 @@ num_pages = num_pages or math.ceil(#items / items_per_page)
     <% end %>
 
     <% --[[%> TODO: When no search or filter render pagination in the same row as the title. <%]]%>
-    <div class="row g-2">
+    <div class="row g-2 py-2">
         <div class="col-lg-3 col-md-2 col-12">
             <% if with_search then
                 render(
