@@ -1,0 +1,6 @@
+User-agent: SiteimproveBot
+Disallow: /versions
+Disallow: /old_site
+
+User-agent: *
+Allow: /
