@@ -278,7 +278,11 @@ function app:handle_error(err, trace)
         return errorResponse(self, msg, 500)
     end
 
-    local err_msg = exceptions.normalize_error(err)
+
+    local ok, err_msg = pcall(exceptions.normalize_error, err)
+    if not ok then
+        err_msg = err or 'Unknown error'
+    end
     local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then
         local _, send_err = exceptions.rvn:captureException({{
