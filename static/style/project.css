@@ -71,6 +71,8 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    max-width: 16ch;
+    margin: 0 auto;
 }
 
 .project.small .no-image:hover,

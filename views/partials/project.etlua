@@ -30,8 +30,9 @@
 <% if show_author then %>
     <span class="author"><%-
         locale.get('project_by_thumb',
-            '<a href="' .. item:url_for('author') .. '"><strong>' ..
-                item.username .. '</strong></a>')
+            '<a href="' .. item:url_for('author') .. '"' ..
+              .. 'title="' .. item.username .. '"><strong>' ..
+              item.username .. '</strong></a>')
     %></span>
 <% end %>
 
