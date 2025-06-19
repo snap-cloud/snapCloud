@@ -31,8 +31,7 @@
     <span class="author"><%-
         locale.get('project_by_thumb',
             '<a href="' .. item:url_for('author') .. '"' ..
-              .. 'title="' .. item.username .. '"><strong>' ..
-              item.username .. '</strong></a>')
+              'title="' .. item.username .. '"><strong>' .. item.username .. '</strong></a>')
     %></span>
 <% end %>
 
