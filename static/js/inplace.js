@@ -9,6 +9,10 @@ InPlaceEditor.prototype.init = function (element, action, defaultText) {
         hiddenDiv = document.createElement('div');
     this.element = element;
 
+    if (!document.getElementById('js-username')) {
+        return;
+    }
+
     this.defaultText = defaultText || 'This project has no notes';
 
     this.element.classList.add('in-place');

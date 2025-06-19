@@ -401,28 +401,34 @@ i.bookmarked {
     filter: brightness(0.8) !important;
 }
 
-.collection .description,
-.project.big .notes {
-    padding: .5em;
-    background: #f3eeeb;
-    border-radius: 5px;
-    overflow: auto;
-    box-sizing: border-box;
-    font-family: FreeSans,Arimo,"Droid Sans",Helvetica,Arial,sans-serif;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    height: 150px;
-    margin-bottom: .5em;
-}
-
 .collection .description {
     margin-top: .5em;
 }
 
+.collection .description,
+.project.big .notes {
+    padding: .5em;
+    margin-bottom: .5em;
+    background: #f3eeeb;
+    border-radius: 5px;
+    overflow: auto;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    height: 15rem;
+}
+
+/* We use 'code' beacuse otherwise the <pre> gets flagged for accessibility. */
+.collection .description code,
+.project.big .notes code {
+    padding: 0;
+    margin: 0;
+    font-family: FreeSans, Arimo, "Droid Sans", Helvetica, Arial, sans-serif;
+}
+
 .collection .description small,
 .project.big .notes small {
+    font-family: FreeSans, Arimo, "Droid Sans", Helvetica, Arial, sans-serif;
     font-style: italic;
-    /* opacity: 0.5; disabled due to low contrast. */
 }
 
 .project.big .dates p {
