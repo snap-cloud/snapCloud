@@ -1,0 +1,18 @@
+<% content_for('title', 'Snap! Versions') %>
+
+<h1>Snap<em>!</em> Versions</h1>
+
+<p>Here you can find links to all major versions of Snap<em>!</em> that are available.
+For each major version, we keep the last minor updated available.
+
+Please note that earlier versions may not be able to access the Snap! Cloud. The latest version is always available at <a href="https://snap.berkeley.edu/snap/">https://snap.berkeley.edu/snap/</a>. You can find the immediate previous version at <a href="https://snap.berkeley.edu/versions/previous">https://snap.berkeley.edu/versions/previous</a>. If you are looking for a specific version, you can find it below. You can also find the source code for each version, including all intermediate versions, on <a href="https://github.com/jmoenig/snap/releases">GitHub</a>.
+
+</p>
+
+<ul>
+  <% for v = 4, 9 do %>
+    <li>
+      <a href="/versions/v<%= v %>">Version <%= v %></a>
+    </li>
+  <% end %>
+</ul>
