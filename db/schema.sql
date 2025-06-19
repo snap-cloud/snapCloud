@@ -17,27 +17,6 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 --
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
--- *not* creating schema, since initdb creates it
-
-
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
-
---
 -- Name: pg_stat_statements; Type: EXTENSION; Schema: -; Owner: -
 --
 
@@ -49,20 +28,6 @@ CREATE EXTENSION IF NOT EXISTS pg_stat_statements WITH SCHEMA public;
 --
 
 COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQL statements executed';
-
-
---
--- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
-
-
---
--- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 
 
 --
@@ -119,7 +84,8 @@ CREATE TABLE public.projects (
     lastshared timestamp with time zone,
     username public.dom_username NOT NULL,
     firstpublished timestamp with time zone,
-    deleted timestamp with time zone
+    deleted timestamp with time zone,
+    likely_class_work boolean DEFAULT false NOT NULL
 );
 
 
@@ -138,7 +104,8 @@ CREATE VIEW public.active_projects AS
     lastshared,
     username,
     firstpublished,
-    deleted
+    deleted,
+    likely_class_work
    FROM public.projects
   WHERE (deleted IS NULL);
 
@@ -162,7 +129,9 @@ CREATE TABLE public.users (
     unique_email text,
     bad_flags integer DEFAULT 0 NOT NULL,
     is_teacher boolean DEFAULT false NOT NULL,
-    creator_id integer
+    creator_id integer,
+    last_login_at timestamp with time zone,
+    session_count integer DEFAULT 0 NOT NULL
 );
 
 
@@ -185,7 +154,9 @@ CREATE VIEW public.active_users AS
     unique_email,
     bad_flags,
     is_teacher,
-    creator_id
+    creator_id,
+    last_login_at,
+    session_count
    FROM public.users
   WHERE (deleted IS NULL);
 
@@ -314,7 +285,8 @@ CREATE VIEW public.deleted_projects AS
     lastshared,
     username,
     firstpublished,
-    deleted
+    deleted,
+    likely_class_work
    FROM public.projects
   WHERE (deleted IS NOT NULL);
 
@@ -338,7 +310,9 @@ CREATE VIEW public.deleted_users AS
     unique_email,
     bad_flags,
     is_teacher,
-    creator_id
+    creator_id,
+    last_login_at,
+    session_count
    FROM public.users
   WHERE (deleted IS NOT NULL);
 
@@ -666,6 +640,13 @@ CREATE INDEX original_project_id_index ON public.remixes USING btree (original_p
 
 
 --
+-- Name: projects_likely_class_work_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX projects_likely_class_work_idx ON public.projects USING btree (likely_class_work);
+
+
+--
 -- Name: remixed_project_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -755,6 +736,7 @@ COPY public.lapis_migrations (name) FROM stdin;
 2023-03-14:0
 2023-03-14:1
 2025-02-06:0
+2025-06-18:0
 \.
 
 
