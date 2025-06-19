@@ -2,7 +2,8 @@
 .project.small {
     text-align: center;
     margin-bottom: 1.5em;
-    position: relative;
+    /* Flexible reflowing, but left-justify project thumbnails */
+    max-width: max(var(--bs-breakpoint-sm) / 3, 16.68%);
 }
 
 .collection img.thumbnail,
