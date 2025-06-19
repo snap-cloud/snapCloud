@@ -117,7 +117,8 @@ UserController = {
         })
     end),
     login = capture_errors(function (self)
-        assert_user_exists(self)
+        -- Do not reveal whether the user exists or not
+        assert_user_exists(self, err.wrong_password)
         local password = self.params.password
         -- TODO: self.queried_user:verify_password(self.params.password)
         if (hash_password(password, self.queried_user.salt) ==
