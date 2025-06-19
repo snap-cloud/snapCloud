@@ -132,7 +132,11 @@ UserController = {
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
                 if self.queried_user:is_student() then
-                    self.queried_user:update({ verified = true })
+                    self.queried_user:update({
+                        verified = true,
+                        last_login_at = db.format_date(),
+                        session_count = self.queried_user.session_count + 1
+                    })
                     return jsonResponse({
                         title = 'Welcome to Snap!',
                         message = package.loaded.locale.get(
@@ -158,7 +162,6 @@ UserController = {
                         self.queried_user.days_left = 3 - query.date_part
                     end
                 else
-                    -- This should never happen
                     yield_error(message)
                 end
             elseif token then
@@ -169,6 +172,10 @@ UserController = {
             -- TODO: Create and store a remember token
             self.session.username = self.queried_user.username
             self.session.persist_session = tostring(self.params.persist)
+            self.queried_user:update({
+                last_login_at = db.format_date(),
+                session_count = self.queried_user.session_count + 1
+            })
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')

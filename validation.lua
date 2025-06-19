@@ -42,7 +42,7 @@ err = {
         msg = 'You do not have permission to perform this action',
         status = 403 },
     wrong_password = {
-        msg = 'The provided password is wrong',
+        msg = 'The provided username or password is wrong',
         status = 403 },
     nonexistent_user =
         { msg = 'No user with this username exists', status = 404 },
