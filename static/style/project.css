@@ -2,7 +2,8 @@
 .project.small {
     text-align: center;
     margin-bottom: 1.5em;
-    position: relative;
+    /* Flexible reflowing, but left-justify project thumbnails */
+    max-width: max(var(--bs-breakpoint-sm) / 3, 16.68%);
 }
 
 .collection img.thumbnail,
@@ -70,6 +71,8 @@
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    max-width: 16ch;
+    margin: 0 auto;
 }
 
 .project.small .no-image:hover,
@@ -401,28 +404,34 @@ i.bookmarked {
     filter: brightness(0.8) !important;
 }
 
-.collection .description,
-.project.big .notes {
-    padding: .5em;
-    background: #f3eeeb;
-    border-radius: 5px;
-    overflow: auto;
-    box-sizing: border-box;
-    font-family: FreeSans,Arimo,"Droid Sans",Helvetica,Arial,sans-serif;
-    word-wrap: break-word;
-    white-space: pre-wrap;
-    height: 150px;
-    margin-bottom: .5em;
-}
-
 .collection .description {
     margin-top: .5em;
 }
 
+.collection .description,
+.project.big .notes {
+    padding: .5em;
+    margin-bottom: .5em;
+    background: #f3eeeb;
+    border-radius: 5px;
+    overflow: auto;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    height: 15rem;
+}
+
+/* We use 'code' beacuse otherwise the <pre> gets flagged for accessibility. */
+.collection .description code,
+.project.big .notes code {
+    padding: 0;
+    margin: 0;
+    font-family: FreeSans, Arimo, "Droid Sans", Helvetica, Arial, sans-serif;
+}
+
 .collection .description small,
 .project.big .notes small {
+    font-family: FreeSans, Arimo, "Droid Sans", Helvetica, Arial, sans-serif;
     font-style: italic;
-    /* opacity: 0.5; disabled due to low contrast. */
 }
 
 .project.big .dates p {

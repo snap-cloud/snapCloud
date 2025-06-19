@@ -61,7 +61,9 @@
           </li>
         <% else %>
           <li class="nav-item user-menu dropdown">
-            <a id="menuLink1" class="nav-link dropdown-toggle visitor" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a id="js-username" class="nav-link dropdown-toggle"
+              href="#" role="button" data-bs-toggle="dropdown"
+              aria-expanded="false">
               <%= current_user.username %>
             </a>
             <ul class="dropdown-menu">
@@ -129,7 +131,8 @@
           </li>
         <% end %>
         <li class="nav-item language-select dropdown">
-          <a class="nav-link dropdown-toggle visitor" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Select language">
+          <a class="nav-link dropdown-toggle" href="#" role="button"
+            data-bs-toggle="dropdown" aria-expanded="false" aria-label="Select language">
             <i class="fas fa-globe" aria-hidden="true"></i>
           </a>
           <ul class="dropdown-menu languages">

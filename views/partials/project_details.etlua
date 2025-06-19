@@ -2,20 +2,21 @@
     <!-- Notes
         Element is focusable so it can be scrolled with screen readers
         We need to add some edit icon you can click/focus on to enter edit mode
+        Re-add to pre when editing notes is ready:
+        aria-label="<%= locale.get('shift_enter_note') %>"
+        title="<%= locale.get('shift_enter_note') %>"
      -->
     <div class="visually-hidden">
         <p>Project Description</p>
-        <%= project.notes %>
-        <%= project.notes == '' and locale.get('no_notes') or '' %>
     </div>
     <pre class="notes"
-        aria-hidden="true"
-        title="<%= locale.get('shift_enter_note') %>"
-        ><%= project.notes %><%-
+        tabindex="0"
+        ><code><%= project.notes %></code><%-
             (project.notes ~= '') and ''
                 or ('<small>' .. locale.get('no_notes') ..
             '</small>')
     %></pre>
+
     <!-- Dates and project meta -->
     <div class="dates">
         <p class="created">
