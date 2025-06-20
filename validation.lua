@@ -561,7 +561,6 @@ local function is_likely_course_work(project_name)
         'task *[0-9]+',
         'do now'
     }
-    debug_print('PROJECT? ', project_name)
     for _, expression in pairs(expressions) do
         if tostring(project_name):lower():match(expression) then
             return true
