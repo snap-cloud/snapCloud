@@ -38,6 +38,9 @@ local DeletedProjects = package.loaded.DeletedProjects
 local Bookmarks = package.loaded.Bookmarks
 local Collections = package.loaded.Collections
 local Users = package.loaded.Users
+local validation = package.loaded.validation
+
+local is_likely_course_work = validation.is_likely_course_work
 
 ProjectController = {
     run_query = function (self, query)
@@ -114,9 +117,7 @@ ProjectController = {
             self,
             [[WHERE ispublished AND NOT EXISTS(
                 SELECT 1 FROM deleted_users WHERE
-                username = active_projects.username LIMIT 1)]] --[[..
-                db.interpolate_query(course_name_filter()) ]]--
-                -- Disable course name filter because of high DB use
+                username = active_projects.username LIMIT 1)]]
         )
     end),
     my_projects = capture_errors(function (self)
@@ -564,6 +565,8 @@ ProjectController = {
 
             disk:backup_project(project.id)
 
+            local likely_class_work = self.current_user:is_student() or
+                is_likely_course_work(project.projectname)
             project:update({
                 lastupdated = db.format_date(),
                 lastshared =
@@ -574,7 +577,8 @@ ProjectController = {
                     nil,
                 notes = body.notes,
                 ispublic = self.params.ispublic or project.ispublic,
-                ispublished = self.params.ispublished or project.ispublished
+                ispublished = self.params.ispublished or project.ispublished,
+                likely_class_work = likely_class_work,
             })
         else
             -- Users are automatically verified the first time
@@ -604,6 +608,9 @@ ProjectController = {
                     deleted_project.id)
                 deleted_project:delete()
             end
+
+            local likely_class_work = self.current_user:is_student() or
+                is_likely_course_work(self.params.projectname)
             Projects:create({
                 projectname = tostring(self.params.projectname),
                 username = tostring(self.params.username),
@@ -615,7 +622,8 @@ ProjectController = {
                     and db.format_date() or nil,
                 notes = body.notes,
                 ispublic = self.params.ispublic or false,
-                ispublished = self.params.ispublished or false
+                ispublished = self.params.ispublished or false,
+                likely_class_work = likely_class_work,
             })
             project =
                 Projects:find(

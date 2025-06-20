@@ -49,11 +49,37 @@ local ActiveProjects = Model:extend('active_projects', {
     primary_key = {'username', 'projectname'},
     constraints = {
         projectname = function (_self, name)
+            -- TODO: Use a whitespace stripping + normalization function
             if not name or string.len(name) < 1 then
                 return "Project names must have at least one character."
             end
         end
     },
+    is_likely_course_work = function (project_name)
+        -- Matches project names that are typical in courses like BJC or Teals.
+        -- likely course work is excluded from some views.
+        local expressions = {
+            '^[0-9]+\\.[0-9]+',
+            'u[0-9]+l[0-9]+',
+            'm[0-9]+l[0-9]+',
+            '^lab *[0-9]+',
+            '^unit([0-9]+| )',
+            '^ap ',
+            'create *task',
+            '^coin *flip',
+            'week *[0-9]+',
+            'lesson *[0-9]+',
+            'task *[0-9]+',
+            'do now'
+        }
+        debug_print('PROJECT? ', project_name)
+        for _, expression in pairs(expressions) do
+            if tostring(project_name):lower():match(expression) then
+                return true
+            end
+        end
+        return false
+    end,
     recently_bookmarked = function ()
         -- This query was gerneted by Claude, insprite by the Hacker News
         -- algorithm for ranking projects based on recent bookmarks.
@@ -103,7 +129,9 @@ local ActiveProjects = Model:extend('active_projects', {
         return result
     end,
     url_for = function (self, purpose, dev_version)
-        local base = ngx and ngx.var and ngx.var.scheme .. '://' .. ngx.var.http_host .. '/' or ''
+        -- For some small % of requests the host is nil.
+        local domain = ngx.var.http_host or 'snap.berkeley.edu'
+        local base = ngx and ngx.var and ngx.var.scheme .. '://' .. domain .. '/' or ''
         base = base .. (dev_version and 'snap/dev/' or 'snap/') .. 'snap.html'
         local urls = {
             viewer = base ..

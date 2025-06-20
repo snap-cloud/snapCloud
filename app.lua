@@ -45,6 +45,7 @@ local date = require('date')
 
 package.loaded.disk = require('disk')
 package.loaded.locale = require('locale')
+package.loaded.validation = require("validation")
 
 local app = package.loaded.app
 local config = package.loaded.config

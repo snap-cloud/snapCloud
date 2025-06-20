@@ -57,6 +57,7 @@ local locale = {
     requirements = "Technical Requirements",
     partners = "Partners",
     source = "Source Code",
+    versions = "All Versions",
     events = "Events",
     examples = "Example Projects",
     manual = "Reference Manual",

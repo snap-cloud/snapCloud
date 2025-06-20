@@ -492,31 +492,6 @@ assert_can_create_collection = function (self)
     end
 end
 
--- Project name filter
--- Matches project names that are typical in courses like BJC or Teals.
-course_name_filter = function ()
-    local expressions = {
-        '^[0-9]+\\.[0-9]+',
-        'u[0-9]+l[0-9]+',
-        'm[0-9]+l[0-9]+',
-        '^lab *[0-9]+',
-        '^unit([0-9]+| )',
-        '^ap ',
-        'create *task',
-        '^coin *flip',
-        'week *[0-9]+',
-        'lesson *[0-9]+',
-        'task *[0-9]+',
-        'do now'
-    }
-    local filter = ''
-    for _, expression in pairs(expressions) do
-        filter = filter .. ' and (projectname !~* ' ..
-            "'" .. expression .. "')"
-    end
-    return filter
-end
-
 -- Rate limiting
 rate_limit = function (self)
     if ngx.shared.session_cache:get(self.session.access_id) or
@@ -569,7 +544,34 @@ prevent_tor_access = function (self)
     end
 end
 
+local function is_likely_course_work(project_name)
+    -- Matches project names that are typical in courses like BJC or Teals.
+    -- likely course work is excluded from some views.
+    local expressions = {
+        '^[0-9]+\\.[0-9]+',
+        'u[0-9]+l[0-9]+',
+        'm[0-9]+l[0-9]+',
+        '^lab *[0-9]+',
+        '^unit([0-9]+| )',
+        '^ap ',
+        'create *task',
+        '^coin *flip',
+        'week *[0-9]+',
+        'lesson *[0-9]+',
+        'task *[0-9]+',
+        'do now'
+    }
+    debug_print('PROJECT? ', project_name)
+    for _, expression in pairs(expressions) do
+        if tostring(project_name):lower():match(expression) then
+            return true
+        end
+    end
+    return false
+end
+
 return {
     assert_exists = assert_exists,
-    assert_current_user_logged_in = assert_current_user_logged_in
+    assert_current_user_logged_in = assert_current_user_logged_in,
+    is_likely_course_work = is_likely_course_work,
 }
