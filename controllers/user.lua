@@ -680,6 +680,7 @@ UserController = {
             'account within the next 3 days.')
     end),
     follow = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         assert_user_exists(self)
         Followers:create({
             follower_id = self.current_user.id,
