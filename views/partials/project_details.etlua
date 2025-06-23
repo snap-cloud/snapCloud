@@ -14,10 +14,7 @@
         tabindex="0"
         ><code><%= project.notes %></code></pre>
     <% else %>
-    <!-- reset overflow so a11y checkers don't complain -->
-    <div class="notes" style="overflow: hidden;">
-        <small><%= locale.get('no_notes') %></small>
-    </div>
+    <div class="notes"><small><%= locale.get('no_notes') %></small></div>
     <% end %>
     <!-- Dates and project meta -->
     <div class="dates">

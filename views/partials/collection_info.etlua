@@ -4,13 +4,13 @@
 </div>
 
 <!-- TODO: We need to add some edit icon you can click/focus on to enter edit mode -->
+<div class="visually-hidden">
+    <p>Collection Description</p>
+</div>
 <pre class="description"
     tabindex="0"
     title="<%= locale.get('shift_enter_note') %>"
     ><code><%= collection.description or '' %></code></pre>
-<div class="visually-hidden">
-    <p>Collection Description</p>
-</div>
 
 <script>
     new InPlaceEditor(
