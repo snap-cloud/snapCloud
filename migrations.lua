@@ -318,5 +318,34 @@ return {
             { 'updated_at', types.time({ timezone = true }) },
             'PRIMARY KEY (bookmarker_id, project_id)'
         })
-    end
+    end,
+
+    -- Add a likely_class_work column to projects
+    -- Add last_login and session_count column to users
+    ['2025-06-18:0'] = function ()
+        schema.add_column(
+            'users',
+            'last_login_at',
+            types.time({ timezone = true, null = true })
+        )
+
+        schema.add_column(
+            'users',
+            'session_count',
+            types.integer({ default = 0 })
+        )
+
+        -- Add likely_class_work column to projects
+        schema.add_column(
+            'projects',
+            'likely_class_work',
+            types.boolean({ default = false })
+        )
+
+        -- Add an index for likely_class_work
+        schema.create_index('projects', 'likely_class_work')
+
+        update_user_views()
+        update_project_views()
+    end,
 }

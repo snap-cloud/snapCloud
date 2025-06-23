@@ -117,7 +117,8 @@ UserController = {
         })
     end),
     login = capture_errors(function (self)
-        assert_user_exists(self)
+        -- Do not reveal whether the user exists or not
+        assert_user_exists(self, err.wrong_password)
         local password = self.params.password
         -- TODO: self.queried_user:verify_password(self.params.password)
         if (hash_password(password, self.queried_user.salt) ==
@@ -132,7 +133,11 @@ UserController = {
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
                 if self.queried_user:is_student() then
-                    self.queried_user:update({ verified = true })
+                    self.queried_user:update({
+                        verified = true,
+                        last_login_at = db.format_date(),
+                        session_count = self.queried_user.session_count + 1
+                    })
                     return jsonResponse({
                         title = 'Welcome to Snap!',
                         message = package.loaded.locale.get(
@@ -158,7 +163,6 @@ UserController = {
                         self.queried_user.days_left = 3 - query.date_part
                     end
                 else
-                    -- This should never happen
                     yield_error(message)
                 end
             elseif token then
@@ -169,6 +173,10 @@ UserController = {
             -- TODO: Create and store a remember token
             self.session.username = self.queried_user.username
             self.session.persist_session = tostring(self.params.persist)
+            self.queried_user:update({
+                last_login_at = db.format_date(),
+                session_count = self.queried_user.session_count + 1
+            })
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
@@ -292,6 +300,7 @@ UserController = {
         })
     end),
     delete = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         local user = self.queried_user or self.current_user
 
         if self.queried_user then
@@ -671,6 +680,7 @@ UserController = {
             'account within the next 3 days.')
     end),
     follow = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         assert_user_exists(self)
         Followers:create({
             follower_id = self.current_user.id,

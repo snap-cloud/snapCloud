@@ -8,6 +8,7 @@
         <p><a href="/blog"><%- locale.get('blog') %></a></p>
         <p><a href="/credits"><%- locale.get('credits') %></a></p>
         <p><a href="/partners"><%- locale.get('partners') %></a></p>
+        <p><a href="/versions"><%- locale.get('versions') %></a></p>
         <p><a href="/source"><%- locale.get('source') %></a></p>
       </section>
       <section class="col-md col-6 col-sm-4 ">

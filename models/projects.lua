@@ -49,6 +49,7 @@ local ActiveProjects = Model:extend('active_projects', {
     primary_key = {'username', 'projectname'},
     constraints = {
         projectname = function (_self, name)
+            -- TODO: Use a whitespace stripping + normalization function
             if not name or string.len(name) < 1 then
                 return "Project names must have at least one character."
             end
@@ -103,7 +104,9 @@ local ActiveProjects = Model:extend('active_projects', {
         return result
     end,
     url_for = function (self, purpose, dev_version)
-        local base = ngx and ngx.var and ngx.var.scheme .. '://' .. ngx.var.http_host .. '/' or ''
+        -- For some small % of requests the host is nil.
+        local domain = ngx.var.http_host or 'snap.berkeley.edu'
+        local base = ngx and ngx.var and ngx.var.scheme .. '://' .. domain .. '/' or ''
         base = base .. (dev_version and 'snap/dev/' or 'snap/') .. 'snap.html'
         local urls = {
             viewer = base ..

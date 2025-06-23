@@ -16,7 +16,7 @@ body {
     color: var(--snap-dark-blue);
     background: #ffffff;
     height: 100%;
-    line-height: 1.4;
+    line-height: 1.5;
     display: flex;
     flex-direction: column;
 }
@@ -35,7 +35,7 @@ p, li {
 }
 
 p {
-    line-height: 1.2em;
+    line-height: 1.5;
 }
 
 ul, ol {

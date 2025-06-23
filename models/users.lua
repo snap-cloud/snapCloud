@@ -45,7 +45,7 @@ local escape = require('lapis.util').escape
 --    FROM public.users
 --   WHERE (users.deleted IS NULL);
 --
-local ActiveUsers =  Model:extend('active_users', {
+local ActiveUsers = Model:extend('active_users', {
     type = 'user',
     relations = {
         {'collections', has_many = 'Collections'},

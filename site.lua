@@ -53,7 +53,7 @@ app.layout = require 'views.layout.application'
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
     'mirrors', 'offline', 'partners', 'privacy', 'research',
-    'snapinator', 'snapp', 'source', 'tos',
+    'snapinator', 'snapp', 'source', 'tos', 'versions',
     -- Disabled because this is out of date.
     -- 'requirements',
 }
@@ -77,6 +77,12 @@ app:before_filter(function (self)
     if self.current_user and self.session.presist_session ~= 'true' then
         self.prefer_new_tab = true
     end
+
+    -- Store current page in the session so we can redirect to it after login.
+    self.session.previous_page = self.session.previous_page or self.req.path
+
+    -- TODO: Set the CSP header to allow only our own domains, or CORS domains.
+    -- self.res.headers['Content-Security-Policy'] = "frame-src 'none'"
 end)
 
 app:get('index', '/', capture_errors(cached(function (self)

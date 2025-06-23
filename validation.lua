@@ -42,7 +42,7 @@ err = {
         msg = 'You do not have permission to perform this action',
         status = 403 },
     wrong_password = {
-        msg = 'The provided password is wrong',
+        msg = 'The provided username or password is wrong',
         status = 403 },
     nonexistent_user =
         { msg = 'No user with this username exists', status = 404 },
@@ -172,6 +172,7 @@ assert_role = function (self, role, message)
 end
 
 assert_min_role = function (self, expected_role)
+    assert_current_user_logged_in(self)
     if not self.current_user:has_min_role(expected_role) then
         yield_error(err.auth)
     end
@@ -444,6 +445,7 @@ assert_can_view_collection = function (self, collection)
 end
 
 assert_can_add_project_to_collection = function (self, project, collection)
+    assert_current_user_logged_in(self)
     -- Admins can add any project to any collection.
     if self.current_user:isadmin() then return end
 
@@ -490,31 +492,6 @@ assert_can_create_collection = function (self)
     if (project_count == 0) then
         yield_error(err.user_too_new)
     end
-end
-
--- Project name filter
--- Matches project names that are typical in courses like BJC or Teals.
-course_name_filter = function ()
-    local expressions = {
-        '^[0-9]+\\.[0-9]+',
-        'u[0-9]+l[0-9]+',
-        'm[0-9]+l[0-9]+',
-        '^lab *[0-9]+',
-        '^unit([0-9]+| )',
-        '^ap ',
-        'create *task',
-        '^coin *flip',
-        'week *[0-9]+',
-        'lesson *[0-9]+',
-        'task *[0-9]+',
-        'do now'
-    }
-    local filter = ''
-    for _, expression in pairs(expressions) do
-        filter = filter .. ' and (projectname !~* ' ..
-            "'" .. expression .. "')"
-    end
-    return filter
 end
 
 -- Rate limiting
@@ -569,7 +546,33 @@ prevent_tor_access = function (self)
     end
 end
 
+local function is_likely_course_work(project_name)
+    -- Matches project names that are typical in courses like BJC or Teals.
+    -- likely course work is excluded from some views.
+    local expressions = {
+        '^[0-9]+\\.[0-9]+',
+        'u[0-9]+l[0-9]+',
+        'm[0-9]+l[0-9]+',
+        '^lab *[0-9]+',
+        '^unit([0-9]+| )',
+        '^ap ',
+        'create *task',
+        '^coin *flip',
+        'week *[0-9]+',
+        'lesson *[0-9]+',
+        'task *[0-9]+',
+        'do now'
+    }
+    for _, expression in pairs(expressions) do
+        if tostring(project_name):lower():match(expression) then
+            return true
+        end
+    end
+    return false
+end
+
 return {
     assert_exists = assert_exists,
-    assert_current_user_logged_in = assert_current_user_logged_in
+    assert_current_user_logged_in = assert_current_user_logged_in,
+    is_likely_course_work = is_likely_course_work,
 }
