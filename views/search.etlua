@@ -13,6 +13,7 @@ render(
                 search_term = params.query,
                 items_per_page = 24,
                 items_per_row = 6,
+                exclude_class_projects = params.exclude_class_projects
             },
             session = session
         }),

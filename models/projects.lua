@@ -55,31 +55,6 @@ local ActiveProjects = Model:extend('active_projects', {
             end
         end
     },
-    is_likely_course_work = function (project_name)
-        -- Matches project names that are typical in courses like BJC or Teals.
-        -- likely course work is excluded from some views.
-        local expressions = {
-            '^[0-9]+\\.[0-9]+',
-            'u[0-9]+l[0-9]+',
-            'm[0-9]+l[0-9]+',
-            '^lab *[0-9]+',
-            '^unit([0-9]+| )',
-            '^ap ',
-            'create *task',
-            '^coin *flip',
-            'week *[0-9]+',
-            'lesson *[0-9]+',
-            'task *[0-9]+',
-            'do now'
-        }
-        debug_print('PROJECT? ', project_name)
-        for _, expression in pairs(expressions) do
-            if tostring(project_name):lower():match(expression) then
-                return true
-            end
-        end
-        return false
-    end,
     recently_bookmarked = function ()
         -- This query was gerneted by Claude, insprite by the Hacker News
         -- algorithm for ranking projects based on recent bookmarks.

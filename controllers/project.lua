@@ -113,9 +113,14 @@ ProjectController = {
     end,
     fetch = capture_errors(function (self)
         self.cache_category = 'latest'
+        local exclude_class_projects = 'AND NOT likely_class_work'
+        if self.params.exclude_class_projects == 'false' then
+            exclude_class_projects = ''
+        end
+
         return ProjectController.run_query(
             self,
-            [[WHERE ispublished AND NOT EXISTS(
+            [[WHERE ispublished ]] ..exclude_class_projects .. [[ AND NOT EXISTS(
                 SELECT 1 FROM deleted_users WHERE
                 username = active_projects.username LIMIT 1)]]
         )
