@@ -300,6 +300,7 @@ UserController = {
         })
     end),
     delete = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         local user = self.queried_user or self.current_user
 
         if self.queried_user then

@@ -207,9 +207,10 @@ CollectionController = {
         return jsonResponse({ redirect = project:url_for('site') })
     end),
     remove_project = capture_errors(function (self)
+        assert_current_user_logged_in(self)
+
         local collection = Collections:find({ id = self.params.id })
         local project = Projects:find({ id = self.params.project_id })
-
         -- Only creators, mods and owners of a particular project can remove
         -- it from a collection.
         if (collection.creator_id ~= self.current_user.id) and

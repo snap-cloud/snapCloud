@@ -172,6 +172,7 @@ assert_role = function (self, role, message)
 end
 
 assert_min_role = function (self, expected_role)
+    assert_current_user_logged_in(self)
     if not self.current_user:has_min_role(expected_role) then
         yield_error(err.auth)
     end
@@ -444,6 +445,7 @@ assert_can_view_collection = function (self, collection)
 end
 
 assert_can_add_project_to_collection = function (self, project, collection)
+    assert_current_user_logged_in(self)
     -- Admins can add any project to any collection.
     if self.current_user:isadmin() then return end
 
