@@ -6,7 +6,6 @@
 <!-- TODO: We need to add some edit icon you can click/focus on to enter edit mode -->
 <pre class="description"
     tabindex="0"
-    aria-label="<%= locale.get('shift_enter_note') %>"
     title="<%= locale.get('shift_enter_note') %>"
     ><code><%= collection.description or '' %></code></pre>
 <div class="visually-hidden">
