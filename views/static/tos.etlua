@@ -1,5 +1,5 @@
 <% content_for('title', locale.get('tos')) %>
-<h1 localizable>Terms of Service</h1>
+<h1>Terms of Service</h1>
 
 <p>Welcome to the <img src="static/img/small-logo.png" alt="Snap!" height="20px"> user community!</p>
 
@@ -56,7 +56,3 @@
 <p>(We do not think that there is any significant chance of damage to your computer, including its software and data outside of your Snap<em>!</em> projects, even if you download other people's shared projects. Snap<em>!</em> is implemented within your browser using Javascript, which was designed with security restrictions on what any Javascript program, including Snap<em>!</em>, can do. Most web sites use Javascript, and if a security hole should ever turn up in Javascript, the bad guys will attack popular sites such as cnn.com or google.com long before they get around to us. Still, if there's ever a problem with Javascript, it won't be under our control and we can't take responsibility for it. Note: Despite the name, Javascript is unrelated to Java, which <i>has</i> had security problems, but is not used by our site).</p>
 
 <p>A less severe but more likely problem is that if you program in Snap<em>!</em> from a mobile device using a cellular network, you may run over your data plan's limit and incur large usage fees from your carrier. We're not responsible for that, either. Get on a Wifi network before you start programming!</p>
-
-<script>
-    setTitle('Terms of Service - Snap! Build Your Own Blocks');
-</script>

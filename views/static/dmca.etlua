@@ -1,5 +1,5 @@
 <% content_for('title', 'DMCA Policy') %>
-<h1 localizable>DMCA Policy</h1>
+<h1>DMCA Policy</h1>
 
 <p>The University of California respects the intellectual property of others, as well as our users. If you believe that your work has been copied in a way that constitutes copyright infringement, please email <a href="mailto:contact+dmca@snap.berkeley.edu">contact+dmca@snap.berkeley.edu</a>, or mail your complaint to the following:</p>
 
@@ -22,7 +22,3 @@
 <p>If you choose to make a copyright infringement complaint, please note that we may post your notification, with personally identifiable information redacted, to a clearinghouse such as <a href="http://chillingeffects.org">chillingeffects.org</a>. Please also note that you may be liable for damages (including costs and attorneys' fees) if you materially misrepresent that an activity is infringing your copyright.</p>
 
 <small><em>(Text stolen from scratch.mit.edu.)</em></small>
-
-<script>
-    setTitle(localizer.localize('DMCA') + ' - Snap! Build Your Own Blocks');
-</script>
