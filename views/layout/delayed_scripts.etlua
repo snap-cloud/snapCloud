@@ -3,3 +3,5 @@
 <script type="text/javascript" src="/static/vendor/js/popper.min.js?v2.11.8"></script>
 
 <script src="https://js.sentry-cdn.com/3fad777945ae45818919b964c044f475.min.js" crossorigin="anonymous"></script>
+
+<script async src="https://siteimproveanalytics.com/js/siteanalyze_6294756.js"></script>
