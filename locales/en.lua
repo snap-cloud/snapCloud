@@ -238,6 +238,7 @@ local locale = {
     confirm_uncollect = "Are you sure you want to remove this project@1from this collection?", -- @1 becomes a new line. You can add as many as you need.
     remove_from_collection_tooltip = "Remove from this collection",
     collection_thumbnail_tooltip = "Set as collection thumbnail",
+    collection_no_description = "This collection has no description",
 
     -- Collection dialogs
     -- ==================

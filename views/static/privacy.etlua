@@ -63,8 +63,6 @@
 
 <p>If you are the parent of a child with an account on this site and would like us to remove the account, please <a href="contact">contact us</a>, and include in your message your child's account name, the email address associated with the account, and a way to contact you offline (to prevent forgeries).</p>
 
-<h2>For further questions</h2>
-
 <% render('views.static.contact') %>
 
 <script>

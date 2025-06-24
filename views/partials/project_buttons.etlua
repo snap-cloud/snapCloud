@@ -27,6 +27,7 @@
         or locale.get('see_code')
     %></a>
     <a class="btn btn-outline-primary download"
+        aria-label="<%= locale.get('download')%> Project XML"
         href="<%= project:url_for('download', params.devVersion) %>" download
         ><%= locale.get('download') %></a>
     <button class="btn btn-outline-primary embed-button" type="button"
