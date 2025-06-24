@@ -7,14 +7,22 @@
 <div class="visually-hidden">
     <p>Collection Description</p>
 </div>
+<% if collection.description and collection.description ~= '' then %>
 <pre class="description"
     tabindex="0"
     title="<%= locale.get('shift_enter_note') %>"
-    ><code><%= collection.description or '' %></code></pre>
+    ><code><%= collection.description %></code></pre>
+<% else %>
+<!-- SiteImprove gets angry if this is a pre... -->
+<div class="description"
+    tabindex="0"
+    title="<%= locale.get('shift_enter_note') %>"
+    ><small><%= locale.get('collection_no_description') %></small></div>
+<% end %>
 
 <script>
     new InPlaceEditor(
-        document.querySelector('pre.description'),
+        document.querySelector('.description'),
         (value) => {
             cloud.post(
                 '/collection/<%= collection.id %>/description',
