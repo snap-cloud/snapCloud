@@ -72,6 +72,11 @@ app:get('/api/v1/discourse-sso', capture_errors(function(self)
             self.session.username,
             { fields = 'id, username, verified, role, email, unique_email' })[1]
 
+    -- ensure user exists
+    if not user then
+        yield_error({ msg = 'User not found.', status = 404 })
+    end
+
     if user:cannot_access_forum() then
         yield_error({ msg = capitalize(user.role) .. ' users cannot use the forum.', status = 403 })
     end
