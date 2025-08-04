@@ -29,6 +29,8 @@ local CollectionMemberships = package.loaded.CollectionMemberships
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
+local config = package.loaded.config
+
 local url = require 'socket.url'
 local exceptions = require 'lib.exceptions'
 local socket = require('socket')
@@ -498,6 +500,12 @@ end
 
 -- Rate limiting
 rate_limit = function (self)
+    if config._name == 'staging' or
+            config._name == 'development' then
+        -- No rate limiting in staging or development.
+        return
+    end
+
     if ngx.shared.session_cache:get(self.session.access_id) or
             (self.session.access_id == nil) then
         self.session.first_access = os.time()

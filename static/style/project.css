@@ -1,5 +1,6 @@
 .collection.small,
 .project.small {
+    position: relative;
     text-align: center;
     margin-bottom: 1.5em;
     /* Flexible reflowing, but left-justify project thumbnails */
@@ -277,11 +278,6 @@ i.bookmarked {
     margin-right: 0.5em;
 }
 
-
-.project.big.embed .title .author {
-    position: relative !important;
-}
-
 .project.big {
     margin-top: 1em;
 }
@@ -291,6 +287,10 @@ i.bookmarked {
     margin-bottom: .5em;
 }
 
+/* Slightly bigger author on the right hand side */
+.project.big .author {
+    font-size: 1.2em;
+}
 
 .collection .title h1 {
     display: inline;
@@ -314,10 +314,13 @@ i.bookmarked {
     flex-direction: column;
     align-items: stretch;
     margin-bottom: 0.5em;
-    /* min-width: 482px;
-    max-width: 564px; */
     min-width: min(482px, calc(100% - 2em));
-    /* max-width: min(564px, calc(100% - 2em)); */
+}
+
+/* One the embed page, the author shows inline with the title. */
+.project.big.embed .title .author {
+    font-size: 1rem;
+    position: relative !important;
 }
 
 /* Ensure the project embed matches Snap!'s default aspect ratio */
@@ -434,11 +437,13 @@ i.bookmarked {
     font-style: italic;
 }
 
+.project.big .dates .btn {
+    margin: 0.5em 0;
+}
+
 .project.big .dates p {
-    font-size: 0.8em;
-    line-height: 0.8em;
-    margin-top: 0;
-    margin-bottom: 0.8em;
+    font-size: 0.9em;
+    margin: 0.2em 0;
 }
 
 .dates strong {

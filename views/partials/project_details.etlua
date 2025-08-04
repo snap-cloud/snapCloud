@@ -8,8 +8,7 @@
     <div class="visually-hidden">
         <p>Project Description</p>
     </div>
-    <% if project.notes and project.notes ~= '' then
-    %>
+    <% if project.notes and project.notes ~= '' then %>
     <pre class="notes"
         tabindex="0"><code><%= project.notes %></code></pre>
     <% else %>

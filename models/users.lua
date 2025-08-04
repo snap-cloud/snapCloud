@@ -22,7 +22,8 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
 local Model = package.loaded.Model
-local escape = require('lapis.util').escape
+local util = require('lapis.util')
+local escape = util.escape
 
 -- Generated schema dump: (do not edit)
 --
@@ -47,6 +48,21 @@ local escape = require('lapis.util').escape
 --
 local ActiveUsers = Model:extend('active_users', {
     type = 'user',
+    constraints = {
+        -- TODO: add conatrains for usernames, etc.
+        -- username = function(self, value) end,
+        email = function (self, value)
+            if not value or value == '' then
+                return 'email must be present'
+            end
+            value = util.trim(tostring(value))
+            if #value < 6 then
+                return 'email must be at least 6 characters'
+            elseif not string.find(value, "@") then
+                return 'email must contain an "@"'
+            end
+        end
+    },
     relations = {
         {'collections', has_many = 'Collections'},
         {'editable_collections',

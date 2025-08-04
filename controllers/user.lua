@@ -229,7 +229,25 @@ UserController = {
             yield_error(err.wrong_password)
         end
 
-        user:update({ email = self.params.email })
+        -- TODO: Ideally we should do these two within a transaction...
+        -- TODO: provide a better error message if setting a unique email fails?
+        local update_success, update_message = user:update({ email = self.params.email })
+        if not update_success then
+            return errorResponse(self,
+                'Could not update email address to: "' .. self.params.email .. '"' ..
+                '\nError: ' .. update_message or 'unknown error',
+                400
+            )
+        end
+        -- After we update the user's email, sync their unique-ified email for external logins.
+        local update_success, update_message = user:ensure_unique_email()
+        if not update_success then
+            return errorResponse(self,
+                'Updated email to: "' .. self.params.email .. '"' ..
+                'However, your forum email address was not updated. (' .. (update_message or 'unknown error') .. ')' ,
+                400
+            )
+        end
 
         return jsonResponse({
             title = 'Email changed',

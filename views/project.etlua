@@ -31,12 +31,13 @@
             <% end %>
         </div>
     </div>
+
     <div class="viewer row js-embed-container">
         <!-- Project viewer -->
         <div class="embed col-lg-6 col-md-8 col-12">
             <!-- Spinner shown while embed hasn't been loaded -->
-            <i class="project-loader fas fa-spinner fa-spin fa-3x"
-                aria-hidden="true"></i>
+            <!-- <i class="project-loader fas fa-spinner fa-spin fa-3x"
+                aria-hidden="true"></i> -->
 
             <!-- Project control bar -->
             <div class="controlbar">
@@ -76,7 +77,7 @@
                 </button>
             </div>
 
-            <!-- Project embed -->
+            <!-- TODO: This autoloads and Snap! steals focus, which it should not. -->
             <iframe allow="geolocation; microphone; camera"
                 sandbox="allow-scripts allow-same-origin"
                 title="project viewer"

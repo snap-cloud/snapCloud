@@ -118,6 +118,7 @@ app:match(api_route('unbecome'), respond_to({
     POST = UserController.unbecome
 }))
 
+-- TODO: Deprecate this route
 app:match(api_route('change_my_email'), respond_to({
     POST = UserController.change_email
 }))

@@ -59,6 +59,7 @@
             );
             return;
         }
+        // TODO: Deprecate this and replace with /users/:username/change_email
         cloud.post(
             '/change_my_email',
             null,
