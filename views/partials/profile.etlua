@@ -26,11 +26,12 @@
       </div>
       <ul class="list-group list-group-flush">
             <li class="list-group-item">
-            <% if item.email ~= '' then %>
                 <a href="mailto:<%= item.email %>"><%= item.email %></a>
-            <% else %>
-                <span class="badge text-bg-secondary col-2">no emai</span>
-            <% end %>
+                <% if item.unique_email and item.email ~= item.unique_email then %>
+                    <br>
+                    <span class="badge text-bg-secondary">unique email</span>
+                    <code><%- util.visualize_whitespace_html(item.unique_email) %></code>
+                <% end %>
             </li>
             <% if current_user:has_min_role('moderator') then %>
             <li class="list-group-item">
@@ -55,7 +56,10 @@
         </li>
         <% end %>
         <% if item.creator_id ~= nil then %>
-        <li class="list-group-item"><strong>Creator ID</strong>: <%= item.creator_id %></li>
+        <li class="list-group-item">
+            <strong>Creator ID</strong>:
+            <a href="/user?user_id=<%= item.creator_id %>"><%= item.creator_id %></a>
+        </li>
         <% end %>
         <% if not zombie and current_user:has_min_role('moderator') then %>
         <li class="list-group-item">
