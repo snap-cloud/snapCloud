@@ -24,6 +24,10 @@ certs/*
 html/
 
 # Snap! Versions on the public site.
+# We expect you'll likely want to symlink a local snap instance to ./snap/
+# On the server we maintain a checkout of the Snap! repo, but dont want to use
+# submodules.
+snap
 snap-versions/
 !snap-versions/README.md
 

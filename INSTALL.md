@@ -2,15 +2,27 @@
 
 ## Cloning the repository
 
-First, clone the Snap!Cloud repository into a local folder:
+First, clone the Snap!Cloud, and Snap! repository into a local folder:
 
+```bash
+git clone --recursive git@github.com:snap-cloud/snapCloud.git
+git clone git@github.com:jmoenig/snap.git
 ```
-$ git clone --recursive git@github.com:snap-cloud/snapCloud.git
+
+**Note:** The `--recursive` flag is important, as it will clone the submodules that Snap!Cloud depends on. If you forget to use it, you can run `git submodule update --init --recursive` after cloning.
+
+You do not need a local Snap! IDE to run the Snap!Cloud, but you may want to have one for testing purposes. If you do not want a local Snap<em>!</em> copy, you can use the [Snap! site](https://snap.berkeley.edu/snap) online, but you will need to change the API URL to a localhost.
+
+### Symlinking Snap! to Snap!Cloud
+
+To make development easier, you can symlink the Snap! repository into the Snap!Cloud directory. This way, any changes you make to the Snap! code will be reflected in the Snap!Cloud environment.
+
+```bash
+cd snapCloud
+ln -s ../snap snap
 ```
 
-(Use the `--recursive` option so that you can have a working Snap<em>!</em> install.)
-
-**NOTE**: If you forked the repo, make sure that `snap-cloud` is replaced with your **GitHub username**. However, submodules will be from the original author.
+(We don't want to use submodules, as we want to be able to update the Snap! repo independently of the Snap!Cloud repo.)
 
 ## Development
 

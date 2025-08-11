@@ -1,6 +1,3 @@
-[submodule "snap"]
-	path = snap
-	url = git@github.com:jmoenig/snap.git
 [submodule "lib/raven-lua"]
 	path = lib/raven-lua
 	url = git@github.com:snap-cloud/raven-lua.git
