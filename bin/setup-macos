@@ -24,16 +24,21 @@ else
     npm install
 fi
 
-# Install basic dependencies via brew
-# Note that we must use lua 5.1, not 5.2 or 5.3
+# As of 2025 lua 5.1 is no longer in homebrew
+# We will use the package manager mise to install lua.
 print_ok 'Installing lua and postgres'
-brew install lua@5.1 luarocks postgres pcre gcc@12
+brew install mise luarocks postgres pcre gcc@12
+
+print_ok 'Using mise to install lua 5.1'
+mise install lua@5.1
+# Set lua 5.1 as the default version
+mise default -g lua@5.1
 
 print_ok 'Installing OpenResty'
 brew install openresty/brew/openresty
 
-print_ok 'NOTE THERE IS AN ISSUE ON ARM MACS! You must use a pre-release openresty version!'
-print_ok 'Use `brew edit openresty` to manually update the installation. See setup-macos'
+# print_ok 'NOTE THERE IS AN ISSUE ON ARM MACS! You must use a pre-release openresty version!'
+# print_ok 'Use `brew edit openresty` to manually update the installation. See setup-macos'
 # You need to update the following two lines in the file.
 #   VERSION = "1.21.4.2rc1".freeze
 #   sha256 "ee96bbcf119abe5f1fc90461dd4674bd9397aa3db5544139578d9ace81983fdb"

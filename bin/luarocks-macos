@@ -7,17 +7,26 @@
 # openssl and gcc are needed, too.
 # ARM Macs need >= gcc-12, see bin/setup-macos
 
+USE_MISE_LUA=false
+
+if [[ -n `which mise` ]]; then
+    USE_MISE_LUA=true
+    mise shell lua 5.1
+    LUA_DIR=''
+    # LUA_DIR="$(mise which lua)"
+else
+    LUA_DIR="--lua-dir=$(brew --prefix lua@$LUA_VERSION)"
+fi
 
 LUA_VERSION=5.1
 BREW_PREFIX=$(brew --prefix)
-LUA_DIR="$(brew --prefix lua@$LUA_VERSION)"
 OPENSSL_BREW="$(brew --prefix openssl)"
 gcc_command='gcc'
 gcc_version='13.2.0'
 
 # For some reason luarocks needs both lua-dir and lua-versions specified...
 # cc, ld flags, openssl, etc are needed for luasec and luaossl
-luarocks --lua-version=$LUA_VERSION --lua-dir=$LUA_DIR \
+luarocks --lua-version=$LUA_VERSION $LUA_DIR \
   OPENSSL_DIR="$BREW_PREFIX/opt/openssl@3/" \
   CRYPTO_DIR="$BREW_PREFIX/opt/openssl@3/" \
   CC=$gcc_command \

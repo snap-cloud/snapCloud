@@ -26,7 +26,6 @@
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local cached = package.loaded.cached
-local respond_to = package.loaded.respond_to
 
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
@@ -39,6 +38,7 @@ local assert_exists = require('validation').assert_exists
 local util = require("lib.util")
 local materials = require('views.static.resources').materials
 local material_types = require('views.static.resources').types
+local snap_respond_to = require("responses").snap_respond_to
 
 require 'controllers.user'
 require 'controllers.project'
@@ -95,7 +95,7 @@ app:get('/index', function ()
     return { redirect_to = '/' }
 end)
 
-app:match('doc', '/doc/:doc_name', respond_to({
+app:match('doc', '/doc/:doc_name', snap_respond_to({
     GET = capture_errors(function (self)
         return {
             redirect_to = self:build_url(
@@ -406,7 +406,7 @@ app:get('/zombie_admin', capture_errors(function (self)
     end
 end))
 
-app:match('admin/totm', '/totm', respond_to({
+app:match('admin/totm', '/totm', snap_respond_to({
     GET = capture_errors(function (self)
         if self.current_user then
             assert_min_role(self, 'moderator')
