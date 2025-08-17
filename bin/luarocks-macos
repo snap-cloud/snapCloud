@@ -31,7 +31,7 @@ export LD=gcc-15
 
 # For some reason luarocks needs both lua-dir and lua-versions specified...
 # cc, ld flags, openssl, etc are needed for luasec and luaossl
-luarocks  $LUA_DIR --lua-version=$LUA_VERSION \
+luarocks $LUA_DIR --lua-version=$LUA_VERSION \
   OPENSSL_DIR="$BREW_PREFIX/opt/openssl@3/" \
   CRYPTO_DIR="$BREW_PREFIX/opt/openssl@3/" \
   CXX=$gcc_command \
