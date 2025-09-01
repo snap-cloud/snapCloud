@@ -40,3 +40,37 @@ luarocks $LUA_DIR --lua-version=$LUA_VERSION \
   LDFLAGS="-L$BREW_PREFIX/opt/openssl@3/lib" \
   STDCPP_LIBDIR=$BREW_PREFIX/Cellar/gcc/$gcc_version/lib/gcc/current/ \
   $@;
+
+
+###### NOTE: WHEN INSTALLING WITH MISE the luarocks Paths are messed up and not set correctly.
+# Try the following.
+# luarocks_share="luarocks/share/lua/5.1/"
+# luarocks_lib="luarocks/lib/lua/5.1/"
+# endings=(
+#   "?.lua"
+#   "?/init.lua"
+# )
+# mise_lua="$HOME/.local/share/mise/installs/lua/5.1"
+# export LUA_VERSION="5.1"
+# lua_paths=(
+#   "./"
+#   "$mise_lua/$luarocks_share"
+#   "$mise_lua/$luarocks_lib"
+#   "$HOME/.$luarocks_share"
+#   "$HOME/.$luarocks_lib"
+# )
+# for str in ${lua_paths[@]}; do
+#   for ending in ${endings[@]}; do
+#     export LUA_PATH="$str$ending;$LUA_PATH";
+#   done
+# done
+# lua_cpaths=(
+# "./?.so"
+# "$HOME/.luarocks/lib/lua/5.1/?.so"
+# "$mise_lua/lib/lua/5.1/?.so"
+# "$mise_lua/$luarocks_share?.so"
+# "$mise_lua/$luarocks_lib?.so"
+# )
+# for str in ${lua_cpaths[@]}; do
+#   export LUA_CPATH="$str;$LUA_CPATH";
+# done
