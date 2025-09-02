@@ -73,11 +73,6 @@
     top: 0.45em;
 }
 
-.paginator {
-    line-height: 2em;
-    margin: 0;
-}
-
 .filter select {
     margin-left: 0.5em;
     box-sizing: border-box;
