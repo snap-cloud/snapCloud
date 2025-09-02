@@ -497,3 +497,8 @@ hr {
 .user-profile-actions > * {
     padding: 0.25rem 0;
 }
+
+/* Bootstrap's pagination */
+.pagination span.page-link {
+  white-space: nowrap;
+}

@@ -526,9 +526,3 @@ i.bookmarked {
     right: 0.45em;
     top: 0.45em;
 }
-
-.my_collections.paginator,
-.my_projects.paginator {
-    line-height: 2em;
-    margin: 0;
-}
