@@ -11,7 +11,7 @@ if show_author == nil then show_author = true end
 item_type = item_type or 'project'
 if items == nil then items = {} end
 items_per_page = items_per_page or 6
-num_pages = (math.ceil(#(items) / items_per_page) or 0)
+num_pages = self.num_pages or (math.ceil(#(items) / items_per_page) or 0)
 id = package.loaded.util.slugify(title):gsub('-', '_')
 class = 'id_' .. id
 items_per_row = items_per_row or 6
@@ -26,7 +26,7 @@ items_per_row = items_per_row or 6
         <% if title then %>
             <h2 class="my-0 <%= item_type %>s">
                 <% if href then %>
-                    <a href="<%=href%>" title="Show all"><%= title %></a>
+                    <a href="<%=href%>"><%= title %></a>
                 <% else %>
                     <%= title %>
                 <% end %>

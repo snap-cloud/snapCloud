@@ -227,17 +227,29 @@ app:get('/user_projects/:username', capture_errors(cached(function (self)
 end)))
 
 -- Display an embedded collection view.
+-- Designed to be a single row view, but can be expanded.
 app:get('/carousel', capture_errors(cached(function (self)
     assert_user_exists(self)
     local creator = self.queried_user
-    self.params.items_per_page = self.params.items_per_page or 4
-    self.params.items_per_row = self.params.items_per_row or 4
-    self.params.page_number = self.params.page_number or 1
+    -- This parameter needs to be set for the carousel view.
+    -- It doesn't not ineracte correctly with the items_per_page passed to the
+    -- projects() method below.
+    -- In this current flow, we only have JS
+    self.items_per_page = self.params.items_per_page or 4
+    self.items_per_row = self.params.items_per_row or 4
+
     self.collection = assert_exists(Collections:find(creator.id, self.params.collection))
     assert_can_view_collection(self, self.collection)
     self.collection.creator = creator
-    self.items = CollectionController.projects(self)
+    -- Pass a different items_per_page to the controller to query more projects.
+    self.ignore_page_count = true
+    self.items = CollectionController.projects({
+        params = self.params,
+        items_per_page = 50,
+        collection = self.collection
+    })
     self.title = self.collection.name
+    self.href = self.collection:url_for('site')
     self.show_if_empty = true
     return { render = 'carousel', layout = 'embedded' }
 end)))
