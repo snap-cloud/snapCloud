@@ -419,13 +419,13 @@ CollectionController = {
     -- Get or generate a join token for a collection
     get_join_token = capture_errors(function (self)
         local collection = Collections:find({ id = self.params.id })
-        assert(collection, 'Collection not found')
 
         -- TODO: assert creator or admin function
         if (self.current_user == nil) or
               (collection.creator_id ~= self.current_user.id) then
             assert_admin(self)
         end
+
         -- TODO: Would be better to have a model method for this
         -- URL safe characters: 1-9, A-Z, a-z, -, _, ~, except: l, I, O,
         if not collection.join_token then

@@ -167,17 +167,6 @@ package.loaded.uncache_category = function (category)
     if query then ngx.shared.query_cache:delete(query) end
 end
 
---- DEBUGGING
-app:before_filter(function(self)
-    print("Request path:", self.req.path)
-    print("Params:", require('lapis.util').to_json(self.params))
-end)
-
-app:get('/*', function(self)
-    print("Unmatched route:", self.req.path)
-    return { status = 404, render = 'error', message = 'Route not found' }
-end)
-
 -- Before filter
 app:before_filter(function (self)
     -- Temporarily disable IP bans because of too many false positives
