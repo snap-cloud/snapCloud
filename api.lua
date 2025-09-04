@@ -248,7 +248,6 @@ app:match(api_route('project/:id'), respond_to({
     DELETE = ProjectController.delete
 }))
 
-
 -- [LEGACY]
 -- Legacy API calls by username and projectname. Used by the editor and mods.
 
@@ -347,6 +346,12 @@ app:match(api_route('collection/:id/project/:project_id'),
         DELETE = CollectionController.remove_project
     })
 )
+
+app:match(api_route('collection/:id/join_token'), respond_to({
+    GET = CollectionController.get_join_token,
+    POST = CollectionController.get_join_token,
+    DELETE = CollectionController.remove_join_token
+}))
 
 -- Site
 -- ====

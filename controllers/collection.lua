@@ -414,5 +414,62 @@ CollectionController = {
         else
             return okResponse('Collection description updated')
         end
-    end)
+    end),
+
+    -- Get or generate a join token for a collection
+    get_join_token = capture_errors(function (self)
+        local collection = Collections:find({ id = self.params.id })
+        assert(collection, 'Collection not found')
+
+        -- TODO: assert creator or admin function
+        if (self.current_user == nil) or
+              (collection.creator_id ~= self.current_user.id) then
+            assert_admin(self)
+        end
+        -- TODO: Would be better to have a model method for this
+        -- URL safe characters: 1-9, A-Z, a-z, - _ . ~, except: l, I, O,
+        if not collection.join_token then
+            local charset = {}
+            -- Add 1-9
+            for c = 49, 57 do table.insert(charset, string.char(c)) end -- 1-9
+            -- Add A-Z except I and O
+            for c = 65, 90 do
+                local ch = string.char(c)
+                if ch ~= 'I' and ch ~= 'O' then
+                    table.insert(charset, ch)
+                end
+            end
+            -- Add a-z except l
+            for c = 97, 122 do
+                local ch = string.char(c)
+                if ch ~= 'l' then
+                    table.insert(charset, ch)
+                end
+            end
+            table.insert(charset, '-')
+            table.insert(charset, '_')
+            table.insert(charset, '.')
+            table.insert(charset, '~')
+            math.randomseed(os.time() + collection.id)
+            local token = {}
+            for i = 1, 8 do
+                table.insert(token, charset[math.random(#charset)])
+            end
+            -- TODO: Ensure token is unique?
+            collection:update({ join_token = table.concat(token) })
+        end
+        return jsonResponse({ join_token = collection.join_token })
+    end),
+
+    remove_join_token = capture_errors(function (self)
+        local collection = Collections:find({ id = self.params.id })
+        assert(collection, 'Collection not found')
+        if (self.current_user == nil) or
+              (collection.creator_id ~= self.current_user.id) then
+            assert_admin(self)
+        end
+
+        collection:update({ join_token = db.NULL })
+        return okResponse('Join token removed')
+    end),
 }

@@ -236,7 +236,8 @@ CREATE TABLE public.collections (
     shared_at timestamp with time zone,
     thumbnail_id integer,
     editor_ids integer[],
-    free_for_all boolean DEFAULT false NOT NULL
+    free_for_all boolean DEFAULT false NOT NULL,
+    join_token text
 );
 
 
@@ -518,6 +519,14 @@ ALTER TABLE ONLY public.collection_memberships
 
 
 --
+-- Name: collections collections_join_token_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.collections
+    ADD CONSTRAINT collections_join_token_key UNIQUE (join_token);
+
+
+--
 -- Name: collections collections_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -737,6 +746,7 @@ COPY public.lapis_migrations (name) FROM stdin;
 2023-03-14:1
 2025-02-06:0
 2025-06-18:0
+2025-09-04:0
 \.
 
 
