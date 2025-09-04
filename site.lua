@@ -35,6 +35,7 @@ local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
 local csrf = require("lapis.csrf")
 local assert_exists = require('validation').assert_exists
+local db = package.loaded.db
 
 local util = require("lib.util")
 local materials = require('views.static.resources').materials
@@ -177,6 +178,38 @@ app:get('/my_collections', capture_errors(function (self)
     else
         return { redirect_to = self:build_url('/') }
     end
+end))
+
+app:get('/collection/:token/join', capture_errors(function (self)
+    local collection = Collections:find({ join_token = self.params.token })
+    assert(collection, 'Collection not found')
+
+    if not self.current_user then
+        return errorResponse(self,
+            'You must be logged in to join a collection.',
+            403)
+    end
+
+    if not collection.editor_ids then
+        collection.editor_ids = {}
+    end
+    local already_editor = false
+    for _, id in pairs(collection.editor_ids) do
+        if id == self.current_user.id then
+            already_editor = true
+            break
+        end
+    end
+    if not already_editor then
+        collection:update({
+            editor_ids =
+                db.raw(db.interpolate_query(
+                    'array_append(editor_ids, ?)',
+                    self.current_user.id))
+        })
+    end
+
+    return { redirect_to = collection:url_for('site') }
 end))
 
 app:get('/collection', capture_errors(function (self)

@@ -42,3 +42,32 @@
          render('views.partials.collection_buttons')
     end
 %>
+
+<% if current_user and (current_user.id == collection.creator_id or current_user:isadmin()) then %>
+    <div class="join-token-controls mt-3">
+        <label class="form-label"><%= locale.get('join_token_label') or 'Join Token:' %></label>
+        <% if collection.join_token then %>
+            <div class="input-group mb-2">
+                <input type="text" class="form-control" id="join-token" value="<%= collection.join_token %>" readonly>
+                <button class="btn btn-outline-secondary" type="button" onclick="copyJoinUrl()">Copy Join URL</button>
+                <button class="btn btn-outline-danger" type="button" onclick="removeJoinToken()">Remove Join URL</button>
+            </div>
+        <% else %>
+            <button class="btn btn-outline-primary" type="button" onclick="generateJoinToken()">Generate Join URL</button>
+        <% end %>
+    </div>
+    <script>
+    function copyJoinUrl() {
+        const token = document.getElementById('join-token').value;
+        const url = window.location.origin + "<%= collection:url_for('join') %>";
+        navigator.clipboard.writeText(url);
+        // alert('Join URL copied to clipboard!');
+    }
+    function removeJoinToken() {
+        cloud.apiRequest('DELETE', '/api/v1/collection/<%= collection.id %>/join_token', (resp) => { location.reload(); });
+    }
+    function generateJoinToken() {
+        cloud.apiRequest('GET', '/api/v1/collection/<%= collection.id %>/join_token', (resp) => { location.reload(); });
+    }
+    </script>
+<% end %>

@@ -60,7 +60,8 @@ local Collections =  Model:extend('collections', {
         local urls = {
             site = '/collection?username=' .. escape(self.username) ..
                 '&collection=' .. escape(self.name),
-            author = '/user?username=' .. escape(self.username)
+            author = '/user?username=' .. escape(self.username),
+            join = '/collection/' .. escape(self.join_token or '') .. '/join'
         }
         return urls[purpose]
     end,
