@@ -427,7 +427,7 @@ CollectionController = {
             assert_admin(self)
         end
         -- TODO: Would be better to have a model method for this
-        -- URL safe characters: 1-9, A-Z, a-z, - _ . ~, except: l, I, O,
+        -- URL safe characters: 1-9, A-Z, a-z, -, _, ~, except: l, I, O,
         if not collection.join_token then
             local charset = {}
             -- Add 1-9
@@ -448,7 +448,6 @@ CollectionController = {
             end
             table.insert(charset, '-')
             table.insert(charset, '_')
-            table.insert(charset, '.')
             table.insert(charset, '~')
             math.randomseed(os.time() + collection.id)
             local token = {}
