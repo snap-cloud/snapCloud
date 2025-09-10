@@ -562,6 +562,8 @@ ProjectController = {
                 tostring(self.params.username),
                 tostring(self.params.projectname)
             )
+        local message = 'Project ' .. tostring(self.params.projectname) ..
+            ' saved.'
 
         if (project) then
             local shouldUpdateSharedDate =
@@ -586,8 +588,6 @@ ProjectController = {
                 likely_class_work = likely_class_work,
             })
         else
-            local message = 'Project ' .. tostring(self.params.projectname) ..
-                ' saved.'
             -- Users are automatically verified the first time
             -- they save a project
             if (not self.queried_user.verified) then
