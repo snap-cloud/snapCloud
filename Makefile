@@ -24,6 +24,9 @@ install:
 	$(luarocks_command) install --only-deps snapcloud-dev-0.rockspec
 	$(MAKE) install-annotate
 
+db:
+	db/init.sh
+
 migrate:
 	bin/lapis-migrate
 
