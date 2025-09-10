@@ -586,11 +586,14 @@ ProjectController = {
                 likely_class_work = likely_class_work,
             })
         else
+            local message = 'Project ' .. tostring(self.params.projectname) ..
+                ' saved.'
             -- Users are automatically verified the first time
             -- they save a project
             if (not self.queried_user.verified) then
                 self.queried_user:update({ verified = true })
                 self.session.verified = true
+                message = message .. '\n\nYour account is now validated.'
             end
 
             -- A project flagged as "deleted" with the same name may exist
@@ -656,8 +659,7 @@ ProjectController = {
             yield_error('Could not save project ' ..
                 tostring(self.params.projectname))
         else
-            return okResponse('project ' .. tostring(self.params.projectname) ..
-                ' saved')
+            return okResponse(message)
         end
     end)
 }
