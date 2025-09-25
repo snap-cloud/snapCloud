@@ -17,11 +17,12 @@
     </a>
   </div>
   <% end %>
+<!--
     <div class="carousel-item active">
       <img src="/static/img/snapcon.png" alt="Snap! - Build Your Own Blocks">
     </div>
-
-    <div class="carousel-item">
+-->
+    <div class="carousel-item active">
       <img src="/static/img/snap-byob.png" alt="Snap! - Build Your Own Blocks">
     </div>
 
