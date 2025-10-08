@@ -348,4 +348,14 @@ return {
         update_user_views()
         update_project_views()
     end,
+
+    -- Add join_token column to collections
+    ['2025-09-04:0'] = function ()
+        schema.add_column(
+            'collections',
+            'join_token',
+            types.text({ null = true, unique = true })
+        )
+    end,
+
 }

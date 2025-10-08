@@ -497,3 +497,16 @@ hr {
 .user-profile-actions > * {
     padding: 0.25rem 0;
 }
+
+/* Bootstrap's pagination */
+.pagination span.page-link {
+  white-space: nowrap;
+}
+
+// Ensure long titles don't overflow their containers.
+.title h1 {
+  max-width: 50ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

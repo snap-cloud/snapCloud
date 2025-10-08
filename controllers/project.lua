@@ -562,6 +562,8 @@ ProjectController = {
                 tostring(self.params.username),
                 tostring(self.params.projectname)
             )
+        local message = 'Project ' .. tostring(self.params.projectname) ..
+            ' saved.'
 
         if (project) then
             local shouldUpdateSharedDate =
@@ -591,6 +593,7 @@ ProjectController = {
             if (not self.queried_user.verified) then
                 self.queried_user:update({ verified = true })
                 self.session.verified = true
+                message = message .. '\n\nYour account is now validated.'
             end
 
             -- A project flagged as "deleted" with the same name may exist
@@ -656,8 +659,7 @@ ProjectController = {
             yield_error('Could not save project ' ..
                 tostring(self.params.projectname))
         else
-            return okResponse('project ' .. tostring(self.params.projectname) ..
-                ' saved')
+            return okResponse(message)
         end
     end)
 }

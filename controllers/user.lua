@@ -184,7 +184,10 @@ UserController = {
                 return jsonResponse({
                     title = 'Verify your account',
                     message = 'Please verify your account within\n' ..
-                        'the next ' .. self.queried_user.days_left .. ' days.',
+                        'the next ' .. self.queried_user.days_left ..
+                        ' days.\n' ..
+                        'Alternatively, saving a project to the cloud\n' ..
+                        'will also mark your account as verified.',
                     redirect = self:build_url('/')
                 })
             end

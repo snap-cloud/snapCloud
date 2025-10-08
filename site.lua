@@ -34,6 +34,7 @@ local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
 local csrf = require("lapis.csrf")
 local assert_exists = require('validation').assert_exists
+local db = package.loaded.db
 
 local util = require("lib.util")
 local materials = require('views.static.resources').materials
@@ -179,6 +180,38 @@ app:get('/my_collections', capture_errors(function (self)
     end
 end))
 
+app:get('/collection/:token/join', capture_errors(function (self)
+    local collection = Collections:find({ join_token = self.params.token })
+    assert(collection, 'Collection not found')
+
+    if not self.current_user then
+        return errorResponse(self,
+            'You must be logged in to join a collection.',
+            403)
+    end
+
+    if not collection.editor_ids then
+        collection.editor_ids = {}
+    end
+    local already_editor = false
+    for _, id in pairs(collection.editor_ids) do
+        if id == self.current_user.id then
+            already_editor = true
+            break
+        end
+    end
+    if not already_editor then
+        collection:update({
+            editor_ids =
+                db.raw(db.interpolate_query(
+                    'array_append(editor_ids, ?)',
+                    self.current_user.id))
+        })
+    end
+
+    return { redirect_to = collection:url_for('site') }
+end))
+
 app:get('/collection', capture_errors(function (self)
     assert_user_exists(self)
     local creator = self.queried_user
@@ -227,17 +260,29 @@ app:get('/user_projects/:username', capture_errors(cached(function (self)
 end)))
 
 -- Display an embedded collection view.
+-- Designed to be a single row view, but can be expanded.
 app:get('/carousel', capture_errors(cached(function (self)
     assert_user_exists(self)
     local creator = self.queried_user
-    self.params.items_per_page = self.params.items_per_page or 4
-    self.params.items_per_row = self.params.items_per_row or 4
-    self.params.page_number = self.params.page_number or 1
+    -- This parameter needs to be set for the carousel view.
+    -- It doesn't not ineracte correctly with the items_per_page passed to the
+    -- projects() method below.
+    -- In this current flow, we only have JS
+    self.items_per_page = self.params.items_per_page or 4
+    self.items_per_row = self.params.items_per_row or 4
+
     self.collection = assert_exists(Collections:find(creator.id, self.params.collection))
     assert_can_view_collection(self, self.collection)
     self.collection.creator = creator
-    self.items = CollectionController.projects(self)
+    -- Pass a different items_per_page to the controller to query more projects.
+    self.ignore_page_count = true
+    self.items = CollectionController.projects({
+        params = self.params,
+        items_per_page = 50,
+        collection = self.collection
+    })
     self.title = self.collection.name
+    self.href = self.collection:url_for('site')
     self.show_if_empty = true
     return { render = 'carousel', layout = 'embedded' }
 end)))
