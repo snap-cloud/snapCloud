@@ -21,10 +21,23 @@ fi
 # TODO: lapis migrate --dry-run then ask for confirmation.
 lapis migrate
 success=$?
+
+# We filter extra lines that pg_dump adds that add churn to the schema file.
+# pg_dump doesn't have an option to disable the restrict/unrestrict lines.
+# And when dumping the migrations table, we don't want any of the SET lines or comments
+# (which are redundant since we are appending to an existing file).
+# This leaves only one line at the top which includes the pg_dump version.
 if [[ $LAPIS_ENVIRONMENT == 'development' && $success == 0 ]]
 then
   CONNECTION="-h $DB_HOST -U $DB_USER -d $DATABASE_NAME --no-owner --no-privileges";
   echo "Dumping schema to $SCHEMA_FILE";
-  pg_dump --schema-only $CONNECTION > $SCHEMA_FILE;
-  pg_dump --data-only --table=lapis_migrations $CONNECTION | grep -v "^SET*" >> $SCHEMA_FILE;
+  pg_dump --schema-only $CONNECTION \
+    | grep -v '\\restrict' \
+    | grep -v '\\unrestrict' \
+    | grep -v '^-- Dumped by ' > $SCHEMA_FILE;
+  pg_dump --data-only --table=lapis_migrations $CONNECTION \
+    | grep -v '\\restrict' \
+    | grep -v '\\unrestrict' \
+    | grep -v "^--" \
+    | grep -v "^SET*" >> $SCHEMA_FILE;
 fi

@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.7 (Homebrew)
--- Dumped by pg_dump version 16.7 (Homebrew)
+
+-- Dumped from database version 16.10 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -712,17 +712,11 @@ ALTER TABLE ONLY public.tokens
 -- PostgreSQL database dump complete
 --
 
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 16.7 (Homebrew)
--- Dumped by pg_dump version 16.7 (Homebrew)
 
 
---
--- Data for Name: lapis_migrations; Type: TABLE DATA; Schema: public; Owner: -
---
+
+
+
 
 COPY public.lapis_migrations (name) FROM stdin;
 20190140
@@ -750,7 +744,5 @@ COPY public.lapis_migrations (name) FROM stdin;
 \.
 
 
---
--- PostgreSQL database dump complete
---
+
 

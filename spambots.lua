@@ -32,6 +32,7 @@ require 'responses'
 
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
+local respond_to = package.loaded.respond_to
 
 local suspicious_paths = {
     '/manager(/:*)',
