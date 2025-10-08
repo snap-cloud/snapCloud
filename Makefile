@@ -22,6 +22,7 @@ install-annotate:
 
 install:
 	$(luarocks_command) install --only-deps snapcloud-dev-0.rockspec
+	npm install
 	$(MAKE) install-annotate
 
 migrate:
