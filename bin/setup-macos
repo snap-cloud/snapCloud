@@ -7,6 +7,9 @@ print_ok() {
    echo -e "\033[32m$1\033[0m"
 }
 
+print_warning() {
+    echo -e "\033[33m$1\033[0m"
+}
 
 # Ensure brew is installed.
 if [[ -z `which brew` ]]; then
@@ -24,19 +27,21 @@ else
     npm install
 fi
 
-# Install basic dependencies via brew
-# Note that we must use lua 5.1, not 5.2 or 5.3
+# As of 2025 lua 5.1 is no longer in homebrew
+# We will use the package manager mise to install lua.
 print_ok 'Installing lua and postgres'
-brew install lua@5.1 luarocks postgres pcre gcc@12
+brew install mise luarocks postgres pcre gcc@12
+
+print_ok 'Using mise to install lua 5.1'
+mise install lua@5.1
+# Set lua 5.1 as the default version
+mise default -g lua@5.1
 
 print_ok 'Installing OpenResty'
+print_warning 'NOTE: The dependency "libmaxminddb" may not install properly. We do not need it'
+print_warning "If you run into an issue, use `brew edit openresty` to file the install script"
+print_warning 'and remove the line that installs libmaxminddb, as well as --with-http-geoip-module'
 brew install openresty/brew/openresty
-
-print_ok 'NOTE THERE IS AN ISSUE ON ARM MACS! You must use a pre-release openresty version!'
-print_ok 'Use `brew edit openresty` to manually update the installation. See setup-macos'
-# You need to update the following two lines in the file.
-#   VERSION = "1.21.4.2rc1".freeze
-#   sha256 "ee96bbcf119abe5f1fc90461dd4674bd9397aa3db5544139578d9ace81983fdb"
 
 
 print_ok "Setting Git to use https:// instead of unsecured git:// for GitHub"
@@ -45,6 +50,7 @@ git config --global url."https://github".insteadOf git://github
 print_ok "Installing Lapis & Lua Dependencies"
 make install
 
+# NOTE: As of 2025 - when lua 5.1 is not in brew, this needs to be revisited.
 print_ok 'Adding luarocks path info to bashrc'
 echo "" >> ~/.bashrc
 echo "# Luarocks 3 and Lua 5.1 tools (added by snapCloud)." >> ~/.bashrc
