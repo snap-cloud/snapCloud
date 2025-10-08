@@ -25,6 +25,9 @@ install:
 	npm install
 	$(MAKE) install-annotate
 
+db:
+	db/init.sh
+
 migrate:
 	bin/lapis-migrate
 
