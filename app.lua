@@ -39,7 +39,6 @@ package.loaded.cjson = require('cjson')
 package.loaded.app_helpers = require('lapis.application')
 package.loaded.json_params = package.loaded.app_helpers.json_params
 package.loaded.yield_error = package.loaded.app_helpers.yield_error
-package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.html = require('lapis.html')
 local date = require('date')
 
