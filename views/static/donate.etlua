@@ -1,0 +1,124 @@
+<% content_for('title', 'Donate to Snap!') %>
+<h1 class="mb-4">Help Keep Snap<em>!</em> Free for Everyone</h1>
+
+<style>
+    .stats {
+        background: #f8f9fa;
+        padding: 25px;
+        border-radius: 8px;
+        margin: 25px 0;
+    }
+    .stats strong {
+        color: var(--berkeley-blue);
+    }
+    .fine-print {
+        font-size: 0.85em;
+        color: #666;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+    }
+    .checkout-button {
+        background-color: var(--berkeley-blue);
+        color: var(--california-gold);
+        border: none;
+        font-weight: 600;
+    }
+    .checkout-button:hover, .checkout-button:focus {
+        background-color: var(--berkeley-blue);
+        color: white;
+        opacity: 0.9;
+    }
+</style>
+
+<div class="stats">
+    <p>Since 2012, Snap<em>!</em> has reached <strong>nearly 1 million young learners</strong> around the world. Together, they've created and saved <strong>nearly 10 million projects</strong>—from games and animations to simulations and interactive art, and of course <em>serious</em> computer science.</p>
+</div>
+
+<p>We're a small team made up largely of volunteers and part-time contributors who believe programming should be accessible, creative, and joyful. Your donation helps us:</p>
+
+<ul>
+    <li>Keep Snap<em>!</em> completely free—no ads, no paywalls</li>
+    <li>Support the now-annual <a href="https://www.snapcon.org/">Snap<em>!</em>Con</a> conference</li>
+    <li>Maintain servers and infrastructure</li>
+    <li>Continue developing new features and improvements</li>
+</ul>
+
+<p>Every contribution, no matter the size, makes a real difference.</p>
+
+<div class="my-4">
+  <div id="error-message"></div>
+  <a
+    href="https://donate.stripe.com/9B6fZiaaI31Gbub4Ul2Ry07"
+    class="btn btn-lg btn-outline-primary checkout-button"
+  >
+    Donate to Snap<em>!</em>
+  </a>
+</div>
+
+<div class="fine-print">
+    <p>Payments are securely processed by Stripe. You choose the donation amount. Your donation is made to BJC STARS, a 501(c)(3) nonprofit organization that supports Snap! and <a href="https://bjc.berkeley.edu/">The Beauty and Joy of Computing curriculum</a>. Donations may be tax-deductible—consult your tax advisor.</p>
+</div>
+
+<%
+--[[%>
+ <!-- Load Stripe.js on your website. -->
+<script src="https://js.stripe.com/v3"></script>
+
+<script>
+(function() {
+  const PUBLISHABLE_KEY = 'pk_live_M4PdukZq1zUBsjQvOSEu6wrF00iY5Ve2Se';
+  const TEST_KEY = 'pk_test_Us6dyIE53jxl7SKdgH5VujQf003UGCM3gJ';
+  // Replace with the domain you want your users to be redirected back to after payment
+  const DOMAIN = location.href.replace(/[^/]*$/, '');
+  let stripe_key = DOMAIN.startsWith('http://localhost') || DOMAIN.startsWith('http://') ? TEST_KEY : PUBLISHABLE_KEY;
+  let PRICE_ID = 'price_1LXALLLn2wZ1DCXhMCdWM287'; // Default price ID for live mode
+  const stripe = Stripe(stripe_key, { stripeAccount: 'acct_1Fp8QtLn2wZ1DCXh' });
+
+  if (DOMAIN.indexOf('http://localhost') === 0) {
+    console.log('Using Stripe test key. No real charges will be made.');
+    console.log(stripe_key);
+    PRICE_ID = 'price_1SHfN0Ln2wZ1DCXhdiTgRtFF'
+  }
+
+  var checkoutButton = document.getElementById('checkout-button-price_1LXALLLn2wZ1DCXhMCdWM287');
+  checkoutButton.addEventListener('click', function () {
+    /*
+     * When the customer clicks on the button, redirect
+     * them to Checkout.
+     */
+    stripe.redirectToCheckout({
+      lineItems: [{price: PRICE_ID, quantity: 1}],
+      mode: 'payment',
+      /*
+       * Do not rely on the redirect to the successUrl for fulfilling
+       * purchases, customers may not always reach the success_url after
+       * a successful payment.
+       * Instead use one of the strategies described in
+       * https://docs.stripe.com/payments/checkout/fulfill-orders
+       */
+      successUrl: `${DOMAIN}/thank-you`,
+      cancelUrl: `${DOMAIN}/payment-canceled`,
+    })
+    .then(function (result) {
+      if (result.error) {
+        /*
+         * If `redirectToCheckout` fails due to a browser or network
+         * error, display the localized error message to your customer.
+         */
+        var displayError = document.getElementById('error-message');
+        displayError.textContent = result.error.message;
+      }
+    }).catch(function (error) {
+      console.error('Error:', error);
+      var displayError = document.getElementById('error-message');
+      displayError.textContent = error.message;
+      if (Sentry) {
+        Sentry.captureException(error);
+      }
+    });
+  });
+})();
+</script>
+<%
+]]%>

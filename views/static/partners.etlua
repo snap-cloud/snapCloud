@@ -1,6 +1,14 @@
 <% content_for('title', 'Partners, Sponsors, and Collaborators') %>
 <h1 localizable>Partners, sponsors and collaborators</h1>
 
+<p>
+    Snap<em>!</em> is made possible by the generous support of our partners, sponsors, and collaborators.
+    <strong>If you are interested in providing financial support, please consider <a href="/donate">donating to Snap<em>!</em></a>.
+    </strong>
+    <br/><br/>
+    We are grateful to the following organizations for their support of Snap<em>!</em> and its community:
+</p>
+
 <ul class="flex list-unstyled">
     <!-- TODO: Cleanup this list. Include UC Berkeley? -->
     <li>
@@ -69,5 +77,13 @@
 
 <p>Further development of the Snap<em>!</em> programming language, its cloud backend and its social website has been sponsored by <a href="https://sap.com">SAP</a>.</p>
 
-<p>The University of California, Berkeley partners with SAP to develop the Snap<em>!</em> programming language and provide the Snap<em>!</em> cloud service used  by the Snap<em>!</em> community website. UC Berkeley and Education Development Center, Inc., have created <a href="https://bjc.berkeley.edu">The Beauty and Joy of Computing</a> course and curriculum using Snap<em>!</em>, supported by grants from the NSF. Further curricular materials and online courses using Snap<em>!</em> are developed by researchers at SAP and by the TEALS initiative at Microsoft.
+<p>The <a href="https://eecs.berkeley.edu" target=_blank>University of California, Berkeley</a> partners with SAP to develop the Snap<em>!</em> programming language and provide the Snap<em>!</em> cloud service used  by the Snap<em>!</em> community website. UC Berkeley and <a href="https://edc.org">Education Development Center, Inc.</a>, have created <a href="https://bjc.berkeley.edu">The Beauty and Joy of Computing</a> course and curriculum using Snap<em>!</em>, supported by grants from the NSF. Further curricular materials and online courses using Snap<em>!</em> are developed by researchers at SAP and by the <a href="https://tealsk12.org" target=_blank>TEALS initiative at Microsoft</a>.
+
 <p><strong><small>Any opinions, findings, and conclusions or recommendations expressed in this material are those of the author(s) and do not necessarily reflect the views of the National Science Foundation or other funders.</small></strong></p>
+
+<hr style="margin: 2em 0; border: none; border-top: 1px solid #ccc;">
+
+<p>Are you interested in partnering with us? Please <a href="/contact">contact us</a>.
+<br>
+We are especially interested in hearing from educational institutions and non-profits who would like to collaborate on curriculum development and research, as well as companies interested in sponsoring further development of Snap<em>!</em> and its cloud infrastructure.
+</p>

@@ -10,7 +10,7 @@ Please note that earlier versions may not be able to access the Snap! Cloud. The
 </p>
 
 <ul>
-  <% for v = 4, 9 do %>
+  <% for v = 4, 10 do %>
     <li>
       <a href="/versions/v<%= v %>">Version <%= v %></a>
     </li>
