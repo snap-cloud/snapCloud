@@ -71,6 +71,7 @@ local locale = {
     -- forum already translated in top navigation bar
     contact = "Contact Us",
     mirrors = "Mirrors",
+    donate = "Donate",
     dmca = "DMCA",
     privacy = "Privacy",
     tos = "Terms of Service",
