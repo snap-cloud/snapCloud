@@ -54,7 +54,7 @@ app.layout = require 'views.layout.application'
 local static_pages = {
     'about', 'bjc', 'blog', 'coc', 'contact', 'credits', 'dmca', 'extensions',
     'mirrors', 'offline', 'partners', 'privacy', 'research',
-    'snapinator', 'snapp', 'source', 'tos', 'versions',
+    'snapinator', 'snapp', 'source', 'tos', 'versions','donate',
     -- Disabled because this is out of date.
     -- 'requirements',
 }
