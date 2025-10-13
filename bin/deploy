@@ -3,7 +3,7 @@
 # ./deploy [BRANCH]
 
 # Allow specifcying a branch or commit to deploy.
-branch=${1-'master'}
+branch=${1-'main'}
 
 echo "Deploying branch: $branch"
 
