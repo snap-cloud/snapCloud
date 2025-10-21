@@ -264,13 +264,17 @@ i.bookmarked {
     line-height: 1.5em;
 }
 
+/* Truncate project/collection names in thumbnails */
 .collection.small .collection-name,
 .project.small .project-name {
+    display: -webkit-box;
     margin: 0 auto;
-    /* white-space: nowrap; */
     max-width: 20ch;
     overflow: hidden;
     text-overflow: ellipsis;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
 }
 
 .collection.small span.is-public,
