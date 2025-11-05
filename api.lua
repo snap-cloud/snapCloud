@@ -169,6 +169,11 @@ app:match(api_route('users/:username/change_email'), respond_to({
     POST = UserController.change_email
 }))
 
+app:match(api_route('users/:username/change_username'), respond_to({
+    POST = capture_errors(function (self)
+        return UserController.change_username(self)
+    end)
+}))
 app:match(api_route('users/:username/send_email'), respond_to({
     POST = UserController.send_email
 }))
