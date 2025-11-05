@@ -162,7 +162,7 @@
                     <a class="btn btn-sm btn-outline-secondary"
                     onclick="
                         prompt(
-                            '<%- locale.get('new_username') %>',
+                            '<%- locale.get('new_username', item.username) %>',
                             username => {
                                 cloud.post(
                                     '/users/<%= item.username %>/change_username',
