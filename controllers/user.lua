@@ -261,6 +261,55 @@ UserController = {
                     self:build_url('profile')
         })
     end),
+    change_username = capture_errors(function (self)
+        assert_current_user_logged_in(self)
+
+        local user = self.queried_user
+
+        if self.queried_user then
+            -- we're trying to change someone else's username
+            if not (self.current_user.is_teacher and
+                (self.queried_user.creator_id == self.current_user.id)) then
+                -- that someone is not that someone else's teacher, only mods
+                -- or above can do that
+                assert_min_role(self, 'moderator')
+            end
+        else 
+            return errorResponse(self,
+                'You cannot currently change your own username. Sorry.',
+                400
+            )
+        end
+
+        local existing_user = Users:find({ username = self.params.new_username })
+        local existing_zombie = DeletedUsers:find({ username = self.params.new_username })
+
+        if existing_user or existing_zombie then
+            return errorResponse(self,
+                'A user with username ' .. self.params.new_username .. ' already exists.',
+                400
+            )
+        end
+
+        local update_success, update_message = user:update({ username = self.params.new_username })
+        if not update_success then
+            return errorResponse(self,
+                'Could not update username address to: "' .. self.params.new_username .. '"' ..
+                '\nError: ' .. update_message or 'unknown error',
+                400
+            )
+        end
+
+        return jsonResponse({
+            title = 'Username changed',
+            message = 'Username has been updated.',
+            redirect =
+            self.params.new_username and
+            user:url_for('site') or
+            self:build_url('profile')
+        })
+    end),
+
     change_password = capture_errors(function (self)
         assert_current_user_logged_in(self)
         if (self.current_user.password ~=

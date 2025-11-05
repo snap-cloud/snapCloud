@@ -159,6 +159,22 @@
                             }
                         );
                     "><%- locale.get('reset_password') %></a>
+                    <a class="btn btn-sm btn-outline-secondary"
+                    onclick="
+                        prompt(
+                            '<%- locale.get('change_username') %>',
+                            username => {
+                                cloud.post(
+                                    '/users/<%= item.username %>/change_username',
+                                    null,
+                                    {
+                                        new_username: username
+                                    }
+                                );
+                            },
+                            nop
+                        );
+                    "><%- locale.get('change_username') %></a>
                 <% end %>
         </div>
         <% end %>
