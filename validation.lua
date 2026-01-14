@@ -404,7 +404,7 @@ create_token = function (self, purpose, user, do_not_email)
             mail_bodies[purpose],
             token_url
         )
-    else
+    end
     return token_url
 end
 
