@@ -352,11 +352,11 @@ UserController = {
             title = 'Password reset',
             message =
                 (self.params.do_not_email and
-                    ('Use this link to reset this user\'s password:\n' ..
-                    token_url)
+                    ('Use this link to reset this user\'s password:<br><br>' ..
+                    '<small>' .. token_url .. '</small>')
                 or
-                    ('A link to reset your password has been sent to ' ..
-                    'your email address for your account.')
+                    ('A link to reset your password has been sent to your ' ..
+                    'email address for your account.')
                 ),
             redirect = self:build_url('/')
         })
