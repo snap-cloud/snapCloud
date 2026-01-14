@@ -363,12 +363,12 @@ find_token = function (username, purpose)
     return Tokens:find({ username = username, purpose = purpose})
 end
 
---- Creates a token and sends an email
+--- Creates a token and sends an email, unless otherwise specified
 -- @param self: request object
 -- @param purpose string: token purpose and route name
--- @param username string
--- @param email string
-create_token = function (self, purpose, user)
+-- @param user string
+-- @param do_not_email boolean
+create_token = function (self, purpose, user, do_not_email)
     local token_value
     assert_exists(user)
 
@@ -390,18 +390,22 @@ create_token = function (self, purpose, user)
             purpose = purpose
         })
     end
-    send_mail(
-        user.email,
-        mail_subjects[purpose] .. user.username,
-        mail_bodies[purpose],
-        self:build_url(self:url_for(
-            purpose,
-            {
-                username = url.build_path({ user.username }),
-                token = url.build_path({ token_value })
-            }
-        ))
-    )
+    local token_url = self:build_url(self:url_for(
+        purpose,
+        {
+            username = url.build_path({ user.username }),
+            token = url.build_path({ token_value })
+        }
+    ))
+    if (not do_not_email) then
+        send_mail(
+            user.email,
+            mail_subjects[purpose] .. user.username,
+            mail_bodies[purpose],
+            token_url
+        )
+    else
+    return token_url
 end
 
 -- Collections

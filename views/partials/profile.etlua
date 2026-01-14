@@ -144,21 +144,38 @@
                             nop
                         );
                     "><%- locale.get('change_email') %></a>
-                <a class="btn btn-sm btn-outline-secondary"
+                    <a class="btn btn-sm btn-outline-secondary"
                     onclick="
-                        confirm(
+                    confirm(
                             '<%= package.loaded.html.escape(locale.get(
                                     'confirm_reset_password',
                                     item.username
-                                ))
+                                    ))
                             %>',
                             () => {
-                                cloud.post(
+                            cloud.post(
                                     '/users/<%= item.username %>/password_reset'
-                                );
+                                    );
                             }
-                        );
+                           );
                     "><%- locale.get('reset_password') %></a>
+                    <a class="btn btn-sm btn-outline-secondary"
+                    onclick="
+                    confirm(
+                            '<%= package.loaded.html.escape(locale.get(
+                                    'confirm_reset_password',
+                                    item.username
+                                    ))
+                            %>',
+                            () => {
+                            cloud.post(
+                                    '/users/<%= item.username %>/password_reset',
+                                    null,
+                                    { do_not_email: true }
+                                    );
+                            }
+                           );
+                    "><%- locale.get('get_reset_password_token') %></a>
                     <a class="btn btn-sm btn-outline-secondary"
                     onclick="
                         prompt(
@@ -167,9 +184,7 @@
                                 cloud.post(
                                     '/users/<%= item.username %>/change_username',
                                     null,
-                                    {
-                                        new_username: username
-                                    }
+                                    { new_username: username }
                                 );
                             },
                             nop

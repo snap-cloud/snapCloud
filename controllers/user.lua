@@ -338,13 +338,28 @@ UserController = {
                 yield_error(err.too_many_password_resets)
             end
         end
-        create_token(self, 'password_reset', self.queried_user)
-            return jsonResponse({
-                title = 'Password reset',
-                message = 'A link to reset your password has been sent to ' ..
-                    'your email address for your account.',
-                redirect = self:build_url('/')
-            })
+
+        -- Only admins are allowed to retrieve the token URL
+        if self.params.do_not_email then assert_admin(self) end
+
+        local token_url = create_token(
+            self,
+            'password_reset',
+            self.queried_user,
+            self.params.do_not_email
+        )
+        return jsonResponse({
+            title = 'Password reset',
+            message =
+                (self.params.do_not_email and
+                    ('Use this link to reset this user\'s password:\n' ..
+                    token_url)
+                or
+                    ('A link to reset your password has been sent to ' ..
+                    'your email address for your account.')
+                ),
+            redirect = self:build_url('/')
+        })
     end),
     remind_username = capture_errors(function (self)
         rate_limit(self)
