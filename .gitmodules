@@ -1,3 +1,6 @@
 [submodule "lib/raven-lua"]
 	path = lib/raven-lua
 	url = git@github.com:snap-cloud/raven-lua.git
+[submodule "frontend"]
+	path = frontend
+	url = https://github.com/snap-cloud/snapCloud-frontend
