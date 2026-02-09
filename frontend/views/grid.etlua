@@ -1,0 +1,102 @@
+<%
+--[[
+    I am a project, user or collection grid. I show one single page of items,
+    and the current page is defined by the "page_number" url parameter, that is
+    then handled by the grid_paginator partial.
+
+    items               (tbl) Items to show.
+    title               (str) Grid title. Default: none.
+    title_selector      (str) Grid title localization selector. Default: none.
+    class               (str) CSS class.
+    item_type           (str) item template name at views/partials/[item_type].
+    items_per_row       (num) Number of items per grid row. Default: 5.
+    items_per_page      (num) Number of items per page. Default: 15.
+    with_search         (t/f) Adds a search input. Default: false.
+    show_if_empty       (t/f) Show component if no items. Default: false.
+    show_author         (t/f) Show the item author, if any. Default: false.
+    show_icons          (t/f) Show item privacy icons. Default: false.
+    show_collection_controls
+                        (t/f) Show buttons to set thumbnail or remove from
+                              collection. Default: false.
+    item_params         (tbl) Params to pass to the item renderer
+    filter_descriptors  (tbl) Dropdown menu filter descriptors:
+      .label            (str) Dropdown label.
+      .options          (tbl) Dropdown options.
+        .label          (str) Option label.
+        .value          (any) Option value.
+]]--
+
+-- set defaults
+
+if show_author == nil then show_author = true end
+items_per_page = items_per_page or 18
+items_per_row = items_per_row or 6
+item_type = item_type or 'project'
+if items == nil then items = {} end
+num_pages = num_pages or math.ceil(#items / items_per_page)
+%>
+
+<% if (num_pages > 0) or show_if_empty then %>
+    <section class="<%= class %> container-fluid">
+
+    <% if title then %>
+        <h2 class="<%= class %> header"><%= title %></h2>
+    <% elseif title_selector then %>
+        <h2 class="<%= class %> header"
+            ><%= locale.get(title_selector) %></h2>
+    <% end %>
+
+    <% --[[%> TODO: When no search or filter render pagination in the same row as the title. <%]]%>
+    <div class="row g-2 py-2">
+        <div class="col-lg-3 col-md-2 col-12">
+            <% if with_search then
+                render(
+                    'frontend.views.partials.grid_search',
+                    { class = class }
+                )
+            end %>
+        </div>
+        <div class="col-lg-5 col-md-5 col-12">
+            <% if filter_descriptors then
+                render(
+                    'frontend.views.partials.grid_filters',
+                    { filter_descriptors = filter_descriptors }
+                )
+            end %>
+        </div>
+        <div class="col-lg-4 col-md-5 col-12">
+            <% render('frontend.views.partials.grid_paginator') %>
+        </div>
+    </div>
+
+    <% if (num_pages > 0) then %>
+        <% for idx, item in pairs(items) do %>
+            <%
+                local new_row = (idx - 1) % items_per_row == 0
+                local end_row = idx % items_per_row == 0 or idx == #items
+                params = {
+                    item = item,
+                    items_per_row = items_per_row,
+                    show_author = show_author,
+                    show_icons = show_icons,
+                    show_collection_controls =
+                        show_collection_controls,
+                    collection_id = (show_collection_controls and
+                        collection_id or -1),
+                    zombie = zombie
+                }
+                if item_params then
+                    for k, v in pairs(item_params) do params[k] = v end
+                end
+                %>
+            <% if new_row then %>
+            <div class="<%= class %> row g-2 row-cols-auto">
+            <% end %>
+                <% render('frontend.views.partials.' .. item_type .. '', params) %>
+            <% if end_row then %>
+            </div>
+            <% end %>
+        <% end %>
+    <% end %>
+    </section>
+<% end %>

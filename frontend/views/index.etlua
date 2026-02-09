@@ -1,0 +1,121 @@
+<script src="/static/js/project.js"></script>
+
+<% render('frontend.views.partials.slideshow') %>
+
+<h1>
+    <% if current_user then %>
+    <%= locale.get('welcome_logged_in', current_user.username) %>
+    <% else %>
+    <%- locale.get('welcome', '<em>!</em>') %>
+    <% end %>
+</h1>
+
+<div class="row">
+    <div class="col-12"><%- locale.get('snap_description', '<em>!</em>') %></div>
+
+    <div class="col-12 py-3">
+        <a href="/snap"
+            target="<%- prefer_new_tab and '_blank' or '_self' %>"
+            class="m-1 btn btn-lg btn-primary"
+            ><%- locale.get('run_now',
+            '<img src="/static/img/snap-logo-white.svg" alt="Snap!" style="height: 1.5rem" />') %>
+        </a>
+        <% if current_user then %>
+        <a href="/my_projects" class="m-1 btn btn-lg btn-outline-success"
+            ><%- locale.get('my_projects') %></a>
+        <a href="<%- current_user:url_for('site') %>" class="m-1 btn btn-lg btn-outline-success"
+            ><%- locale.get('my_public_page') %></a>
+        <% else %>
+        <a href="/examples" class="m-1 btn btn-lg btn-outline-secondary">
+            <%- locale.get('examples') %>
+        </a>
+        <a href="/learn" class="m-1 btn btn-lg btn-outline-secondary" target="_blank"
+            ><%- locale.get('learn_snap', 'Snap<em>!</em>') %></a>
+        <% end %>
+    </div>
+</div>
+
+<%
+local FeaturedCollections = package.loaded.FeaturedCollections
+local features = {}
+
+-- Featured projects first
+table.insert(features, FeaturedCollections:find({
+    page_path = 'index',
+    type = 'featured'
+}))
+
+-- Events next
+for _, collection in pairs(FeaturedCollections:select(
+    "WHERE page_path = 'index' AND type = 'event'"
+)) do
+    table.insert(features, collection)
+end
+
+--[[ TOTM goes next
+table.insert(features, FeaturedCollections:find({
+    page_path = 'index',
+    type = 'totm'
+}))]]--
+
+-- Then 3 random example collections
+for _, collection in pairs(FeaturedCollections:select([[
+    WHERE page_path = 'index' AND type = 'example'
+    ORDER BY RANDOM() LIMIT 3
+]])) do
+    table.insert(features, collection)
+end
+
+local function title_for (descriptor, collection_name)
+    if descriptor.type == 'totm' then
+        return locale.get('totm', collection_name)
+    else
+        return collection_name
+    end
+end
+
+for _, descriptor in pairs(features) do
+    local collection =
+        package.loaded.Collections:find({ id = descriptor.collection_id })
+    render(
+        'frontend.views.carousel',
+        {
+            title = title_for(descriptor, collection.name),
+            items = CollectionController.projects({
+                params = {},
+                items_per_page = 24, -- 24 projects to query from DB.
+                collection = collection,
+                cached = true
+            }),
+            items_per_row = 6,
+            items_per_page = 6,
+            href = collection:url_for('site')
+        }
+    )
+end
+
+
+-- Show latest projects next
+-- Disabled for now because of too high DB use
+--[[
+render(
+    'frontend.views.carousel',
+    {
+        title = locale.get('latest'),
+        items = ProjectController.fetch(
+            {
+                params = { items_per_page = 24 },
+                session = session,
+                cached = true
+            }
+        ),
+        href = 'explore'
+    }
+)
+]]--
+%>
+
+<div class="d-grid col-11 mx-auto">
+    <a href="/collections" class="btn btn-lg btn-outline-primary"
+        ><%- locale.get('more_collections') %></a>
+</div>

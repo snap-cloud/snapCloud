@@ -209,7 +209,7 @@ The Snap!Cloud uses the SASS compiler to compile (some) CSS.
 
 All you need to do is run `npm install` or `npm install -g sass`
 
-This compiles `static/scss` to `static/style/compiled/`.
+This compiles `frontend/static/scss` to `frontend/static/style/compiled/`.
 
 ### Getting Emails
 The Snap<em>!</em>Cloud sends emails for certain actions, like new user signups and password resets. In order to test those actions, you need an SMTP server.

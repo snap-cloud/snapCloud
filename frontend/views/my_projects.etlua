@@ -1,0 +1,18 @@
+<% content_for('title', locale.get('my_projects')) %>
+<h1 class="mb-3"><%- locale.get('my_projects') %></h1>
+
+<%
+render(
+    'frontend.views.grid',
+    {
+        class = 'my_projects',
+        item_type = 'project',
+        items_per_page = 18,
+        items_per_row = 6,
+        with_search = true,
+        show_if_empty = true,
+        show_author = false,
+        show_icons = true
+    }
+)
+%>

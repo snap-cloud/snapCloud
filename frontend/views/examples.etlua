@@ -1,0 +1,27 @@
+<script src="/static/js/project.js"></script>
+<% content_for('title', locale.get('examples')) %>
+<h1 class="mb-3"><%= locale.get('examples') %></h1>
+
+<%
+for _, descriptor in pairs(
+    package.loaded.FeaturedCollections:select("where page_path = 'examples'")
+) do
+
+    local collection =
+        package.loaded.Collections:find({id = descriptor.collection_id })
+
+    render(
+        'frontend.views.carousel',
+        {
+            title = collection.name, -- TODO localize titles
+            items = CollectionController.projects({
+                params = {},
+                items_per_page = 24,
+                collection = collection
+            }),
+            items_per_row = 6,
+            href = collection:url_for('site')
+        }
+    )
+end
+%>

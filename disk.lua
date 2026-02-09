@@ -228,7 +228,7 @@ function disk:process_thumbnails (items, id_selector)
 end
 
 function disk:save_totm_banner (file)
-    local totm_file = io.open('static/img/totm.png', 'w')
+    local totm_file = io.open('frontend/static/img/totm.png', 'w')
     totm_file:write(file.content)
     totm_file:close()
     return true

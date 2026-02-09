@@ -50,6 +50,8 @@ package.loaded.validation = require("validation")
 local app = package.loaded.app
 local config = package.loaded.config
 
+app.views_prefix = 'frontend.views'
+
 -- Snap!Cloud Utilities
 local utils = require('lib.util')
 -- Track exceptions, exposes raven, rollbar, and normalize_error
@@ -321,6 +323,6 @@ require 'discourse'
 -- require 'spambots'
 
 -- The community site is handled in the site.lua file
-require 'site'
+require 'frontend.site'
 
 return app
