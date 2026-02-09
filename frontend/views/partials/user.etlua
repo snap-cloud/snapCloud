@@ -1,6 +1,0 @@
-<!-- TODO: Need a better column function... -->
-<div class="user col-<%= 12 / (items_per_row or 4) %>">
-    <a target="_self" href="<%= item:url_for('site') %>">
-        <span class="username"><strong><%= item.username %></strong></span>
-    </a>
-</div>

@@ -1,4 +1,0 @@
-<% content_for('title', 'Contact') %>
-<h1>Contact</h1>
-
-<% render('frontend.views.static._contact_info') %>

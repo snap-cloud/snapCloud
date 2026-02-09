@@ -1,5 +1,0 @@
-<% content_for('title', 'Snapinator') %>
-<h1>Snapinator</h1>
-<p>Snapinator is an external web service from Deborah Servilla that translates a Scratch project into a Snap<em>!</em> one. Please note that while we love Snapinator it is currently not part of Snap<em>!</em> and not maintained by the Snap<em>!</em> dev team.</p>
-
-<p class="fs-4"><a href="https://snapinator.github.io/">https://snapinator.github.io/</a></p>
