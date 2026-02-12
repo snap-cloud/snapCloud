@@ -1,0 +1,111 @@
+<% content_for('title', project.projectname .. " Summary") %>
+
+<!-- Load the project summary library and styles -->
+<link rel="stylesheet" href="/static/style/project-summary.css?v=<%= cache_buster %>">
+<script src="/static/js/snap-project-summary.js?v=<%= cache_buster %>"></script>
+
+<div class="project-summary-container">
+    <!-- Control buttons - hidden during print -->
+    <div class="summary-controls no-print">
+        <button class="btn-back" onclick="window.history.back()">
+            <i class="fas fa-arrow-left"></i> Back to Project
+        </button>
+        <button class="btn-print" onclick="window.print()">
+            <i class="fas fa-print"></i> Print / Save as PDF
+        </button>
+        <a href="<%= project:url_for('site') %>" class="btn btn-link">
+            <i class="fas fa-eye"></i> View Project
+        </a>
+        <a href="<%= project:url_for('run') %>" class="btn btn-link" target="_blank">
+            <i class="fas fa-play"></i> Run in Snap!
+        </a>
+    </div>
+
+    <!-- Summary content will be rendered here -->
+    <div class="project-summary-content" id="summary-content">
+        <div class="project-summary-loading">
+            <div>Loading project summary...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+
+    var project = {
+        username: '<%= project.username %>',
+        projectname: '<%= project.projectname %>',
+        id: <%= project.id %>,
+        notes: <%= project.notes and "'" .. project.notes:gsub("'", "\\'"):gsub("\n", "\\n") .. "'" or "''" %>
+    };
+
+    // Fetch project XML
+    function fetchProjectXML() {
+        var apiUrl = '/api/v1/projects/' +
+                     encodeURIComponent(project.username) + '/' +
+                     encodeURIComponent(project.projectname);
+
+        return fetch(apiUrl)
+            .then(function(response) {
+                if (!response.ok) {
+                    throw new Error('Failed to load project: ' + response.statusText);
+                }
+                return response.text();
+            });
+    }
+
+    // Fetch project thumbnail
+    function getThumbnailUrl() {
+        return '/api/v1/projects/' +
+               encodeURIComponent(project.username) + '/' +
+               encodeURIComponent(project.projectname) + '/thumbnail';
+    }
+
+    // Generate and render the summary
+    function renderSummary() {
+        fetchProjectXML()
+            .then(function(xml) {
+                var projectData = {
+                    xml: xml,
+                    name: project.projectname,
+                    username: project.username,
+                    notes: project.notes,
+                    thumbnail: getThumbnailUrl()
+                };
+
+                var container = document.getElementById('summary-content');
+
+                try {
+                    SnapProjectSummary.renderTo(container, projectData, {
+                        useDropShadows: false
+                    });
+                } catch (error) {
+                    console.error('Error rendering summary:', error);
+                    container.innerHTML = '<div class="project-summary-error">' +
+                        '<h2>Error Generating Summary</h2>' +
+                        '<p>There was an error generating the project summary: ' +
+                        error.message + '</p>' +
+                        '<p>Please try <a href="' + '<%= project:url_for("site") %>' + '">viewing the project</a> instead.</p>' +
+                        '</div>';
+                }
+            })
+            .catch(function(error) {
+                console.error('Error fetching project:', error);
+                var container = document.getElementById('summary-content');
+                container.innerHTML = '<div class="project-summary-error">' +
+                    '<h2>Error Loading Project</h2>' +
+                    '<p>Could not load project data: ' + error.message + '</p>' +
+                    '<p><a href="' + '<%= project:url_for("site") %>' + '">Return to project page</a></p>' +
+                    '</div>';
+            });
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', renderSummary);
+    } else {
+        renderSummary();
+    }
+})();
+</script>

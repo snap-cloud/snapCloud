@@ -368,6 +368,19 @@ app:match('project', '/project', capture_errors(function (self)
     return { render = 'project' }
 end))
 
+-- Project summary page
+app:match('project_summary', '/summary', capture_errors(function (self)
+    -- URL params: username and projectname
+    self.project = Projects:find(
+        tostring(self.params.username),
+        self.params.projectname
+    )
+    assert_project_exists(self)
+    assert_can_view_project(self)
+
+    return { render = 'project_summary' }
+end))
+
 -- TODO: Should be able to consolidate these pages.
 app:get('/examples', capture_errors(cached(function (self)
     self.snapcloud_id = Users:find({ username = 'snapcloud' }).id

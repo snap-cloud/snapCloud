@@ -30,6 +30,10 @@
         aria-label="<%= locale.get('download')%> Project XML"
         href="<%= project:url_for('download', params.devVersion) %>" download
         ><%= locale.get('download') %></a>
+    <a class="btn btn-outline-primary summary"
+        aria-label="View Project Summary"
+        href="<%= project:url_for('summary') %>"
+        ><i class="fas fa-file-alt"></i> Summary</a>
     <button class="btn btn-outline-primary embed-button" type="button"
         onclick="embedDialog()"><%= locale.get('embed') %></button>
     <% if current_user then %>
