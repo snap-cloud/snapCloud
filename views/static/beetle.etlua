@@ -1,0 +1,10 @@
+<script src="https://cdn.jsdelivr.net/npm/marked@1.1.0/marked.min.js" integrity="sha256-GGbzkRkTtLnv3bOg61WAnkjYHxtsiVqu+tjMj6ssDVw=" crossorigin="anonymous"></script>
+<div id="beetle-article">
+</div>
+<script>
+	fetch('static/doc/beetle/index.md').then(response => response.text()).then(
+		text => {
+			document.querySelector('#beetle-article').innerHTML = marked(text);
+		}
+	);
+</script>

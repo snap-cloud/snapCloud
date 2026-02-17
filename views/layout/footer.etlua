@@ -26,6 +26,7 @@
         <h2><%- locale.get('t_tools') %></h2>
         <p><a href="/offline"><%- locale.get('offline') %></a></p>
         <p><a href="/extensions"><%- locale.get('extensions') %></a></p>
+        <p><a href="/beetle">3D Beetle Geometry</a></p>
         <p><a href="/snapp">Snapp<em>!</em></a></p>
         <p><a href="/snapinator">Snapinator</a></p>
         <p><a href="https://smerge.org/">Smerge</a></p>
