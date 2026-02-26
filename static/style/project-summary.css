@@ -19,6 +19,25 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Styles matching Snap! IDE export summary format */
+.project-summary-content img {
+    vertical-align: top;
+}
+
+.project-summary-content .toc {
+    vertical-align: middle;
+    padding: 2px 1em 2px 1em;
+}
+
+.project-summary-content .sprite {
+    border: 1px solid lightgray;
+}
+
+.project-summary-content .script {
+    margin: 10px 0;
+    display: block;
+}
+
 /* Typography */
 .project-summary-content h1 {
     color: #333;

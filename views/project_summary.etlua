@@ -2,6 +2,9 @@
 
 <!-- Load the project summary library and styles -->
 <link rel="stylesheet" href="/static/style/project-summary.css?v=<%= cache_buster %>">
+<!-- Load Snap! XML parser first -->
+<script src="/static/js/snap-xml.js?v=<%= cache_buster %>"></script>
+<!-- Load project summary generator -->
 <script src="/static/js/snap-project-summary.js?v=<%= cache_buster %>"></script>
 
 <div class="project-summary-container">

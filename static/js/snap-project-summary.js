@@ -1,141 +1,104 @@
 /**
  * Snap! Project Summary Generator
  *
- * A standalone library for generating HTML summaries from Snap! project XML files.
- * Extracted and adapted from Snap! IDE (gui.js, xml.js)
+ * Adapted from Snap! IDE's exportProjectSummary function (gui.js)
+ * Uses snap-xml.js for XML parsing
  *
- * Original code by Jens Mönig
- * Adapted for Snap!Cloud by Snap!Cloud team
- *
- * Copyright (C) 2020 by Jens Mönig
+ * Original code by Jens Mönig - Copyright (C) 2020
+ * Adapted for Snap!Cloud
  * Licensed under GNU Affero General Public License v3
+ *
+ * This library parses Snap! project XML and generates HTML summaries
+ * that match the format produced by the Snap! IDE.
  */
 
 (function(global) {
     'use strict';
 
-    // ============================================
-    // XML_Element - Simple XML DOM
-    // ============================================
-
-    function XML_Element(tag, contents, parent) {
-        this.tag = tag || 'unnamed';
-        this.attributes = {};
-        this.contents = contents || '';
-        this.children = [];
-        this.parent = null;
-
-        if (parent) {
-            this.parent = parent;
-            parent.children.push(this);
-        }
+    // Ensure XML_Element is available (loaded from snap-xml.js)
+    if (typeof global.XML_Element === 'undefined') {
+        console.error('snap-xml.js must be loaded before snap-project-summary.js');
+        return;
     }
-
-    XML_Element.prototype.escape = function(string, ignoreQuotes) {
-        var src = (string === null || string === undefined) ? '' : string.toString();
-        var result = '';
-        for (var i = 0; i < src.length; i++) {
-            var ch = src[i];
-            switch (ch) {
-                case "'":
-                    result += '&apos;';
-                    break;
-                case '"':
-                    result += ignoreQuotes ? ch : '&quot;';
-                    break;
-                case '<':
-                    result += '&lt;';
-                    break;
-                case '>':
-                    result += '&gt;';
-                    break;
-                case '&':
-                    result += '&amp;';
-                    break;
-                case '\n':
-                    result += '&#xD;';
-                    break;
-                case '~':
-                    result += '&#126;';
-                    break;
-                default:
-                    result += ch;
-            }
-        }
-        return result;
-    };
-
-    XML_Element.prototype.toString = function(isFormatted, indentationLevel) {
-        var result = '';
-        var indent = '';
-        var level = indentationLevel || 0;
-
-        // Indentation
-        if (isFormatted) {
-            for (var i = 0; i < level; i++) {
-                indent += '  ';
-            }
-            result += indent;
-        }
-
-        // Opening tag
-        result += '<' + this.tag;
-
-        // Attributes
-        for (var key in this.attributes) {
-            if (this.attributes.hasOwnProperty(key) && this.attributes[key]) {
-                result += ' ' + key + '="' + this.escape(this.attributes[key]) + '"';
-            }
-        }
-
-        // Contents and closing tag
-        if (!this.contents.length && !this.children.length) {
-            result += '/>';
-        } else {
-            result += '>';
-            result += this.escape(this.contents);
-            for (var j = 0; j < this.children.length; j++) {
-                if (isFormatted) {
-                    result += '\n';
-                }
-                result += this.children[j].toString(isFormatted, level + 1);
-            }
-            if (isFormatted && this.children.length) {
-                result += '\n' + indent;
-            }
-            result += '</' + this.tag + '>';
-        }
-        return result;
-    };
-
-    // ============================================
-    // Project Summary Generator
-    // ============================================
 
     var SnapProjectSummary = {
 
         /**
-         * Generate HTML summary from project XML data
+         * Configuration options for summary generation
+         */
+        config: {
+            // Whether to include drop shadows on images
+            useDropShadows: false,
+            // Localization function (can be overridden)
+            localize: function(key) {
+                var translations = {
+                    'untitled': 'untitled',
+                    'by ': 'by ',
+                    'Contents': 'Contents',
+                    'Variables': 'Variables',
+                    'Blocks': 'Blocks',
+                    'Costumes': 'Costumes',
+                    'Sounds': 'Sounds',
+                    'Scripts': 'Scripts',
+                    'For all Sprites': 'For all Sprites',
+                    'Kind of': 'Kind of',
+                    'Part of': 'Part of',
+                    'Parts': 'Parts'
+                };
+                return translations[key] || key;
+            },
+            // App version string
+            appVersion: 'Snap! 10'
+        },
+
+        /**
+         * Generate HTML summary from project XML
          * @param {Object} projectData - Object containing project information
          * @param {string} projectData.xml - The project XML string
-         * @param {string} projectData.name - Project name
-         * @param {string} projectData.username - Project author
-         * @param {string} projectData.notes - Project notes
-         * @param {string} projectData.thumbnail - Project thumbnail URL
+         * @param {string} projectData.name - Project name (optional, extracted from XML if not provided)
+         * @param {string} projectData.notes - Project notes (optional, extracted from XML if not provided)
+         * @param {string} projectData.thumbnail - Project thumbnail URL (optional)
          * @param {Object} options - Generation options
          * @param {boolean} options.useDropShadows - Add drop shadows to images
          * @returns {string} HTML string
          */
         generate: function(projectData, options) {
             options = options || {};
-            var useDropShadows = options.useDropShadows || false;
+            var useDropShadows = options.useDropShadows || this.config.useDropShadows;
+            var localize = options.localize || this.config.localize;
 
-            var html, head, meta, css, body;
-            var pname = projectData.name || 'untitled';
+            // Parse the project XML
+            var projectXML = new XML_Element();
+            projectXML.parseString(projectData.xml);
+
+            // Extract project information from XML
+            var project = projectXML.childNamed('project');
+            if (!project) {
+                throw new Error('Invalid project XML: missing <project> element');
+            }
+
+            var pname = projectData.name || project.childNamed('name');
+            if (pname && pname.contents) {
+                pname = pname.contents;
+            } else {
+                pname = localize('untitled');
+            }
+
             var notes = projectData.notes || '';
-            var username = projectData.username || '';
+            var notesElement = project.childNamed('notes');
+            if (!notes && notesElement && notesElement.contents) {
+                notes = notesElement.contents;
+            }
 
-            // Helper functions
+            var thumbnailData = projectData.thumbnail || '';
+            var thumbnailElement = project.childNamed('thumbnail');
+            if (!thumbnailData && thumbnailElement && thumbnailElement.contents) {
+                thumbnailData = thumbnailElement.contents;
+            }
+
+            // Build HTML structure using XML_Element
+            var html, head, meta, css, body;
+
             function addNode(tag, node, contents) {
                 if (!node) { node = body; }
                 return new XML_Element(tag, contents, node);
@@ -158,7 +121,7 @@
                 return pic;
             }
 
-            // Build HTML structure
+            // Create HTML document
             html = new XML_Element('html');
             html.attributes.lang = 'en';
 
@@ -167,12 +130,7 @@
             meta = addNode('meta', head);
             meta.attributes.charset = 'UTF-8';
 
-            // Add viewport meta for responsive display
-            var viewport = addNode('meta', head);
-            viewport.attributes.name = 'viewport';
-            viewport.attributes.content = 'width=device-width, initial-scale=1.0';
-
-            // CSS styles
+            // CSS styles (from Snap! gui.js exportProjectSummary)
             if (useDropShadows) {
                 css = 'img {' +
                     'vertical-align: top;' +
@@ -197,22 +155,6 @@
                     '}';
             }
 
-            // Add print-specific CSS
-            css += '@media print {' +
-                'body { margin: 0; padding: 20px; }' +
-                'h1, h2, h3, h4 { page-break-after: avoid; }' +
-                'img { page-break-inside: avoid; max-width: 100%; }' +
-                '.no-print { display: none !important; }' +
-                'hr { page-break-after: always; border: 0; height: 0; margin: 0; }' +
-                '@page { margin: 1cm; }' +
-                '}' +
-                'body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }' +
-                'h1 { color: #333; }' +
-                'h2 { color: #555; margin-top: 30px; border-bottom: 2px solid #ddd; padding-bottom: 5px; }' +
-                'h3 { color: #666; margin-top: 20px; }' +
-                'h4 { color: #777; }' +
-                '.script { margin: 10px 0; }';
-
             addNode('style', head, css);
             add(pname, 'title', head);
 
@@ -221,40 +163,184 @@
             // Project title
             add(pname, 'h1');
 
-            // Author
-            if (username) {
-                add('by ' + username, 'h4');
-            }
+            // App version
+            add(this.config.appVersion, 'h4');
 
-            // Thumbnail
-            if (projectData.thumbnail) {
-                var thumb = addImage(projectData.thumbnail, body, false, 'sprite');
+            // Thumbnail (if available)
+            if (thumbnailData) {
+                var thumb = addImage(thumbnailData, body, false);
+                thumb.attributes.class = 'sprite';
             }
 
             // Project notes
             if (notes) {
                 var noteLines = notes.split('\n');
-                for (var i = 0; i < noteLines.length; i++) {
-                    if (noteLines[i].trim()) {
-                        add(noteLines[i]);
+                noteLines.forEach(function(line) {
+                    if (line.trim()) {
+                        add(line);
+                    }
+                });
+            }
+
+            // Table of contents
+            add(localize('Contents'), 'h4');
+            var toc = addNode('ul');
+
+            // Parse and display sprites from XML
+            var stage = project.childNamed('stage');
+            if (stage) {
+                this._processStageOrSprite(stage, body, toc, addNode, add, addImage, localize, thumbnailData, true);
+            }
+
+            // Process sprites
+            var sprites = project.childNamed('sprites');
+            if (sprites) {
+                var spriteElements = sprites.childrenNamed('sprite');
+                spriteElements.forEach(function(sprite) {
+                    this._processStageOrSprite(sprite, body, toc, addNode, add, addImage, localize, thumbnailData, false);
+                }.bind(this));
+            }
+
+            // Global variables and blocks
+            if (stage) {
+                var globalVars = stage.childNamed('variables');
+                var globalBlocks = stage.childNamed('blocks');
+
+                if ((globalVars && globalVars.children.length > 0) ||
+                    (globalBlocks && globalBlocks.children.length > 0)) {
+
+                    addNode('hr');
+                    var globalLink = add(localize('For all Sprites'), 'a', addNode('li', toc));
+                    globalLink.attributes.href = '#global';
+
+                    var globalHeader = add(localize('For all Sprites'), 'h2');
+                    globalHeader.attributes.id = 'global';
+
+                    // Global variables
+                    if (globalVars && globalVars.children.length > 0) {
+                        this._addVariables(globalVars, body, add, addNode, localize);
+                    }
+
+                    // Global custom blocks
+                    if (globalBlocks && globalBlocks.children.length > 0) {
+                        this._addBlocks(globalBlocks, body, add, addNode, localize);
                     }
                 }
             }
 
-            // Note about detailed rendering
-            add('Note: This is a basic project summary. For detailed sprite information, scripts, and custom blocks, please open the project in Snap!', 'p');
-            add('Project XML data is available below for programmatic access.', 'p');
+            return '<!DOCTYPE html>' + html.toString();
+        },
 
-            // Add XML data in a collapsible section
-            if (projectData.xml) {
-                add('Project XML Data', 'h2');
-                var pre = addNode('pre', body);
-                var code = addNode('code', pre);
-                code.contents = projectData.xml.substring(0, 1000) + '...';
-                add('(Truncated for display. Full XML is loaded in the page.)', 'p');
+        /**
+         * Process a stage or sprite element
+         * @private
+         */
+        _processStageOrSprite: function(element, body, toc, addNode, add, addImage, localize, thumbnailData, isStage) {
+            var name = element.childNamed('name');
+            var spriteName = name ? name.contents : (isStage ? 'Stage' : 'Sprite');
+
+            // Add to table of contents
+            addNode('hr');
+            var tocEntry = addNode('li', toc);
+            var tocLink = add(spriteName, 'a', tocEntry);
+            tocLink.attributes.href = '#' + spriteName;
+
+            // Sprite/Stage heading
+            var heading = add(spriteName, 'h2');
+            heading.attributes.id = spriteName;
+
+            // Note: Full sprite rendering (thumbnail, costumes, sounds) would require
+            // canvas rendering which we can't do without the full Snap! morphic system.
+            // For now, we show structure without visual renders.
+
+            // Scripts
+            var scripts = element.childNamed('scripts');
+            if (scripts && scripts.children.length > 0) {
+                add(localize('Scripts'), 'h3');
+                add('(' + scripts.children.length + ' script blocks)', 'p');
+                // Note: Actual script rendering would require BlockMorph.scriptPic()
             }
 
-            return '<!DOCTYPE html>' + html.toString();
+            // Costumes
+            var costumes = element.childNamed('costumes');
+            if (costumes && costumes.children.length > 0) {
+                add(localize('Costumes'), 'h3');
+                var costumeList = addNode('ol');
+                costumes.children.forEach(function(costume) {
+                    var costumeName = costume.childNamed('name');
+                    if (costumeName && costumeName.contents) {
+                        add(costumeName.contents, 'li', costumeList);
+                    }
+                });
+            }
+
+            // Sounds
+            var sounds = element.childNamed('sounds');
+            if (sounds && sounds.children.length > 0) {
+                add(localize('Sounds'), 'h3');
+                var soundList = addNode('ol');
+                sounds.children.forEach(function(sound) {
+                    var soundName = sound.childNamed('name');
+                    if (soundName && soundName.contents) {
+                        add(soundName.contents, 'li', soundList);
+                    }
+                });
+            }
+
+            // Variables
+            var variables = element.childNamed('variables');
+            if (variables && variables.children.length > 0) {
+                this._addVariables(variables, body, add, addNode, localize);
+            }
+
+            // Custom blocks
+            var blocks = element.childNamed('blocks');
+            if (blocks && blocks.children.length > 0) {
+                this._addBlocks(blocks, body, add, addNode, localize);
+            }
+        },
+
+        /**
+         * Add variables section
+         * @private
+         */
+        _addVariables: function(variablesElement, body, add, addNode, localize) {
+            if (!variablesElement || variablesElement.children.length === 0) {
+                return;
+            }
+
+            add(localize('Variables'), 'h3');
+            var varList = addNode('ul');
+
+            variablesElement.children.forEach(function(varElement) {
+                var varName = varElement.childNamed('name') || varElement.attributes.name;
+                if (varName) {
+                    if (typeof varName === 'object' && varName.contents) {
+                        varName = varName.contents;
+                    }
+                    add(varName, 'li', varList);
+                }
+            });
+        },
+
+        /**
+         * Add custom blocks section
+         * @private
+         */
+        _addBlocks: function(blocksElement, body, add, addNode, localize) {
+            if (!blocksElement || blocksElement.children.length === 0) {
+                return;
+            }
+
+            add(localize('Blocks'), 'h3');
+            var blockList = addNode('ul');
+
+            blocksElement.children.forEach(function(blockElement) {
+                var blockSpec = blockElement.childNamed('spec');
+                if (blockSpec && blockSpec.contents) {
+                    add(blockSpec.contents, 'li', blockList);
+                }
+            });
         },
 
         /**
@@ -264,19 +350,27 @@
          * @param {Object} options - Generation options
          */
         renderTo: function(container, projectData, options) {
-            var html = this.generate(projectData, options);
+            try {
+                var html = this.generate(projectData, options);
 
-            // Parse and inject only the body content to preserve page structure
-            var parser = new DOMParser();
-            var doc = parser.parseFromString(html, 'text/html');
-            var bodyContent = doc.body.innerHTML;
+                // Parse and inject only the body content to preserve page structure
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+                var bodyContent = doc.body.innerHTML;
 
-            container.innerHTML = bodyContent;
+                container.innerHTML = bodyContent;
+            } catch (error) {
+                console.error('Error generating summary:', error);
+                container.innerHTML = '<div class="project-summary-error">' +
+                    '<h2>Error Generating Summary</h2>' +
+                    '<p>There was an error generating the project summary: ' +
+                    error.message + '</p>' +
+                    '</div>';
+            }
         }
     };
 
     // Export to global scope
     global.SnapProjectSummary = SnapProjectSummary;
-    global.XML_Element = XML_Element;
 
 })(typeof window !== 'undefined' ? window : global);
