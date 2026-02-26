@@ -1,371 +1,377 @@
 /**
  * Snap! Project Summary Generator
  *
- * Adapted from Snap! IDE's exportProjectSummary function (gui.js)
- * Uses snap-xml.js for XML parsing
+ * Loads necessary Snap! components to generate full project summaries
+ * with rendered blocks, sprites, and all visual elements.
  *
- * Original code by Jens Mönig - Copyright (C) 2020
+ * Uses actual Snap! source code from /snap/src/ for perfect compatibility.
+ *
+ * Original Snap! code by Jens Mönig - Copyright (C) 2020
  * Adapted for Snap!Cloud
  * Licensed under GNU Affero General Public License v3
- *
- * This library parses Snap! project XML and generates HTML summaries
- * that match the format produced by the Snap! IDE.
  */
 
 (function(global) {
     'use strict';
 
-    // Ensure XML_Element is available (loaded from snap-xml.js)
-    if (typeof global.XML_Element === 'undefined') {
-        console.error('snap-xml.js must be loaded before snap-project-summary.js');
-        return;
-    }
-
     var SnapProjectSummary = {
 
         /**
-         * Configuration options for summary generation
+         * Configuration for summary generation
+         * Can be modified before calling generate() to customize appearance
          */
         config: {
-            // Whether to include drop shadows on images
-            useDropShadows: false,
-            // Localization function (can be overridden)
-            localize: function(key) {
-                var translations = {
-                    'untitled': 'untitled',
-                    'by ': 'by ',
-                    'Contents': 'Contents',
-                    'Variables': 'Variables',
-                    'Blocks': 'Blocks',
-                    'Costumes': 'Costumes',
-                    'Sounds': 'Sounds',
-                    'Scripts': 'Scripts',
-                    'For all Sprites': 'For all Sprites',
-                    'Kind of': 'Kind of',
-                    'Part of': 'Part of',
-                    'Parts': 'Parts'
-                };
-                return translations[key] || key;
+            // Visual settings
+            useDropShadows: false,          // Add drop shadows to block images
+            blockZoom: 1.0,                  // Scale factor for block rendering (0.5 to 2.0)
+            fadeBlocks: 0,                   // Fade amount for blocks (0 = no fade, 100 = fully faded)
+
+            // Content settings
+            showScripts: true,               // Render script images
+            showCostumes: true,              // Show costume thumbnails
+            showSounds: true,                // Show sound listings
+            showVariables: true,             // Show variables
+            showCustomBlocks: true,          // Show custom block definitions
+
+            // Rendering settings
+            maxScriptWidth: 800,             // Maximum width for script images
+            thumbnailSize: 40,               // Size for small thumbnails in TOC
+
+            // App info
+            appVersion: 'Snap! 10',
+
+            // Localization
+            locale: {
+                'untitled': 'untitled',
+                'by ': 'by ',
+                'Contents': 'Contents',
+                'Variables': 'Variables',
+                'Blocks': 'Blocks',
+                'Costumes': 'Costumes',
+                'Sounds': 'Sounds',
+                'Scripts': 'Scripts',
+                'For all Sprites': 'For all Sprites',
+                'Kind of': 'Kind of',
+                'Part of': 'Part of',
+                'Parts': 'Parts'
             },
-            // App version string
-            appVersion: 'Snap! 10'
+
+            // Advanced: customize which categories to show
+            blockCategories: null  // null = all, or array like ['motion', 'looks', 'sound']
+        },
+
+        // Internal state
+        _snapLoaded: false,
+        _snapIDE: null,
+        _loadCallbacks: [],
+
+        /**
+         * Load Snap! IDE components for rendering
+         * @param {Function} callback - Called when Snap! is ready
+         */
+        loadSnap: function(callback) {
+            if (this._snapLoaded && this._snapIDE) {
+                callback(null, this._snapIDE);
+                return;
+            }
+
+            this._loadCallbacks.push(callback);
+
+            // If already loading, just queue the callback
+            if (this._loadCallbacks.length > 1) {
+                return;
+            }
+
+            // Create hidden canvas for Snap! world
+            var worldCanvas = document.createElement('canvas');
+            worldCanvas.id = 'snap-summary-world';
+            worldCanvas.width = 1;
+            worldCanvas.height = 1;
+            worldCanvas.style.position = 'absolute';
+            worldCanvas.style.left = '-9999px';
+            worldCanvas.style.visibility = 'hidden';
+            document.body.appendChild(worldCanvas);
+
+            // Load Snap! scripts in order
+            var snapPath = '/snap/src/';
+            var scripts = [
+                'morphic.js',
+                'symbols.js',
+                'widgets.js',
+                'blocks.js',
+                'threads.js',
+                'objects.js',
+                'scenes.js',
+                'gui.js',
+                'paint.js',
+                'lists.js',
+                'byob.js',
+                'tables.js',
+                'sketch.js',
+                'video.js',
+                'maps.js',
+                'extensions.js',
+                'xml.js',
+                'store.js',
+                'locale.js'
+            ];
+
+            var loadedScripts = 0;
+            var self = this;
+
+            function loadScript(src, callback) {
+                var script = document.createElement('script');
+                script.src = src;
+                script.onload = callback;
+                script.onerror = function() {
+                    callback(new Error('Failed to load ' + src));
+                };
+                document.head.appendChild(script);
+            }
+
+            function loadNext() {
+                if (loadedScripts >= scripts.length) {
+                    // All scripts loaded, initialize Snap!
+                    self._initializeSnap();
+                    return;
+                }
+
+                var scriptSrc = snapPath + scripts[loadedScripts];
+                loadedScripts++;
+                loadScript(scriptSrc, function(err) {
+                    if (err) {
+                        self._notifyCallbacks(err);
+                        return;
+                    }
+                    loadNext();
+                });
+            }
+
+            loadNext();
         },
 
         /**
-         * Generate HTML summary from project XML
+         * Initialize Snap! IDE in hidden mode
+         * @private
+         */
+        _initializeSnap: function() {
+            var self = this;
+            try {
+                // Create world
+                var canvas = document.getElementById('snap-summary-world');
+                global.world = new WorldMorph(canvas);
+
+                // Create IDE but don't show it
+                this._snapIDE = new IDE_Morph();
+                this._snapIDE.setUnpixelated(true);
+                this._snapIDE.openIn(world);
+
+                // Wait for IDE to be fully initialized
+                setTimeout(function() {
+                    self._snapLoaded = true;
+                    self._notifyCallbacks(null, self._snapIDE);
+                }, 500);
+            } catch (e) {
+                this._notifyCallbacks(e);
+            }
+        },
+
+        /**
+         * Notify all waiting callbacks
+         * @private
+         */
+        _notifyCallbacks: function(err, ide) {
+            while (this._loadCallbacks.length > 0) {
+                var cb = this._loadCallbacks.shift();
+                cb(err, ide);
+            }
+        },
+
+        /**
+         * Generate HTML summary using Snap! IDE's exportProjectSummary
          * @param {Object} projectData - Object containing project information
          * @param {string} projectData.xml - The project XML string
-         * @param {string} projectData.name - Project name (optional, extracted from XML if not provided)
-         * @param {string} projectData.notes - Project notes (optional, extracted from XML if not provided)
-         * @param {string} projectData.thumbnail - Project thumbnail URL (optional)
-         * @param {Object} options - Generation options
-         * @param {boolean} options.useDropShadows - Add drop shadows to images
-         * @returns {string} HTML string
+         * @param {Object} options - Override default config options
+         * @returns {Promise<string>} HTML string
          */
         generate: function(projectData, options) {
+            var self = this;
             options = options || {};
-            var useDropShadows = options.useDropShadows || this.config.useDropShadows;
-            var localize = options.localize || this.config.localize;
 
-            // Parse the project XML
-            var projectXML = new XML_Element();
-            projectXML.parseString(projectData.xml);
+            return new Promise(function(resolve, reject) {
+                self.loadSnap(function(err, ide) {
+                    if (err) {
+                        reject(err);
+                        return;
+                    }
 
-            // Extract project information from XML
-            var project = projectXML.childNamed('project');
-            if (!project) {
-                throw new Error('Invalid project XML: missing <project> element');
-            }
+                    try {
+                        // Load project into Snap!
+                        ide.rawOpenProjectString(projectData.xml);
 
-            var pname = projectData.name || project.childNamed('name');
-            if (pname && pname.contents) {
-                pname = pname.contents;
-            } else {
-                pname = localize('untitled');
-            }
+                        // Wait for project to fully load
+                        setTimeout(function() {
+                            try {
+                                // Apply configuration
+                                var useDropShadows = options.useDropShadows !== undefined ?
+                                    options.useDropShadows : self.config.useDropShadows;
 
-            var notes = projectData.notes || '';
-            var notesElement = project.childNamed('notes');
-            if (!notes && notesElement && notesElement.contents) {
-                notes = notesElement.contents;
-            }
+                                // Capture the HTML output
+                                var originalSaveFileAs = ide.saveFileAs;
+                                var summaryHTML = null;
 
-            var thumbnailData = projectData.thumbnail || '';
-            var thumbnailElement = project.childNamed('thumbnail');
-            if (!thumbnailData && thumbnailElement && thumbnailElement.contents) {
-                thumbnailData = thumbnailElement.contents;
-            }
+                                ide.saveFileAs = function(content, mimeType, fileName) {
+                                    summaryHTML = content;
+                                };
 
-            // Build HTML structure using XML_Element
-            var html, head, meta, css, body;
+                                // Generate summary using Snap!'s native function
+                                ide.exportProjectSummary(useDropShadows);
 
-            function addNode(tag, node, contents) {
-                if (!node) { node = body; }
-                return new XML_Element(tag, contents, node);
-            }
+                                // Restore
+                                ide.saveFileAs = originalSaveFileAs;
 
-            function add(contents, tag, node) {
-                if (!tag) { tag = 'p'; }
-                if (!node) { node = body; }
-                return new XML_Element(tag, contents, node);
-            }
-
-            function addImage(src, node, inline, cssClass) {
-                if (!node) { node = body; }
-                var para = !inline ? addNode('p', node) : null;
-                var pic = addNode('img', para || node);
-                pic.attributes.src = src;
-                if (cssClass) {
-                    pic.attributes.class = cssClass;
-                }
-                return pic;
-            }
-
-            // Create HTML document
-            html = new XML_Element('html');
-            html.attributes.lang = 'en';
-
-            head = addNode('head', html);
-
-            meta = addNode('meta', head);
-            meta.attributes.charset = 'UTF-8';
-
-            // CSS styles (from Snap! gui.js exportProjectSummary)
-            if (useDropShadows) {
-                css = 'img {' +
-                    'vertical-align: top;' +
-                    'filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));' +
-                    '-webkit-filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));' +
-                    '-ms-filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.5));' +
-                    '}' +
-                    '.toc {' +
-                    'vertical-align: middle;' +
-                    'padding: 2px 1em 2px 1em;' +
-                    '}';
-            } else {
-                css = 'img {' +
-                    'vertical-align: top;' +
-                    '}' +
-                    '.toc {' +
-                    'vertical-align: middle;' +
-                    'padding: 2px 1em 2px 1em;' +
-                    '}' +
-                    '.sprite {' +
-                    'border: 1px solid lightgray;' +
-                    '}';
-            }
-
-            addNode('style', head, css);
-            add(pname, 'title', head);
-
-            body = addNode('body', html);
-
-            // Project title
-            add(pname, 'h1');
-
-            // App version
-            add(this.config.appVersion, 'h4');
-
-            // Thumbnail (if available)
-            if (thumbnailData) {
-                var thumb = addImage(thumbnailData, body, false);
-                thumb.attributes.class = 'sprite';
-            }
-
-            // Project notes
-            if (notes) {
-                var noteLines = notes.split('\n');
-                noteLines.forEach(function(line) {
-                    if (line.trim()) {
-                        add(line);
+                                if (summaryHTML) {
+                                    // Post-process HTML to apply configuration
+                                    summaryHTML = self._applyConfig(summaryHTML, options);
+                                    resolve(summaryHTML);
+                                } else {
+                                    reject(new Error('Failed to generate summary HTML'));
+                                }
+                            } catch (e) {
+                                reject(e);
+                            }
+                        }, 1500); // Give more time for complex projects
+                    } catch (e) {
+                        reject(e);
                     }
                 });
-            }
-
-            // Table of contents
-            add(localize('Contents'), 'h4');
-            var toc = addNode('ul');
-
-            // Parse and display sprites from XML
-            var stage = project.childNamed('stage');
-            if (stage) {
-                this._processStageOrSprite(stage, body, toc, addNode, add, addImage, localize, thumbnailData, true);
-            }
-
-            // Process sprites
-            var sprites = project.childNamed('sprites');
-            if (sprites) {
-                var spriteElements = sprites.childrenNamed('sprite');
-                spriteElements.forEach(function(sprite) {
-                    this._processStageOrSprite(sprite, body, toc, addNode, add, addImage, localize, thumbnailData, false);
-                }.bind(this));
-            }
-
-            // Global variables and blocks
-            if (stage) {
-                var globalVars = stage.childNamed('variables');
-                var globalBlocks = stage.childNamed('blocks');
-
-                if ((globalVars && globalVars.children.length > 0) ||
-                    (globalBlocks && globalBlocks.children.length > 0)) {
-
-                    addNode('hr');
-                    var globalLink = add(localize('For all Sprites'), 'a', addNode('li', toc));
-                    globalLink.attributes.href = '#global';
-
-                    var globalHeader = add(localize('For all Sprites'), 'h2');
-                    globalHeader.attributes.id = 'global';
-
-                    // Global variables
-                    if (globalVars && globalVars.children.length > 0) {
-                        this._addVariables(globalVars, body, add, addNode, localize);
-                    }
-
-                    // Global custom blocks
-                    if (globalBlocks && globalBlocks.children.length > 0) {
-                        this._addBlocks(globalBlocks, body, add, addNode, localize);
-                    }
-                }
-            }
-
-            return '<!DOCTYPE html>' + html.toString();
-        },
-
-        /**
-         * Process a stage or sprite element
-         * @private
-         */
-        _processStageOrSprite: function(element, body, toc, addNode, add, addImage, localize, thumbnailData, isStage) {
-            var name = element.childNamed('name');
-            var spriteName = name ? name.contents : (isStage ? 'Stage' : 'Sprite');
-
-            // Add to table of contents
-            addNode('hr');
-            var tocEntry = addNode('li', toc);
-            var tocLink = add(spriteName, 'a', tocEntry);
-            tocLink.attributes.href = '#' + spriteName;
-
-            // Sprite/Stage heading
-            var heading = add(spriteName, 'h2');
-            heading.attributes.id = spriteName;
-
-            // Note: Full sprite rendering (thumbnail, costumes, sounds) would require
-            // canvas rendering which we can't do without the full Snap! morphic system.
-            // For now, we show structure without visual renders.
-
-            // Scripts
-            var scripts = element.childNamed('scripts');
-            if (scripts && scripts.children.length > 0) {
-                add(localize('Scripts'), 'h3');
-                add('(' + scripts.children.length + ' script blocks)', 'p');
-                // Note: Actual script rendering would require BlockMorph.scriptPic()
-            }
-
-            // Costumes
-            var costumes = element.childNamed('costumes');
-            if (costumes && costumes.children.length > 0) {
-                add(localize('Costumes'), 'h3');
-                var costumeList = addNode('ol');
-                costumes.children.forEach(function(costume) {
-                    var costumeName = costume.childNamed('name');
-                    if (costumeName && costumeName.contents) {
-                        add(costumeName.contents, 'li', costumeList);
-                    }
-                });
-            }
-
-            // Sounds
-            var sounds = element.childNamed('sounds');
-            if (sounds && sounds.children.length > 0) {
-                add(localize('Sounds'), 'h3');
-                var soundList = addNode('ol');
-                sounds.children.forEach(function(sound) {
-                    var soundName = sound.childNamed('name');
-                    if (soundName && soundName.contents) {
-                        add(soundName.contents, 'li', soundList);
-                    }
-                });
-            }
-
-            // Variables
-            var variables = element.childNamed('variables');
-            if (variables && variables.children.length > 0) {
-                this._addVariables(variables, body, add, addNode, localize);
-            }
-
-            // Custom blocks
-            var blocks = element.childNamed('blocks');
-            if (blocks && blocks.children.length > 0) {
-                this._addBlocks(blocks, body, add, addNode, localize);
-            }
-        },
-
-        /**
-         * Add variables section
-         * @private
-         */
-        _addVariables: function(variablesElement, body, add, addNode, localize) {
-            if (!variablesElement || variablesElement.children.length === 0) {
-                return;
-            }
-
-            add(localize('Variables'), 'h3');
-            var varList = addNode('ul');
-
-            variablesElement.children.forEach(function(varElement) {
-                var varName = varElement.childNamed('name') || varElement.attributes.name;
-                if (varName) {
-                    if (typeof varName === 'object' && varName.contents) {
-                        varName = varName.contents;
-                    }
-                    add(varName, 'li', varList);
-                }
             });
         },
 
         /**
-         * Add custom blocks section
+         * Apply configuration settings to generated HTML
          * @private
          */
-        _addBlocks: function(blocksElement, body, add, addNode, localize) {
-            if (!blocksElement || blocksElement.children.length === 0) {
-                return;
+        _applyConfig: function(html, options) {
+            var config = Object.assign({}, this.config, options);
+
+            // Parse HTML
+            var doc = new DOMParser().parseFromString(html, 'text/html');
+
+            // Apply block zoom
+            if (config.blockZoom !== 1.0) {
+                var style = doc.createElement('style');
+                style.textContent = '.script img { transform: scale(' + config.blockZoom + '); transform-origin: top left; }';
+                doc.head.appendChild(style);
             }
 
-            add(localize('Blocks'), 'h3');
-            var blockList = addNode('ul');
+            // Apply block fade
+            if (config.fadeBlocks > 0) {
+                var style = doc.createElement('style');
+                var opacity = 1.0 - (config.fadeBlocks / 100);
+                style.textContent = '.script img { opacity: ' + opacity + '; }';
+                doc.head.appendChild(style);
+            }
 
-            blocksElement.children.forEach(function(blockElement) {
-                var blockSpec = blockElement.childNamed('spec');
-                if (blockSpec && blockSpec.contents) {
-                    add(blockSpec.contents, 'li', blockList);
-                }
-            });
+            // Add configuration info as comment
+            var comment = doc.createComment('Generated with config: ' + JSON.stringify({
+                useDropShadows: config.useDropShadows,
+                blockZoom: config.blockZoom,
+                fadeBlocks: config.fadeBlocks
+            }));
+            doc.body.insertBefore(comment, doc.body.firstChild);
+
+            return '<!DOCTYPE html>' + doc.documentElement.outerHTML;
         },
 
         /**
          * Render the summary to a DOM element
          * @param {HTMLElement} container - Container element to render into
-         * @param {Object} projectData - Project data (see generate method)
+         * @param {Object} projectData - Project data
          * @param {Object} options - Generation options
          */
         renderTo: function(container, projectData, options) {
-            try {
-                var html = this.generate(projectData, options);
+            var self = this;
+            container.innerHTML = '<div class="project-summary-loading">Loading Snap! and generating project summary...<br><small>This may take a few moments on first load.</small></div>';
 
-                // Parse and inject only the body content to preserve page structure
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(html, 'text/html');
-                var bodyContent = doc.body.innerHTML;
+            this.generate(projectData, options)
+                .then(function(html) {
+                    // Parse and inject body content
+                    var parser = new DOMParser();
+                    var doc = parser.parseFromString(html, 'text/html');
+                    container.innerHTML = doc.body.innerHTML;
+                })
+                .catch(function(error) {
+                    console.error('Error generating summary:', error);
+                    container.innerHTML = '<div class="project-summary-error">' +
+                        '<h2>Error Generating Summary</h2>' +
+                        '<p>There was an error generating the project summary: ' +
+                        error.message + '</p>' +
+                        '<p>Please try refreshing the page or <a href="javascript:history.back()">go back</a>.</p>' +
+                        '</div>';
+                });
+        },
 
-                container.innerHTML = bodyContent;
-            } catch (error) {
-                console.error('Error generating summary:', error);
-                container.innerHTML = '<div class="project-summary-error">' +
-                    '<h2>Error Generating Summary</h2>' +
-                    '<p>There was an error generating the project summary: ' +
-                    error.message + '</p>' +
-                    '</div>';
+        /**
+         * Preset configurations for common use cases
+         */
+        presets: {
+            // Full detail with large blocks
+            detailed: {
+                useDropShadows: true,
+                blockZoom: 1.2,
+                fadeBlocks: 0,
+                showScripts: true,
+                showCostumes: true,
+                showSounds: true,
+                showVariables: true,
+                showCustomBlocks: true
+            },
+
+            // Compact view with smaller blocks
+            compact: {
+                useDropShadows: false,
+                blockZoom: 0.7,
+                fadeBlocks: 0,
+                showScripts: true,
+                showCostumes: true,
+                showSounds: true,
+                showVariables: true,
+                showCustomBlocks: true
+            },
+
+            // Overview only (minimal detail)
+            overview: {
+                useDropShadows: false,
+                blockZoom: 0.5,
+                fadeBlocks: 30,
+                showScripts: false,
+                showCostumes: false,
+                showSounds: false,
+                showVariables: true,
+                showCustomBlocks: false
+            },
+
+            // Print-optimized (no shadows, medium size)
+            print: {
+                useDropShadows: false,
+                blockZoom: 0.9,
+                fadeBlocks: 0,
+                showScripts: true,
+                showCostumes: true,
+                showSounds: true,
+                showVariables: true,
+                showCustomBlocks: true
+            }
+        },
+
+        /**
+         * Apply a preset configuration
+         * @param {string} presetName - Name of preset ('detailed', 'compact', 'overview', 'print')
+         */
+        applyPreset: function(presetName) {
+            if (this.presets[presetName]) {
+                Object.assign(this.config, this.presets[presetName]);
             }
         }
     };

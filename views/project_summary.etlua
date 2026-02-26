@@ -2,26 +2,46 @@
 
 <!-- Load the project summary library and styles -->
 <link rel="stylesheet" href="/static/style/project-summary.css?v=<%= cache_buster %>">
-<!-- Load Snap! XML parser first -->
-<script src="/static/js/snap-xml.js?v=<%= cache_buster %>"></script>
-<!-- Load project summary generator -->
+<!-- Load project summary generator (will load Snap! components as needed) -->
 <script src="/static/js/snap-project-summary.js?v=<%= cache_buster %>"></script>
 
 <div class="project-summary-container">
     <!-- Control buttons - hidden during print -->
     <div class="summary-controls no-print">
-        <button class="btn-back" onclick="window.history.back()">
-            <i class="fas fa-arrow-left"></i> Back to Project
-        </button>
-        <button class="btn-print" onclick="window.print()">
-            <i class="fas fa-print"></i> Print / Save as PDF
-        </button>
-        <a href="<%= project:url_for('site') %>" class="btn btn-link">
-            <i class="fas fa-eye"></i> View Project
-        </a>
-        <a href="<%= project:url_for('run') %>" class="btn btn-link" target="_blank">
-            <i class="fas fa-play"></i> Run in Snap!
-        </a>
+        <div class="control-row">
+            <button class="btn-back" onclick="window.history.back()">
+                <i class="fas fa-arrow-left"></i> Back to Project
+            </button>
+            <button class="btn-print" onclick="window.print()">
+                <i class="fas fa-print"></i> Print / Save as PDF
+            </button>
+            <a href="<%= project:url_for('site') %>" class="btn btn-link">
+                <i class="fas fa-eye"></i> View Project
+            </a>
+            <a href="<%= project:url_for('run') %>" class="btn btn-link" target="_blank">
+                <i class="fas fa-play"></i> Run in Snap!
+            </a>
+        </div>
+        <div class="control-row">
+            <label for="preset-select">Style:</label>
+            <select id="preset-select" onchange="changePreset(this.value)">
+                <option value="default" selected>Default</option>
+                <option value="detailed">Detailed (Large Blocks)</option>
+                <option value="compact">Compact (Small Blocks)</option>
+                <option value="print">Print-Optimized</option>
+            </select>
+            <label for="block-zoom">Block Zoom:</label>
+            <input type="range" id="block-zoom" min="0.5" max="2.0" step="0.1" value="1.0"
+                   onchange="updateConfig()" oninput="this.nextElementSibling.textContent = this.value">
+            <span>1.0</span>
+            <label>
+                <input type="checkbox" id="drop-shadows" onchange="updateConfig()">
+                Drop Shadows
+            </label>
+            <button class="btn-regenerate" onclick="regenerateSummary()">
+                <i class="fas fa-sync"></i> Regenerate
+            </button>
+        </div>
     </div>
 
     <!-- Summary content will be rendered here -->
@@ -65,10 +85,68 @@
                encodeURIComponent(project.projectname) + '/thumbnail';
     }
 
+    // Store project XML for regeneration
+    var cachedProjectXML = null;
+
+    // Get current configuration from UI
+    function getCurrentConfig() {
+        return {
+            useDropShadows: document.getElementById('drop-shadows').checked,
+            blockZoom: parseFloat(document.getElementById('block-zoom').value)
+        };
+    }
+
+    // Update configuration and regenerate
+    function updateConfig() {
+        // Configuration will be applied on next regeneration
+    }
+
+    // Change preset and regenerate
+    function changePreset(presetName) {
+        if (presetName === 'default') {
+            // Reset to defaults
+            SnapProjectSummary.config.useDropShadows = false;
+            SnapProjectSummary.config.blockZoom = 1.0;
+            document.getElementById('drop-shadows').checked = false;
+            document.getElementById('block-zoom').value = 1.0;
+            document.getElementById('block-zoom').nextElementSibling.textContent = '1.0';
+        } else {
+            SnapProjectSummary.applyPreset(presetName);
+            // Update UI to match preset
+            document.getElementById('drop-shadows').checked = SnapProjectSummary.config.useDropShadows;
+            document.getElementById('block-zoom').value = SnapProjectSummary.config.blockZoom;
+            document.getElementById('block-zoom').nextElementSibling.textContent = SnapProjectSummary.config.blockZoom;
+        }
+        regenerateSummary();
+    }
+
+    // Regenerate summary with current settings
+    function regenerateSummary() {
+        if (!cachedProjectXML) {
+            console.warn('No cached project XML, cannot regenerate');
+            return;
+        }
+
+        var projectData = {
+            xml: cachedProjectXML,
+            name: project.projectname,
+            username: project.username,
+            notes: project.notes,
+            thumbnail: getThumbnailUrl()
+        };
+
+        var container = document.getElementById('summary-content');
+        var config = getCurrentConfig();
+
+        SnapProjectSummary.renderTo(container, projectData, config);
+    }
+
     // Generate and render the summary
     function renderSummary() {
         fetchProjectXML()
             .then(function(xml) {
+                cachedProjectXML = xml;
+
                 var projectData = {
                     xml: xml,
                     name: project.projectname,
@@ -78,20 +156,9 @@
                 };
 
                 var container = document.getElementById('summary-content');
+                var config = getCurrentConfig();
 
-                try {
-                    SnapProjectSummary.renderTo(container, projectData, {
-                        useDropShadows: false
-                    });
-                } catch (error) {
-                    console.error('Error rendering summary:', error);
-                    container.innerHTML = '<div class="project-summary-error">' +
-                        '<h2>Error Generating Summary</h2>' +
-                        '<p>There was an error generating the project summary: ' +
-                        error.message + '</p>' +
-                        '<p>Please try <a href="' + '<%= project:url_for("site") %>' + '">viewing the project</a> instead.</p>' +
-                        '</div>';
-                }
+                SnapProjectSummary.renderTo(container, projectData, config);
             })
             .catch(function(error) {
                 console.error('Error fetching project:', error);
