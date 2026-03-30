@@ -321,10 +321,23 @@ i.bookmarked {
     min-width: min(482px, calc(100% - 2em));
 }
 
-/* One the embed page, the author shows inline with the title. */
+.project.big.embed .title {
+    width: calc(100% - 120px);
+    display: flex;
+}
+
+/* One the embed page, the author shows inline with the project name. */
+
+.project.big.embed .title .projectname {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 0.5em;
+}
 .project.big.embed .title .author {
     font-size: 1rem;
     position: relative !important;
+    white-space: nowrap;
 }
 
 /* Ensure the project embed matches Snap!'s default aspect ratio */
