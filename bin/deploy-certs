@@ -1,4 +1,4 @@
- #! /usr/bin/env sh
+ #! /usr/bin/env bash
 
 ## NOTE: lets-encrypt renewals runs this using sh not bash.
 ## pushd / popd are not available.
@@ -7,13 +7,18 @@ USER='cloud'
 REPO_DIR="/home/$USER/snapCloud";
 
 cd $REPO_DIR;
+source $REPO_DIR/.env
+
+curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY \
+ -H 'Content-Type: application/json' \
+ -d "{\"message\":\"Running cert deployment for $LAPIS_ENVIRONMENT\"}"
+
 # MUST USE -L. LetsEncrypt uses symlinks
 # TODO: Clean this up... use $RENEWED_DOMAINS?
 sourceDir=/home/$USER/lets-encrypt/live/
 destDir=$REPO_DIR/certs/
 domain=''
 # We need to be in the correct directory since this uses git to set env variables.
-source $REPO_DIR/.env
 
 if [[ $LAPIS_ENVIRONMENT == 'production' ]]; then
     domain='cloud';
