@@ -1,4 +1,4 @@
- #! /usr/bin/env bash
+ #! /usr/bin/env sh
 
 ## NOTE: lets-encrypt renewals runs this using sh not bash.
 ## pushd / popd are not available.
@@ -7,7 +7,7 @@ USER='cloud'
 REPO_DIR="/home/$USER/snapCloud";
 
 cd $REPO_DIR;
-source $REPO_DIR/.env
+. $REPO_DIR/.env
 
 curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY \
  -H 'Content-Type: application/json' \
@@ -20,7 +20,7 @@ destDir=$REPO_DIR/certs/
 domain=''
 # We need to be in the correct directory since this uses git to set env variables.
 
-if [[ $LAPIS_ENVIRONMENT == 'production' ]]; then
+if [ $LAPIS_ENVIRONMENT == 'production' ]; then
     domain='cloud';
     cp -r -u --verbose -L ${sourceDir}snap.berkeley.edu $destDir;
     cp -r -u --verbose -L ${sourceDir}extensions.snap.berkeley.edu $destDir;
