@@ -38,7 +38,7 @@ local selectors = {
     'assert_has_one_of_roles', 'assert_admin', 'assert_can_set_role',
     'users_match', 'assert_users_match', 'assert_user_exists',
     'assert_user_can_create_accounts', 'assert_can_view_project',
-    'assert_users_have_email', 'assert_project_exists', 'check_token',
+    'assert_users_have_email', 'assert_project_exists', 'check_token', 'validate_token',
     'create_token', 'assert_collection_exists',
     'assert_can_view_collection', 'assert_can_add_project_to_collection',
     'assert_can_remove_project_from_collection',

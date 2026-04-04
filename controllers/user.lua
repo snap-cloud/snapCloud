@@ -28,6 +28,8 @@ local assert_error = package.loaded.app_helpers.assert_error
 local capture_errors = package.loaded.capture_errors
 local socket = require('socket')
 local app = package.loaded.app
+local respond_to = package.loaded.respond_to
+local csrf = require("lapis.csrf")
 
 local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
@@ -822,40 +824,61 @@ UserController = {
 app:match(
     'password_reset',
     '/password_reset/:token',
-    capture_errors(
-        function (self)
-            -- This route is reached when a user clicks on a reset password URL
-            local token = Tokens:find(self.params.token)
-            return check_token(
-                self,
-                token,
-                'password_reset',
-                function (user)
-                    local password, prehash = random_password()
-                    user:update(
-                        { password = hash_password(prehash, user.salt) }
-                    )
-                    send_mail(
-                        user.email,
-                        mail_subjects.new_password .. user.username,
-                        mail_bodies.new_password .. '<p><h2>' ..
-                        password .. '</h2></p>'
-                    )
-
-                    return html_message_page(
-                        self,
-                        'Password reset',
-                        '<p>A new random password has been generated for ' ..
-                        'your account <strong>' .. user.username ..
-                        '</strong> and sent to your email address. ' ..
-                        'Please check your inbox.</p>' ..
-                        '<p>After logging in, please proceed to <strong>' ..
-                        'change your password</strong> as soon as possible.</p>'
-                    )
+    respond_to({
+        GET = capture_errors(
+            function (self)
+                -- Step 1: User clicks the reset password link in their email.
+                -- Validate the token, but do not consume it yet.
+                -- Show a confirmation page with a button to proceed.
+                local token = Tokens:find(self.params.token)
+                local valid, err_response = validate_token(
+                    self, token, 'password_reset')
+                if not valid then
+                    return err_response
                 end
-            )
-        end
-    )
+                self.username = escape_html(token.username)
+                self.csrf_token = csrf.generate_token(self)
+                return { render = 'password_reset' }
+            end
+        ),
+        POST = capture_errors(
+            function (self)
+                -- Step 2: User clicked the confirmation button.
+                -- Validate CSRF token, then consume the reset token.
+                csrf.assert_token(self)
+                local token = Tokens:find(self.params.token)
+                return check_token(
+                    self,
+                    token,
+                    'password_reset',
+                    function (user)
+                        local password, prehash = random_password()
+                        user:update(
+                            { password = hash_password(prehash, user.salt) }
+                        )
+                        send_mail(
+                            user.email,
+                            mail_subjects.new_password .. user.username,
+                            mail_bodies.new_password .. '<p><h2>' ..
+                            password .. '</h2></p>'
+                        )
+
+                        return html_message_page(
+                            self,
+                            'Password reset',
+                            '<p>A new random password has been generated ' ..
+                            'for your account <strong>' .. user.username ..
+                            '</strong> and sent to your email address. ' ..
+                            'Please check your inbox.</p>' ..
+                            '<p>After logging in, please proceed to ' ..
+                            '<strong>change your password</strong> as ' ..
+                            'soon as possible.</p>'
+                        )
+                    end
+                )
+            end
+        )
+    })
 )
 
 -- TODO: We should have this route accept a user

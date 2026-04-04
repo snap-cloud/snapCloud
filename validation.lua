@@ -359,6 +359,27 @@ check_token = function (self, token, purpose, on_success)
     end
 end
 
+validate_token = function (self, token, purpose)
+    if token then
+        local query =
+            db.select("date_part('day', now() - ?::timestamp)",
+                token.created)[1]
+        if query.date_part < 4 and token.purpose == purpose then
+            return true
+        elseif token.purpose ~= purpose then
+            return false, html_message_page(self, 'Invalid token', '<p>' ..
+                err.invalid_token.msg .. '</p>')
+        else
+            token:delete()
+            return false, html_message_page(self, 'Expired token', '<p>' ..
+                err.expired_token.msg .. '</p>')
+        end
+    else
+        return false, html_message_page(self, 'Invalid token', '<p>' ..
+            err.invalid_token.msg .. '</p>')
+    end
+end
+
 find_token = function (username, purpose)
     return Tokens:find({ username = username, purpose = purpose})
 end
