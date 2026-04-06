@@ -365,7 +365,7 @@ check_token = function (self, token, purpose, on_success)
     end
 end
 
-validate_token = function (self, token, purpose)
+local validate_token = function (self, token, purpose)
     if token then
         local query =
             db.select("date_part('day', now() - ?::timestamp)",
@@ -616,4 +616,5 @@ return {
     assert_exists = assert_exists,
     assert_current_user_logged_in = assert_current_user_logged_in,
     is_likely_course_work = is_likely_course_work,
+    validate_token = validate_token,
 }

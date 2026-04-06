@@ -44,6 +44,7 @@ require 'responses'
 require 'passwords'
 local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
+local validate_token = validations.validate_token
 -- Local Snap!Cloud functions
 local utils = require('lib.util')
 local escape_html = utils.escape_html
