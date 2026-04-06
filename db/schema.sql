@@ -131,7 +131,8 @@ CREATE TABLE public.users (
     is_teacher boolean DEFAULT false NOT NULL,
     creator_id integer,
     last_login_at timestamp with time zone,
-    session_count integer DEFAULT 0 NOT NULL
+    session_count integer DEFAULT 0 NOT NULL,
+    last_session_at timestamp with time zone
 );
 
 
@@ -156,7 +157,8 @@ CREATE VIEW public.active_users AS
     is_teacher,
     creator_id,
     last_login_at,
-    session_count
+    session_count,
+    last_session_at
    FROM public.users
   WHERE (deleted IS NULL);
 
@@ -313,7 +315,8 @@ CREATE VIEW public.deleted_users AS
     is_teacher,
     creator_id,
     last_login_at,
-    session_count
+    session_count,
+    last_session_at
    FROM public.users
   WHERE (deleted IS NOT NULL);
 
