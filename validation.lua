@@ -48,6 +48,12 @@ err = {
     wrong_password = {
         msg = 'The provided username or password is wrong',
         status = 403 },
+    password_too_short = {
+        msg = 'Password must be at least 8 characters long',
+        status = 400 },
+    passwords_do_not_match = {
+        msg = 'Passwords do not match',
+        status = 400 },
     nonexistent_user =
         { msg = 'No user with this username exists', status = 404 },
     nonexistent_email =
