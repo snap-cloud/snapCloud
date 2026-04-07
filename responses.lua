@@ -86,8 +86,8 @@ errorResponse = function (self, err, status)
     end
 end
 
-html_message_page = function (self, title, contents)
+html_message_page = function (self, title, contents, status)
     self.title = title
     self.contents = contents
-    return { render = 'message', status = 200 }
+    return { render = 'message', status = status or 200 }
 end

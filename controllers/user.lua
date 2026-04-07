@@ -850,8 +850,18 @@ app:match(
         POST = capture_errors(
             function (self)
                 -- Step 2: User submitted the new password form.
-                -- Validate CSRF token, then validate and set the password.
-                csrf.assert_token(self)
+                -- Validate CSRF token first, without consuming
+                -- the reset token.
+                local csrf_err = csrf.validate_token(self)
+                if csrf_err then
+                    return html_message_page(
+                        self,
+                        'Invalid request',
+                        '<p>The form submission was invalid. ' ..
+                        'Please try again.</p>',
+                        422
+                    )
+                end
 
                 local password = self.params.password
                 local password_confirmation =
