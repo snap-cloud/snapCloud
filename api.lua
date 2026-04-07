@@ -146,6 +146,7 @@ app:match(api_route('users/:username'), respond_to({
     DELETE = UserController.delete
 }))
 
+-- TODO: Rename this to initialize_password_reset or something
 app:match(api_route('users/:username/password_reset'), respond_to({
     POST = UserController.reset_password
 }))

@@ -279,7 +279,7 @@ UserController = {
                 -- or above can do that
                 assert_min_role(self, 'moderator')
             end
-        else 
+        else
             return errorResponse(self,
                 'You cannot currently change your own username. Sorry.',
                 400
@@ -835,7 +835,7 @@ app:match(
                 -- Step 1: User clicks the reset password link in their email.
                 -- Validate the token, but do not consume it yet.
                 -- Show a confirmation page with a button to proceed.
-                local token = Tokens:find(self.params.token)
+                local token = Tokewey/ns:find(self.params.token)
                 local valid, err_response = validate_token(
                     self, token, 'password_reset')
                 if not valid then
@@ -852,12 +852,13 @@ app:match(
                 -- Step 2: User submitted the new password form.
                 -- Validate CSRF token first, without consuming
                 -- the reset token.
-                local csrf_err = csrf.validate_token(self)
-                if csrf_err then
+                local valid, csrf_err = csrf.validate_token(self)
+                if not valid then
                     return html_message_page(
                         self,
                         'Invalid request',
                         '<p>The form submission was invalid. ' ..
+                        '<br> Error: <code>' .. escape_html(csrf_err) .. '</code><br>' ..
                         'Please try again.</p>',
                         422
                     )
