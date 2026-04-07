@@ -835,7 +835,7 @@ app:match(
                 -- Step 1: User clicks the reset password link in their email.
                 -- Validate the token, but do not consume it yet.
                 -- Show a confirmation page with a button to proceed.
-                local token = Tokewey/ns:find(self.params.token)
+                local token = Tokens:find(self.params.token)
                 local valid, err_response = validate_token(
                     self, token, 'password_reset')
                 if not valid then
