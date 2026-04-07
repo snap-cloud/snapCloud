@@ -49,12 +49,3 @@ secure_token = function ()
     -- and password reset
     return hash_password(secure_salt(), secure_salt())
 end
-
-random_password = function ()
-    -- generate a random 8 character password
-    local password = resty_string.to_hex(resty_random.bytes(4, true))
-    -- we now calculate the password prehash
-    local sha512 = resty_sha512:new()
-    local prehash = sha512:update(password)
-    return password, resty_string.to_hex(sha512:final())
-end

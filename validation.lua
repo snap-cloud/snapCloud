@@ -48,6 +48,12 @@ err = {
     wrong_password = {
         msg = 'The provided username or password is wrong',
         status = 403 },
+    password_too_short = {
+        msg = 'Password must be at least 8 characters long',
+        status = 400 },
+    passwords_do_not_match = {
+        msg = 'Passwords do not match',
+        status = 400 },
     nonexistent_user =
         { msg = 'No user with this username exists', status = 404 },
     nonexistent_email =
@@ -359,6 +365,27 @@ check_token = function (self, token, purpose, on_success)
     end
 end
 
+local validate_token = function (self, token, purpose)
+    if token then
+        local query =
+            db.select("date_part('day', now() - ?::timestamp)",
+                token.created)[1]
+        if query.date_part < 4 and token.purpose == purpose then
+            return true
+        elseif token.purpose ~= purpose then
+            return false, html_message_page(self, 'Invalid token', '<p>' ..
+                err.invalid_token.msg .. '</p>')
+        else
+            token:delete()
+            return false, html_message_page(self, 'Expired token', '<p>' ..
+                err.expired_token.msg .. '</p>')
+        end
+    else
+        return false, html_message_page(self, 'Invalid token', '<p>' ..
+            err.invalid_token.msg .. '</p>')
+    end
+end
+
 find_token = function (username, purpose)
     return Tokens:find({ username = username, purpose = purpose})
 end
@@ -589,4 +616,5 @@ return {
     assert_exists = assert_exists,
     assert_current_user_logged_in = assert_current_user_logged_in,
     is_likely_course_work = is_likely_course_work,
+    validate_token = validate_token,
 }

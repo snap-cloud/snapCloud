@@ -39,10 +39,9 @@ mail_bodies = {
                      '<p>We have received a password reset request for your account.</p>' ..
                      '<p>If you did not ask to reset your password, please ignore this email.</p>' ..
                      '<p>If you do want to reset your password, please follow this link <strong>within the next 3 days</strong> to do so:</p>',
-    new_password = '<h1>Your new password</h1>' ..
-                   '<p>A new random password has been generated for your account.</p>' ..
-                   '<p><strong>Please change it immediately</strong> after logging in.</p><br/>' ..
-                   '<p>Your new password is:</p>',
+    password_changed = '<h1>Your password has been reset</h1>' ..
+                       '<p>Your password has been successfully changed.</p>' ..
+                       '<p>If you did not make this change, please contact us immediately.</p>',
     project_unpublished = '<h1>Your project has been unpublished</h1>' ..
                           '<p>One of your projects has been unpublished from the Snap<em>!</em> community website by a system ',
     project_deleted = '<h1>Your project has been deleted</h1>' ..
@@ -83,7 +82,7 @@ mail_bodies = {
 mail_subjects = {
     verify_user = 'Verify user ',
     password_reset = 'Reset password for ',
-    new_password = 'New password for ',
+    password_changed = 'Password changed for ',
     project_unpublished = 'Project unpublished: ',
     project_deleted = 'Project deleted: ',
     set_role_banned = 'User banned: ',

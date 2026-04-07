@@ -28,6 +28,10 @@ local assert_error = package.loaded.app_helpers.assert_error
 local capture_errors = package.loaded.capture_errors
 local socket = require('socket')
 local app = package.loaded.app
+local respond_to = package.loaded.respond_to
+local csrf = require("lapis.csrf")
+local resty_sha512 = package.loaded.resty_sha512
+local resty_string = package.loaded.resty_string
 
 local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
@@ -40,6 +44,7 @@ require 'responses'
 require 'passwords'
 local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
+local validate_token = validations.validate_token
 -- Local Snap!Cloud functions
 local utils = require('lib.util')
 local escape_html = utils.escape_html
@@ -517,7 +522,8 @@ UserController = {
         validate.assert_valid(self.params, {
             { 'username', exists = true, min_length = 4,
                 max_length = 200 },
-            { 'password', exists = true, min_length = 6 },
+            { 'password', exists = true,
+                min_length = Users.MIN_PASSWORD_LENGTH },
             { 'email', exists = true, min_length = 5 }
         })
 
@@ -570,7 +576,8 @@ UserController = {
             -- Ensure necessary columns are present. (partial User validation.)
             validate.assert_valid(user, {
                 { 'username', exists = true, min_length = 4, max_length = 200 },
-                { 'password', exists = true, min_length = 6}
+                { 'password', exists = true,
+                    min_length = Users.MIN_PASSWORD_LENGTH }
             })
             table.insert(usernames, util.trim(tostring(user.username):lower()))
         end
@@ -822,40 +829,91 @@ UserController = {
 app:match(
     'password_reset',
     '/password_reset/:token',
-    capture_errors(
-        function (self)
-            -- This route is reached when a user clicks on a reset password URL
-            local token = Tokens:find(self.params.token)
-            return check_token(
-                self,
-                token,
-                'password_reset',
-                function (user)
-                    local password, prehash = random_password()
-                    user:update(
-                        { password = hash_password(prehash, user.salt) }
-                    )
-                    send_mail(
-                        user.email,
-                        mail_subjects.new_password .. user.username,
-                        mail_bodies.new_password .. '<p><h2>' ..
-                        password .. '</h2></p>'
-                    )
-
+    respond_to({
+        GET = capture_errors(
+            function (self)
+                -- Step 1: User clicks the reset password link in their email.
+                -- Validate the token, but do not consume it yet.
+                -- Show a confirmation page with a button to proceed.
+                local token = Tokens:find(self.params.token)
+                local valid, err_response = validate_token(
+                    self, token, 'password_reset')
+                if not valid then
+                    return err_response
+                end
+                self.username = escape_html(token.username)
+                self.csrf_token = csrf.generate_token(self)
+                self.min_password_length = Users.MIN_PASSWORD_LENGTH
+                return { render = 'password_reset' }
+            end
+        ),
+        POST = capture_errors(
+            function (self)
+                -- Step 2: User submitted the new password form.
+                -- Validate CSRF token first, without consuming
+                -- the reset token.
+                local csrf_err = csrf.validate_token(self)
+                if csrf_err then
                     return html_message_page(
                         self,
-                        'Password reset',
-                        '<p>A new random password has been generated for ' ..
-                        'your account <strong>' .. user.username ..
-                        '</strong> and sent to your email address. ' ..
-                        'Please check your inbox.</p>' ..
-                        '<p>After logging in, please proceed to <strong>' ..
-                        'change your password</strong> as soon as possible.</p>'
+                        'Invalid request',
+                        '<p>The form submission was invalid. ' ..
+                        'Please try again.</p>',
+                        422
                     )
                 end
-            )
-        end
-    )
+
+                local password = self.params.password
+                local password_confirmation =
+                    self.params.password_confirmation
+
+                if not password
+                        or #password < Users.MIN_PASSWORD_LENGTH then
+                    yield_error(err.password_too_short)
+                end
+                if password ~= password_confirmation then
+                    yield_error(err.passwords_do_not_match)
+                end
+
+                -- Prehash the plaintext password (matching the
+                -- client-side SHA-512 prehash used elsewhere)
+                local sha512 = resty_sha512:new()
+                sha512:update(password)
+                local prehash = resty_string.to_hex(sha512:final())
+
+                local token = Tokens:find(self.params.token)
+                return check_token(
+                    self,
+                    token,
+                    'password_reset',
+                    function (user)
+                        user:update({
+                            password =
+                                hash_password(prehash, user.salt),
+                            password_changed_at = db.raw('now()'),
+                            updated_at = db.raw('now()')
+                        })
+                        send_mail(
+                            user.email,
+                            mail_subjects.password_changed ..
+                                user.username,
+                            mail_bodies.password_changed
+                        )
+
+                        return html_message_page(
+                            self,
+                            'Password reset',
+                            '<p>Your password has been successfully ' ..
+                            'changed for account <strong>' ..
+                            user.username .. '</strong>.</p>' ..
+                            '<p>You may now log in with your ' ..
+                            'new password.</p>'
+                        )
+                    end
+                )
+            end
+        )
+    })
 )
 
 -- TODO: We should have this route accept a user
