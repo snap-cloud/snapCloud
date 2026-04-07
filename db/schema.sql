@@ -131,7 +131,9 @@ CREATE TABLE public.users (
     is_teacher boolean DEFAULT false NOT NULL,
     creator_id integer,
     last_login_at timestamp with time zone,
-    session_count integer DEFAULT 0 NOT NULL
+    session_count integer DEFAULT 0 NOT NULL,
+    password_changed_at timestamp with time zone,
+    updated_at timestamp with time zone
 );
 
 
@@ -156,7 +158,9 @@ CREATE VIEW public.active_users AS
     is_teacher,
     creator_id,
     last_login_at,
-    session_count
+    session_count,
+    password_changed_at,
+    updated_at
    FROM public.users
   WHERE (deleted IS NULL);
 
@@ -313,7 +317,9 @@ CREATE VIEW public.deleted_users AS
     is_teacher,
     creator_id,
     last_login_at,
-    session_count
+    session_count,
+    password_changed_at,
+    updated_at
    FROM public.users
   WHERE (deleted IS NOT NULL);
 
@@ -741,6 +747,7 @@ COPY public.lapis_migrations (name) FROM stdin;
 2025-02-06:0
 2025-06-18:0
 2025-09-04:0
+2026-04-06:0
 \.
 
 
