@@ -22,8 +22,11 @@
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.-
 
 local Model = package.loaded.Model
+local db = require('lapis.db')
 local util = require('lapis.util')
 local escape = util.escape
+local passwords = require('passwords')
+local secure_token = passwords.secure_token
 
 -- Generated schema dump: (do not edit)
 --
@@ -170,9 +173,29 @@ local ActiveUsers = Model:extend('active_users', {
     end,
     cannot_access_forum = function (self)
         return self:is_student() or self:isbanned() or self.validated == false
+    end,
+    -- Remember token methods for secure session management.
+    -- Rotates the remember_token to a new value, invalidating all other
+    -- sessions. Returns the new token so the caller can store it in the
+    -- current session cookie.
+    reset_remember_token = function (self)
+        local new_token = secure_token()
+        self:update({ remember_token = new_token })
+        return new_token
+    end,
+    -- Clears the remember_token, invalidating *all* sessions (including
+    -- the current one). Use on logout, password reset, ban, or delete.
+    clear_remember_token = function (self)
+        self:update({ remember_token = db.NULL })
     end
 })
 
+
+-- Look up a user by their remember_token. Returns nil if not found.
+ActiveUsers.from_remember_token = function (token)
+    if not token then return nil end
+    return ActiveUsers:find({ remember_token = token })
+end
 
 ActiveUsers.MIN_PASSWORD_LENGTH = 8
 

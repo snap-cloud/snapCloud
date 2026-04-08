@@ -373,4 +373,16 @@ return {
         update_user_views()
     end,
 
+    -- Add remember_token to users for secure session management.
+    -- Sessions reference this token instead of the username, allowing
+    -- server-side session invalidation on logout or password change.
+    ['2026-04-08:0'] = function ()
+        schema.add_column(
+            'users',
+            'remember_token',
+            types.text({ null = true, unique = true })
+        )
+        update_user_views()
+    end,
+
 }

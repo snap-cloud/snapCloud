@@ -24,7 +24,7 @@ local resty_sha512 = package.loaded.resty_sha512
 local resty_string = package.loaded.resty_string
 local resty_random = package.loaded.resty_random
 
-hash_password = function (password, salt)
+local function hash_password(password, salt)
     -- we're following the same policy as the old cloud in order to keep user
     -- passwords unchanged
     -- "password" comes prehashed from the client
@@ -33,7 +33,7 @@ hash_password = function (password, salt)
     return resty_string.to_hex(sha512:final())
 end
 
-secure_salt = function ()
+local function secure_salt()
     local strong_random = resty_random.bytes(16, true)
     -- attempt to generate 16 bytes of
     -- cryptographically strong random data
@@ -44,8 +44,22 @@ secure_salt = function ()
     return resty_string.to_hex(strong_random)
 end
 
-secure_token = function ()
-    -- generate a random secure token that can be used for user verification
-    -- and password reset
-    return hash_password(secure_salt(), secure_salt())
+local function secure_token()
+    -- Generate 32 bytes (256 bits) of cryptographically strong random data.
+    local strong_random = resty_random.bytes(32, true)
+    while strong_random == nil do
+        strong_random = resty_random.bytes(32, true)
+    end
+    return resty_string.to_hex(strong_random)
 end
+
+-- Backward compatibility: keep globals for code that hasn't been updated yet.
+_G.hash_password = hash_password
+_G.secure_salt = secure_salt
+_G.secure_token = secure_token
+
+return {
+    hash_password = hash_password,
+    secure_salt = secure_salt,
+    secure_token = secure_token,
+}

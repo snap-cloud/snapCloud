@@ -22,6 +22,9 @@
 
 require('models')
 
+local passwords = require('passwords')
+local secure_token = passwords.secure_token
+
 local yield_error = package.loaded.yield_error
 local db = package.loaded.db
 local Collections = package.loaded.Collections

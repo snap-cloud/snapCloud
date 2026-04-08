@@ -138,6 +138,10 @@ UserController = {
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
                 if self.queried_user:is_student() then
+                    self.session.username = self.queried_user.username
+                    self.session.remember_token =
+                        self.queried_user:reset_remember_token()
+                    self.session.persist_session = tostring(self.params.persist)
                     self.queried_user:update({
                         verified = true,
                         last_login_at = db.format_date(),
@@ -175,8 +179,12 @@ UserController = {
                 token:delete()
             end
 
-            -- TODO: Create and store a remember token
+            -- Generate a new remember_token and store it in both the
+            -- database and the session cookie. The before_filter will
+            -- use this token to look up the current user.
             self.session.username = self.queried_user.username
+            self.session.remember_token =
+                self.queried_user:reset_remember_token()
             self.session.persist_session = tostring(self.params.persist)
             self.queried_user:update({
                 last_login_at = db.format_date(),
@@ -200,16 +208,28 @@ UserController = {
             -- Admins can log in as other people
             assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
+            self.session.remember_token =
+                self.queried_user:reset_remember_token()
             return jsonResponse({ redirect = self:build_url('/') })
         end
     end),
     logout_get = capture_errors(function (self)
+        -- TODO: Consider calling self.current_user:clear_remember_token()
+        -- here to invalidate *all* sessions for this user (not just the
+        -- current browser). Skipping for now to avoid surprise logouts on
+        -- other devices.
+        self.session.remember_token = nil
         self.session.username = ''
         self.session.user_id = nil
         self.session.persist_session = 'false'
         return { redirect_to = self:build_url('/') }
     end),
     logout = capture_errors(function (self)
+        -- TODO: Consider calling self.current_user:clear_remember_token()
+        -- here to invalidate *all* sessions for this user (not just the
+        -- current browser). Skipping for now to avoid surprise logouts on
+        -- other devices.
+        self.session.remember_token = nil
         self.session.username = ''
         self.session.user_id = nil
         self.session.persist_session = 'false'
@@ -324,8 +344,13 @@ UserController = {
         end
         self.current_user:update({
             password =
-                hash_password(self.params.new_password, self.current_user.salt)
+                hash_password(self.params.new_password, self.current_user.salt),
+            password_changed_at = db.raw('now()')
         })
+        -- Rotate remember_token so all other sessions are invalidated,
+        -- but keep the current session alive with the new token.
+        self.session.remember_token =
+            self.current_user:reset_remember_token()
         return jsonResponse({
             title = 'Password changed',
             message = 'Your password has been changed.',
@@ -402,11 +427,14 @@ UserController = {
             yield_error(err.wrong_password)
         end
         -- Do not actually delete the user; flag it as deleted.
+        -- Invalidate all sessions by clearing the remember_token.
+        user:clear_remember_token()
         if not (user:update({ deleted = db.format_date() })) then
             yield_error('Could not delete user ' .. user.username)
         else
             if not self.queried_user then
                 -- we've deleted ourselves, let's log out
+                self.session.remember_token = nil
                 self.session.username = ''
                 self.session.user_id = nil
                 self.session.persist_session = 'false'
@@ -673,9 +701,17 @@ UserController = {
                     Users.roles[self.queried_user.role] then
                 yield_error(err.auth)
             else
+                -- Save the original user's remember_token so we can
+                -- restore the session when unbecoming.
                 self.session.impersonator = self.current_user.username
+                self.session.impersonator_token = self.session.remember_token
                 self.current_user = self.queried_user
                 self.session.username = self.queried_user.username
+                -- Ensure the target user has a remember_token
+                if not self.queried_user.remember_token then
+                    self.queried_user:reset_remember_token()
+                end
+                self.session.remember_token = self.queried_user.remember_token
             end
         end
         return jsonResponse({
@@ -689,7 +725,10 @@ UserController = {
             self.session.username = self.session.impersonator
             self.current_user =
                 Users:find({ username = self.session.impersonator})
+            -- Restore the original user's remember_token
+            self.session.remember_token = self.session.impersonator_token
             self.session.impersonator = nil
+            self.session.impersonator_token = nil
             return jsonResponse({
                 message = 'You are now ' .. self.session.username .. ' again',
                 title = 'Unimpersonation',
@@ -715,6 +754,10 @@ UserController = {
         if self.queried_user then
             assert_can_set_role(self, self.params.role)
             self.queried_user:update({ role = self.params.role })
+            -- Invalidate the user's sessions when banning them
+            if self.params.role == 'banned' then
+                self.queried_user:clear_remember_token()
+            end
         end
         return jsonResponse({
             message =
@@ -894,6 +937,9 @@ app:match(
                             password_changed_at = db.raw('now()'),
                             updated_at = db.raw('now()')
                         })
+                        -- Invalidate all existing sessions. The user
+                        -- must log in again with their new password.
+                        user:clear_remember_token()
                         send_mail(
                             user.email,
                             mail_subjects.password_changed ..

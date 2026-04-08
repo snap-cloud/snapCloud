@@ -167,6 +167,45 @@ package.loaded.uncache_category = function (category)
     if query then ngx.shared.query_cache:delete(query) end
 end
 
+-- Session restoration
+-- ====================
+-- Looks up the current user from the session cookie. Prefers the
+-- remember_token (secure, server-invalidatable) and falls back to
+-- username for legacy sessions that predate the remember_token feature.
+
+local function restore_session(self)
+    local Users = package.loaded.Users
+
+    if self.session.remember_token then
+        self.current_user = Users.from_remember_token(self.session.remember_token)
+        if self.current_user then
+            -- Keep session.username in sync for code that reads it
+            self.session.username = self.current_user.username
+            self.session.last_access_at = date(true):fmt('${http}')
+        else
+            -- Token no longer valid (e.g. user changed password or
+            -- logged out elsewhere). Clear the session.
+            self.session.remember_token = nil
+            self.session.username = ''
+            self.current_user = nil
+        end
+    elseif self.session.username and self.session.username ~= '' then
+        -- TODO: Remove this legacy fallback after June 2027. By then all
+        -- active sessions will have been upgraded to use remember_token.
+        self.current_user = Users:find({ username = self.session.username })
+        if self.current_user then
+            -- Upgrade this session to use a remember_token
+            local token = self.current_user.remember_token
+                or self.current_user:reset_remember_token()
+            self.session.remember_token = token
+            self.session.last_access_at = date(true):fmt('${http}')
+        end
+    else
+        self.session.username = ''
+        self.current_user = nil
+    end
+end
+
 -- Before filter
 app:before_filter(function (self)
     -- Temporarily disable IP bans because of too many false positives
@@ -246,14 +285,7 @@ app:before_filter(function (self)
         end
     end
 
-    if self.session.username and self.session.username ~= '' then
-        self.current_user =
-            package.loaded.Users:find({ username = self.session.username })
-        self.session.last_access_at = date(true):fmt('${http}')
-    else
-        self.session.username = ''
-        self.current_user = nil
-    end
+    restore_session(self)
 
     if self.params.matchtext then
         self.params.matchtext = '%' .. self.params.matchtext .. '%'

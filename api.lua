@@ -90,6 +90,7 @@ app:match(api_route('init'), respond_to({
             (self.session.username and
                 self.session.persist_session == 'false') then
             self.session.username = ''
+            self.session.remember_token = nil
         end
         return okResponse()
     end)
