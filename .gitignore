@@ -48,3 +48,10 @@ static/img/totm.png
 
 # local JS tools
 node_modules/
+
+# Database Dumps and Backups
+*.sql
+*.sql.gz
+*.dump
+# Keep the specific schema and init files in db/
+!db/*.sql
