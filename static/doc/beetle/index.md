@@ -20,8 +20,9 @@ You can find the documentation for the extension below.
 ## A Tiny Bit of History
 
 The 3D Beetle extension is heavily inspired in the [Beetle
-Blocks](http://beetleblocks.com) Snap<em>!</em> mod, originally designed by Eric
-Rosenbaum and Duks Koschitz and developed by Bernat Romagosa during the years
+Blocks](https://github.com/ericrosenbaum/BeetleBlocks) Snap<em>!</em> mod,
+originally designed by Eric Rosenbaum and Duks Koschitz and developed by Bernat
+Romagosa during the years
 2014-2020.
 
 Beetle Blocks was aimed at 3D fabrication, especially targeting 3D printing,
