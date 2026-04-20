@@ -57,7 +57,7 @@ like in its default color:
 
 > ![beetle](static/doc/beetle/beetle.png)
 
-This character is to 3D what the Lego turtle is to 2D. Turtles can move on a 2D
+This character is to 3D what the Logo turtle is to 2D. Turtles can move on a 2D
 plane, but beetles can additionally fly and dig underground, which makes them
 very apt at exploring the third dimension.
 
