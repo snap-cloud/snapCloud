@@ -70,6 +70,74 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: lti_platforms; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.lti_platforms (
+    id integer NOT NULL,
+    creator_id integer NOT NULL,
+    name text NOT NULL,
+    issuer text NOT NULL,
+    client_id text NOT NULL,
+    deployment_id text,
+    auth_login_url text NOT NULL,
+    auth_token_url text,
+    key_set_url text NOT NULL,
+    audience text,
+    default_student_role text,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+
+--
+-- Name: lti_platforms_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.lti_platforms_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.lti_platforms_id_seq OWNED BY public.lti_platforms.id;
+
+
+--
+-- Name: lti_users; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.lti_users (
+    id integer NOT NULL,
+    platform_id integer NOT NULL,
+    lti_sub text NOT NULL,
+    user_id integer NOT NULL,
+    last_launched_at timestamp with time zone,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL
+);
+
+
+--
+-- Name: lti_users_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.lti_users_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.lti_users_id_seq OWNED BY public.lti_users.id;
+
+
+--
 -- Name: projects; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -392,6 +460,64 @@ CREATE TABLE public.followers (
 CREATE TABLE public.lapis_migrations (
     name character varying(255) NOT NULL
 );
+
+
+--
+-- Name: lti_platforms id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.lti_platforms ALTER COLUMN id SET DEFAULT nextval('public.lti_platforms_id_seq'::regclass);
+
+
+--
+-- Name: lti_users id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.lti_users ALTER COLUMN id SET DEFAULT nextval('public.lti_users_id_seq'::regclass);
+
+
+--
+-- Name: lti_platforms lti_platforms_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.lti_platforms
+    ADD CONSTRAINT lti_platforms_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: lti_users lti_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.lti_users
+    ADD CONSTRAINT lti_users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: lti_platforms_issuer_client_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX lti_platforms_issuer_client_id_idx ON public.lti_platforms USING btree (issuer, client_id);
+
+
+--
+-- Name: lti_platforms_creator_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX lti_platforms_creator_id_idx ON public.lti_platforms USING btree (creator_id);
+
+
+--
+-- Name: lti_users_platform_id_lti_sub_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX lti_users_platform_id_lti_sub_idx ON public.lti_users USING btree (platform_id, lti_sub);
+
+
+--
+-- Name: lti_users_user_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX lti_users_user_id_idx ON public.lti_users USING btree (user_id);
 
 
 --
@@ -748,6 +874,7 @@ COPY public.lapis_migrations (name) FROM stdin;
 2025-06-18:0
 2025-09-04:0
 2026-04-06:0
+2026-04-19:0
 \.
 
 

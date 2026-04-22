@@ -373,4 +373,44 @@ return {
         update_user_views()
     end,
 
+    -- Create tables for LTI 1.3 tool support.
+    -- lti_platforms: registered LMS platforms that have added the Snap!Cloud
+    --                tool.
+    -- lti_users:     linkage between an LTI subject (within a given platform)
+    --                and a Snap!Cloud user.
+    ['2026-04-19:0'] = function ()
+        schema.create_table('lti_platforms', {
+            { 'id', types.serial({ primary_key = true }) },
+            { 'creator_id', types.foreign_key },
+            { 'name', types.text },
+            { 'issuer', types.text },
+            { 'client_id', types.text },
+            { 'deployment_id', types.text({ null = true }) },
+            { 'auth_login_url', types.text },
+            { 'auth_token_url', types.text({ null = true }) },
+            { 'key_set_url', types.text },
+            { 'audience', types.text({ null = true }) },
+            { 'default_student_role', types.text({ null = true }) },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) }
+        })
+        schema.create_index(
+            'lti_platforms', 'issuer', 'client_id', { unique = true }
+        )
+        schema.create_index('lti_platforms', 'creator_id')
+
+        schema.create_table('lti_users', {
+            { 'id', types.serial({ primary_key = true }) },
+            { 'platform_id', types.foreign_key },
+            { 'lti_sub', types.text },
+            { 'user_id', types.foreign_key },
+            { 'last_launched_at', types.time({ timezone = true, null = true }) },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) }
+        })
+        schema.create_index(
+            'lti_users', 'platform_id', 'lti_sub', { unique = true }
+        )
+        schema.create_index('lti_users', 'user_id')
+    end,
 }

@@ -315,6 +315,7 @@ end
 -- The API for the Snap! editor is implemented in the api.lua file
 require 'api'
 require 'discourse'
+require 'lti'
 
 -- We don't keep spam/exploit paths in the API
 -- Disabled for now to prevent false positives

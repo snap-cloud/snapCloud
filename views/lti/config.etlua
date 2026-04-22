@@ -1,0 +1,163 @@
+<% content_for('title', 'LTI 1.3 Tool Configuration') %>
+
+<h1>LTI 1.3 Tool Configuration</h1>
+
+<p>
+    Use the values below to register the Snap<i>!</i>Cloud as an LTI 1.3 Tool
+    in your Learning Management System (LMS). The exact labels vary between
+    LMSs, but the URLs, client ID and public key details they need are the
+    same.
+</p>
+
+<% if lti.ephemeral_key then %>
+<div class="alert alert-warning">
+    <strong>Warning:</strong> This Snap<i>!</i>Cloud instance is running with
+    an <em>ephemeral</em> LTI tool key. The public JWK below will change on
+    the next process restart and LMSs that cache it will fail to verify
+    signatures from us. Set the <code>LTI_TOOL_PRIVATE_KEY</code> environment
+    variable to a persistent PEM-encoded RSA private key to make this stable.
+</div>
+<% end %>
+
+<h2>Tool details to give your LMS</h2>
+
+<table class="table table-sm">
+    <tbody>
+        <tr>
+            <th scope="row">Tool name</th>
+            <td><code><%= lti.tool_name %></code></td>
+        </tr>
+        <tr>
+            <th scope="row">Tool URL / Target Link URI</th>
+            <td><code><%= lti.target_link_uri %></code></td>
+        </tr>
+        <tr>
+            <th scope="row">OIDC Login Initiation URL</th>
+            <td><code><%= lti.login_initiation_url %></code></td>
+        </tr>
+        <tr>
+            <th scope="row">Redirect URI (Launch URL)</th>
+            <td><code><%= lti.redirect_uri %></code></td>
+        </tr>
+        <tr>
+            <th scope="row">Public JWKS URL</th>
+            <td><code><%= lti.jwks_url %></code></td>
+        </tr>
+        <tr>
+            <th scope="row">Key ID (<code>kid</code>)</th>
+            <td><code><%= lti.kid %></code></td>
+        </tr>
+    </tbody>
+</table>
+
+<details class="mb-3">
+    <summary>Inline public key (JWK)</summary>
+    <pre><code><%= require('cjson').encode(lti.public_jwk) %></code></pre>
+</details>
+
+<h2>Register an LMS</h2>
+
+<p>
+    When the LMS admin creates the Snap<i>!</i>Cloud LTI Tool on their end,
+    they will give you an <em>Issuer</em> (sometimes called &ldquo;Platform
+    URL&rdquo;), a <em>Client ID</em> assigned to us, a <em>Deployment
+    ID</em>, their <em>OIDC Authorization Endpoint</em>, and a link to their
+    JWKS. Paste those values below so we can accept launches from them.
+</p>
+
+<form id="js-register-platform" class="row g-3" onsubmit="handleRegister(event)">
+    <div class="col-md-6">
+        <label class="form-label" for="lti-name">Human-friendly name <span class="text-danger">*</span></label>
+        <input class="form-control" id="lti-name" name="name" required>
+        <div class="form-text">e.g. <em>Berkeley Canvas</em>.</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="lti-issuer">Issuer <span class="text-danger">*</span></label>
+        <input class="form-control" id="lti-issuer" name="issuer" type="url" required>
+        <div class="form-text">e.g. <code>https://canvas.instructure.com</code>.</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="lti-client-id">Client ID <span class="text-danger">*</span></label>
+        <input class="form-control" id="lti-client-id" name="client_id" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="lti-deployment-id">Deployment ID</label>
+        <input class="form-control" id="lti-deployment-id" name="deployment_id">
+        <div class="form-text">Optional. Leave blank to accept any deployment for this client.</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="lti-auth-login-url">OIDC Authorization URL <span class="text-danger">*</span></label>
+        <input class="form-control" id="lti-auth-login-url" name="auth_login_url" type="url" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="lti-key-set-url">JWKS URL <span class="text-danger">*</span></label>
+        <input class="form-control" id="lti-key-set-url" name="key_set_url" type="url" required>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="lti-auth-token-url">OAuth Token URL</label>
+        <input class="form-control" id="lti-auth-token-url" name="auth_token_url" type="url">
+        <div class="form-text">Only required if you will use LTI services.</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="lti-audience">Audience</label>
+        <input class="form-control" id="lti-audience" name="audience">
+        <div class="form-text">Defaults to your Client ID.</div>
+    </div>
+    <div class="col-md-6">
+        <label class="form-label" for="lti-default-role">Default role for learners</label>
+        <select class="form-select" id="lti-default-role" name="default_student_role">
+            <option value="">Detect from LTI role claim (recommended)</option>
+            <option value="student">Always create as Snap<i>!</i> students</option>
+        </select>
+    </div>
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Register platform</button>
+    </div>
+</form>
+
+<h2 class="mt-4">Registered platforms</h2>
+
+<% if #platforms == 0 then %>
+    <p><em>No platforms registered yet.</em></p>
+<% else %>
+<table class="table table-striped table-sm">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Issuer</th>
+            <th>Client ID</th>
+            <th>Deployment</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    <% for _, p in ipairs(platforms) do %>
+        <tr>
+            <td><%= p.name %></td>
+            <td><code><%= p.issuer %></code></td>
+            <td><code><%= p.client_id %></code></td>
+            <td><code><%= p.deployment_id or '(any)' %></code></td>
+            <td>
+                <button type="button" class="btn btn-sm btn-outline-danger"
+                    onclick="deletePlatform(<%= p.id %>)">Remove</button>
+            </td>
+        </tr>
+    <% end %>
+    </tbody>
+</table>
+<% end %>
+
+<script>
+function handleRegister(event) {
+    event.preventDefault();
+    var form = document.getElementById('js-register-platform');
+    if (!form.reportValidity()) return;
+    var data = {};
+    new FormData(form).forEach(function (v, k) { if (v) data[k] = v; });
+    cloud.post('/lti/platforms', null, data);
+}
+function deletePlatform(id) {
+    if (!window.confirm('Remove this LTI platform?')) return;
+    cloud.delete('/lti/platforms/' + id);
+}
+</script>

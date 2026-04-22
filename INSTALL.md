@@ -275,6 +275,28 @@ export HOSTNAME=snap.berkeley.edu
 ```
 There are a lot of options defined in `config.lua`. Setting the environment is helpful because you may want to have a "staging" server with a slightly different configuration.
 
+#### LTI 1.3 Tool keys
+
+If you want Snap<em>!</em>Cloud to act as an LTI 1.3 Tool (so teachers can add
+it to their LMS and let students sign in through it), set the following
+variables in production:
+
+```sh
+# PEM-encoded RSA private key (2048 bits or larger).
+# Generate with: openssl genrsa -out lti_tool.pem 2048
+# Paste the full PEM file contents (including BEGIN/END lines), escaping
+# newlines as needed by your process supervisor.
+export LTI_TOOL_PRIVATE_KEY="$(cat /path/to/lti_tool.pem)"
+# Optional: stable Key ID that the JWK will advertise. Defaults to
+# "snap-cloud-lti-1". Changing this forces LMSs to re-fetch our JWKS.
+export LTI_TOOL_KID=snap-cloud-lti-1
+```
+
+If `LTI_TOOL_PRIVATE_KEY` is not set, the tool falls back to an ephemeral
+key regenerated on each boot; the `/lti/config` page will warn about this.
+Teachers register their LMS at `/lti/config`. The tool's public JWK is
+served at `/lti/jwks`.
+
 ### Giving permissions to use HTTP(S) ports
 (This section applies only to Linux machines.)
 Authbind allows a user to bind to ports 0-1023. In development, you will likely not need to use authbind as the server defaults to using port 8080 and doesn't need https. However, on the production server, authbind is necessary.
