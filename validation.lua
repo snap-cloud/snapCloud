@@ -612,9 +612,32 @@ local function is_likely_course_work(project_name)
     return false
 end
 
+-- Validates an ORDER BY value against an allowed column whitelist.
+-- Parses "column DESC", "column ASC", or just "column".
+-- Returns the safe ORDER BY string, or the default if invalid.
+local function sanitize_order(order, default, allowed_columns)
+    if not order then return default end
+    local col, dir = order:match('^(%S+)%s+(%S+)$')
+    if not col then
+        col = order:match('^(%S+)$')
+    end
+    if not col or not allowed_columns[col] then
+        return default
+    end
+    if dir then
+        dir = dir:upper()
+        if dir ~= 'ASC' and dir ~= 'DESC' then
+            return default
+        end
+        return col .. ' ' .. dir
+    end
+    return col
+end
+
 return {
     assert_exists = assert_exists,
     assert_current_user_logged_in = assert_current_user_logged_in,
     is_likely_course_work = is_likely_course_work,
     validate_token = validate_token,
+    sanitize_order = sanitize_order,
 }

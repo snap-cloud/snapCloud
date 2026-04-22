@@ -45,9 +45,29 @@ require 'passwords'
 local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
 local validate_token = validations.validate_token
+local sanitize_order = validations.sanitize_order
 -- Local Snap!Cloud functions
 local utils = require('lib.util')
 local escape_html = utils.escape_html
+
+local ALLOWED_USER_FILTERS = {
+    ['verified'] = true,
+    ['role'] = true,
+    ['is_teacher'] = true,
+    ['creator_id'] = true,
+    ['id'] = true,
+}
+
+local ALLOWED_USER_ORDER = {
+    ['username'] = true,
+    ['created'] = true,
+    ['role'] = true,
+    ['verified'] = true,
+    ['last_login_at'] = true,
+    ['id'] = true,
+    ['email'] = true,
+    ['session_count'] = true,
+}
 
 UserController = {
     run_query = function (self, query)
@@ -56,11 +76,17 @@ UserController = {
 
         -- Apply filters from params. They look like filter_verified=true or
         -- filter_role=reviewer, so we strip them from the "filter_" part.
+        -- Only whitelisted field names are allowed to prevent SQL injection.
         local filters = ''
         for k, v in pairs(self.params) do
             if k:find('filter_') == 1 then
-                filters = filters ..
-                    db.interpolate_query(' AND ' .. k:sub(8) .. ' = ?', v)
+                local field = k:sub(8)
+                if ALLOWED_USER_FILTERS[field] then
+                    filters = filters ..
+                        db.interpolate_query(
+                            ' AND ' .. db.escape_identifier(field) ..
+                            ' = ?', v)
+                end
             end
         end
 
@@ -72,7 +98,9 @@ UserController = {
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
                 (filters or '') ..
-                ' ORDER BY ' .. (self.params.order or 'created'),
+                ' ORDER BY ' ..
+                    sanitize_order(self.params.order, 'created',
+                        ALLOWED_USER_ORDER),
             {
                 per_page = self.items_per_page or 15,
                 fields = self.params.fields or '*'
@@ -122,6 +150,7 @@ UserController = {
         })
     end),
     login = capture_errors(function (self)
+        rate_limit(self)
         -- Do not reveal whether the user exists or not
         assert_user_exists(self, err.wrong_password)
         local password = self.params.password

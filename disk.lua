@@ -24,13 +24,57 @@
 -- we store max 1000 projects per dir
 
 local xml = require("xml")
+local lfs = require("lfs")
 local config = package.loaded.config
 local yield_error = package.loaded.yield_error
 
+-- Safe recursive directory creation without shell execution
+local function ensure_directory(path)
+    local current = ""
+    for component in path:gmatch("[^/]+") do
+        current = current .. "/" .. component
+        lfs.mkdir(current)
+    end
+end
+
+-- Safe file copy without shell execution
+local function copy_file(src_path, dst_path)
+    local src = io.open(src_path, "rb")
+    if not src then return false end
+    local content = src:read("*all")
+    src:close()
+    local dst = io.open(dst_path, "wb")
+    if not dst then return false end
+    dst:write(content)
+    dst:close()
+    return true
+end
+
+-- Get file modification time without shell execution
+local function file_mtime(path)
+    return lfs.attributes(path, "modification")
+end
+
+-- Copy project files to a backup directory, preserving project.xml mtime
+local function backup_files_to(src_dir, dst_dir, mtime)
+    ensure_directory(dst_dir)
+    copy_file(src_dir .. '/project.xml', dst_dir .. '/project.xml')
+    copy_file(src_dir .. '/media.xml', dst_dir .. '/media.xml')
+    copy_file(src_dir .. '/thumbnail', dst_dir .. '/thumbnail')
+    if mtime then
+        lfs.touch(dst_dir .. '/project.xml', mtime, mtime)
+    end
+end
+
 local disk = {}
 
+-- Kept for backwards compatibility with any external callers
 function disk:timestamp_command(dir)
     return 'stat ' .. config.stat_arguments .. ' ' .. dir .. '/project.xml'
+end
+
+function disk:file_mtime(dir)
+    return file_mtime(dir .. '/project.xml')
 end
 
 function disk:directory_for_id (id)
@@ -39,7 +83,7 @@ end
 
 function disk:save (id, filename, contents)
     local dir = self:directory_for_id(id)
-    os.execute('mkdir -p ' .. dir)
+    ensure_directory(dir)
     local file = io.open(dir .. '/' .. filename, 'w+')
     if (file) then
         file:write(contents)
@@ -167,14 +211,14 @@ function disk:get_version_metadata(id, delta)
     local dir = self:directory_for_id(id) .. '/d' .. delta
     local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
-        local command = io.popen(self:timestamp_command(dir))
-        local last_modified = tonumber(command:read())
-        command:close()
+        project_file:close()
+        local last_modified = file_mtime(dir .. '/project.xml')
         return {
             notes = self:parse_notes(id, delta),
             thumbnail = self:retrieve(id, 'thumbnail', delta),
             -- seconds since last modification
-            lastupdated = os.time() - last_modified,
+            lastupdated = last_modified and
+                (os.time() - last_modified) or 0,
             delta = delta
         }
     else
@@ -186,20 +230,16 @@ function disk:backup_project(id)
     -- This function is called right before saving a project
     local dir = self:directory_for_id(id)
 
+    -- Get source file modification time before copying
+    local last_modified = file_mtime(dir .. '/project.xml')
+
     -- We always save the current copy into the /d-1 folder
-    os.execute('mkdir -p ' .. dir .. '/d-1')
-    os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
-        dir .. '/d-1')
+    backup_files_to(dir, dir .. '/d-1', last_modified)
+
     -- If the current project was modified more than 12 hours ago,
     -- we save it into the /d-2 folder
-    local command = io.popen(self:timestamp_command(dir))
-    local last_modified = tonumber(command:read())
-    command:close()
-    if (os.time() - last_modified > 43200) then
-        os.execute('mkdir -p ' .. dir .. '/d-2')
-        os.execute(
-            'cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
-                dir .. '/d-2')
+    if last_modified and (os.time() - last_modified > 43200) then
+        backup_files_to(dir, dir .. '/d-2', last_modified)
     end
 end
 

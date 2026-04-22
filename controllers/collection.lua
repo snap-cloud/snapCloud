@@ -34,6 +34,17 @@ local capture_errors = package.loaded.capture_errors
 
 local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
+local sanitize_order = validations.sanitize_order
+
+local ALLOWED_COLLECTION_ORDER = {
+    ['published_at'] = true,
+    ['updated_at'] = true,
+    ['created_at'] = true,
+    ['collections.created_at'] = true,
+    ['collections.published_at'] = true,
+    ['collections.updated_at'] = true,
+    ['name'] = true,
+}
 
 CollectionController = {
     run_query = function (self, query)
@@ -45,7 +56,9 @@ CollectionController = {
                     '%' .. self.params.search_term .. '%',
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
-            ' ORDER BY ' .. (self.params.order or 'published_at DESC'),
+            ' ORDER BY ' ..
+                sanitize_order(self.params.order, 'published_at DESC',
+                    ALLOWED_COLLECTION_ORDER),
             {
                 per_page = self.params.per_page or 15,
                 fields = self.params.fields or

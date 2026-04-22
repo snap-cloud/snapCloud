@@ -41,6 +41,18 @@ local Users = package.loaded.Users
 local validation = package.loaded.validation
 
 local is_likely_course_work = validation.is_likely_course_work
+local sanitize_order = validation.sanitize_order
+
+local ALLOWED_PROJECT_ORDER = {
+    ['firstpublished'] = true,
+    ['lastupdated'] = true,
+    ['lastshared'] = true,
+    ['projectname'] = true,
+    ['username'] = true,
+    ['created'] = true,
+    ['flag_count'] = true,
+    ['notes'] = true,
+}
 
 ProjectController = {
     run_query = function (self, query)
@@ -67,7 +79,9 @@ ProjectController = {
                     ) or '') ..
                     (filters or '') ..
                     ' ORDER BY ' ..
-                        (self.params.order or 'firstpublished DESC'),
+                        sanitize_order(self.params.order,
+                            'firstpublished DESC',
+                            ALLOWED_PROJECT_ORDER),
                 {
                     per_page = self.params.items_per_page or 18,
                     fields = self.params.fields or '*'
