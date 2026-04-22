@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# Bootstrap a local MinIO bucket for Snap!Cloud development.
+#
+# Usage:
+#   ./bin/setup-minio
+#
+# Assumes MinIO is running on http://localhost:9000 with the default root
+# credentials (minioadmin / minioadmin). Creates a bucket named "snapcloud"
+# and an access key the app can use. Prints the env-var block to paste
+# into your .env file.
+#
+# Requires the `mc` (MinIO Client) CLI. Install on macOS with
+# `brew install minio/stable/mc`, or grab a binary from
+# https://min.io/docs/minio/linux/reference/minio-mc.html.
+
+set -euo pipefail
+
+ALIAS="${MINIO_ALIAS:-snapcloud-local}"
+ENDPOINT="${MINIO_ENDPOINT:-http://localhost:9000}"
+ROOT_USER="${MINIO_ROOT_USER:-minioadmin}"
+ROOT_PASSWORD="${MINIO_ROOT_PASSWORD:-minioadmin}"
+BUCKET="${MINIO_BUCKET:-snapcloud}"
+
+if ! command -v mc >/dev/null; then
+  echo "error: the MinIO client 'mc' is not installed." >&2
+  echo "       see https://min.io/docs/minio/linux/reference/minio-mc.html" >&2
+  exit 1
+fi
+
+echo "== configuring mc alias '$ALIAS' -> $ENDPOINT"
+mc alias set "$ALIAS" "$ENDPOINT" "$ROOT_USER" "$ROOT_PASSWORD" >/dev/null
+
+echo "== ensuring bucket '$BUCKET' exists"
+mc mb --ignore-existing "$ALIAS/$BUCKET" >/dev/null
+
+cat <<EOF
+
+Done. Add these lines to your .env file so Snap!Cloud talks to MinIO:
+
+    export S3_ENDPOINT=$ENDPOINT
+    export S3_BUCKET=$BUCKET
+    export S3_ACCESS_KEY_ID=$ROOT_USER
+    export S3_SECRET_ACCESS_KEY=$ROOT_PASSWORD
+    export S3_REGION=us-east-1
+
+Then restart the Snap!Cloud app and new project saves will land in MinIO.
+The MinIO web console is at http://localhost:9001 (same credentials).
+
+EOF

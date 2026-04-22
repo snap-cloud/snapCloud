@@ -507,6 +507,47 @@ ProjectController = {
                 (disk:generate_thumbnail(project.id)) or
                     '')
     end),
+    -- Direct image endpoint: serves the project's thumbnail as a real
+    -- image/png. When object storage is configured we permission-check the
+    -- project and 302 to a short-lived presigned URL; the browser then
+    -- fetches the PNG directly from R2/MinIO. In disk-only mode we decode
+    -- the legacy base64 data-URL and serve the bytes inline.
+    image = capture_errors(function (self)
+        local project =
+            self.params.id and Projects:find({ id = self.params.id })
+            or Projects:find(
+                tostring(self.params.username),
+                tostring(self.params.projectname))
+
+        if not project then yield_error(err.nonexistent_project) end
+        if not (project.ispublic or users_match(self)) then
+            if not (self.current_user and self.current_user:isadmin()) then
+                yield_error(err.nonexistent_project)
+            end
+        end
+
+        local version = tonumber(self.params.v)
+        if disk.s3_enabled and disk.s3_enabled() then
+            local url = disk:presigned_thumbnail_url(project.id, version)
+            if url then return { redirect_to = url } end
+        end
+
+        local bytes = disk:read_thumbnail_bytes(project.id, version)
+        if not bytes then
+            -- Try to materialize the thumbnail from the XML one last time.
+            disk:generate_thumbnail(project.id)
+            bytes = disk:read_thumbnail_bytes(project.id, version)
+        end
+        if not bytes then
+            return { status = 404, layout = false, 'no thumbnail' }
+        end
+        return {
+            layout = false,
+            status = 200,
+            content_type = 'image/png',
+            bytes,
+        }
+    end),
     versions = capture_errors(function (self)
         local project =
             Projects:find(
@@ -524,17 +565,27 @@ ProjectController = {
             'extract(epoch from age(now(), ?::timestamp))',
             project.lastupdated)[1]
 
-        return jsonResponse({
+        -- The response is always [current, prev_1, prev_2, ..., prev_N]
+        -- where N = PREVIOUS_VERSIONS_TO_KEEP. Missing slots come back
+        -- as nil/null so the editor's picker can render them greyed
+        -- out. For S3-backed projects this walks `project_versions`;
+        -- for disk-only projects it still reads `d-1`/`d-2`.
+        local result = {
             {
                 lastupdated = query.date_part,
                 thumbnail = disk:retrieve(project.id, 'thumbnail') or
                     disk:generate_thumbnail(project.id),
                 notes = disk:parse_notes(project.id),
                 delta = 0
-            },
-            disk:get_version_metadata(project.id, -1),
-            disk:get_version_metadata(project.id, -2)
-        })
+            }
+        }
+        local keep = disk.PREVIOUS_VERSIONS_TO_KEEP or 2
+        for n = 1, keep do
+            result[#result + 1] =
+                disk:get_version_metadata(project.id, -n)
+        end
+
+        return jsonResponse(result)
     end),
     save = capture_errors(function (self)
         -- rate_limit(self)

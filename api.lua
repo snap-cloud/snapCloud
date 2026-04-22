@@ -35,6 +35,7 @@ require 'controllers.user'
 require 'controllers.project'
 require 'controllers.collection'
 require 'controllers.site'
+require 'controllers.storage'
 
 -- All API routes are nested under /api/v1,
 -- which is currently an optional prefix.
@@ -254,6 +255,14 @@ app:match(api_route('project/:id'), respond_to({
     DELETE = ProjectController.delete
 }))
 
+-- Direct PNG image URL. `<img src>`-friendly: 302s to a short-lived
+-- presigned URL when object storage is configured, otherwise serves the
+-- decoded PNG bytes directly. Optional ?v=<version> selects a historical
+-- version (used by the editor's version picker).
+app:match(api_route('project/:id/image.png'), respond_to({
+    GET = ProjectController.image
+}))
+
 -- [LEGACY]
 -- Legacy API calls by username and projectname. Used by the editor and mods.
 
@@ -379,3 +388,15 @@ app:match(api_route('banned_ip/:ip'),
         DELETE = SiteController.unban_ip
     })
 )
+
+-- Storage migration (admin only)
+-- ==============================
+-- Incrementally backfills on-disk project files into the S3-compatible
+-- object store. See controllers/storage.lua for the shell-loop pattern.
+app:match(api_route('admin/storage/migrate'), respond_to({
+    POST = StorageController.migrate
+}))
+
+app:match(api_route('admin/storage/status'), respond_to({
+    GET = StorageController.status
+}))

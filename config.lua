@@ -21,6 +21,55 @@ config({'development', 'staging', 'production', 'test'}, {
     -- read & write permissions to that path.
     store_path = os.getenv('PROJECT_STORAGE_PATH') or 'store',
 
+    -- S3-compatible object storage (Cloudflare R2 in production, MinIO or
+    -- similar for local dev). Leave endpoint/bucket empty to run purely off
+    -- local disk. When both are configured, storage.lua operates in "hybrid"
+    -- mode: writes go to R2, reads prefer R2 and fall back to disk so
+    -- not-yet-migrated projects keep working during a slow backfill.
+    s3 = {
+        endpoint = os.getenv('S3_ENDPOINT'),
+        bucket = os.getenv('S3_BUCKET'),
+        access_key_id = os.getenv('S3_ACCESS_KEY_ID'),
+        secret_access_key = os.getenv('S3_SECRET_ACCESS_KEY'),
+        region = os.getenv('S3_REGION') or 'auto',
+        -- Optional: the host URL the browser will hit for presigned GETs.
+        -- Defaults to the endpoint. Use for R2 custom domains or a CDN.
+        public_host = os.getenv('S3_PUBLIC_HOST'),
+    },
+    -- How long presigned image URLs are valid for (seconds). Short-lived
+    -- because permission checks run at presign time.
+    s3_presign_ttl = tonumber(os.getenv('S3_PRESIGN_TTL')) or 300,
+    -- When true, hybrid-mode saves still write a local disk copy as a
+    -- safety net. Set S3_DISK_WRITES=false once the backfill is complete
+    -- and every save is known to be reaching S3 successfully, so new
+    -- writes stop piling up on the box's local disk. Default true so
+    -- rollout is safe by default.
+    s3_disk_writes = (os.getenv('S3_DISK_WRITES') ~= 'false'),
+
+    -- Shared-secret bearer token for /api/v1/admin/storage/* endpoints.
+    -- Used by bin/migrate-to-r2.sh and any other out-of-band backfill
+    -- runner. We deliberately do NOT require an admin cookie: the
+    -- backfill is driven by a long-running shell loop and wrapping it
+    -- in a session makes that brittle. Leave unset to disable the
+    -- endpoints entirely (safer default than a guessable string).
+    storage_migration_token = os.getenv('STORAGE_MIGRATION_TOKEN'),
+
+    -- How many retired versions we keep in object storage per project,
+    -- in addition to the live `current` files. Mirrors the legacy disk
+    -- scheme's `d-1` + `d-2` => 2. Raising this costs R2 storage and
+    -- per-project rows in `project_versions` but no extra S3 ops on
+    -- read; retention logic in storage.lua enforces the cap by soft-
+    -- deleting the oldest entries.
+    previous_versions_to_keep =
+        tonumber(os.getenv('PREVIOUS_VERSIONS_TO_KEEP')) or 2,
+    -- A retired version older than this (seconds) is considered
+    -- "stable" and will be preserved across the next save. Versions
+    -- younger than this are treated as rapid-edit churn and get rotated
+    -- out to avoid storing every single save. 12h matches the legacy
+    -- disk scheme's d-2 threshold (43200s).
+    stable_version_age_seconds =
+        tonumber(os.getenv('STABLE_VERSION_AGE_SECONDS')) or 12 * 60 * 60,
+
     -- for sending email
     mail_user = os.getenv('MAIL_SMTP_USER') or 'cloud',
     mail_password = os.getenv('MAIL_SMTP_PASSWORD') or 'cloudemail',

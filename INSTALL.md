@@ -247,6 +247,141 @@ You can now point your browser to `http://localhost:8080` (note: `foreman` and `
 [nf]: https://github.com/strongloop/node-foreman
 
 
+### Object Storage (R2 / MinIO)
+
+Project files (`project.xml`, `media.xml`, thumbnails) can be stored in
+an S3-compatible object store instead of local disk. In production we
+use Cloudflare R2; for local development any S3-compatible server
+works — we recommend [MinIO](https://min.io) because it's a single
+binary.
+
+The storage layer is **hybrid**: if `S3_ENDPOINT` and `S3_BUCKET` are
+set, new writes go to object storage and reads prefer object storage
+but fall back to the local `store/` directory for projects that haven't
+been migrated yet. That lets you roll out the backend gradually without
+a flag-day migration. If the env vars are unset, the app behaves
+exactly like before (disk only), which is fine for local dev if you
+don't care about exercising the R2 path.
+
+#### Local MinIO
+
+Install MinIO and its client:
+
+```sh
+# macOS
+$ brew install minio/stable/minio minio/stable/mc
+
+# Linux — see https://min.io/docs/minio/linux/
+```
+
+Start MinIO (the provided `Procfile` already includes a `minio:` line,
+so `foreman start` will launch it alongside the app). On first run,
+create the bucket:
+
+```sh
+$ ./bin/setup-minio
+```
+
+That script prints a block of environment variables — paste them into
+your `.env` file. After restarting the app, saves will land in the
+`snapcloud` bucket. Browse the contents at http://localhost:9001 with
+the default `minioadmin` / `minioadmin` credentials.
+
+#### Cloudflare R2
+
+In the Cloudflare dashboard, create a bucket and an API token with
+"Object Read & Write" permission. Then set:
+
+```sh
+export S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+export S3_BUCKET=<bucket-name>
+export S3_ACCESS_KEY_ID=<token access key>
+export S3_SECRET_ACCESS_KEY=<token secret>
+export S3_REGION=auto
+# Optional: if you've put a custom domain in front of the bucket,
+# pre-signed URLs will be rewritten to use it.
+# export S3_PUBLIC_HOST=https://images.snap.berkeley.edu
+```
+
+#### Backfilling existing projects
+
+Once an S3 backend is configured, existing disk-only projects keep
+working but their files aren't yet in S3. Run the async backfill to
+copy them over. The endpoint is authenticated with a shared-secret
+bearer token (NOT a session cookie), so first set one in the server's
+environment and restart:
+
+```sh
+export STORAGE_MIGRATION_TOKEN=$(openssl rand -hex 32)
+```
+
+Then from anywhere that can reach the server:
+
+```sh
+$ MIGRATION_TOKEN=<same value as STORAGE_MIGRATION_TOKEN> \
+    HOST=http://localhost:8080 \
+    ./bin/migrate-to-r2.sh
+```
+
+It repeatedly calls `POST /api/v1/admin/storage/migrate` (with the
+token in an `X-Migration-Token` header) in small batches (default 100
+projects at a time) and exits when the server reports it's done. Safe
+to interrupt and resume — each batch flips
+`projects.storage_location` from `'local'` to `'s3'` for the rows it
+uploads, and also seeds `project_versions` from the legacy `d-1`/`d-2`
+directories. Re-runs skip already-migrated rows. Check progress with:
+
+```sh
+$ curl -H "X-Migration-Token: $MIGRATION_TOKEN" \
+    $HOST/api/v1/admin/storage/status
+```
+
+**Caveat:** a save on a not-yet-migrated project flips it to `'s3'`
+on the fly, but that inline path does NOT preserve the project's
+existing `d-1`/`d-2` history. For projects where revert-to-last-save
+matters, run the bulk backfill BEFORE users start generating new
+traffic against the S3 backend.
+
+When the remaining count hits zero, the local `store/` directory is
+effectively frozen — writes still fall through to disk as a safety
+net until you set `S3_DISK_WRITES=false`. After a bake period you can
+flip that off and keep the disk backend on dev machines only.
+
+#### Known R2 / S3 limits worth being aware of
+
+- **Object key length** is capped at 1024 bytes. Our keys look like
+  `projects/<id>/20260419T143022123456Z/project.xml` (well under 100).
+- **R2 Class A ops** (writes) are billed per op beyond the free tier.
+  Each project save emits 3 PUTs (project.xml, media.xml,
+  thumbnail.png) and 0 copies — we write to fresh timestamped folders
+  rather than overwriting `current/`, so we never pay for `CopyObject`.
+- **R2 Class B ops** (reads) are billed likewise. The thumbnail fetch
+  path uses a short-lived presigned URL so the browser reads directly
+  from R2 — counting against R2 Class B but bypassing the Snap!Cloud
+  server entirely.
+- **Single-object PUT** is capped at 5 GiB. Project XML and thumbnails
+  are orders of magnitude smaller, so we never need multipart upload.
+- **LIST** on R2 is strongly consistent, but we still avoid LIST on
+  hot paths and use the `project_versions` table as the authoritative
+  index. LIST after delete can still be eventually consistent on some
+  S3-compatible stores.
+- **Presigned URL TTL** caps at 7 days (SigV4). We use
+  `S3_PRESIGN_TTL` (default 300s) for thumbnail URLs so an accidental
+  share doesn't leak long-lived access.
+- **Bucket count per account** on R2 is 1000. We use 1.
+- **No native rename/move** — this is why we never touch
+  `projects/<id>/current/...` paths: moving objects around would cost
+  a PUT + DELETE per file per save. The timestamp-folder layout + a
+  pointer column on `projects` avoids this entirely.
+
+Historical versions are kept per
+`PREVIOUS_VERSIONS_TO_KEEP` (default 2). Retention logic matches the
+old disk scheme: on each save we archive the displaced version and
+then rotate out any archive that was written less than
+`STABLE_VERSION_AGE_SECONDS` (default 12h) before it — this prevents
+rapid edit churn from burning through the slot budget. Both are
+tunable via env vars of the same name.
+
 ### Updating Dependencies / Lockfile
 
 To regenerate `luarocks.rock`, use the following command:

@@ -43,7 +43,11 @@ package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.html = require('lapis.html')
 local date = require('date')
 
-package.loaded.disk = require('disk')
+-- storage.lua dispatches between local disk and S3 (R2/MinIO). It exposes
+-- the same API the rest of the app expects from disk.lua, so we alias
+-- package.loaded.disk to storage for backwards compatibility.
+package.loaded.storage = require('storage')
+package.loaded.disk = package.loaded.storage
 package.loaded.locale = require('locale')
 package.loaded.validation = require("validation")
 

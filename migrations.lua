@@ -373,4 +373,61 @@ return {
         update_user_views()
     end,
 
+    -- Track object-storage location of each project's files, plus an
+    -- index of historical versions retained in S3/R2.
+    --
+    -- `projects.storage_location` is 'local' for projects that still
+    -- live on disk and 's3' once the backfill (or a subsequent save)
+    -- has pushed them into object storage. We deliberately use a text
+    -- CHECK constraint rather than a PG enum: enums are awkward to
+    -- extend and the Lua schema helpers don't have first-class support.
+    --
+    -- `projects.current_version_key` is the S3 path segment holding the
+    -- authoritative live files, e.g. `20260419T143022123456Z`. It is
+    -- stored verbatim (not reconstructed from a timestamp) so that PG
+    -- and S3 can never disagree on the exact path. When null, files
+    -- still live on local disk.
+    --
+    -- `project_versions` tracks the small set of historical versions
+    -- we keep for the "revert" UI. Each row's `version_key` is the S3
+    -- path segment of a retired version. Retention logic in
+    -- storage.lua caps the number of live rows per project (see
+    -- `previous_versions_to_keep`) and soft-deletes rather than hard-
+    -- deleting so we can restore if pruning turns out to be wrong.
+    ['2026-04-19:0'] = function ()
+        schema.add_column(
+            'projects',
+            'storage_location',
+            types.text({ null = true })
+        )
+        db.query([[UPDATE projects SET storage_location = 'local'
+            WHERE storage_location IS NULL]])
+        db.query([[ALTER TABLE projects
+            ALTER COLUMN storage_location SET DEFAULT 'local']])
+        db.query([[ALTER TABLE projects
+            ALTER COLUMN storage_location SET NOT NULL]])
+        db.query([[ALTER TABLE projects
+            ADD CONSTRAINT projects_storage_location_check
+            CHECK (storage_location IN ('local', 's3'))]])
+
+        schema.add_column(
+            'projects',
+            'current_version_key',
+            types.text({ null = true })
+        )
+
+        schema.create_table('project_versions', {
+            { 'project_id', types.foreign_key },
+            { 'version_key', types.text },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) },
+            { 'deleted_at', types.time({ timezone = true, null = true }) },
+            'PRIMARY KEY (project_id, version_key)'
+        })
+        -- Live-versions-per-project retrieval is the hot path.
+        schema.create_index('project_versions',
+            'project_id', 'deleted_at', 'version_key')
+        update_project_views()
+    end,
+
 }
