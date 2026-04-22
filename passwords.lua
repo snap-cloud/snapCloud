@@ -132,9 +132,8 @@ upgrade_password_to_bcrypt = function (user, prehash)
     user:update({
         password = new_hash,
         password_version = PASSWORD_VERSION_BCRYPT,
-        -- salt is no longer meaningful for bcrypt, but we keep the column
-        -- populated so that a rollback to version 0 is impossible (which is
-        -- the desired one-way ratchet).
+        -- The salt column is unused for v2 but we leave it as-is rather than
+        -- clearing it — password_version is the authoritative scheme indicator.
     })
     return true
 end
