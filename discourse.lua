@@ -86,7 +86,7 @@ app:get('/api/v1/discourse-sso', capture_errors(function(self)
                                           response_payload)
 
     -- don't redirect in development so you don't mess up your forum account.
-    if config._name == 'development' then return final_url end
+    -- if config._name == 'development' then return final_url end
     return { redirect_to = final_url }
 end))
 
@@ -96,6 +96,9 @@ function create_signature(payload)
 end
 
 function extract_payload(payload)
+    -- When requests from from (Ruby) omniauth-discourse, the payload may contain newlines.
+    -- Remove them before decoding.
+    payload = payload:gsub('\n', '')
     return util.parse_query_string(encoding.decode_base64(payload))
 end
 
