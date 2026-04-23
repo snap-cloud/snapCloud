@@ -64,19 +64,28 @@ npx playwright install --with-deps chromium
 
 ```
 spec/
-├── spec_helper.lua          # env checks, loaded by busted before every spec
+├── spec_helper.lua              # env checks, loaded by busted before every spec
 ├── support/
-│   ├── db_helper.lua        # test DB wrapper + TRUNCATE helpers
-│   └── factories.lua        # fixture-style record constructors
-├── unit/                    # pure-Lua specs, no DB needed
+│   ├── db_helper.lua            # test DB wrapper + TRUNCATE helpers
+│   └── factories.lua            # fixture-style record constructors
+├── unit/                        # pure-Lua specs, no DB needed
 │   ├── util_spec.lua
-│   └── cors_spec.lua
-├── models/                  # specs that exercise Lapis models against PG
+│   ├── cors_spec.lua
+│   └── permissions_spec.lua     # role predicates + visibility rules
+├── models/                      # specs that exercise Lapis models against PG
 │   └── users_spec.lua
-├── e2e/                     # Playwright browser specs
+├── e2e/                         # Playwright browser specs
+│   ├── support/
+│   │   ├── axe.js               # AxeBuilder wrapper honoring data-axe-excluded
+│   │   ├── auth.js              # loginAs() / logout() helpers
+│   │   └── fixtures.js          # direct DB seeding for users + projects
 │   ├── homepage.spec.js
-│   └── accessibility.spec.js
-└── data/                    # fixture files (see data/README.md)
+│   ├── accessibility.spec.js    # @axe-tagged WCAG 2.1 AA audits
+│   ├── project-visibility.spec.js
+│   ├── admin-access.spec.js
+│   ├── teacher-access.spec.js
+│   └── auth.spec.js             # sign-up + login
+└── data/                        # fixture files (see data/README.md)
     ├── projects/
     └── users/
 ```
@@ -99,6 +108,76 @@ spec/
   them up and the main e2e job skips them.
 - Prefer small, page-focused specs over large flows — the CI run time
   adds up fast with a real browser in the loop.
+
+### Seeding users + projects for e2e tests
+
+[`spec/e2e/support/fixtures.js`](e2e/support/fixtures.js) seeds records
+directly into `snapcloud_test` via `pg`. Use it whenever you need:
+
+- A user with a specific `role` (admin, moderator, reviewer, etc.).
+- A user with `is_teacher = true`.
+- A project in a specific `ispublic` / `ispublished` / `deleted` state.
+
+```js
+const { seedUser, seedProject, deleteUser } = require('./support/fixtures');
+const { loginAs, logout } = require('./support/auth');
+
+test.beforeAll(async () => {
+    await seedUser({ username: 'alice', role: 'admin' });
+});
+test.afterAll(async () => { await deleteUser('alice'); });
+
+test('admins see /ip_admin', async ({ page, context }) => {
+    await loginAs(context, 'alice', 'test-password-1');
+    const response = await page.goto('/ip_admin');
+    expect(response.status()).toBe(200);
+});
+```
+
+Passwords default to `test-password-1`. `loginAs` performs the same
+sha512 client-side hash the real Snap!Cloud JS applies before POSTing
+to `/api/v1/users/:username/login`.
+
+## Accessibility exclusions
+
+### `data-axe-excluded="true"`
+
+Some elements can't usefully be audited by axe — typically third-party
+iframes or deliberately-decorative fragments. Snap!Cloud uses one
+repo-wide convention for these: **any element with the attribute
+`data-axe-excluded="true"` is skipped by every axe scan.**
+
+The canonical example is the embedded Snap! editor on the project page
+(`views/project.etlua`):
+
+```html
+<iframe
+    title="project viewer"
+    data-axe-excluded="true"
+    src="<%= project:url_for('viewer') %>">
+</iframe>
+```
+
+The helper in [`spec/e2e/support/axe.js`](e2e/support/axe.js) wires this
+up automatically:
+
+```js
+const { runAxe } = require('./support/axe');
+const { seriousViolations } = await runAxe(page);
+expect(seriousViolations).toEqual([]);
+```
+
+Rules of thumb:
+
+- **Use sparingly.** Every exclusion is a blind spot. Prefer fixing the
+  underlying issue.
+- **Comment the reason.** Add an HTML comment above the excluded element
+  explaining *why* axe can't audit it.
+- **Scope to elements, not whole pages.** If the entire page needs
+  excluding, that's a sign the page shouldn't be in the a11y spec list
+  at all.
+- **Review periodically.** `grep -rn 'data-axe-excluded' views/` is the
+  canonical list; revisit it when upgrading axe or refactoring a view.
 
 ## Updating CI
 

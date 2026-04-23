@@ -4,43 +4,75 @@
 // Axe-core accessibility audits. Tagged `@axe` so the GitHub Actions
 // workflow can run them as their own CI status (see `.github/workflows/ci.yml`).
 //
-// Adding a new page:
-//   1. Add it to the `pages` array below.
-//   2. Commit — the existing test will cover the new URL.
-//   3. If you want to tighten the ruleset, pass `.withTags([...])` or
-//      `.withRules([...])` to AxeBuilder.
+// All scans go through `spec/e2e/support/axe.js`, which automatically
+// excludes any element carrying `data-axe-excluded="true"` — see
+// spec/README.md#accessibility-exclusions for when to reach for that
+// escape hatch.
 
 const { test, expect } = require('@playwright/test');
-const AxeBuilder = require('@axe-core/playwright').default;
+const { runAxe } = require('./support/axe');
+const { seedUser, seedProject, deleteUser } = require('./support/fixtures');
 
-// Pages that every release must stay accessible. Keep this list small and
-// intentional; axe is slow, and we want failures to be meaningful.
-const pages = [
-    { path: '/',           label: 'homepage' },
-    { path: '/explore',    label: 'explore'  },
-    { path: '/collections', label: 'collections' },
+// Simple public pages that every release must stay accessible. Keep this
+// list small and intentional; axe is slow, and we want failures to
+// mean something.
+const publicPages = [
+    { path: '/',            label: 'homepage'     },
+    { path: '/explore',     label: 'explore'      },
+    { path: '/collections', label: 'collections'  },
+    { path: '/login',       label: 'login form'   },
+    { path: '/sign_up',     label: 'sign-up form' },
 ];
 
-for (const { path, label } of pages) {
+for (const { path, label } of publicPages) {
     test(`${label} has no serious axe violations @axe`, async ({ page }) => {
         await page.goto(path);
-
-        const results = await new AxeBuilder({ page })
-            // WCAG 2.1 A + AA is the baseline Snap!Cloud aims for. Tighten
-            // later by adding 'wcag21aaa' or additional best-practice rules.
-            .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'])
-            .analyze();
-
-        // Only fail on serious/critical issues for now so an accidental
-        // `role="presentation"` on a decorative image doesn't block a PR.
-        // The full violation list is still reported in the HTML report.
-        const serious = results.violations.filter(
-            (v) => v.impact === 'serious' || v.impact === 'critical'
-        );
-
+        const { seriousViolations } = await runAxe(page);
         expect.soft(
-            serious,
-            'axe reported serious/critical violations: see playwright-report/'
+            seriousViolations,
+            'axe reported serious/critical violations; see playwright-report/'
         ).toEqual([]);
     });
 }
+
+// -----------------------------------------------------------------------
+// Project page accessibility.
+//
+// The project viewer page embeds the Snap! editor in an iframe. We can't
+// scan inside that iframe (it's controlled by the upstream Snap! repo
+// and is sandboxed), so it's tagged with `data-axe-excluded="true"` in
+// views/project.etlua. Our helper drops it from the scan automatically;
+// the assertion below guards the *surrounding* chrome only.
+// -----------------------------------------------------------------------
+test.describe('project page @axe', () => {
+    const owner   = 'axe_project_owner';
+    const project = 'axe-sample-project';
+
+    test.beforeAll(async () => {
+        await seedUser({ username: owner, role: 'standard' });
+        await seedProject({
+            username: owner,
+            projectname: project,
+            ispublic: true,
+            ispublished: true,
+        });
+    });
+
+    test.afterAll(async () => {
+        await deleteUser(owner);
+    });
+
+    test('chrome has no serious axe violations @axe', async ({ page }) => {
+        const qs = new URLSearchParams({
+            username: owner, projectname: project
+        }).toString();
+        await page.goto(`/project?${qs}`);
+
+        const { seriousViolations } = await runAxe(page);
+        expect.soft(
+            seriousViolations,
+            'axe reported serious/critical violations on /project; ' +
+            'remember the Snap! iframe is excluded via data-axe-excluded'
+        ).toEqual([]);
+    });
+});

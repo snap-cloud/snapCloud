@@ -27,7 +27,10 @@ jobs:
           sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks
 
       - name: Install luacheck
-        run: sudo luarocks install --lua-version=5.1 luacheck
+        # Run from /tmp so luarocks doesn't detect ./luarocks.lock and try to
+        # install every pinned project dependency (xml, luaossl, lapis, etc.)
+        # as a prerequisite for the luacheck rock.
+        run: cd /tmp && sudo luarocks install --lua-version=5.1 luacheck
 
       - name: Run luacheck
         run: luacheck .
@@ -72,7 +75,11 @@ jobs:
           sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks postgresql-client
 
       - name: Install busted + test dependencies
+        # Install from /tmp so luarocks doesn't auto-detect ./luarocks.lock
+        # and pull in every pinned project dependency. busted + luacov are
+        # tools, not project deps, so they should be installed globally.
         run: |
+          cd /tmp
           sudo luarocks install --lua-version=5.1 busted
           sudo luarocks install --lua-version=5.1 luacov
 
