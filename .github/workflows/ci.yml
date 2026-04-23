@@ -5,42 +5,41 @@ on:
     branches: [main]
   pull_request:
 
-# Every job below reports its own CI status so we can see at a glance which
-# parts of the suite are healthy on a given commit.
+# Each job below reports its own status check. Keeping them independent means
+# a broken end-to-end test doesn't hide an a11y regression (or vice versa)
+# in the PR summary. Shared setup steps live in .github/actions/*.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Values reused across jobs. GHA workflow YAML doesn't let us anchor the
+# postgres `services:` block across jobs, but env + creds can at least be
+# pulled from one place.
+env:
+  PG_USER: cloud
+  PG_PASSWORD: snap-cloud-password
+  PG_DB: snapcloud_test
+
 jobs:
   # ---------------------------------------------------------------------------
-  # Lint Lua code with luacheck. Fast, no DB or server required.
+  # Lint Lua code with luacheck. No DB, no server.
   # ---------------------------------------------------------------------------
   luacheck:
     name: Luacheck
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Lua 5.1 + luarocks
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks
-
-      - name: Install luacheck
-        # Run from /tmp so luarocks doesn't detect ./luarocks.lock and try to
-        # install every pinned project dependency (xml, luaossl, lapis, etc.)
-        # as a prerequisite for the luacheck rock.
-        run: cd /tmp && sudo luarocks install --lua-version=5.1 luacheck
-
-      - name: Run luacheck
-        run: luacheck .
+      - uses: ./.github/actions/setup-lua
+        with:
+          tools: luacheck
+      - run: luacheck .
 
   # ---------------------------------------------------------------------------
-  # Unit tests for pure-Lua modules (no OpenResty / ngx runtime required).
-  # Runs with busted. Good for models, validators, utilities, etc.
+  # Unit tests for pure-Lua modules (busted). Needs postgres for the specs
+  # in spec/models/, but not OpenResty.
   # ---------------------------------------------------------------------------
   busted:
-    name: Busted (Lua unit tests)
+    name: Busted (Lua)
     runs-on: ubuntu-22.04
 
     services:
@@ -68,34 +67,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install Lua 5.1 + luarocks + postgres client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y lua5.1 liblua5.1-0-dev luarocks postgresql-client
-
-      - name: Install busted + test dependencies
-        # Install from /tmp so luarocks doesn't auto-detect ./luarocks.lock
-        # and pull in every pinned project dependency. busted + luacov are
-        # tools, not project deps, so they should be installed globally.
-        run: |
-          cd /tmp
-          sudo luarocks install --lua-version=5.1 busted
-          sudo luarocks install --lua-version=5.1 luacov
-
-      - name: Load schema into snapcloud_test
-        env:
-          PGPASSWORD: snap-cloud-password
-        run: |
-          psql -h 127.0.0.1 -U cloud -d snapcloud_test -f db/schema.sql
-          psql -h 127.0.0.1 -U cloud -d snapcloud_test -f db/seeds.sql
-
-      - name: Run busted
-        run: busted --config-file=.busted --verbose
+      - uses: ./.github/actions/setup-lua
+        with:
+          tools: busted luacov
+          postgres-client: "true"
+      - uses: ./.github/actions/load-test-db
+        with:
+          password: snap-cloud-password
+      - run: busted --config-file=.busted --verbose
 
   # ---------------------------------------------------------------------------
-  # End-to-end browser tests with Playwright. Boots the app in a real
-  # OpenResty/Lapis process against a throwaway postgres instance.
+  # End-to-end browser tests. Runs every Playwright spec NOT tagged @axe.
   # ---------------------------------------------------------------------------
   playwright:
     name: Playwright (e2e)
@@ -129,72 +111,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install OpenResty, Lua, PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            wget gnupg ca-certificates lsb-release \
-            lua5.1 liblua5.1-0-dev luarocks postgresql-client
-          wget -qO - https://openresty.org/package/pubkey.gpg \
-            | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/openresty.gpg
-          codename=$(lsb_release -sc)
-          echo "deb http://openresty.org/package/ubuntu $codename main" \
-            | sudo tee /etc/apt/sources.list.d/openresty.list
-          sudo apt-get update
-          sudo apt-get install -y openresty
-
-      - name: Install Lua dependencies
-        run: sudo luarocks install --lua-version=5.1 --only-deps snapcloud-dev-0.rockspec
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: ./.github/actions/setup-lua
         with:
-          node-version: 20
-          cache: npm
-
-      - name: Install Node deps + Playwright browsers
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
-
-      - name: Build stylesheets
-        run: npx sass static/scss/:static/style/compiled/ --style compressed --no-source-map
-
-      - name: Load schema into snapcloud_test
-        env:
-          PGPASSWORD: snap-cloud-password
-        run: |
-          psql -h 127.0.0.1 -U cloud -d snapcloud_test -f db/schema.sql
-          psql -h 127.0.0.1 -U cloud -d snapcloud_test -f db/seeds.sql
-
-      - name: Start Lapis server
-        run: |
-          mkdir -p logs tmp store/test
-          lapis server test &
-          echo "Waiting for server to come up..."
-          for i in $(seq 1 30); do
-            if curl -fsS http://localhost:8080/ > /dev/null; then
-              echo "Server is up."
-              break
-            fi
-            sleep 1
-          done
-
-      - name: Run Playwright tests (excluding axe suite)
-        run: npx playwright test --grep-invert "@axe"
-
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
+          postgres-client: "true"
+      - uses: ./.github/actions/install-snapcloud-deps
+      - uses: ./.github/actions/load-test-db
         with:
-          name: playwright-report
-          path: playwright-report
-          retention-days: 7
+          password: snap-cloud-password
+      - uses: ./.github/actions/run-browser-specs
+        with:
+          grep-invert: "@axe"
+          report-name: playwright-report
 
   # ---------------------------------------------------------------------------
-  # Accessibility tests: separate job so the a11y status is a first-class
-  # signal. Reuses the Playwright setup but only runs @axe-tagged specs.
+  # Axe-core accessibility audit. Only @axe-tagged specs.
   # ---------------------------------------------------------------------------
   axe:
     name: Axe-core (a11y)
@@ -228,64 +158,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install OpenResty, Lua, PostgreSQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends \
-            wget gnupg ca-certificates lsb-release \
-            lua5.1 liblua5.1-0-dev luarocks postgresql-client
-          wget -qO - https://openresty.org/package/pubkey.gpg \
-            | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/openresty.gpg
-          codename=$(lsb_release -sc)
-          echo "deb http://openresty.org/package/ubuntu $codename main" \
-            | sudo tee /etc/apt/sources.list.d/openresty.list
-          sudo apt-get update
-          sudo apt-get install -y openresty
-
-      - name: Install Lua dependencies
-        run: sudo luarocks install --lua-version=5.1 --only-deps snapcloud-dev-0.rockspec
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - uses: ./.github/actions/setup-lua
         with:
-          node-version: 20
-          cache: npm
-
-      - name: Install Node deps + Playwright browsers
-        run: |
-          npm ci
-          npx playwright install --with-deps chromium
-
-      - name: Build stylesheets
-        run: npx sass static/scss/:static/style/compiled/ --style compressed --no-source-map
-
-      - name: Load schema into snapcloud_test
-        env:
-          PGPASSWORD: snap-cloud-password
-        run: |
-          psql -h 127.0.0.1 -U cloud -d snapcloud_test -f db/schema.sql
-          psql -h 127.0.0.1 -U cloud -d snapcloud_test -f db/seeds.sql
-
-      - name: Start Lapis server
-        run: |
-          mkdir -p logs tmp store/test
-          lapis server test &
-          for i in $(seq 1 30); do
-            if curl -fsS http://localhost:8080/ > /dev/null; then
-              echo "Server is up."
-              break
-            fi
-            sleep 1
-          done
-
-      - name: Run axe-core accessibility tests
-        run: npx playwright test --grep "@axe"
-
-      - name: Upload Playwright report
-        if: always()
-        uses: actions/upload-artifact@v4
+          postgres-client: "true"
+      - uses: ./.github/actions/install-snapcloud-deps
+      - uses: ./.github/actions/load-test-db
         with:
-          name: axe-report
-          path: playwright-report
-          retention-days: 7
+          password: snap-cloud-password
+      - uses: ./.github/actions/run-browser-specs
+        with:
+          grep: "@axe"
+          report-name: axe-report

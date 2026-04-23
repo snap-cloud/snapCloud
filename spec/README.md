@@ -52,13 +52,33 @@ createdb snapcloud_test
 psql -d snapcloud_test -f db/schema.sql
 psql -d snapcloud_test -f db/seeds.sql
 
-# Lua + busted
-luarocks install --lua-version=5.1 busted luacheck luacov
+# Lua project deps (applies the xml C++14 workaround — see note below)
+bin/install-lua-deps.sh
+
+# Lua test tooling — install from /tmp so luarocks.lock doesn't activate
+# and try to pull in the full project dep graph for each tool rock.
+(cd /tmp && luarocks install --lua-version=5.1 busted luacheck luacov)
 
 # Node + Playwright
 npm install
 npx playwright install --with-deps chromium
 ```
+
+#### Why `bin/install-lua-deps.sh`?
+
+The pinned `xml-1.1.3-1` rock ships C++ code that uses pre-C++17 dynamic
+exception specifications. On Ubuntu 22.04+ / modern clang, the default
+C++17 dialect rejects these:
+
+```
+error: ISO C++17 does not allow dynamic exception specifications
+```
+
+[`bin/install-lua-deps.sh`](../bin/install-lua-deps.sh) sets
+`CXX='g++ -std=gnu++14'` before invoking `luarocks install --only-deps`,
+restoring the permissive older dialect. The Makefile's `install` target
+and the `install-snapcloud-deps` CI composite action both use it, so
+dev/prod/CI all share the same workaround.
 
 ## Directory layout
 

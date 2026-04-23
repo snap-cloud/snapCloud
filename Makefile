@@ -21,7 +21,7 @@ install-annotate:
 	$(luarocks_command) install --lua-version=5.1 https://raw.githubusercontent.com/snap-cloud/lapis-annotate/support-native-lua/lapis-annotate-dev-1.rockspec
 
 install:
-	$(luarocks_command) install --only-deps snapcloud-dev-0.rockspec
+	LUAROCKS=$(luarocks_command) bin/install-lua-deps.sh
 	npm install
 	$(MAKE) install-annotate
 
