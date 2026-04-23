@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Snap! Community Site",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "playwright test",
+    "test:e2e": "playwright test --grep-invert \"@axe\"",
+    "test:a11y": "playwright test --grep \"@axe\"",
+    "test:ui": "playwright test --ui"
   },
   "repository": {
     "type": "git",
@@ -21,6 +24,8 @@
     "bootstrap": "^5.3.3"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "^1.48.0",
     "maildev": "^2.2.1",
     "sass": "1.77.2"
   }
