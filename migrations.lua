@@ -370,4 +370,19 @@ return {
         update_user_views()
     end,
 
+  -- Add password_changed_at and updated_at columns to users
+    ['2026-04-06:0'] = function ()
+        schema.add_column(
+            'users',
+            'password_changed_at',
+            types.time({ timezone = true, null = true })
+        )
+        schema.add_column(
+            'users',
+            'updated_at',
+            types.time({ timezone = true, null = true })
+        )
+        update_user_views()
+    end,
+
 }

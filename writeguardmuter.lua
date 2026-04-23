@@ -31,7 +31,7 @@ local selectors = {
     'tbl', 'APIController', 'CollectionController', 'ProjectController',
     'UserController', 'SiteController',
 
-    'random_password', 'secure_token', 'secure_salt', 'jsonResponse',
+    'secure_token', 'secure_salt', 'jsonResponse',
     'xmlResponse', 'okResponse', 'errorResponse', 'html_message_page', 'cors_options',
     'rawResponse', 'TIMEOUT', 'mail_bodies', 'mail_subjects', 'send_mail',
     'err', 'assert_all', 'assert_role',

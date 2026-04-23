@@ -174,10 +174,11 @@ local ActiveUsers = Model:extend('active_users', {
 })
 
 
--- Note: Due to client-side pre-hashing, password length isn't useful...
+ActiveUsers.MIN_PASSWORD_LENGTH = 8
+
 ActiveUsers.validations = {
     { 'username', exists = true, min_length = 4, max_length = 200 },
-    { 'password', exists = true, min_length = 6 },
+    { 'password', exists = true, min_length = ActiveUsers.MIN_PASSWORD_LENGTH },
     { 'email', exists = true, min_length = 5 }
 }
 

@@ -16,7 +16,7 @@
 local locale = {
     -- Meta data
     -- =========
-    lang_name = "Հայերեն",
+    lang_name = "Արևելահայերեն",
     lang_code = "hy",
     authors = "Antrohoos Educational Foundation",
     last_updated = "2025/03/05", -- YYYY/MM/DD
@@ -40,7 +40,7 @@ local locale = {
     logout = "Ելք",
     -- This option lets admins go back to their admin account when they're
     -- impersonating another user:
-    unbecome = "Unbecome",
+    unbecome = "Ոչ պատշաճ",
 
     -- Footer
     -- ======
@@ -68,9 +68,9 @@ local locale = {
     extensions = "Ընդարձակումներ",
     old_snap = "(հին Snap@1)",
     -- forum already translated in top navigation bar
-    contact = "Կապվել մեզ հետ",
+    contact = "Կապը մեզ հետ",
     mirrors = "Հղումներ",
-    dmca = "DMCA",
+    dmca = "ԹՀԻՄ օրենք",
     privacy = "Գաղտնիություն",
     tos = "Ծառայությունների պայմաններ",
 
@@ -351,7 +351,7 @@ local locale = {
     choose_flag_reason = "Նշել պատճառը",
     flag_reason_hack = "Անվտանգության խոցելիություն",
     flag_reason_coc = "Վարքագծի կանոնների խախտում",
-    flag_reason_dmca = "DMCA խախտում",
+    flag_reason_dmca = "DMCA օրենքի խախտում",
     flag_reason_notes = "Պատմեք մեզ ավելին այն մասին, թե ինչու եք դրոշակավորում այս նախագիծը՝",
     flag_reason_notes_placeholder = "Հավելյալ նշումներ",
 
@@ -400,7 +400,7 @@ local locale = {
     carousel_admin = "Հայտնաբերված կարուսելներ",
     user_admin = "Օգտատիրոջ կառավարում",
     zombie_admin = "Զոմբի կառավարում",
-    flagged_projects = "Դրոշակվախ նախագծեր",
+    flagged_projects = "Դրոշակված նախագծեր",
     suspicious_ips = "Կասեցված IP-ներ",
 
     -- Error messages
