@@ -355,8 +355,15 @@ UserController = {
             title = 'Password reset',
             message =
                 (self.params.do_not_email and
-                    ('Use this link to reset this user\'s password:<br><br>' ..
-                    '<small>' .. token_url .. '</small>')
+                    ('Use this link to reset this user\'s password:' ..
+                    '<div class="d-flex gap-2 align-items-center mt-2"' ..
+                    ' style="max-width:480px">' ..
+                    '<input class="form-control form-control-sm" readonly' ..
+                    ' value="' .. token_url .. '">' ..
+                    '<button class="btn btn-sm btn-outline-secondary" type="button"' ..
+                    ' onclick="navigator.clipboard.writeText(' ..
+                    'this.previousElementSibling.value)">' ..
+                    'Copy</button></div>')
                 or
                     ('A link to reset your password has been sent to your ' ..
                     'email address for your account.')

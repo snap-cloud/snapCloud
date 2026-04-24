@@ -5,7 +5,16 @@
     moderator = 'info',
     admin = 'primary',
     banned = 'danger'
-})[item.role] or 'secondary' %>
+})[item.role] or 'secondary'
+  show_admin_group = not zombie and current_user:has_min_role('admin')
+  show_password_group = not zombie and (
+    current_user:has_min_role('moderator') or
+    (current_user.is_teacher and item.creator_id == current_user.id)
+  )
+  show_message_group = current_user:has_min_role('moderator')
+  show_danger_group = current_user:has_min_role('moderator')
+  show_actions = show_admin_group or show_password_group or show_message_group or show_danger_group
+%>
 
 <div class="col-12 col-sm-6 col-md-4 mb-3">
   <div class="card <%- card_classes %>">
@@ -62,72 +71,105 @@
         </li>
         <% end %>
         <% if not zombie and current_user:has_min_role('moderator') then %>
-        <li class="list-group-item">
-            <div class="input-group">
-                <span class="input-group-text"><%- locale.get('role') %></span>
-                <select class="form-select form-select-sm"
-                    aria-label="Select a role"
-                    onchange="cloud.post(
-                        '/users/<%= item.username %>/set_role',
-                        null,
-                        { username: '<%= item.username %>', role: this.value }
-                    );">
-                    <% for role, _ in pairs(package.loaded.Users.roles) do %>
-                    <option value="<%= role %>"
-                        <%- role == item.role and 'selected' or '' %>
-                    >
-                        <%- locale.get(role) %>
-                    </option>
-                    <% end %>
-                </select>
+        <li class="list-group-item p-0">
+            <div class="d-flex">
+                <div class="py-2 px-3 d-flex align-items-center" style="flex:3">
+                    <div class="input-group">
+                        <span class="input-group-text"><%- locale.get('role') %></span>
+                        <button class="form-select text-start"
+                            style="border-radius:0 var(--bs-border-radius) var(--bs-border-radius) 0"
+                            type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <%- locale.get(item.role) %>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><h6 class="dropdown-header"><%- locale.get('update_role') %></h6></li>
+                            <% local role_order = {'student', 'standard', 'reviewer', 'moderator', 'admin'} %>
+                            <% for _, role in ipairs(role_order) do %>
+                            <li><button type="button" class="dropdown-item"
+                                onclick="cloud.post(
+                                    '/users/<%= item.username %>/set_role',
+                                    null,
+                                    { username: '<%= item.username %>', role: '<%= role %>' }
+                                );">
+                                <i class="fa fa-fw<%- item.role == role and ' fa-check' or '' %>"></i>
+                                <%- locale.get(role) %>
+                            </button></li>
+                            <% end %>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><button type="button" class="dropdown-item text-danger"
+                                onclick="cloud.post(
+                                    '/users/<%= item.username %>/set_role',
+                                    null,
+                                    { username: '<%= item.username %>', role: 'banned' }
+                                );">
+                                <i class="fa fa-fw<%- item.role == 'banned' and ' fa-check' or '' %>"></i>
+                                <%- locale.get('banned') %>
+                            </button></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="border-start py-2 px-3 d-flex align-items-center gap-2" style="flex:2">
+                    <% label_id = "is_teacher-" .. tostring(item.id) %>
+                    <label for="<%- label_id %>" class="fw-bold mb-0">
+                        <%- locale.get('teacher') %>
+                    </label>
+                    <div class="form-check form-switch mb-0">
+                        <input type="checkbox"
+                            name="is_teacher"
+                            class="form-check-input"
+                            role="switch"
+                            id="<%- label_id %>"
+                            <%- item.is_teacher and 'checked' or '' %>
+                            onchange="cloud.post(
+                                '/users/<%= item.username %>/set_teacher',
+                                null,
+                                { username: '<%= item.username %>', is_teacher: this.checked }
+                            );"
+                        >
+                    </div>
+                </div>
             </div>
-        </li>
-        <li class="list-group-item">
-            <div class="form-check form-switch">
-            <% label_id = "is_teacher-" .. tostring(item.id) %>
-            <strong>
-                <label for="<%- label_id %>" class="form-check-label">
-                    <%- locale.get('teacher') %>
-                </label>
-            </strong>
-            <input type="checkbox"
-                name="is_teacher"
-                class="form-check-input"
-                id="<%- label_id %>"
-                <%- item.is_teacher and 'checked' or '' %>
-                onchange="
-                    cloud.post(
-                        '/users/<%= item.username %>/set_teacher',
-                        null,
-                        {
-                            username: '<%= item.username %>',
-                            is_teacher: this.checked
-                        }
-                    );"
-            >
         </li>
         <% end %>
         </ul>
-    <div class="card-footer user-profile-actions">
-        <% if not zombie then %>
-            <% if current_user:has_min_role('admin') then %>
-            <div class="btn-group">
-                <a class="btn btn-sm btn-outline-secondary become"
+    <div class="card-footer">
+        <% if show_actions then %>
+        <div class="dropdown">
+            <button class="btn btn-sm btn-secondary dropdown-toggle" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false">
+                Actions
+            </button>
+            <ul class="dropdown-menu">
+                <% need_divider = false %>
+                <% if show_admin_group then %>
+                <li><a class="dropdown-item become" role="button"
                     onclick="cloud.post('/users/<%= item.username %>/become');"
-                    ><%- locale.get('become') %></a>
-            <% if not item.verified and
-                (current_user:has_min_role('moderator')) then %>
-                <a class="btn btn-sm btn-outline-success verify"
+                    ><%- locale.get('become') %></a></li>
+                <% if not item.verified and current_user:has_min_role('moderator') then %>
+                <li><a class="dropdown-item verify" role="button"
                     onclick="cloud.post('/users/<%= item.username %>/verify');"
-                    ><%- locale.get('verify') %></a>
-            <% end %>
-            </div>
-            <% end %>
-            <div class="btn-group" role="group" aria-label="password actions">
-                <% if current_user:has_min_role('moderator') or
-                        (current_user.is_teacher and
-                            item.creator_id == current_user.id) then %>
-                <a class="btn btn-sm btn-outline-secondary"
+                    ><%- locale.get('verify') %></a></li>
+                <% end %>
+                <% need_divider = true %>
+                <% end %>
+
+                <% if show_password_group then %>
+                <% if need_divider then %><li><hr class="dropdown-divider"></li><% end %>
+                <li><a class="dropdown-item" role="button"
+                    onclick="
+                        prompt(
+                            '<%- locale.get('new_username', item.username) %>',
+                            username => {
+                                cloud.post(
+                                    '/users/<%= item.username %>/change_username',
+                                    null,
+                                    { new_username: username }
+                                );
+                            },
+                            nop
+                        );
+                    "><%- locale.get('change_username') %></a></li>
+                <li><a class="dropdown-item" role="button"
                     onclick="
                         prompt(
                             '<%- locale.get('new_email') %>',
@@ -143,8 +185,8 @@
                             },
                             nop
                         );
-                    "><%- locale.get('change_email') %></a>
-                    <a class="btn btn-sm btn-outline-secondary"
+                    "><%- locale.get('change_email') %></a></li>
+                <li><a class="dropdown-item" role="button"
                     onclick="
                     confirm(
                             '<%= package.loaded.html.escape(locale.get(
@@ -158,8 +200,8 @@
                                     );
                             }
                            );
-                    "><%- locale.get('reset_password') %></a>
-                    <a class="btn btn-sm btn-outline-secondary"
+                    "><%- locale.get('reset_password') %></a></li>
+                <li><a class="dropdown-item" role="button"
                     onclick="
                     confirm(
                             '<%= package.loaded.html.escape(locale.get(
@@ -170,74 +212,45 @@
                             () => {
                             cloud.post(
                                     '/users/<%= item.username %>/password_reset',
-                                    null,
+                                    nop,
                                     { do_not_email: true }
                                     );
                             }
                            );
-                    "><%- locale.get('get_reset_password_token') %></a>
-                    <a class="btn btn-sm btn-outline-secondary"
+                    "><%- locale.get('get_reset_password_token') %></a></li>
+                <% need_divider = true %>
+                <% end %>
+
+                <% if show_message_group then %>
+                <% if need_divider then %><li><hr class="dropdown-divider"></li><% end %>
+                <li><a class="dropdown-item" role="button"
                     onclick="
-                        prompt(
-                            '<%- locale.get('new_username', item.username) %>',
-                            username => {
+                        dialog(
+                            '<%- locale.get('compose_email') %>',
+                            '<%= package.loaded.dialog('compose_email') %>',
+                            () => {
+                                var form =
+                                    document.querySelector('form.email-compose'),
+                                    subject = form.querySelector('input').value,
+                                    contents = form.querySelector('textarea').value;
                                 cloud.post(
-                                    '/users/<%= item.username %>/change_username',
+                                    '/users/<%= item.username %>/send_email',
                                     null,
-                                    { new_username: username }
+                                    {
+                                        subject: subject,
+                                        contents: contents
+                                    }
                                 );
                             },
                             nop
                         );
-                    "><%- locale.get('change_username') %></a>
+                    "><%- locale.get('send_msg') %></a></li>
+                <% need_divider = true %>
                 <% end %>
-        </div>
-        <% end %>
-        <% if current_user:has_min_role('moderator') then %>
-        <div class="btn-group">
-            <a class="btn btn-sm btn-outline-info"
-                onclick="
-                    dialog(
-                        '<%- locale.get('compose_email') %>',
-                        '<%= package.loaded.dialog('compose_email') %>',
-                        () => {
-                            var form =
-                                document.querySelector('form.email-compose'),
-                                subject = form.querySelector('input').value,
-                                contents = form.querySelector('textarea').value;
-                            cloud.post(
-                                '/users/<%= item.username %>/send_email',
-                                null,
-                                {
-                                    subject: subject,
-                                    contents: contents
-                                }
-                            );
-                        },
-                        nop
-                    );
-                "><%- locale.get('send_msg') %></a>
-            </div>
-            <div class="btn-group" role="group" aria-label="unsafe actions">
-                <% if not zombie then %>
-                <a class="btn btn-sm ban btn-outline-danger"
-                    onclick="
-                        cloud.post(
-                            '/users/<%= item.username %>/set_role',
-                            null,
-                            {
-                                username: '<%= item.username %>',
-                                role: <%-
-                                    item.role == 'banned'
-                                        and "'standard'"
-                                        or "'banned'" %>
-                            }
-                        );"
-                    ><%= item.role == 'banned' and
-                        locale.get('unban') or
-                        locale.get('ban') %></a>
-                <% end %>
-                <a class="btn btn-sm delete btn-outline-danger"
+
+                <% if show_danger_group then %>
+                <% if need_divider then %><li><hr class="dropdown-divider"></li><% end %>
+                <li><a class="dropdown-item text-danger delete" role="button"
                     onclick="
                         confirm(
                             '<%=
@@ -252,11 +265,9 @@
                             }
                         );
                     "
-                    ><%-
-                        locale.get(zombie and 'perma_delete_usr' or 'delete_usr')
-                    %></a>
+                    ><%- locale.get(zombie and 'perma_delete_usr' or 'delete_usr') %></a></li>
                 <% if zombie then %>
-                <a class="btn btn-sm btn-outline-secondary"
+                <li><a class="dropdown-item" role="button"
                     onclick="
                         confirm(
                             '<%= locale.get('confirm_revive', item.username) %>',
@@ -265,10 +276,12 @@
                             }
                         );
                     "
-                    ><%- locale.get('revive_usr') %></a>
+                    ><%- locale.get('revive_usr') %></a></li>
                 <% end %>
-            </div>
-        <% end %>
+                <% end %>
+            </ul>
         </div>
+        <% end %>
     </div>
+  </div>
 </div>
