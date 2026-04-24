@@ -281,6 +281,7 @@ local locale = {
     delete_date = "Deleted", -- date of user deletion follows
     email = "Email",
     role = "Role",
+    update_role = "Update Role",
     teacher = "Teacher",
     -- User roles
     student = "student",
