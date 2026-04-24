@@ -140,8 +140,7 @@ UserController = {
                 if self.queried_user:is_student() then
                     self.queried_user:update({
                         verified = true,
-                        last_login_at = db.format_date(),
-                        session_count = self.queried_user.session_count + 1
+                        last_login_at = db.format_date()
                     })
                     return jsonResponse({
                         title = 'Welcome to Snap!',
@@ -179,8 +178,7 @@ UserController = {
             self.session.username = self.queried_user.username
             self.session.persist_session = tostring(self.params.persist)
             self.queried_user:update({
-                last_login_at = db.format_date(),
-                session_count = self.queried_user.session_count + 1
+                last_login_at = db.format_date()
             })
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username

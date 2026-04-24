@@ -358,7 +358,7 @@ return {
         )
     end,
 
-    -- Add password_changed_at and updated_at columns to users
+  -- Add password_changed_at and updated_at columns to users
     ['2026-04-06:0'] = function ()
         schema.add_column(
             'users',
@@ -368,6 +368,18 @@ return {
         schema.add_column(
             'users',
             'updated_at',
+            types.time({ timezone = true, null = true })
+        )
+        update_user_views()
+    end,
+
+    -- Add last_session_at column to users
+    -- Refactor session_count to track distinct sessions (4-hour window)
+    -- rather than login events
+    ['2026-04-06:2'] = function ()
+        schema.add_column(
+            'users',
+            'last_session_at',
             types.time({ timezone = true, null = true })
         )
         update_user_views()

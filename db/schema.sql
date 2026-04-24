@@ -132,6 +132,7 @@ CREATE TABLE public.users (
     creator_id integer,
     last_login_at timestamp with time zone,
     session_count integer DEFAULT 0 NOT NULL,
+    last_session_at timestamp with time zone
     password_changed_at timestamp with time zone,
     updated_at timestamp with time zone
 );
@@ -159,6 +160,7 @@ CREATE VIEW public.active_users AS
     creator_id,
     last_login_at,
     session_count,
+    last_session_at
     password_changed_at,
     updated_at
    FROM public.users
@@ -318,6 +320,7 @@ CREATE VIEW public.deleted_users AS
     creator_id,
     last_login_at,
     session_count,
+    last_session_at
     password_changed_at,
     updated_at
    FROM public.users
