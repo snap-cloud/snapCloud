@@ -948,6 +948,7 @@ app:match(
 
             if not token then yield_error(err.invalid_token) end
             local user = Users:find({ username = token.username })
+            if not user then yield_error(err.nonexistent_user) end
 
             -- Check whether user had already been verified
             if user.verified then
