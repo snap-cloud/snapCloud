@@ -395,6 +395,7 @@ return {
             'password_version',
             types.integer({ default = 0, null = false })
         )
+        update_user_views()
     end,
 
 }
