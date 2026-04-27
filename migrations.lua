@@ -398,4 +398,9 @@ return {
         update_user_views()
     end,
 
+    ['2026-04-14:1'] = function ()
+        -- Add an index on password_version to speed up bcrypt migration.
+        schema.create_index('users', 'password_version')
+        update_user_views()
+    end,
 }
