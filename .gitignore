@@ -50,8 +50,9 @@ static/img/totm.png
 node_modules/
 
 # Database Dumps and Backups
+*.dump
+*.db
 *.sql
 *.sql.gz
-*.dump
 # Keep the specific schema and init files in db/
 !db/*.sql

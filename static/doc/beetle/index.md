@@ -20,8 +20,9 @@ You can find the documentation for the extension below.
 ## A Tiny Bit of History
 
 The 3D Beetle extension is heavily inspired in the [Beetle
-Blocks](http://beetleblocks.com) Snap<em>!</em> mod, originally designed by Eric
-Rosenbaum and Duks Koschitz and developed by Bernat Romagosa during the years
+Blocks](https://github.com/ericrosenbaum/BeetleBlocks) Snap<em>!</em> mod,
+originally designed by Eric Rosenbaum and Duks Koschitz and developed by Bernat
+Romagosa during the years
 2014-2020.
 
 Beetle Blocks was aimed at 3D fabrication, especially targeting 3D printing,
@@ -56,7 +57,7 @@ like in its default color:
 
 > ![beetle](static/doc/beetle/beetle.png)
 
-This character is to 3D what the Lego turtle is to 2D. Turtles can move on a 2D
+This character is to 3D what the Logo turtle is to 2D. Turtles can move on a 2D
 plane, but beetles can additionally fly and dig underground, which makes them
 very apt at exploring the third dimension.
 

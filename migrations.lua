@@ -373,6 +373,18 @@ return {
         update_user_views()
     end,
 
+    -- Add last_session_at column to users
+    -- Refactor session_count to track distinct sessions (4-hour window)
+    -- rather than login events
+    ['2026-04-06:2'] = function ()
+        schema.add_column(
+            'users',
+            'last_session_at',
+            types.time({ timezone = true, null = true })
+        )
+        update_user_views()
+    end,
+
     -- Add password_version column to users for bcrypt migration.
     -- 0 = legacy SHA-512 (salt+hash stored separately)
     -- 1 = bcrypt-wrapped SHA-512 (bcrypt(old_sha512_hash), legacy salt kept)
@@ -381,9 +393,8 @@ return {
         schema.add_column(
             'users',
             'password_version',
-            types.integer({ default = 0 })
+            types.integer({ default = 0, null = false })
         )
-        update_user_views()
     end,
 
 }

@@ -250,6 +250,29 @@ app:before_filter(function (self)
         self.current_user =
             package.loaded.Users:find({ username = self.session.username })
         self.session.last_access_at = date(true):fmt('${http}')
+
+        -- Track distinct sessions: increment session_count and update
+        -- last_session_at at most once every 4 hours.
+        if self.current_user then
+            local should_count_session = false
+            if not self.current_user.last_session_at then
+                should_count_session = true
+            else
+                local hours_since = package.loaded.db.select(
+                    "extract(epoch from now() - ?::timestamptz) / 3600 as hours",
+                    self.current_user.last_session_at
+                )[1]
+                if hours_since.hours >= 4 then
+                    should_count_session = true
+                end
+            end
+            if should_count_session then
+                self.current_user:update({
+                    last_session_at = package.loaded.db.format_date(),
+                    session_count = self.current_user.session_count + 1
+                })
+            end
+        end
     else
         self.session.username = ''
         self.current_user = nil
@@ -276,6 +299,17 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    -- Lapis raises this error from `respond_to` when a request uses an HTTP
+    -- method the route does not handle. Return a 405 instead of a 500.
+    if type(err) == 'string' and err:match("don't know how to respond to") then
+        return errorResponse(
+            self,
+            'The server received an unexpected request. ' ..
+            'Please refresh the page and try again.',
+            405
+        )
+    end
+
     if config._name == 'development' then
         debug_print(err, trace)
         local msg = '<pre style="text-align: left; width: 80ch">'

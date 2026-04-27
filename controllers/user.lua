@@ -145,8 +145,7 @@ UserController = {
                 if self.queried_user:is_student() then
                     self.queried_user:update({
                         verified = true,
-                        last_login_at = db.format_date(),
-                        session_count = self.queried_user.session_count + 1
+                        last_login_at = db.format_date()
                     })
                     return jsonResponse({
                         title = 'Welcome to Snap!',
@@ -184,8 +183,7 @@ UserController = {
             self.session.username = self.queried_user.username
             self.session.persist_session = tostring(self.params.persist)
             self.queried_user:update({
-                last_login_at = db.format_date(),
-                session_count = self.queried_user.session_count + 1
+                last_login_at = db.format_date()
             })
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
@@ -207,12 +205,6 @@ UserController = {
             self.session.username = self.queried_user.username
             return jsonResponse({ redirect = self:build_url('/') })
         end
-    end),
-    logout_get = capture_errors(function (self)
-        self.session.username = ''
-        self.session.user_id = nil
-        self.session.persist_session = 'false'
-        return { redirect_to = self:build_url('/') }
     end),
     logout = capture_errors(function (self)
         self.session.username = ''
@@ -369,8 +361,15 @@ UserController = {
             title = 'Password reset',
             message =
                 (self.params.do_not_email and
-                    ('Use this link to reset this user\'s password:<br><br>' ..
-                    '<small>' .. token_url .. '</small>')
+                    ('Use this link to reset this user\'s password:' ..
+                    '<div class="d-flex gap-2 align-items-center mt-2"' ..
+                    ' style="max-width:480px">' ..
+                    '<input class="form-control form-control-sm" readonly' ..
+                    ' value="' .. token_url .. '">' ..
+                    '<button class="btn btn-sm btn-outline-secondary" type="button"' ..
+                    ' onclick="navigator.clipboard.writeText(' ..
+                    'this.previousElementSibling.value)">' ..
+                    'Copy</button></div>')
                 or
                     ('A link to reset your password has been sent to your ' ..
                     'email address for your account.')
@@ -962,6 +961,7 @@ app:match(
 
             if not token then yield_error(err.invalid_token) end
             local user = Users:find({ username = token.username })
+            if not user then yield_error(err.nonexistent_user) end
 
             -- Check whether user had already been verified
             if user.verified then
