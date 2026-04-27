@@ -40,6 +40,22 @@ local db = package.loaded.db
 local util = require("lib.util")
 local materials = require('views.static.resources').materials
 local material_types = require('views.static.resources').types
+local domain_allowed = require('cors')
+
+-- Build the `frame-ancestors` directive once at module load. Allowed framers
+-- are 'self' plus every origin already trusted for CORS (see cors.lua).
+-- chrome-extension entries are passed through verbatim since CSP accepts them
+-- as scheme-host sources; plain hostnames match http/https without a scheme.
+local function build_frame_ancestors ()
+    local sources = { "'self'" }
+    for domain, allowed in pairs(domain_allowed) do
+        if allowed then
+            table.insert(sources, domain)
+        end
+    end
+    return "frame-ancestors " .. table.concat(sources, ' ')
+end
+local embed_frame_ancestors = build_frame_ancestors()
 
 require 'controllers.user'
 require 'controllers.project'
@@ -117,6 +133,26 @@ for route, view_path in pairs(user_forms) do
         self.res.headers['Content-Security-Policy'] = "frame-src 'none'"
         return { render = view_path }
     end)))
+end
+
+-- Compact auth views intended to be framed inside the Snap! editor.
+-- They render with a minimal layout (no nav/footer) and set a permissive
+-- frame-ancestors CSP so the Snap! editor (or any CORS-allowed mirror)
+-- can embed them without the popup window that `frame-src 'none'` forces.
+local embed_forms = {
+    ['embed/login'] = 'sessions/embed_login',
+    ['embed/sign_up'] = 'users/embed_sign_up',
+}
+
+for route, view_path in pairs(embed_forms) do
+    app:get('/' .. route, capture_errors(function (self)
+        self.csrf_token = csrf.generate_token(self)
+        self.res.headers['Content-Security-Policy'] = embed_frame_ancestors
+        return {
+            render = view_path,
+            layout = require 'views.layout.embed'
+        }
+    end))
 end
 
 app:get('/learn', capture_errors(cached(function (self)

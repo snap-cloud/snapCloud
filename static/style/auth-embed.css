@@ -1,0 +1,50 @@
+/* Compact styles for the embedded auth views rendered inside Snap!.
+   Strips outer chrome (nav, footer, container gutters) so the form
+   fits flush inside an iframe dialog. */
+
+html, body.embed-body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    height: auto;
+    min-height: 100%;
+}
+
+.embed-main {
+    padding: 16px 18px 18px;
+    max-width: 520px;
+}
+
+.embed-main h1 {
+    font-size: 1.4rem;
+    margin: 0 0 0.75rem;
+}
+
+.embed-main form .mb-3 {
+    margin-bottom: 0.6rem !important;
+}
+
+.embed-main .form-text {
+    font-size: 0.75rem;
+}
+
+.embed-main .col-form-label,
+.embed-main .form-label {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    font-size: 0.9rem;
+}
+
+/* Make the single-column login form fill the iframe width instead of
+   the Bootstrap horizontal 1/6 split which looks cramped at this size. */
+.embed-main #login .col-1 { width: auto; padding-right: 0.5rem; }
+.embed-main #login .col-md-6 { flex: 1 1 auto; max-width: 100%; }
+
+.embed-footer-links {
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+}
+
+.embed-footer-links a {
+    cursor: pointer;
+}

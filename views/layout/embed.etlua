@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="<%= locale.language %>">
+  <head>
+    <% render('views.layout.head') %>
+    <link rel="stylesheet" href="/static/style/auth-embed.css?<%= cache_buster %>">
+  </head>
+  <body class="embed-body">
+    <% render('views.js.dialog') %>
+    <script>new customAlert();</script>
+    <main class="embed-main">
+      <% content_for('inner') %>
+    </main>
+    <script type="text/javascript" src="/static/vendor/js/bootstrap.bundle.min.js?v5.3.0"></script>
+    <script>
+      // Post a message to the parent window (Snap! editor) when an embedded
+      // auth action completes. Parent listens for type 'snapcloud:auth'.
+      window.snapCloudEmbed = {
+        notify: function (payload) {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage(
+              Object.assign({ type: 'snapcloud:auth' }, payload),
+              '*'
+            );
+          }
+        },
+        close: function () {
+          this.notify({ event: 'close' });
+        }
+      };
+    </script>
+  </body>
+</html>
