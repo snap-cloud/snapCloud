@@ -125,6 +125,7 @@ UserController = {
         -- Do not reveal whether the user exists or not
         assert_user_exists(self, err.wrong_password)
         local password = self.params.password
+        if not password then yield_error(err.wrong_password) end
         -- TODO: self.queried_user:verify_password(self.params.password)
         if (hash_password(password, self.queried_user.salt) ==
                 self.queried_user.password) then
