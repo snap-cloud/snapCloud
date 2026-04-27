@@ -28,6 +28,7 @@ local capture_errors = package.loaded.capture_errors
 local cached = package.loaded.cached
 local respond_to = package.loaded.respond_to
 
+local db = package.loaded.db
 local Users = package.loaded.Users
 local Projects = package.loaded.Projects
 local Remixes = package.loaded.Remixes
@@ -35,7 +36,8 @@ local Collections = package.loaded.Collections
 local FlaggedProjects = package.loaded.FlaggedProjects
 local csrf = require("lapis.csrf")
 local assert_exists = require('validation').assert_exists
-local db = package.loaded.db
+local assert_current_user_logged_in = require('validation').assert_current_user_logged_in
+
 
 local util = require("lib.util")
 local materials = require('views.static.resources').materials
@@ -106,13 +108,13 @@ app:match('doc', '/doc/:doc_name', respond_to({
 }))
 
 for _, page in pairs(static_pages) do
-    app:get('/' .. page, capture_errors(cached(function (self)
+    app:get(page .. '_page', '/' .. page, capture_errors(cached(function (self)
         return { render = 'static/' .. page }
     end)))
 end
 
 for route, view_path in pairs(user_forms) do
-    app:get('/' .. route, capture_errors(cached(function (self)
+    app:get(route .. '_page', '/' .. route, capture_errors(cached(function (self)
         self.csrf_token = csrf.generate_token(self)
         self.res.headers['Content-Security-Policy'] = "frame-src 'none'"
         return { render = view_path }
@@ -180,6 +182,7 @@ app:get('/my_collections', capture_errors(function (self)
     end
 end))
 
+-- TODO: Consider making this an API/POST route as well
 app:get('/collection/:token/join', capture_errors(function (self)
     local collection = Collections:find({ join_token = self.params.token })
     assert(collection, 'Collection not found')
@@ -487,7 +490,7 @@ end))
 -- Teachers
 
 app:get('/teacher', capture_errors(function (self)
-    assert_exists(self.current_user)
+    assert_current_user_logged_in(self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
@@ -495,7 +498,7 @@ app:get('/teacher', capture_errors(function (self)
 end))
 
 app:get('/bulk', capture_errors(function (self)
-    assert_exists(self.current_user)
+    assert_current_user_logged_in(self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end
@@ -503,7 +506,7 @@ app:get('/bulk', capture_errors(function (self)
 end))
 
 app:get('/learners', capture_errors(function (self)
-    assert_exists(self.current_user)
+    assert_current_user_logged_in(self)
     if (not self.current_user.is_teacher) then
         assert_admin(self)
     end

@@ -36,7 +36,7 @@ require 'controllers.project'
 require 'controllers.collection'
 require 'controllers.site'
 
--- All API routes are nested under /api/v1,
+-- All API routes are nested under /api/v1/,
 -- which is currently an optional prefix.
 local function api_route(path) return '/(api/' .. api_version .. '/)' .. path end
 
@@ -51,6 +51,8 @@ app:match(api_route('version'), respond_to({
     end)
 }))
 
+-- TODO: After deprecating the optional 'api/v1/' prefix
+-- Allow this endpoint to be accessed at /health_check as well, for easier monitoring.
 app:match(api_route('health_check'), respond_to({
     GET = capture_errors(function (self)
         local snapcloud = package.loaded.Users:find({ username = 'snapcloud' })
@@ -106,12 +108,9 @@ app:match(api_route('my_user'), respond_to({
     DELETE = UserController.delete
 }))
 
-app:match('logout', respond_to({
-    GET = UserController.logout_get,
-}))
-
 app:match(api_route('logout'), respond_to({
-    POST = UserController.logout
+    POST = UserController.logout,
+    DELETE = UserController.logout
 }))
 
 app:match(api_route('unbecome'), respond_to({

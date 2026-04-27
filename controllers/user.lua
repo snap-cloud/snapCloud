@@ -201,12 +201,6 @@ UserController = {
             return jsonResponse({ redirect = self:build_url('/') })
         end
     end),
-    logout_get = capture_errors(function (self)
-        self.session.username = ''
-        self.session.user_id = nil
-        self.session.persist_session = 'false'
-        return { redirect_to = self:build_url('/') }
-    end),
     logout = capture_errors(function (self)
         self.session.username = ''
         self.session.user_id = nil
@@ -948,6 +942,7 @@ app:match(
 
             if not token then yield_error(err.invalid_token) end
             local user = Users:find({ username = token.username })
+            if not user then yield_error(err.nonexistent_user) end
 
             -- Check whether user had already been verified
             if user.verified then
