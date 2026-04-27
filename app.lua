@@ -299,6 +299,17 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    -- Lapis raises this error from `respond_to` when a request uses an HTTP
+    -- method the route does not handle. Return a 405 instead of a 500.
+    if type(err) == 'string' and err:match("don't know how to respond to") then
+        return errorResponse(
+            self,
+            'The server received an unexpected request. ' ..
+            'Please refresh the page and try again.',
+            405
+        )
+    end
+
     if config._name == 'development' then
         debug_print(err, trace)
         local msg = '<pre style="text-align: left; width: 80ch">'

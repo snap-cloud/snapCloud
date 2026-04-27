@@ -201,12 +201,6 @@ UserController = {
             return jsonResponse({ redirect = self:build_url('/') })
         end
     end),
-    logout_get = capture_errors(function (self)
-        self.session.username = ''
-        self.session.user_id = nil
-        self.session.persist_session = 'false'
-        return { redirect_to = self:build_url('/') }
-    end),
     logout = capture_errors(function (self)
         self.session.username = ''
         self.session.user_id = nil
