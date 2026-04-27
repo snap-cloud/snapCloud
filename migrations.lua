@@ -358,7 +358,7 @@ return {
         )
     end,
 
-  -- Add password_changed_at and updated_at columns to users
+    -- Add password_changed_at and updated_at columns to users
     ['2026-04-06:0'] = function ()
         schema.add_column(
             'users',
@@ -385,4 +385,22 @@ return {
         update_user_views()
     end,
 
+    -- Add password_version column to users for bcrypt migration.
+    -- 0 = legacy SHA-512 (salt+hash stored separately)
+    -- 1 = bcrypt-wrapped SHA-512 (bcrypt(old_sha512_hash), legacy salt kept)
+    -- 2 = native bcrypt (password field is bcrypt hash, salt column unused)
+    ['2026-04-14:0'] = function ()
+        schema.add_column(
+            'users',
+            'password_version',
+            types.integer({ default = 0, null = false })
+        )
+        update_user_views()
+    end,
+
+    ['2026-04-14:1'] = function ()
+        -- Add an index on password_version to speed up bcrypt migration.
+        schema.create_index('users', 'password_version')
+        update_user_views()
+    end,
 }
