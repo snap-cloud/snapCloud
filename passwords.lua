@@ -95,6 +95,13 @@ end
 -- @param password_version number  The users.password_version value (0, 1, 2).
 -- @return boolean  true if the password matches.
 verify_password = function (prehash, stored_hash, salt, password_version)
+    -- A missing prehash (e.g. a login POST with no password field) must be
+    -- treated as a failed authentication, not a 500. Bailing here prevents
+    -- the nil from reaching hash_password's string concat or bcrypt.verify.
+    if prehash == nil or stored_hash == nil then
+        return false
+    end
+
     local version = password_version or PASSWORD_VERSION_LEGACY
 
     if version == PASSWORD_VERSION_LEGACY then
