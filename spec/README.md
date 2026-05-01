@@ -74,11 +74,16 @@ C++17 dialect rejects these:
 error: ISO C++17 does not allow dynamic exception specifications
 ```
 
-[`bin/install-lua-deps.sh`](../bin/install-lua-deps.sh) sets
-`CXX='g++ -std=gnu++14'` before invoking `luarocks install --only-deps`,
-restoring the permissive older dialect. The Makefile's `install` target
-and the `install-snapcloud-deps` CI composite action both use it, so
-dev/prod/CI all share the same workaround.
+[`bin/install-lua-deps.sh`](../bin/install-lua-deps.sh) puts a tiny `g++`
+wrapper at the front of `PATH` that injects `-std=gnu++14` into every
+C++ invocation. This works regardless of build type (luarocks builtin /
+make / cmake) because every C++ compile resolves `g++` via `PATH`; pure
+C compiles still go through `gcc` and are unaffected. Setting
+`CXX`/`CXXFLAGS` env vars *looks* simpler but isn't reliable — `sudo`
+strips them, and luarocks's `builtin` build reads `cfg.variables`, not
+the live environment. The Makefile's `install` target and the
+`install-snapcloud-deps` CI composite action both run this script, so
+dev/prod/CI share one workaround.
 
 ## Directory layout
 

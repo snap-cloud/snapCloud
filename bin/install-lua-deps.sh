@@ -9,9 +9,17 @@
 #
 #   error: ISO C++17 does not allow dynamic exception specifications
 #
-# Forcing the C++ compiler back to gnu++14 restores the permissive behavior
-# and lets the rock build. This is a compile-time setting only; the resulting
-# module is unchanged at runtime.
+# Forcing g++ back to gnu++14 restores the permissive behavior. Setting
+# CXX/CXXFLAGS env vars isn't reliable here:
+#   - luarocks's builtin build doesn't always honor CXX from the env
+#     (it reads cfg.variables, which env vars can't override mid-call)
+#   - sudo strips env vars by default, even with -E in some configs
+#   - the rock's own Makefile may or may not respect CXXFLAGS
+#
+# Instead, we put a tiny `g++` wrapper at the front of PATH that always
+# appends `-std=gnu++14`. This works regardless of build type (builtin /
+# make / cmake) because every C++ compile resolves `g++` via PATH. Pure C
+# compiles still use `gcc`, which we leave alone.
 #
 # Usage:
 #   bin/install-lua-deps.sh               # dev/CI default
@@ -36,22 +44,50 @@ if [ -z "${LUAROCKS:-}" ]; then
     esac
 fi
 
-# Force g++ to accept xml's pre-C++17 source. We point CXX at g++ with the
-# older standard; builds that respect CXX (most luarocks builtin/make builds
-# do) pick this up automatically. `sudo -E` is required so the env var
-# survives the privilege transition.
-export CXX="${CXX:-g++} -std=gnu++14"
-export CXXFLAGS="${CXXFLAGS:-} -std=gnu++14"
+# -----------------------------------------------------------------------------
+# Build a g++ shim that injects -std=gnu++14, then put it first on PATH.
+# -----------------------------------------------------------------------------
+SHIM_DIR="$(mktemp -d -t snapcloud-cxx-shim.XXXXXX)"
+trap 'rm -rf "$SHIM_DIR"' EXIT
+
+REAL_GXX="$(command -v g++ || true)"
+if [ -z "$REAL_GXX" ]; then
+    echo "install-lua-deps.sh: g++ not found on PATH; install build-essential first" >&2
+    exit 1
+fi
+
+cat > "$SHIM_DIR/g++" <<EOF
+#!/bin/sh
+# Snap!Cloud install-time shim: forces gnu++14 so the pinned xml-1.1.3
+# rock compiles on modern toolchains. Real compiler: $REAL_GXX
+exec "$REAL_GXX" -std=gnu++14 "\$@"
+EOF
+chmod +x "$SHIM_DIR/g++"
+
+# Also expose the shim as `c++` (some Makefiles invoke that name).
+ln -sf "$SHIM_DIR/g++" "$SHIM_DIR/c++"
+
+SHIMMED_PATH="$SHIM_DIR:$PATH"
 
 run_luarocks() {
     if [ -n "$SUDO" ]; then
-        $SUDO -E "$LUAROCKS" "$@"
+        # `sudo env PATH=...` survives sudo's default env scrubbing without
+        # depending on `Defaults env_keep` being configured for PATH.
+        $SUDO env "PATH=$SHIMMED_PATH" "$LUAROCKS" "$@"
     else
-        "$LUAROCKS" "$@"
+        PATH="$SHIMMED_PATH" "$LUAROCKS" "$@"
     fi
 }
 
-echo ">>> Installing Lua dependencies (lua $LUA_VERSION, CXX=$CXX)"
+echo ">>> Installing Lua dependencies (lua $LUA_VERSION)"
+echo ">>> Using g++ shim at $SHIM_DIR/g++ -> $REAL_GXX -std=gnu++14"
+
+# Install xml first, in isolation, so any failure is unambiguous and so the
+# subsequent --only-deps run finds it already present and skips rebuild.
+run_luarocks install --lua-version="$LUA_VERSION" xml
+
+# Install the remaining project deps from the rockspec (uses luarocks.lock).
 run_luarocks install --lua-version="$LUA_VERSION" \
     --only-deps snapcloud-dev-0.rockspec
+
 echo ">>> Lua dependencies installed."
