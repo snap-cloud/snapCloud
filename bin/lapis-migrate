@@ -5,7 +5,12 @@ source .env
 
 # TODO: We should standardize the table names with the environment.. oh well.
 APP_NAME='snapcloud'
-DATABASE_NAME="${APP_NAME}_${LAPIS_ENVIRONMENT}";
+
+if [[ "$LAPIS_ENVIRONMENT" == 'production' ]]; then
+  DATABASE_NAME="${APP_NAME}";
+else
+  DATABASE_NAME="${APP_NAME}_${LAPIS_ENVIRONMENT}";
+fi
 DB_USER="${DATABASE_USER:-$USER}";
 DB_HOST="${DATABASE_HOST:-localhost}";
 SCHEMA_FILE="db/schema.sql";
