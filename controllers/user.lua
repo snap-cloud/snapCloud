@@ -126,9 +126,14 @@ UserController = {
         assert_user_exists(self, err.wrong_password)
         local password = self.params.password
         if not password then yield_error(err.wrong_password) end
-        -- TODO: self.queried_user:verify_password(self.params.password)
-        if (hash_password(password, self.queried_user.salt) ==
-                self.queried_user.password) then
+        if verify_password(
+                password,
+                self.queried_user.password,
+                self.queried_user.salt,
+                self.queried_user.password_version) then
+            -- JIT-upgrade: transparently migrate legacy/wrapped hashes to
+            -- native bcrypt on successful login.
+            upgrade_password_to_bcrypt(self.queried_user, password)
             -- Check whether user has a verification token
             local token = Tokens:find({
                 username = self.queried_user.username,
@@ -225,8 +230,11 @@ UserController = {
             end
         elseif user:is_student() then
             yield_error(err.student_cannot_change_email)
-        elseif (user.password ~=
-                hash_password(self.params.password, user.salt)) then
+        elseif not verify_password(
+                self.params.password,
+                user.password,
+                user.salt,
+                user.password_version) then
             yield_error(err.wrong_password)
         end
 
@@ -310,14 +318,18 @@ UserController = {
 
     change_password = capture_errors(function (self)
         assert_current_user_logged_in(self)
-        if (self.current_user.password ~=
-            hash_password(self.params.old_password, self.current_user.salt))
-                then
+        if not verify_password(
+                self.params.old_password,
+                self.current_user.password,
+                self.current_user.salt,
+                self.current_user.password_version) then
             yield_error(err.wrong_password)
         end
+        -- Always store the new password as native bcrypt (version 2).
         self.current_user:update({
-            password =
-                hash_password(self.params.new_password, self.current_user.salt)
+            password = bcrypt_hash(self.params.new_password),
+            password_version = PASSWORD_VERSION_BCRYPT,
+            salt = '',
         })
         return jsonResponse({
             title = 'Password changed',
@@ -396,9 +408,11 @@ UserController = {
         if self.queried_user then
             -- we're trying to delete someone else
             assert_admin(self)
-        elseif (self.current_user.password ~=
-            hash_password(self.params.password, self.current_user.salt))
-                then
+        elseif not verify_password(
+                self.params.password,
+                self.current_user.password,
+                self.current_user.salt,
+                self.current_user.password_version) then
             yield_error(err.wrong_password)
         end
         -- Do not actually delete the user; flag it as deleted.
@@ -533,13 +547,12 @@ UserController = {
             yield_error('User ' .. self.params.username .. ' already exists');
         end
 
-        local salt = secure_salt()
         local user = Users:create({
             created = db.format_date(),
             username = self.params.username,
-            salt = salt,
-            -- see validation.lua >> hash_password
-            password = hash_password(self.params.password, salt),
+            salt = '',
+            password = bcrypt_hash(self.params.password),
+            password_version = PASSWORD_VERSION_BCRYPT,
             email = self.params.email,
             verified = false,
             role = 'standard'
@@ -621,14 +634,18 @@ UserController = {
                 end
             end
         end
-        local salt, password, result
+        local password, prehash, result
         for _, user in pairs(users) do
-            salt = secure_salt()
             password = util.trim(tostring(user.password))
+            -- Learner passwords arrive as plaintext from the teacher's form.
+            -- SHA-512 pre-hash them to match what the Snap! client would send
+            -- at login time, then bcrypt that prehash.
+            prehash = hash_password(password, '')
             user.created = db.format_date()
             user.username = util.trim(tostring(user.username):lower())
-            user.salt = salt
-            user.password = hash_password(hash_password(password, ''), salt)
+            user.salt = ''
+            user.password = bcrypt_hash(prehash)
+            user.password_version = PASSWORD_VERSION_BCRYPT
             user.email = (user.email or self.current_user.email)
             user.verified = false
             user.role = 'student'
@@ -888,9 +905,11 @@ app:match(
                     token,
                     'password_reset',
                     function (user)
+                        -- Store as native bcrypt (version 2) on reset.
                         user:update({
-                            password =
-                                hash_password(prehash, user.salt),
+                            password = bcrypt_hash(prehash),
+                            password_version = PASSWORD_VERSION_BCRYPT,
+                            salt = '',
                             password_changed_at = db.raw('now()'),
                             updated_at = db.raw('now()')
                         })

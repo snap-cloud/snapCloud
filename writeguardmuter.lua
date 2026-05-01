@@ -45,7 +45,9 @@ local selectors = {
     'assert_project_not_in_collection', 'assert_can_create_collection',
     'course_name_filter', 'hash_password', 'create_signature', 'find_token',
     'rate_limit', 'prevent_tor_access', 'assert_min_role', 'assert_can_share',
-    'assert_can_delete', 'is_editor', 'old_tostring', 'debug_print'
+    'assert_can_delete', 'is_editor', 'old_tostring', 'debug_print',
+    'PASSWORD_VERSION_LEGACY', 'PASSWORD_VERSION_WRAPPED', 'PASSWORD_VERSION_BCRYPT',
+    'upgrade_password_to_bcrypt', 'bcrypt_hash', 'verify_password',
 }
 
 for _, selector in pairs(selectors) do

@@ -27,7 +27,8 @@ dependencies = {
    "lua-cjson",
    "luasec",
    "inspect",
-   "luabitop"
+   "luabitop",
+   "bcrypt"
 }
 
 build = {
