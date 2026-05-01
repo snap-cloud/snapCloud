@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -E \"\\\\.\\(etlua|lua|js|html\\)$\")",
+      "Bash(find *)"
+    ]
+  },
+  "enableAllProjectMcpServers": false
+}

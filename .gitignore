@@ -55,3 +55,9 @@ node_modules/
 /playwright/.cache/
 luacov.*.out
 .luacov_stats.out
+
+# Database backups and dumps
+*.dump
+*.db
+*.sql
+!db/*.sql
