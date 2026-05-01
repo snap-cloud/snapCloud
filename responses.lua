@@ -73,7 +73,10 @@ local html_error = function (self, error, status)
 end
 
 errorResponse = function (self, err, status)
-    local is_html_page = (self.req.headers['accept'] or ''):match('text/html')
+    local headers = self.req and self.req.headers
+    local accept = headers and headers['accept'] or ''
+    if type(accept) == 'table' then accept = table.concat(accept, ',') end
+    local is_html_page = accept:match('text/html')
     if is_html_page then
         return html_error(self, err, status)
     else

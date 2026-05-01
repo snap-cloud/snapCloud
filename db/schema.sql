@@ -2,7 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.7 (Homebrew)
+
+-- Dumped from database version 16.10 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -133,12 +134,8 @@ CREATE TABLE public.users (
     session_count integer DEFAULT 0 NOT NULL,
     password_changed_at timestamp with time zone,
     updated_at timestamp with time zone,
-<<<<<<< HEAD
+    last_session_at timestamp with time zone,
     password_version integer DEFAULT 0 NOT NULL
-=======
-    password_version integer DEFAULT 0 NOT NULL,
-    last_session_at timestamp with time zone
->>>>>>> 8ad29612420a4e15c95cdb0a7a07cf215353343a
 );
 
 
@@ -166,12 +163,8 @@ CREATE VIEW public.active_users AS
     session_count,
     password_changed_at,
     updated_at,
-<<<<<<< HEAD
+    last_session_at,
     password_version
-=======
-    password_version,
-    last_session_at
->>>>>>> 8ad29612420a4e15c95cdb0a7a07cf215353343a
    FROM public.users
   WHERE (deleted IS NULL);
 
@@ -331,12 +324,8 @@ CREATE VIEW public.deleted_users AS
     session_count,
     password_changed_at,
     updated_at,
-<<<<<<< HEAD
+    last_session_at,
     password_version
-=======
-    password_version,
-    last_session_at
->>>>>>> 8ad29612420a4e15c95cdb0a7a07cf215353343a
    FROM public.users
   WHERE (deleted IS NOT NULL);
 
@@ -693,6 +682,13 @@ CREATE INDEX users_email_idx ON public.users USING btree (email);
 
 
 --
+-- Name: users_password_version_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_password_version_idx ON public.users USING btree (password_version);
+
+
+--
 -- Name: tokens expire_token_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -739,6 +735,8 @@ ALTER TABLE ONLY public.tokens
 
 
 
+
+
 COPY public.lapis_migrations (name) FROM stdin;
 20190140
 201901291
@@ -763,6 +761,11 @@ COPY public.lapis_migrations (name) FROM stdin;
 2025-06-18:0
 2025-09-04:0
 2026-04-06:0
-2026-04-14:0
 2026-04-06:2
+2026-04-14:0
+2026-04-14:1
 \.
+
+
+
+
