@@ -2,7 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.7 (Homebrew)
+
+-- Dumped from database version 16.10 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -133,7 +134,6 @@ CREATE TABLE public.users (
     session_count integer DEFAULT 0 NOT NULL,
     password_changed_at timestamp with time zone,
     updated_at timestamp with time zone,
-    password_version integer DEFAULT 0 NOT NULL,
     last_session_at timestamp with time zone
 );
 
@@ -162,7 +162,6 @@ CREATE VIEW public.active_users AS
     session_count,
     password_changed_at,
     updated_at,
-    password_version,
     last_session_at
    FROM public.users
   WHERE (deleted IS NULL);
@@ -323,7 +322,6 @@ CREATE VIEW public.deleted_users AS
     session_count,
     password_changed_at,
     updated_at,
-    password_version,
     last_session_at
    FROM public.users
   WHERE (deleted IS NOT NULL);
@@ -727,6 +725,8 @@ ALTER TABLE ONLY public.tokens
 
 
 
+
+
 COPY public.lapis_migrations (name) FROM stdin;
 20190140
 201901291
@@ -751,9 +751,9 @@ COPY public.lapis_migrations (name) FROM stdin;
 2025-06-18:0
 2025-09-04:0
 2026-04-06:0
-2026-04-14:0
 2026-04-06:2
 \.
+
 
 
 
