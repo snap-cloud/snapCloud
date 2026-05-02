@@ -1,0 +1,30 @@
+[
+  {
+    "username": "admin_fixture",
+    "email": "admin_fixture@example.invalid",
+    "role": "admin",
+    "verified": true,
+    "notes": "Canonical admin for specs that need elevated privileges."
+  },
+  {
+    "username": "standard_fixture",
+    "email": "standard_fixture@example.invalid",
+    "role": "standard",
+    "verified": true,
+    "notes": "Regular signed-in user."
+  },
+  {
+    "username": "student_fixture",
+    "email": "student_fixture@example.invalid",
+    "role": "student",
+    "verified": true,
+    "notes": "Student user; limited forum access, see Users:cannot_access_forum."
+  },
+  {
+    "username": "banned_fixture",
+    "email": "banned_fixture@example.invalid",
+    "role": "banned",
+    "verified": true,
+    "notes": "User whose role is 'banned'; useful for authorization specs."
+  }
+]
