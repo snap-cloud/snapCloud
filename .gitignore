@@ -56,8 +56,10 @@ node_modules/
 luacov.*.out
 .luacov_stats.out
 
-# Database backups and dumps
+# Database Dumps and Backups
 *.dump
 *.db
 *.sql
+*.sql.gz
+# Keep the specific schema and init files in db/
 !db/*.sql
