@@ -583,8 +583,13 @@ end
 
 -- Block certain requests from being made using Tor
 prevent_tor_access = function (self)
+    -- start.sh fetches lib/torbulkexitlist at boot, and a cron keeps it
+    -- fresh. In environments where it hasn't been populated (CI, fresh
+    -- clones), fail open rather than 500 every gated request.
     local file = io.open('lib/torbulkexitlist', 'r')
+    if not file then return end
     local tor_ips = file:read('all')
+    file:close()
     local ip = ngx.var.remote_addr
     if tor_ips:find(ip) then
         yield_error(err.tor_not_allowed)
