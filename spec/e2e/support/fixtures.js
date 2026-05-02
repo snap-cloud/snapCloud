@@ -143,12 +143,17 @@ async function seedProject(attrs) {
 }
 
 /**
- * Delete a user (and cascade their projects). Useful in afterAll hooks.
+ * Delete a user and the rows that hold a foreign key on their username.
+ * Useful in afterAll hooks. The signup flow inserts a verify_user row
+ * into `tokens`, and `tokens.username` has an FK to `users.username`
+ * with no ON DELETE clause (see db/schema.sql) — so the users row can't
+ * go before the token row.
  */
 async function deleteUser(username) {
     await withClient(async (client) => {
+        await client.query('DELETE FROM tokens   WHERE username = $1', [username]);
         await client.query('DELETE FROM projects WHERE username = $1', [username]);
-        await client.query('DELETE FROM users WHERE username = $1', [username]);
+        await client.query('DELETE FROM users    WHERE username = $1', [username]);
     });
 }
 

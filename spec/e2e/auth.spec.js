@@ -79,17 +79,27 @@ test.describe('sign up', () => {
     });
 
     test('rejects duplicate usernames', async ({ request }) => {
-        const retry = await request.post('/api/v1/signup', {
-            form: {
-                username: newUsername,
-                password: clientHashedPassword(existingPass),
-                password_repeat: clientHashedPassword(existingPass),
-                email: `${newUsername}-dup@example.invalid`,
-            },
-        });
-        expect(retry.ok()).toBe(false);
-        const body = await retry.text();
-        expect(body.toLowerCase()).toContain('already exists');
+        // Seed the collision target directly rather than relying on the
+        // previous test having created it — Playwright retries spawn a
+        // fresh worker, which re-imports the spec and re-randomizes
+        // `newUsername`.
+        const dupUsername = `dup_e2e_${run}`;
+        await seedUser({ username: dupUsername });
+        try {
+            const retry = await request.post('/api/v1/signup', {
+                form: {
+                    username: dupUsername,
+                    password: clientHashedPassword(existingPass),
+                    password_repeat: clientHashedPassword(existingPass),
+                    email: `${dupUsername}-dup@example.invalid`,
+                },
+            });
+            expect(retry.ok()).toBe(false);
+            const body = await retry.text();
+            expect(body.toLowerCase()).toContain('already exists');
+        } finally {
+            await deleteUser(dupUsername);
+        }
     });
 });
 
