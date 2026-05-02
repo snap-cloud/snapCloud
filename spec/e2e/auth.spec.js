@@ -28,8 +28,9 @@ test.describe('sign up', () => {
 
     test('renders the sign-up form', async ({ page }) => {
         await page.goto('/sign_up');
-        await expect(page.locator('form')).toBeVisible();
-        // The form (views/users/sign_up.etlua) uses a username input by id.
+        // The page also has a site-wide search form, so target the
+        // signup form by id (views/users/sign_up.etlua, #js-signup).
+        await expect(page.locator('#js-signup')).toBeVisible();
         await expect(page.locator('#username')).toBeVisible();
         await expect(page.locator('#email')).toBeVisible();
     });

@@ -9,7 +9,9 @@
 //   - anonymous visitors: denied
 //   - standard (non-teacher) users: denied
 //   - teacher users: allowed
-//   - admins (even without the teacher flag): allowed
+//   - admins (even without the teacher flag): allowed on /teacher and
+//     /bulk. /learners only renders for teachers; non-teacher admins
+//     pass auth but are redirected back to '/' (site.lua:515-519).
 
 const { test, expect } = require('@playwright/test');
 const { seedUser, deleteUser } = require('./support/fixtures');
@@ -65,11 +67,22 @@ test.describe.serial('teacher page access', () => {
             expect(new URL(page.url()).pathname).toBe(path);
         });
 
-        test(`admins without the teacher flag can reach ${path}`, async ({ page, context }) => {
-            await loginAs(context, admin, 'test-password-1');
-            const response = await page.goto(path);
-            expect(response?.status()).toBe(200);
-            expect(new URL(page.url()).pathname).toBe(path);
-        });
+        // /learners is teacher-only at the render stage even though
+        // assert_admin lets non-teacher admins past auth — see header
+        // comment for the asymmetry.
+        if (path === '/learners') {
+            test(`admins without the teacher flag are bounced from ${path}`, async ({ page, context }) => {
+                await loginAs(context, admin, 'test-password-1');
+                await page.goto(path);
+                expect(new URL(page.url()).pathname).toBe('/');
+            });
+        } else {
+            test(`admins without the teacher flag can reach ${path}`, async ({ page, context }) => {
+                await loginAs(context, admin, 'test-password-1');
+                const response = await page.goto(path);
+                expect(response?.status()).toBe(200);
+                expect(new URL(page.url()).pathname).toBe(path);
+            });
+        }
     }
 });

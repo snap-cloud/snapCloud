@@ -532,8 +532,12 @@ end
 -- Rate limiting
 rate_limit = function (self)
     if config._name == 'staging' or
-            config._name == 'development' then
-        -- No rate limiting in staging or development.
+            config._name == 'development' or
+            config._name == 'test' then
+        -- No rate limiting in staging, development, or the e2e test
+        -- environment. Tests intentionally fire many requests from a
+        -- fresh session, which the limiter's "session_reused" guard
+        -- treats as scripted abuse.
         return
     end
 
