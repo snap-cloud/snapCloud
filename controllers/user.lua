@@ -129,8 +129,7 @@ UserController = {
         if verify_password(
                 password,
                 self.queried_user.password,
-                self.queried_user.salt,
-                self.queried_user.password_version) then
+                self.queried_user.salt) then
             -- JIT-upgrade: transparently migrate legacy/wrapped hashes to
             -- native bcrypt on successful login.
             upgrade_password_to_bcrypt(self.queried_user, password)
@@ -233,8 +232,7 @@ UserController = {
         elseif not verify_password(
                 self.params.password,
                 user.password,
-                user.salt,
-                user.password_version) then
+                user.salt) then
             yield_error(err.wrong_password)
         end
 
@@ -321,14 +319,12 @@ UserController = {
         if not verify_password(
                 self.params.old_password,
                 self.current_user.password,
-                self.current_user.salt,
-                self.current_user.password_version) then
+                self.current_user.salt) then
             yield_error(err.wrong_password)
         end
-        -- Always store the new password as native bcrypt (version 2).
+        -- Always store the new password as native bcrypt (empty salt = v2).
         self.current_user:update({
             password = bcrypt_hash(self.params.new_password),
-            password_version = PASSWORD_VERSION_BCRYPT,
             salt = '',
         })
         return jsonResponse({
@@ -411,8 +407,7 @@ UserController = {
         elseif not verify_password(
                 self.params.password,
                 self.current_user.password,
-                self.current_user.salt,
-                self.current_user.password_version) then
+                self.current_user.salt) then
             yield_error(err.wrong_password)
         end
         -- Do not actually delete the user; flag it as deleted.
@@ -552,7 +547,6 @@ UserController = {
             username = self.params.username,
             salt = '',
             password = bcrypt_hash(self.params.password),
-            password_version = PASSWORD_VERSION_BCRYPT,
             email = self.params.email,
             verified = false,
             role = 'standard'
@@ -645,7 +639,6 @@ UserController = {
             user.username = util.trim(tostring(user.username):lower())
             user.salt = ''
             user.password = bcrypt_hash(prehash)
-            user.password_version = PASSWORD_VERSION_BCRYPT
             user.email = (user.email or self.current_user.email)
             user.verified = false
             user.role = 'student'
@@ -905,10 +898,9 @@ app:match(
                     token,
                     'password_reset',
                     function (user)
-                        -- Store as native bcrypt (version 2) on reset.
+                        -- Store as native bcrypt on reset (empty salt = v2).
                         user:update({
                             password = bcrypt_hash(prehash),
-                            password_version = PASSWORD_VERSION_BCRYPT,
                             salt = '',
                             password_changed_at = db.raw('now()'),
                             updated_at = db.raw('now()')
