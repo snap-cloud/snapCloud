@@ -42,8 +42,7 @@ local escape = util.escape
 --   users.unique_email,
 --   users.bad_flags,
 --   users.is_teacher,
---   users.creator_id,
---   users.password_version
+--   users.creator_id
 --    FROM public.users
 --   WHERE (users.deleted IS NULL);
 --

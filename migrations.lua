@@ -403,4 +403,24 @@ return {
         schema.create_index('users', 'password_version')
         update_user_views()
     end,
+
+    -- Retire the password_version column. After the v0->v1 bulk migration and
+    -- the JIT v1->v2 upgrade on login, every row is on v1 or v2. We now use
+    -- salt presence as the version indicator: empty/NULL salt = v2 (native
+    -- bcrypt), non-empty = v1 (bcrypt-wrapped legacy SHA-512).
+    --
+    -- A v2 row that was JIT-upgraded from v1 may still carry its old salt
+    -- because the previous upgrade path left it intact. Normalise those to
+    -- the empty string before dropping the column.
+    ['2026-05-04:0'] = function ()
+        db.query("UPDATE users SET salt = '' WHERE password_version = 2")
+        -- The active_users / deleted_users views are SELECT * over users, so
+        -- they pin the column list and block DROP COLUMN. Tear them down,
+        -- drop the column + index, then rebuild them to pick up the new shape.
+        db.query("DROP VIEW IF EXISTS active_users")
+        db.query("DROP VIEW IF EXISTS deleted_users")
+        schema.drop_index('users', 'password_version')
+        schema.drop_column('users', 'password_version')
+        update_user_views()
+    end,
 }
