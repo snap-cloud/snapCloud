@@ -1,0 +1,82 @@
+<% content_for('title', 'Link Your Account') %>
+<h1>Link Your Account</h1>
+
+<div class="my-4">
+  <div class="card">
+    <div class="card-body">
+      <% if pending_link.avatar_url then %>
+        <img src="<%= pending_link.avatar_url %>" alt=""
+          style="width: 48px; height: 48px; border-radius: 50%;"
+          class="float-end ms-3">
+      <% end %>
+
+      <% if pending_link.username then %>
+        <p>
+          A Snap<em>!</em>Cloud account with the email
+          <strong><%= pending_link.email %></strong> already exists
+          (username: <strong><%= pending_link.username %></strong>).
+        </p>
+        <p>
+          To link your <strong><%= pending_link.provider %></strong> identity
+          (<%= pending_link.display_name or pending_link.email %>),
+          please verify your Snap<em>!</em> account password below.
+        </p>
+      <% else %>
+        <p>
+          No Snap<em>!</em>Cloud account was found for
+          <strong><%= pending_link.email %></strong>.
+        </p>
+        <p>
+          If you have an existing Snap<em>!</em> account with a different email,
+          enter your username and password below to link it to your
+          <strong><%= pending_link.provider %></strong> identity.
+        </p>
+        <p>
+          Otherwise, please <a href="/sign_up">sign up</a> for a new account first,
+          then link your Google identity from your profile settings.
+        </p>
+      <% end %>
+
+      <form method="POST" action="/auth/link_account" class="mt-4">
+        <div class="mb-3 row">
+          <label for="username" class="col-sm-2 col-form-label">Username</label>
+          <div class="col-sm-6">
+            <input id="username" name="username" type="text" class="form-control"
+              value="<%= pending_link.username or '' %>" required
+              <% if pending_link.username then %>readonly<% end %>>
+          </div>
+        </div>
+
+        <div class="mb-3 row">
+          <label for="password" class="col-sm-2 col-form-label">Password</label>
+          <div class="col-sm-6">
+            <input id="password" name="password" type="password"
+              class="form-control" required placeholder="Your Snap! password">
+          </div>
+        </div>
+
+        <div class="mb-3 row">
+          <div class="col-sm-6 offset-sm-2">
+            <button type="submit" class="btn btn-primary me-2">
+              Link Account &amp; Sign In
+            </button>
+            <a href="/login" class="btn btn-outline-secondary">Cancel</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript" src="/static/js/sha512.js"></script>
+<script>
+  // The Snap! login flow pre-hashes the password client-side with SHA-512.
+  // We do the same here so the server-side verify_password works correctly.
+  document.querySelector('form').addEventListener('submit', function(e) {
+    var pwField = document.getElementById('password');
+    if (pwField.value && !pwField.dataset.hashed) {
+      pwField.value = new Sha512().hex_sha512(pwField.value);
+      pwField.dataset.hashed = 'true';
+    }
+  });
+</script>

@@ -350,6 +350,12 @@ end
 require 'api'
 require 'discourse'
 
+-- OAuth2/OpenID Connect provider endpoints
+require 'oauth'
+
+-- Social login (Google Sign-In, etc.)
+require 'social_login'
+
 -- We don't keep spam/exploit paths in the API
 -- Disabled for now to prevent false positives
 -- require 'spambots'

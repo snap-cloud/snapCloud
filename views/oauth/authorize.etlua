@@ -1,0 +1,54 @@
+<% content_for('title', 'Authorize Application') %>
+<h1>Authorize Application</h1>
+
+<div class="my-4">
+  <div class="card">
+    <div class="card-body">
+      <div class="d-flex align-items-center mb-3">
+        <% if client_icon then %>
+          <img src="<%= client_icon %>" alt="<%= client_name %>"
+            style="width: 48px; height: 48px; object-fit: contain; border-radius: 8px;"
+            class="me-3">
+        <% end %>
+        <h5 class="card-title mb-0"><%= client_name %></h5>
+      </div>
+      <p class="card-text">
+        <strong><%= client_name %></strong> is requesting access to your Snap<em>!</em>Cloud account
+        (<strong><%= current_user.username %></strong>).
+      </p>
+
+      <p>This application will be able to:</p>
+      <ul>
+        <% if scopes:find('openid') then %>
+          <li>Verify your identity</li>
+        <% end %>
+        <% if scopes:find('profile') then %>
+          <li>View your username and profile information</li>
+        <% end %>
+        <% if scopes:find('email') then %>
+          <li>View your email address</li>
+        <% end %>
+      </ul>
+
+      <form method="POST" action="/oauth2/authorize" class="d-inline">
+        <input type="hidden" name="client_id" value="<%= params.client_id %>">
+        <input type="hidden" name="redirect_uri" value="<%= params.redirect_uri %>">
+        <input type="hidden" name="response_type" value="<%= params.response_type %>">
+        <input type="hidden" name="scope" value="<%= params.scope or 'openid' %>">
+        <% if params.state then %>
+          <input type="hidden" name="state" value="<%= params.state %>">
+        <% end %>
+        <% if params.nonce then %>
+          <input type="hidden" name="nonce" value="<%= params.nonce %>">
+        <% end %>
+
+        <button type="submit" name="approve" value="true" class="btn btn-primary me-2">
+          Authorize
+        </button>
+        <button type="submit" name="deny" value="true" class="btn btn-outline-secondary">
+          Deny
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

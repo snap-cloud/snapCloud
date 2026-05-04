@@ -81,6 +81,11 @@ app:before_filter(function (self)
         self.prefer_new_tab = true
     end
 
+    -- Expose whether Google Sign-In is configured (for login page template)
+    local site_config = package.loaded.config
+    self.google_sign_in_enabled = (site_config.google_client_id ~= nil and
+        site_config.google_client_id ~= '')
+
     -- Store current page in the session so we can redirect to it after login.
     self.session.previous_page = self.session.previous_page or self.req.path
 

@@ -385,6 +385,46 @@ return {
         update_user_views()
     end,
 
+    -- Create tables for OAuth2/OIDC provider
+    ['2026-04-08:0'] = function ()
+        -- Registered OAuth clients (downstream applications)
+        schema.create_table('oauth_clients', {
+            { 'id', types.serial({ primary_key = true }) },
+            { 'name', types.text },
+            { 'client_id', types.text({ unique = true }) },
+            { 'client_secret', types.text },
+            { 'redirect_uri', types.text },
+            { 'client_icon', types.text({ null = true }) },
+            { 'owner_id', types.foreign_key({ null = true }) },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) },
+        })
+        schema.create_index('oauth_clients', 'client_id', { unique = true })
+
+        -- Authorization codes (short-lived, exchanged for tokens)
+        schema.create_table('oauth_authorization_codes', {
+            { 'code', types.text({ primary_key = true }) },
+            { 'client_id', types.text },
+            { 'user_id', types.foreign_key },
+            { 'redirect_uri', types.text },
+            { 'scope', types.text({ null = true }) },
+            { 'nonce', types.text({ null = true }) },
+            { 'created_at', types.time({ timezone = true }) },
+        })
+        schema.create_index('oauth_authorization_codes', 'code', { unique = true })
+        schema.create_index('oauth_authorization_codes', 'client_id')
+
+        -- Refresh tokens (long-lived, used to get new access tokens)
+        schema.create_table('oauth_refresh_tokens', {
+            { 'token', types.text({ primary_key = true }) },
+            { 'client_id', types.text },
+            { 'user_id', types.foreign_key },
+            { 'scope', types.text({ null = true }) },
+            { 'created_at', types.time({ timezone = true }) },
+        })
+        schema.create_index('oauth_refresh_tokens', 'token', { unique = true })
+    end,
+
     -- Add password_version column to users for bcrypt migration.
     -- 0 = legacy SHA-512 (salt+hash stored separately)
     -- 1 = bcrypt-wrapped SHA-512 (bcrypt(old_sha512_hash), legacy salt kept)
@@ -403,4 +443,27 @@ return {
         schema.create_index('users', 'password_version')
         update_user_views()
     end,
+
+    -- External identity providers (Google, GitHub, etc.) linked to user accounts
+    ['2026-05-03:0'] = function ()
+        schema.create_table('identities', {
+            { 'id', types.serial({ primary_key = true }) },
+            { 'user_id', types.foreign_key({ null = false }) },
+            { 'provider', types.text({ null = false }) },
+            { 'external_id', types.text({ null = false }) },
+            { 'verified', types.boolean({ default = false }) },
+            { 'display_name', types.text({ null = true }) },
+            { 'email', types.text({ null = true }) },
+            { 'avatar_url', types.text({ null = true }) },
+            { 'created_at', types.time({ timezone = true }) },
+            { 'updated_at', types.time({ timezone = true }) },
+            { 'last_used_at', types.time({ timezone = true, null = true }) },
+        })
+        -- Each external identity is unique per provider
+        schema.create_index('identities', { 'provider', 'external_id' },
+            { unique = true })
+        -- Fast lookup of all identities for a user
+        schema.create_index('identities', 'user_id')
+    end,
+
 }
