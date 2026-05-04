@@ -86,6 +86,16 @@ local function group_by_type(items)
   return result
 end
 
+-- Lock a page out of any cross-origin frame. Use on auth-bearing pages
+-- (login, password change, reset, etc.) so they cannot be clickjacked.
+-- Sets both the legacy X-Frame-Options header and the modern
+-- frame-ancestors CSP directive — frame-ancestors is what current
+-- browsers honour, X-Frame-Options is the belt-and-suspenders fallback.
+local function set_no_frame_headers(self)
+    self.res.headers['X-Frame-Options'] = 'DENY'
+    self.res.headers['Content-Security-Policy'] = "frame-ancestors 'none'"
+end
+
 local function cache_buster ()
     if config._name == "development" then
       return os.time()
@@ -110,4 +120,5 @@ return {
   visualize_whitespace_html = visualize_whitespace_html,
   group_by_type = group_by_type,
   cache_buster = cache_buster,
+  set_no_frame_headers = set_no_frame_headers,
 }

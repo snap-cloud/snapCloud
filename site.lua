@@ -77,7 +77,7 @@ app:before_filter(function (self)
     self.cache_buster = util.cache_buster()
     -- A front-end method to prefer opening some links (the IDE, mostly) in the same window
     self.prefer_new_tab = false
-    if self.current_user and self.session.presist_session ~= 'true' then
+    if self.current_user and self.session.persist_session ~= 'true' then
         self.prefer_new_tab = true
     end
 
@@ -116,7 +116,7 @@ end
 for route, view_path in pairs(user_forms) do
     app:get(route .. '_page', '/' .. route, capture_errors(cached(function (self)
         self.csrf_token = csrf.generate_token(self)
-        self.res.headers['Content-Security-Policy'] = "frame-src 'none'"
+        util.set_no_frame_headers(self)
         return { render = view_path }
     end)))
 end
