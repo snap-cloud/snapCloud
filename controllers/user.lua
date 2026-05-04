@@ -49,6 +49,17 @@ local validate_token = validations.validate_token
 local utils = require('lib.util')
 local escape_html = utils.escape_html
 
+-- Rotate the target user's remember_token (kicking every other session
+-- for that account) and, if the target IS the requestor, slide the new
+-- token into the current cookie so the requestor stays logged in.
+local function rotate_token_and_sync_session(self, user)
+    if not user then return end
+    local new_token = user:rotate_remember_token()
+    if self.current_user and user.id == self.current_user.id then
+        self.session.remember_token = new_token
+    end
+end
+
 UserController = {
     run_query = function (self, query)
         if not self.params.page_number then self.params.page_number = 1 end
@@ -180,8 +191,9 @@ UserController = {
                 token:delete()
             end
 
-            -- TODO: Create and store a remember token
             self.session.username = self.queried_user.username
+            self.session.remember_token =
+                self.queried_user:ensure_remember_token()
             self.session.persist_session = tostring(self.params.persist)
             self.queried_user:update({
                 last_login_at = db.format_date()
@@ -204,12 +216,28 @@ UserController = {
             -- Admins can log in as other people
             assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
+            self.session.remember_token =
+                self.queried_user:ensure_remember_token()
             return jsonResponse({ redirect = self:build_url('/') })
         end
     end),
+    -- POST /logout
+    -- Optional param: all_sessions=true rotates the user's remember_token
+    -- before clearing the cookie, which invalidates every other session
+    -- that was authenticated with the previous token.
     logout = capture_errors(function (self)
+        if self.params.all_sessions == true
+                or tostring(self.params.all_sessions) == 'true' then
+            local user = self.current_user
+                or (self.session.remember_token and self.session.remember_token ~= ''
+                    and Users:find({ remember_token = self.session.remember_token }))
+            if user then user:rotate_remember_token() end
+        end
         self.session.username = ''
         self.session.user_id = nil
+        self.session.remember_token = nil
+        self.session.impersonator = nil
+        self.session.impersonator_token = nil
         self.session.persist_session = 'false'
         return jsonResponse({
             redirect = (self.params.redirect or self:build_url('/'))
@@ -257,6 +285,10 @@ UserController = {
                 400
             )
         end
+
+        -- Email is the recovery channel — if it changed under an attacker,
+        -- every existing session for this account must die.
+        rotate_token_and_sync_session(self, user)
 
         return jsonResponse({
             title = 'Email changed',
@@ -306,6 +338,10 @@ UserController = {
             )
         end
 
+        -- A username change is a strong account-takeover signal; rotate
+        -- the token so any other live session for this account is dropped.
+        rotate_token_and_sync_session(self, user)
+
         return jsonResponse({
             title = 'Username changed',
             message = 'Username has been updated.',
@@ -330,7 +366,13 @@ UserController = {
             password = bcrypt_hash(self.params.new_password),
             password_version = PASSWORD_VERSION_BCRYPT,
             salt = '',
+            password_changed_at = db.raw('now()'),
+            updated_at = db.raw('now()')
         })
+        -- Rotate the remember_token so every other device gets logged out.
+        -- Refresh the current session's token so the caller stays logged in.
+        self.session.remember_token =
+            self.current_user:rotate_remember_token()
         return jsonResponse({
             title = 'Password changed',
             message = 'Your password has been changed.',
@@ -423,6 +465,7 @@ UserController = {
                 -- we've deleted ourselves, let's log out
                 self.session.username = ''
                 self.session.user_id = nil
+                self.session.remember_token = nil
                 self.session.persist_session = 'false'
             end
             return jsonResponse({
@@ -690,9 +733,17 @@ UserController = {
                     Users.roles[self.queried_user.role] then
                 yield_error(err.auth)
             else
+                -- Stash the admin's identity so unbecome can restore it.
+                -- We save both username and remember_token so the admin's
+                -- session keeps working even if we swap the cookie's token
+                -- to the target user's.
                 self.session.impersonator = self.current_user.username
+                self.session.impersonator_token =
+                    self.session.remember_token
                 self.current_user = self.queried_user
                 self.session.username = self.queried_user.username
+                self.session.remember_token =
+                    self.queried_user:ensure_remember_token()
             end
         end
         return jsonResponse({
@@ -704,9 +755,11 @@ UserController = {
     unbecome = capture_errors(function (self)
         if self.session.impersonator then
             self.session.username = self.session.impersonator
+            self.session.remember_token = self.session.impersonator_token
             self.current_user =
                 Users:find({ username = self.session.impersonator})
             self.session.impersonator = nil
+            self.session.impersonator_token = nil
             return jsonResponse({
                 message = 'You are now ' .. self.session.username .. ' again',
                 title = 'Unimpersonation',
@@ -732,12 +785,31 @@ UserController = {
         if self.queried_user then
             assert_can_set_role(self, self.params.role)
             self.queried_user:update({ role = self.params.role })
+            -- A banned user must lose every live session — otherwise an
+            -- attacker who keeps an existing cookie keeps their access.
+            if self.params.role == 'banned' then
+                rotate_token_and_sync_session(self, self.queried_user)
+            end
         end
         return jsonResponse({
             message =
                 'User ' .. self.queried_user.username ..
                 ' is now ' .. self.queried_user.role,
             title = 'Role set',
+            redirect = self.queried_user:url_for('site')
+        })
+    end),
+    -- Admin/moderator action: rotate a user's remember_token, which
+    -- invalidates every active session for that account on every device.
+    -- Use this for suspected account takeover or as a manual "kick" tool.
+    force_logout = capture_errors(function (self)
+        assert_min_role(self, 'moderator')
+        assert_user_exists(self)
+        rotate_token_and_sync_session(self, self.queried_user)
+        return jsonResponse({
+            title = 'Sessions terminated',
+            message = 'All sessions for ' ..
+                self.queried_user.username .. ' have been terminated.',
             redirect = self.queried_user:url_for('site')
         })
     end),
@@ -861,6 +933,7 @@ app:match(
                 self.username = escape_html(token.username)
                 self.csrf_token = csrf.generate_token(self)
                 self.min_password_length = Users.MIN_PASSWORD_LENGTH
+                utils.set_no_frame_headers(self)
                 return { render = 'password_reset' }
             end
         ),
@@ -869,6 +942,7 @@ app:match(
                 -- Step 2: User submitted the new password form.
                 -- Validate CSRF token first, without consuming
                 -- the reset token.
+                utils.set_no_frame_headers(self)
                 local valid, csrf_err = csrf.validate_token(self)
                 if not valid then
                     return html_message_page(
@@ -906,13 +980,23 @@ app:match(
                     'password_reset',
                     function (user)
                         -- Store as native bcrypt (version 2) on reset.
+                        -- Rotate the remember_token in the same UPDATE so
+                        -- every existing session for this user is logged
+                        -- out — including any session the attacker may
+                        -- still hold. The user re-logs in fresh.
                         user:update({
                             password = bcrypt_hash(prehash),
                             password_version = PASSWORD_VERSION_BCRYPT,
                             salt = '',
                             password_changed_at = db.raw('now()'),
-                            updated_at = db.raw('now()')
+                            updated_at = db.raw('now()'),
+                            remember_token = secure_token()
                         })
+                        -- Drop any session this browser still has so the
+                        -- "log in" link below is not a no-op.
+                        self.session.username = ''
+                        self.session.remember_token = nil
+                        self.session.user_id = nil
                         send_mail(
                             user.email,
                             mail_subjects.password_changed ..

@@ -403,4 +403,16 @@ return {
         schema.create_index('users', 'password_version')
         update_user_views()
     end,
+
+    -- Add a remember_token used to identify the user in the session cookie.
+    -- Rotating this token server-side invalidates every existing session,
+    -- which is what powers password change/reset and "log out all sessions".
+    ['2026-05-04:0'] = function ()
+        schema.add_column(
+            'users',
+            'remember_token',
+            types.text({ null = true, unique = true })
+        )
+        update_user_views()
+    end,
 }
