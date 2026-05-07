@@ -123,16 +123,11 @@ end
 -- after a request has been authenticated and current_user is set.
 local function track_session_activity(self)
     local should_count_session = false
-    if not self.current_user.last_session_at then
+    local last_session_at = self.current_user.last_session_at
+    if not last_session_at then
         should_count_session = true
-    else
-        local hours_since = package.loaded.db.select(
-            "extract(epoch from now() - ?::timestamptz) / 3600 as hours",
-            self.current_user.last_session_at
-        )[1]
-        if hours_since.hours >= 4 then
-            should_count_session = true
-        end
+    elseif (date(true) - date(last_session_at)):spanhours() >= 4 then
+        should_count_session = true
     end
     if should_count_session then
         self.current_user:update({
