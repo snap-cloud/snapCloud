@@ -80,6 +80,83 @@ end
 require 'models'
 require 'responses'
 
+-- Resolve the user this request belongs to, based on the session cookie.
+--
+-- Priority:
+--   1. session.remember_token: the source of truth. Look up by token; if
+--      it doesn't match a user the cookie is stale (token rotated by a
+--      password change, "log out all sessions", etc.) and we treat the
+--      request as logged-out.
+--   2. JIT-migrate legacy cookies. A cookie minted before remember_token
+--      existed will only carry session.username. We accept it ONLY if the
+--      user's record has no remember_token yet — i.e. nobody has logged
+--      in for this account since the column was added. We then issue a
+--      token and pin it to the cookie.
+--   3. If the user record DOES already have a remember_token, refuse the
+--      tokenless cookie. Accepting it would defeat the whole point of
+--      server-side invalidation: the legitimate owner has logged in
+--      somewhere and rotated the token; the bare-username cookie is
+--      either ours-but-stale or stolen, and either way it must lose.
+local function resolve_current_user(self)
+    local Users = package.loaded.Users
+    local remember_token = self.session.remember_token
+
+    if remember_token and remember_token ~= '' then
+        return Users:find({ remember_token = remember_token })
+    end
+
+    local username = self.session.username
+    if not username or username == '' then return nil end
+
+    local user = Users:find({ username = username })
+    if not user then return nil end
+
+    if user.remember_token and user.remember_token ~= '' then
+        return nil
+    end
+
+    self.session.remember_token = user:rotate_remember_token()
+    return user
+end
+
+-- Track a "session" (a 4-hour window of activity) for the user. Called
+-- after a request has been authenticated and current_user is set.
+local function track_session_activity(self)
+    local should_count_session = false
+    if not self.current_user.last_session_at then
+        should_count_session = true
+    else
+        local hours_since = package.loaded.db.select(
+            "extract(epoch from now() - ?::timestamptz) / 3600 as hours",
+            self.current_user.last_session_at
+        )[1]
+        if hours_since.hours >= 4 then
+            should_count_session = true
+        end
+    end
+    if should_count_session then
+        self.current_user:update({
+            last_session_at = package.loaded.db.format_date(),
+            session_count = self.current_user.session_count + 1
+        })
+    end
+end
+
+-- Single entry point for "who is the user on this request?"
+-- Mutates self.current_user and the session in place.
+local function establish_session(self)
+    self.current_user = resolve_current_user(self)
+    if self.current_user then
+        self.session.username = self.current_user.username
+        self.session.last_access_at = date(true):fmt('${http}')
+        track_session_activity(self)
+    else
+        self.session.username = ''
+        self.session.remember_token = nil
+        self.session.user_id = nil
+    end
+end
+
 app.cookie_attributes = function (self)
     -- Cookies are 'session cookies' unless they have an expiration date.
     -- Cookies have a Max-Age of 35 days, because this is continually reset
@@ -246,37 +323,7 @@ app:before_filter(function (self)
         end
     end
 
-    if self.session.username and self.session.username ~= '' then
-        self.current_user =
-            package.loaded.Users:find({ username = self.session.username })
-        self.session.last_access_at = date(true):fmt('${http}')
-
-        -- Track distinct sessions: increment session_count and update
-        -- last_session_at at most once every 4 hours.
-        if self.current_user then
-            local should_count_session = false
-            if not self.current_user.last_session_at then
-                should_count_session = true
-            else
-                local hours_since = package.loaded.db.select(
-                    "extract(epoch from now() - ?::timestamptz) / 3600 as hours",
-                    self.current_user.last_session_at
-                )[1]
-                if hours_since.hours >= 4 then
-                    should_count_session = true
-                end
-            end
-            if should_count_session then
-                self.current_user:update({
-                    last_session_at = package.loaded.db.format_date(),
-                    session_count = self.current_user.session_count + 1
-                })
-            end
-        end
-    else
-        self.session.username = ''
-        self.current_user = nil
-    end
+    establish_session(self)
 
     if self.params.matchtext then
         self.params.matchtext = '%' .. self.params.matchtext .. '%'

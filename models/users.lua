@@ -43,7 +43,8 @@ local escape = util.escape
 --   users.bad_flags,
 --   users.is_teacher,
 --   users.creator_id,
---   users.password_version
+--   users.password_version,
+--   users.remember_token
 --    FROM public.users
 --   WHERE (users.deleted IS NULL);
 --
@@ -171,6 +172,23 @@ local ActiveUsers = Model:extend('active_users', {
     end,
     cannot_access_forum = function (self)
         return self:is_student() or self:isbanned() or self.validated == false
+    end,
+    -- Generate and persist a fresh remember_token, invalidating every
+    -- existing session cookie for this user. Returns the new token so the
+    -- caller can refresh the current session if it wants to stay logged in.
+    rotate_remember_token = function (self)
+        local new_token = secure_token()
+        self:update({ remember_token = new_token })
+        return new_token
+    end,
+    -- Lazy issue: ensure the user has a remember_token, returning the
+    -- current value (or a freshly generated one). Used at login time so
+    -- accounts created before this column existed get a token on first use.
+    ensure_remember_token = function (self)
+        if self.remember_token and self.remember_token ~= '' then
+            return self.remember_token
+        end
+        return self:rotate_remember_token()
     end
 })
 

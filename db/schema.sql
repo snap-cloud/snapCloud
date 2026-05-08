@@ -135,7 +135,8 @@ CREATE TABLE public.users (
     password_changed_at timestamp with time zone,
     updated_at timestamp with time zone,
     last_session_at timestamp with time zone,
-    password_version integer DEFAULT 0 NOT NULL
+    password_version integer DEFAULT 0 NOT NULL,
+    remember_token text
 );
 
 
@@ -164,7 +165,8 @@ CREATE VIEW public.active_users AS
     password_changed_at,
     updated_at,
     last_session_at,
-    password_version
+    password_version,
+    remember_token
    FROM public.users
   WHERE (deleted IS NULL);
 
@@ -608,6 +610,14 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_unique_email_key UNIQUE (unique_email);
+
+
+--
+-- Name: users users_remember_token_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_remember_token_key UNIQUE (remember_token);
 
 
 --
