@@ -43,7 +43,6 @@ local escape = util.escape
 --   users.bad_flags,
 --   users.is_teacher,
 --   users.creator_id,
---   users.password_version,
 --   users.remember_token
 --    FROM public.users
 --   WHERE (users.deleted IS NULL);
