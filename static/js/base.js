@@ -78,8 +78,7 @@ function doneLoading (selector) {
 
 function enableEnterSubmit () {
     // Submits "forms" when enter is pressed on any of their inputs
-    // TODO-BS: Remove pure CSS when transition to Bootstrap 5 is complete
-    document.querySelectorAll('.pure-form input, input.form-control').forEach(
+    document.querySelectorAll('input.form-control').forEach(
         input => {
             input.onkeypress = function (evt) {
                 if (evt.keyCode == 13) { submit(); }
