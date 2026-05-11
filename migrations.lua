@@ -398,9 +398,21 @@ return {
         update_user_views()
     end,
 
+    -- Add an index on password_version to speed up bcrypt migration.
     ['2026-04-14:1'] = function ()
-        -- Add an index on password_version to speed up bcrypt migration.
         schema.create_index('users', 'password_version')
+        update_user_views()
+    end,
+
+    -- Add a remember_token used to identify the user in the session cookie.
+    -- Rotating this token server-side invalidates every existing session,
+    -- which is what powers password change/reset and "log out all sessions".
+    ['2026-05-04:0'] = function ()
+        schema.add_column(
+            'users',
+            'remember_token',
+            types.text({ null = true, unique = true })
+        )
         update_user_views()
     end,
 
@@ -412,7 +424,7 @@ return {
     -- A v2 row that was JIT-upgraded from v1 may still carry its old salt
     -- because the previous upgrade path left it intact. Normalise those to
     -- the empty string before dropping the column.
-    ['2026-05-04:0'] = function ()
+    ['2026-05-11:0'] = function ()
         db.query("UPDATE users SET salt = '' WHERE password_version = 2")
         -- The active_users / deleted_users views are SELECT * over users, so
         -- they pin the column list and block DROP COLUMN. Tear them down,
@@ -422,5 +434,5 @@ return {
         schema.drop_index('users', 'password_version')
         schema.drop_column('users', 'password_version')
         update_user_views()
-    end,
+    end
 }

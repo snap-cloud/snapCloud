@@ -88,11 +88,13 @@ app:match(api_route('init'), respond_to({
             400)
     end),
     POST = capture_errors(function (self)
-        if not self.session.username or
-            (self.session.username and
-                self.session.persist_session == 'false') then
-            self.session.username = ''
-        end
+        -- Historically /init wiped any session whose persist_session flag
+        -- was 'false', which forced users who hadn't checked "remember me"
+        -- out every time the editor reloaded — defeating the whole point
+        -- of session cookies. Cookie persistence is now driven entirely
+        -- by the absence/presence of Max-Age in app.cookie_attributes:
+        -- the browser handles "should this die on browser close?" itself,
+        -- and we don't second-guess it here.
         return okResponse()
     end)
 }))
@@ -180,6 +182,10 @@ app:match(api_route('users/:username/send_email'), respond_to({
 
 app:match(api_route('users/:username/become'), respond_to({
     POST = UserController.become
+}))
+
+app:match(api_route('users/:username/force_logout'), respond_to({
+    POST = UserController.force_logout
 }))
 
 app:match(api_route('users/:username/verify'), respond_to({
