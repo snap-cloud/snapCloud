@@ -2,8 +2,7 @@
 -- PostgreSQL database dump
 --
 
-
--- Dumped from database version 16.10 (Homebrew)
+-- Dumped from database version 16.7 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -134,8 +133,8 @@ CREATE TABLE public.users (
     session_count integer DEFAULT 0 NOT NULL,
     password_changed_at timestamp with time zone,
     updated_at timestamp with time zone,
-    last_session_at timestamp with time zone,
     password_version integer DEFAULT 0 NOT NULL,
+    last_session_at timestamp with time zone,
     remember_token text
 );
 
@@ -164,8 +163,8 @@ CREATE VIEW public.active_users AS
     session_count,
     password_changed_at,
     updated_at,
-    last_session_at,
     password_version,
+    last_session_at,
     remember_token
    FROM public.users
   WHERE (deleted IS NULL);
@@ -326,8 +325,9 @@ CREATE VIEW public.deleted_users AS
     session_count,
     password_changed_at,
     updated_at,
+    password_version,
     last_session_at,
-    password_version
+    remember_token
    FROM public.users
   WHERE (deleted IS NOT NULL);
 
@@ -605,19 +605,19 @@ ALTER TABLE ONLY public.users
 
 
 --
--- Name: users users_unique_email_key; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.users
-    ADD CONSTRAINT users_unique_email_key UNIQUE (unique_email);
-
-
---
 -- Name: users users_remember_token_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.users
     ADD CONSTRAINT users_remember_token_key UNIQUE (remember_token);
+
+
+--
+-- Name: users users_unique_email_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_unique_email_key UNIQUE (unique_email);
 
 
 --
@@ -745,8 +745,6 @@ ALTER TABLE ONLY public.tokens
 
 
 
-
-
 COPY public.lapis_migrations (name) FROM stdin;
 20190140
 201901291
@@ -771,11 +769,11 @@ COPY public.lapis_migrations (name) FROM stdin;
 2025-06-18:0
 2025-09-04:0
 2026-04-06:0
-2026-04-06:2
 2026-04-14:0
+2026-04-06:2
 2026-04-14:1
+2026-05-04:0
 \.
-
 
 
 
