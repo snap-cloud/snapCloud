@@ -242,7 +242,14 @@ app:get('/collection', capture_errors(function (self)
     return { render = 'collection' }
 end))
 
-app:get('/user', capture_errors(function (self)
+app:get('user_show', '/user/:username', capture_errors(function (self)
+    assert_user_exists(self)
+    self.username = self.queried_user.username
+    self.user_id = self.queried_user.id
+    return { render = 'user' }
+end))
+
+app:get('legacy_user_show','/user', capture_errors(function (self)
     assert_user_exists(self)
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id
