@@ -112,6 +112,13 @@ local function cache_buster ()
     return cache_buster_value
 end
 
+local function load_snapcloud_user()
+  if package.loaded.snapcloud_user then
+    return package.loaded.snapcloud_user
+  end
+  package.loaded.snapcloud_user = Users:find({ username = 'snapcloud' })
+  return package.loaded.snapcloud_user
+end
 
 return {
   capitalize = capitalize,

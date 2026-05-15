@@ -1,5 +1,5 @@
 <% content_for('title', locale.get('profile_title', user.username)) %>
-<h1 class="my-2"><%- locale.get('profile_title', user.username) %></h1>
+<h1 class="my-2"><%= locale.get('profile_title', user.username) %></h1>
 
 <div class="row my-4">
     <div class="col-md-6">
