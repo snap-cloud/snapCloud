@@ -62,4 +62,4 @@ print_ok "Setting up postgres database."
 export LAPIS_ENVIRONMENT=development
 bin/lapis-migrate
 
-# print_ok "Please follow all instructions after 'Setting up the database' in INSTALL.md"
+# print_ok "Please follow all instructions after 'Setting up the database' in docs/INSTALL.md"

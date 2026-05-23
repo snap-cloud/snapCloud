@@ -1,6 +1,7 @@
 #! /usr/bin/env bash
 
 base=~/snapCloud;
+compress="$base/bin/compress"
 
 pushd $base/snap/;
 echo "Updating Main Snap! Release"
@@ -10,6 +11,7 @@ snap_release=$(git describe --tags $(git rev-list --tags --max-count=1))
 echo "Checking out Snap! ${snap_release}"
 git checkout $snap_release
 popd;
+"$compress" "$base/snap"
 echo
 echo
 
@@ -22,6 +24,7 @@ snap_release="origin/master"
 echo "Checking out Snap! $snap_release"
 git checkout $snap_release
 popd;
+"$compress" "$base/snap-versions/dev"
 echo
 echo
 
@@ -33,5 +36,6 @@ git fetch origin
 echo "Checking out $snap_release"
 git checkout $snap_release
 popd;
+"$compress" "$base/snap-versions/previous"
 echo
 echo

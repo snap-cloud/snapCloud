@@ -1,7 +1,16 @@
+# General bots
+# Note: Google does not respect Crawl-delay, but that's fine.
 User-agent: *
 Allow: /project/*/users/*
 Disallow: /project/
 Disallow: /api/
 Crawl-delay: 10
 
-Sitemap: https://snap.berkeley.edu/sitemap.xml
+# AI crawlers — slower, same path rules duplicated
+User-agent: GPTBot
+User-agent: ClaudeBot
+User-agent: PerplexityBot
+Allow: /project/*/users/*
+Disallow: /project/
+Disallow: /api/
+Crawl-delay: 30
