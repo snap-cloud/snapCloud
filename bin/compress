@@ -65,10 +65,20 @@ compress_dir() {
         return 1
     fi
 
-    local compressed=0 skipped=0 saved_bytes=0
-    local file gz orig_size gz_size
-
+    local files=()
     while IFS= read -r -d '' file; do
+        files+=("$file")
+    done < <(find "$target" \( "${find_expr[@]}" \) -type f \
+                  -not -name '*.gz' -not -name 'sw.js' -print0)
+
+    local total=${#files[@]}
+    local index=0 compressed=0 skipped=0 saved_bytes=0
+    local file gz orig_size gz_size pct
+
+    printf 'compress: %d candidate(s) in %s\n' "$total" "$target"
+
+    for file in "${files[@]}"; do
+        index=$((index + 1))
         gz="${file}.gz"
         if [[ "$force" -eq 0 && -f "$gz" && ! "$file" -nt "$gz" ]]; then
             skipped=$((skipped + 1))
@@ -81,8 +91,10 @@ compress_dir() {
         gz_size=$(wc -c < "$gz")
         saved_bytes=$((saved_bytes + orig_size - gz_size))
         compressed=$((compressed + 1))
-    done < <(find "$target" \( "${find_expr[@]}" \) -type f \
-                  -not -name '*.gz' -not -name 'sw.js' -print0)
+        pct=$(( gz_size * 100 / (orig_size > 0 ? orig_size : 1) ))
+        printf '  [%d/%d] %s  %d → %d bytes (%d%%)\n' \
+            "$index" "$total" "$file" "$orig_size" "$gz_size" "$pct"
+    done
 
     printf 'compress: %d compressed, %d unchanged, %d bytes saved (%s)\n' \
         "$compressed" "$skipped" "$saved_bytes" "$target"
