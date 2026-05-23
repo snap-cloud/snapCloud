@@ -117,9 +117,9 @@ local ActiveProjects = Model:extend('active_projects', {
                 '#present:Username=' .. escape(self.username) ..
                 '&ProjectName=' .. escape(self.projectname) ..
                 '&editMode&noRun',
-            download = '/project/' .. escape(self.id),
-            site = '/project?username=' .. escape(self.username) ..
-                '&projectname=' .. escape(self.projectname),
+            download = '/api/v1/project/' .. escape(self.id),
+            site = '/users/' .. escape(self.username) ..
+                '/projects/' .. escape(self.projectname),
             author = '/user?username=' .. escape(self.username),
             embed = 'https://snap.berkeley.edu/embed?projectname=' ..
                 escape(self.projectname) .. '&username=' ..
