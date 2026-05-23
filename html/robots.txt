@@ -1,6 +1,7 @@
-User-agent: SiteimproveBot
-Disallow: /versions
-Disallow: /old_site
-
 User-agent: *
-Allow: /
+Allow: /project/*/users/*
+Disallow: /project/
+Disallow: /api/
+Crawl-delay: 10
+
+Sitemap: https://snap.berkeley.edu/sitemap.xml
