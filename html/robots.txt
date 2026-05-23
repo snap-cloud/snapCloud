@@ -3,5 +3,3 @@ Allow: /project/*/users/*
 Disallow: /project/
 Disallow: /api/
 Crawl-delay: 10
-
-Sitemap: https://snap.berkeley.edu/sitemap.xml
