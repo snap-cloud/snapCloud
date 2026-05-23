@@ -56,3 +56,7 @@ node_modules/
 *.sql.gz
 # Keep the specific schema and init files in db/
 !db/*.sql
+
+# Pre-compressed static assets produced by bin/compress (run on the server
+# at deploy time). The .sql.gz rule above already covers backups.
+static/**/*.gz

@@ -1,0 +1,93 @@
+#! /usr/bin/env bash
+#
+# Pre-compress static assets with gzip so that nginx can serve them with
+# `gzip_static on` instead of compressing on every request.
+#
+# Each compressible file FOO gets a sibling FOO.gz. The original file is
+# kept so clients that do not advertise `Accept-Encoding: gzip` still work.
+#
+# Usage:
+#   bin/compress PATH [PATH ...]    # compress one or more directories
+#   bin/compress --force PATH       # rewrite every .gz even if up to date
+#
+# Typical server invocations:
+#   bin/compress ~/snapCloud/snap                # main snap release
+#   bin/compress ~/snap-versions/dev             # dev snap
+#   bin/compress ~/snapCloud/static              # snapCloud's own static dir
+#
+# The script is idempotent: an existing .gz is only rewritten if the source
+# is newer (or if --force is passed).
+#
+# HTML files (and sw.js) are intentionally NOT pre-compressed: the nginx
+# Snap! locations use `sub_filter <head>` to inject the cloud-domain meta
+# tag at runtime, and `gzip_static` would serve the .gz before sub_filter
+# can run — silently dropping the substitution.
+
+set -euo pipefail
+
+force=0
+targets=()
+for arg in "$@"; do
+    case "$arg" in
+        -f|--force) force=1 ;;
+        -h|--help)
+            sed -n '2,22p' "$0"
+            exit 0
+            ;;
+        *) targets+=("$arg") ;;
+    esac
+done
+
+if [[ ${#targets[@]} -eq 0 ]]; then
+    echo "compress: no target directory given" >&2
+    sed -n '2,22p' "$0" >&2
+    exit 2
+fi
+
+# File extensions worth gzipping. Binary formats (png, jpg, wav, mp3, pdf,
+# gif, ico, ...) are already compressed and would only get bigger.
+# Note: html/htm/sw.js are deliberately excluded — see header comment.
+extensions=(js mjs css xml svg json map txt md ts wasm)
+
+# Build a find expression: -iname '*.js' -o -iname '*.css' ...
+find_expr=()
+for ext in "${extensions[@]}"; do
+    if [[ ${#find_expr[@]} -gt 0 ]]; then
+        find_expr+=( -o )
+    fi
+    find_expr+=( -iname "*.${ext}" )
+done
+
+compress_dir() {
+    local target=$1
+    if [[ ! -d "$target" ]]; then
+        echo "compress: not a directory: $target" >&2
+        return 1
+    fi
+
+    local compressed=0 skipped=0 saved_bytes=0
+    local file gz orig_size gz_size
+
+    while IFS= read -r -d '' file; do
+        gz="${file}.gz"
+        if [[ "$force" -eq 0 && -f "$gz" && ! "$file" -nt "$gz" ]]; then
+            skipped=$((skipped + 1))
+            continue
+        fi
+        # -9 best compression, -k keep original, -n strip name/timestamp
+        # from the gzip header so output is reproducible across runs.
+        gzip -9 -k -n -f "$file"
+        orig_size=$(wc -c < "$file")
+        gz_size=$(wc -c < "$gz")
+        saved_bytes=$((saved_bytes + orig_size - gz_size))
+        compressed=$((compressed + 1))
+    done < <(find "$target" \( "${find_expr[@]}" \) -type f \
+                  -not -name '*.gz' -not -name 'sw.js' -print0)
+
+    printf 'compress: %d compressed, %d unchanged, %d bytes saved (%s)\n' \
+        "$compressed" "$skipped" "$saved_bytes" "$target"
+}
+
+for target in "${targets[@]}"; do
+    compress_dir "$target"
+done
