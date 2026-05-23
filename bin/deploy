@@ -22,6 +22,10 @@ pushd ~/snapCloud/bin/;
 ./deploy-certs
 popd;
 
+# Pre-compress snapCloud's own static assets (CSS/JS/SVG) so nginx can
+# serve them via `gzip_static on` rather than gzipping on every request.
+~/snapCloud/bin/compress ~/snapCloud/static
+
 # ./update-snap
 
 

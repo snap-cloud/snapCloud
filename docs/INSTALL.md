@@ -258,7 +258,7 @@ $ bin/luarocks-macos build --only-deps --pin snapcloud-dev-0.rockspec
 ## Production Configuration
 
 ### SSL
-The production instance needs SSL to run. See [certs/README.md](certs/README.md) for details on configuring SSL certificates.
+The production instance needs SSL to run. See [certs/README.md](../certs/README.md) for details on configuring SSL certificates.
 
 ### Setting Environment Variables
 
