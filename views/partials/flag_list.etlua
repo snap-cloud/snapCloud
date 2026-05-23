@@ -43,7 +43,7 @@
             'Are you sure you want to remove this flag?',
             () => {
                 cloud.delete(
-                    '/project/<%= project.id %>/flag',
+                    '/api/v1/project/<%= project.id %>/flag',
                     null,
                     { flagger: flagger }
                 );
@@ -56,7 +56,7 @@
                 'report the flagger for abusing the flagging system?',
             () => {
                 cloud.delete(
-                    '/project/<%= project.id %>/flag',
+                    '/api/v1/project/<%= project.id %>/flag',
                     null,
                     { flagger: flagger, report: true }
                 );
