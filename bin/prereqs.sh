@@ -15,7 +15,7 @@ fi
 
 error() {
     print_error "Failed to perform automatic install."
-    print_error "Please follow the instructions for manual install at INSTALL.md."
+    print_error "Please follow the instructions for manual install at docs/INSTALL.md."
     exit 1
 }
 
@@ -59,4 +59,4 @@ apt-get install postgresql postgresql-client -y
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Prerequisites installed."
-print_ok "Please follow all instructions after 'Setting up the database' in INSTALL.md"
+print_ok "Please follow all instructions after 'Setting up the database' in docs/INSTALL.md"

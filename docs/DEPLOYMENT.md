@@ -6,7 +6,7 @@ development setup see [`INSTALL.md`](./INSTALL.md).
 ## Snap! checkouts on the server
 
 The production server keeps several independent Snap! checkouts. They are
-served from the locations defined in [`nginx.conf.d/snap-ide.conf`](./nginx.conf.d/snap-ide.conf):
+served from the locations defined in [`nginx.conf.d/snap-ide.conf`](../nginx.conf.d/snap-ide.conf):
 
 | Path on disk            | Served at              | Tracks                                  |
 | ----------------------- | ---------------------- | --------------------------------------- |
@@ -24,7 +24,7 @@ text asset.
 ## gzip configuration
 
 Gzip is configured **once**, at the `http { }` level in
-[`nginx.conf`](./nginx.conf):
+[`nginx.conf`](../nginx.conf):
 
 ```nginx
 gzip on;              # on-the-fly compression for dynamic responses
