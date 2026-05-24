@@ -40,7 +40,7 @@ local materials = {
   {
     title = "Get Coding with Snap<em>!</em>",
     author = 'openSAP',
-    url = "https://open.sap.com/courses/snap1",
+    url = "https://learning.sap.com/learning-journeys/get-coding-with-snap-building-up-to-ai",
     language = {"English"},
     type = "course",
     level = 'beginner',
@@ -51,7 +51,7 @@ local materials = {
   {
     title = "From Media Computation to Data Science",
     author = 'openSAP',
-    url = "https://open.sap.com/courses/snap2",
+    url = "https://learning.sap.com/courses/from-media-computation-to-data-science",
     language = {"English"},
     type = "course",
     level = nil,
@@ -70,7 +70,7 @@ local materials = {
     description = nil,
     image = nil
   },
-    {
+  {
     title = "BJC Sparks",
     author = 'UC Berkeley and EDC',
     url = "https://bjc.berkeley.edu/sparks/",
