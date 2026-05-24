@@ -10,14 +10,14 @@
                 aria-label="<%= locale.get('unbookmark') %>"
                 title="<%= locale.get('unbookmark') %>"
                 onclick="cloud.delete(
-                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
+                '/api/v1/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
             ><i class="fas fa-heart"></i></button>
         <% else %>
             <button class="btn btn-outline-dark bookmark" type="button"
                 aria-label="<%= locale.get('bookmark') %>"
                 title="<%= locale.get('bookmark') %>"
                 onclick="cloud.post(
-                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
+                '/api/v1/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
             ><i class="far fa-heart"></i></button>
         <% end %>
     <% end %>
@@ -28,7 +28,8 @@
     %></a>
     <a class="btn btn-outline-primary download"
         aria-label="<%= locale.get('download')%> Project XML"
-        href="<%= project:url_for('download', params.devVersion) %>" download
+        href="<%= project:url_for('download', params.devVersion) %>"
+        download="<%= project.projectname %>.xml"
         ><%= locale.get('download') %></a>
     <button class="btn btn-outline-primary embed-button" type="button"
         onclick="embedDialog()"><%= locale.get('embed') %></button>
@@ -128,7 +129,7 @@ function confirmDelete () {
         '<%- package.loaded.dialog(
             'confirm_delete',
             { item_name = 'project'}) %>',
-        () => { cloud.delete('/project/<%= project.id %>'); }
+        () => { cloud.delete('/api/v1/project/<%= project.id %>'); }
     );
 }
 
@@ -143,7 +144,7 @@ function confirmFlag () {
                     var form =
                         document.querySelector('form.reasons');
                     cloud.post(
-                        '/project/<%= project.id %>/flag',
+                        '/api/v1/project/<%= project.id %>/flag',
                         null,
                         {
                             reason: form.querySelector(
@@ -161,7 +162,7 @@ function confirmFlag () {
 }
 
 function unflagProject() {
-    cloud.delete('/project/<%= project.id %>/flag')
+    cloud.delete('/api/v1/project/<%= project.id %>/flag')
 }
 
 function markAsRemix () {
@@ -170,7 +171,7 @@ function markAsRemix () {
         input => {
             var url = new URL(input);
             cloud.post(
-                '/project/<%= project.id %>/mark_as_remix',
+                '/api/v1/project/<%= project.id %>/mark_as_remix',
                 null,
                 {
                     username: '<%= project.username %>',

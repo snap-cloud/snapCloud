@@ -42,34 +42,34 @@
         <button class="btn btn-secondary" type="button"
             data-confirmation-message="<%= locale.get('confirm_unpublish_project') %>"
             data-confirmation-method="delete"
-            data-confirmation-url="/project/<%= project.id %>/publish"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/publish"
         ><%= locale.get('unpublish_button') %></button>
         <button class="btn btn-secondary" type="button"
             data-confirmation-message="<%= locale.get('confirm_unshare_project') %>"
             data-confirmation-method="delete"
-            data-confirmation-url="/project/<%= project.id %>/share"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/share"
         ><%= locale.get('unshare_button') %></button>
         <% elseif project.ispublic then %>
         <button class="btn btn-secondary publish" type="button"
             data-confirmation-message="<%= locale.get('confirm_publish_project') %>"
             data-confirmation-method="post"
-            data-confirmation-url="/project/<%= project.id %>/publish"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/publish"
         ><%= locale.get('publish_button') %></button>
         <button class="btn btn-secondary unshare" type="button"
             data-confirmation-message="<%= locale.get('confirm_unshare_project') %>"
             data-confirmation-method="delete"
-            data-confirmation-url="/project/<%= project.id %>/share"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/share"
         ><%= locale.get('unshare_button') %></button>
         <% else %>
         <button class="btn btn-secondary share" type="button"
             data-confirmation-message="<%= locale.get('confirm_share_project') %>"
             data-confirmation-method="post"
-            data-confirmation-url="/project/<%= project.id %>/share"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/share"
         ><%= locale.get('share_button') %></button>
         <button class="btn btn-secondary" type="button"
             data-confirmation-message="<%= locale.get('confirm_publish_project') %>"
             data-confirmation-method="post"
-            data-confirmation-url="/project/<%= project.id %>/publish"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/publish"
         ><%= locale.get('publish_button') %></button>
         <% end %>
     <% end %>
