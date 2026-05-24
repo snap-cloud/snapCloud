@@ -117,7 +117,7 @@ local ActiveProjects = Model:extend('active_projects', {
                 '#present:Username=' .. escape(self.username) ..
                 '&ProjectName=' .. escape(self.projectname) ..
                 '&editMode&noRun',
-            download = '/project/' .. escape(self.id),
+            download = '/api/v1/project/' .. escape(self.id),
             site = '/project?username=' .. escape(self.username) ..
                 '&projectname=' .. escape(self.projectname),
             author = '/user?username=' .. escape(self.username),
