@@ -28,7 +28,8 @@
     %></a>
     <a class="btn btn-outline-primary download"
         aria-label="<%= locale.get('download')%> Project XML"
-        href="<%= project:url_for('download', params.devVersion) %>" download
+        href="<%= project:url_for('download', params.devVersion) %>"
+        download="<%= project.projectname %>.xml"
         ><%= locale.get('download') %></a>
     <button class="btn btn-outline-primary embed-button" type="button"
         onclick="embedDialog()"><%= locale.get('embed') %></button>
