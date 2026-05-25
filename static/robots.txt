@@ -10,6 +10,9 @@ Crawl-delay: 5
 # SiteImprove Accessibility Audits
 # These paths are specifically archives/false positives in audits.
 User-agent: SiteimproveBot
+Allow: /project/*/users/*
+Disallow: /project/
+Disallow: /api/
 Disallow: /versions/
 Disallow: /old_site
 Crawl-delay: 5
