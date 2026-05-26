@@ -1,3 +1,13 @@
+All routes below are nested under the /api/v1/ prefix
+(e.g. POST /api/v1/users/:username/login).
+
+The unprefixed form (e.g. POST /users/:username/login) is currently
+accepted for backwards compatibility but is deprecated: it logs a
+DEPRECATED_API_PREFIX warning on the server and the response carries
+an `X-Api-Deprecation` header. The unprefixed form will be removed in
+a future release — update clients to send the prefix.
+
+
 Users
 =====
 

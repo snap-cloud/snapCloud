@@ -4,13 +4,25 @@ User-agent: *
 Allow: /project/*/users/*
 Disallow: /project/
 Disallow: /api/
-Crawl-delay: 10
+Crawl-delay: 5
+
+
+# SiteImprove Accessibility Audits
+# These paths are specifically archives/false positives in audits.
+User-agent: SiteimproveBot
+Allow: /project/*/users/*
+Disallow: /project/
+Disallow: /api/
+Disallow: /versions/
+Disallow: /old_site
+Crawl-delay: 5
 
 # AI crawlers — slower, same path rules duplicated
 User-agent: GPTBot
 User-agent: ClaudeBot
 User-agent: PerplexityBot
+User-agent: CCBot
 Allow: /project/*/users/*
 Disallow: /project/
 Disallow: /api/
-Crawl-delay: 30
+Crawl-delay: 12
