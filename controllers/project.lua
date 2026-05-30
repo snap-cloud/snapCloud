@@ -460,6 +460,10 @@ ProjectController = {
                 )
 
         if not project then yield_error(err.nonexistent_project) end
+
+        -- Set self.params to ensure auth checks work when requested with an id instead of username/projectname
+        self.params.username = project.username
+        self.params.projectname = project.projectname
         if not (project.ispublic or users_match(self)) then
             assert_admin(self, err.nonexistent_project)
         end
@@ -470,10 +474,7 @@ ProjectController = {
         -- delta = -2 will fetch the last version before today
 
         return xmlResponse(
-            -- if users don't match, this project is being remixed and we
-            -- need to attach its ID
-            '<snapdata' .. (users_match(self) and '>' or ' remixID="' ..
-                project.id .. '">') ..
+            '<snapdata remixID="' .. project.id .. '">' ..
                 (disk:retrieve(
                     project.id, 'project.xml', self.params.delta) or
                         '<project></project>') ..

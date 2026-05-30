@@ -37,7 +37,7 @@ xmlResponse = function (xml)
         layout = false,
         status = 200,
         readyState = 4,
-        content_type = "text/xml",
+        content_type = "application/xml",
         xml
     }
 end
