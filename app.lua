@@ -301,7 +301,9 @@ app:before_filter(function (self)
     elseif self.params.user_id and self.params.user_id ~= '' then
         self.queried_user =
             package.loaded.Users:find({ id = self.params.user_id })
-        self.params.username = self.queried_user.username
+        if self.queried_user then
+            self.params.username = self.queried_user.username
+        end
     end
 
     -- unescape all parameters and JSON-decode them
