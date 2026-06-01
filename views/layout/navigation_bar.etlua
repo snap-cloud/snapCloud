@@ -38,7 +38,7 @@
         </li>
       </ul>
       <span class="navbar-nav me-auto">
-          <form role="search" action="search">
+          <form role="search" action="/search">
             <div class="input-group min-width">
               <button class="btn btn-sm btn-outline-light" type="submit" aria-label="Search">
                 <i class="fas fa-search" aria-hidden="true"></i>
