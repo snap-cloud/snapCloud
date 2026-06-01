@@ -29,6 +29,26 @@ local yield_error = package.loaded.yield_error
 
 local disk = {}
 
+-- Rendered in place of a real thumbnail when project.xml can't be parsed.
+disk.missing_thumbnail = '/static/img/missing-thumbnail.svg'
+
+local function report_thumbnail_failure(id, reason)
+    ngx.log(ngx.ERR,
+        'Thumbnail generation failed for project id=' ..
+            tostring(id) .. ': ' .. tostring(reason))
+    -- Lazy-require: disk.lua loads before lib.exceptions in app.lua.
+    local ok, exceptions = pcall(require, 'lib.exceptions')
+    if not ok or not exceptions.rvn then return end
+    exceptions.rvn:captureMessage(
+        'Thumbnail generation failed for project id=' .. tostring(id),
+        {
+            level = 'warning',
+            tags = { component = 'disk.generate_thumbnail' },
+            extra = { project_id = id, reason = tostring(reason) },
+        }
+    )
+end
+
 function disk:timestamp_command(dir)
     return 'stat ' .. config.stat_arguments .. ' ' .. dir .. '/project.xml'
 end
@@ -69,13 +89,20 @@ end
 function disk:generate_thumbnail (id)
     local project_file = io.open(self:directory_for_id(id) .. '/project.xml')
     if (project_file) then
-        local project = xml.load(project_file:read('*all'))
-        local thumbnail = xml.find(project, 'thumbnail')[1]
+        -- xml.load raises ("load: unexpected end of data" etc.) on malformed
+        -- input; xml.find can also return nil if <thumbnail> is absent.
+        local ok, thumbnail = pcall(function ()
+            local project = xml.load(project_file:read('*all'))
+            local found = xml.find(project, 'thumbnail')
+            return found and found[1] or nil
+        end)
         project_file:close()
-        self:save(id, 'thumbnail', thumbnail)
-        return thumbnail
-    else
-        return false
+        if ok and thumbnail then
+            self:save(id, 'thumbnail', thumbnail)
+            return thumbnail
+        end
+        report_thumbnail_failure(
+            id, ok and 'no <thumbnail> in project.xml' or thumbnail)
     end
 end
 
@@ -222,7 +249,8 @@ function disk:process_thumbnails (items, id_selector)
         if (item[id_selector or 'id']) then
             item.thumbnail =
                 self:retrieve_thumbnail(item[id_selector or 'id']) or
-                self:generate_thumbnail(item[id_selector or 'id'])
+                self:generate_thumbnail(item[id_selector or 'id']) or
+                self.missing_thumbnail
         end
     end
 end
