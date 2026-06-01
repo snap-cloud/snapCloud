@@ -1,9 +1,14 @@
 # General bots
 # Note: Google does not respect Crawl-delay, but that's fine.
 User-agent: *
-Allow: /project/*/users/*
-Disallow: /project/
 Disallow: /api/
+# Possible future route for projects
+Allow: /project/*/users/*
+# These are variations of (/api/v1)/project/:id that lead to 404 and 500 errors when crawled.
+# e.g. Google tries to index /project/:id/bookmark
+Disallow: /project/
+# Be explicit about the query params current route:
+Allow: /project?*
 Crawl-delay: 5
 
 
