@@ -1,0 +1,21 @@
+-- Busted configuration.
+-- See https://lunarmodules.github.io/busted/ for full docs.
+return {
+    _all = {
+        ROOT = { "spec" },
+        -- Any file ending in _spec.lua under spec/ is auto-discovered.
+        pattern = "_spec",
+        -- Helpers that set up the test environment / safeguards.
+        helper = "spec/spec_helper.lua",
+        -- Spec files can be run from the repo root.
+        lpath = "./?.lua;./?/init.lua;./spec/?.lua",
+        verbose = true,
+    },
+    default = {
+        output = "utfTerminal",
+    },
+    ci = {
+        output = "plainTerminal",
+        ["suppress-pending"] = false,
+    },
+}

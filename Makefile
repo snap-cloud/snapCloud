@@ -1,4 +1,4 @@
-.PHONY: annotate install-annotate install migrate deploy
+.PHONY: annotate install-annotate install migrate deploy test test-lua test-e2e test-a11y lint
 
 UNAME := $(shell uname)
 
@@ -21,7 +21,7 @@ install-annotate:
 	$(luarocks_command) install --lua-version=5.1 https://raw.githubusercontent.com/snap-cloud/lapis-annotate/support-native-lua/lapis-annotate-dev-1.rockspec
 
 install:
-	$(luarocks_command) install --only-deps snapcloud-dev-0.rockspec
+	LUAROCKS=$(luarocks_command) bin/install-lua-deps.sh
 	npm install
 	$(MAKE) install-annotate
 
@@ -39,3 +39,26 @@ deploy:
 deploy-staging:
 	ssh staging.snap.berkeley.edu "cd snapCloud/; bin/deploy ${branch}"
 	$(open_command) "https://staging.snap.berkeley.edu/"
+
+# -----------------------------------------------------------------------------
+# Test suite
+#
+# `make test`      - run everything (lint + busted + playwright + a11y)
+# `make lint`      - luacheck only
+# `make test-lua`  - busted specs only
+# `make test-e2e`  - Playwright end-to-end specs only
+# `make test-a11y` - axe-core accessibility specs only
+# -----------------------------------------------------------------------------
+lint:
+	luacheck .
+
+test-lua:
+	LAPIS_ENVIRONMENT=test DATABASE_NAME=snapcloud_test busted --config-file=.busted
+
+test-e2e:
+	LAPIS_ENVIRONMENT=test DATABASE_NAME=snapcloud_test npx playwright test --grep-invert "@axe"
+
+test-a11y:
+	LAPIS_ENVIRONMENT=test DATABASE_NAME=snapcloud_test npx playwright test --grep "@axe"
+
+test: lint test-lua test-e2e test-a11y
