@@ -29,6 +29,17 @@ local materials = {
     {
     title = "Reference Manual",
     author = 'the Snap<em>!</em> Team',
+    url = "https://docs.snap.berkeley.edu/",
+    language = {"English"},
+    type = "documentation",
+    level = 'everyone',
+    date = nil,
+    description = nil,
+    image = nil
+  },
+  {
+    title = "Reference Manual (PDF)",
+    author = 'the Snap<em>!</em> Team',
     url = "https://snap.berkeley.edu/snap/help/SnapManual.pdf",
     language = {"English"},
     type = "documentation",

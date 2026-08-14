@@ -12,7 +12,7 @@
     <ul class="list-group my-2">
     <% for _, item in ipairs(items) do %>
         <li class="list-group-item">
-            <a href="<%= item.url %>"><%- item.title %></a>
+            <a href="<%= item.url %>" target="_blank"><%- item.title %></a>
             <% if item.author then %>
                 by <%- item.author %>
             <% end %>
@@ -24,6 +24,14 @@
                 <span class="badge text-bg-info"><%= item.level %></span>
                 <% end %>
             </span>
+            <% if item.links then %>
+            <div class="mt-2">
+                <% for _, link in ipairs(item.links) do %>
+                    <a href="<%= link[2] %>" class="btn btn-sm btn-outline-secondary me-1"
+                        target="_blank"><%- link[1] %></a>
+                <% end %>
+            </div>
+            <% end %>
         </li>
     <% end %>
     </ul>
