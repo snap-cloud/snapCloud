@@ -32,7 +32,6 @@ domain_allowed['extensions.snap.berkeley.edu'] = true
 -- However, we want to allow access on http hosted versions of Snap!.
 domain_allowed['snap-cloud.cs10.org'] = true
 -- App Server Staging Domains
-domain_allowed['snap-staging.cs10.org'] = true
 domain_allowed['staging.snap.berkeley.edu'] = true
 -- Snap! Mirrors
 -- CONTACT: Snap! Team
@@ -42,7 +41,7 @@ domain_allowed['web.media.mit.edu'] = true
 
 -- ===========================================================
 -- OFFICIALLY ENDORSED 3RD PARTY HOSTS
--- Each "section" of URLs should come with a brief description and a contact.
+-- Each section of URLs should come with a brief description and a contact.
 
 -- Snap4Arduino, and its Chromebook version
 -- CONTACT:
@@ -67,19 +66,6 @@ domain_allowed['lin-class17.csc.ncsu.edu'] = true
 domain_allowed['ecraft2learn.github.io'] = true
 -- CONTACT:
 domain_allowed['microworld.edc.org'] = true
-
--- All edX Sites, and test sites
--- CONTACT: Michael Ball
--- domain_allowed['courses.edge.edx.org'] = true
--- domain_allowed['courses.edx.org'] = true
--- domain_allowed['d37djvu3ytnwxt.cloudfront.net'] = true
--- domain_allowed['preview.courses.edge.edx.org'] = true
--- domain_allowed['preview.courses.edx.org'] = true
--- domain_allowed['preview.edge.edx.org'] = true
--- domain_allowed['preview.edx.org'] = true
--- domain_allowed['studio.edge.edx.org'] = true
--- domain_allowed['studio.edx.org'] = true
--- domain_allowed['edge.edx.org'] = true
 
 -- SoundScope Sites
 -- CONTACT:
