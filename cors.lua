@@ -116,7 +116,9 @@ domain_allowed['studygiggle.onrender.com'] = true
 
 -- Development
 -- CONTACT: Snap! Team
+-- TODO: Revisit allowing this as it is a potential vector for scripts.
 domain_allowed['localhost'] = true
 domain_allowed['jmoenig.github.io'] = true
+domain_allowed['mball.co'] = true
 
 return domain_allowed
