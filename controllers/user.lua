@@ -67,18 +67,24 @@ UserController = {
 
         -- Apply filters from params. They look like filter_verified=true or
         -- filter_role=reviewer, so we strip them from the "filter_" part.
+        -- Column names can't be parameterized, so we only accept plain
+        -- identifiers; anything else is a crafted param name trying to
+        -- inject SQL into the WHERE clause and is dropped.
         local filters = ''
         for k, v in pairs(self.params) do
             if k:find('filter_') == 1 then
-                filters = filters ..
-                    db.interpolate_query(' AND ' .. k:sub(8) .. ' = ?', v)
+                local column = k:sub(8)
+                if column:match('^[%a_][%w_]*$') then
+                    filters = filters ..
+                        db.interpolate_query(' AND ' .. column .. ' = ?', v)
+                end
             end
         end
 
         local paginator = self.table:paginated(
             query ..
                 (self.params.search_term and (db.interpolate_query(
-                    ' AND username ILIKE ? OR email ILIKE ?',
+                    ' AND (username ILIKE ? OR email ILIKE ?)',
                     '%' .. self.params.search_term .. '%',
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
