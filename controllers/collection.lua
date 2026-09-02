@@ -34,6 +34,15 @@ local capture_errors = package.loaded.capture_errors
 
 local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
+local order_by_clause = validations.order_by_clause
+
+-- Columns that requests may sort collections by. Anything else is rejected, as
+-- these names end up spliced straight into SQL.
+local sortable_columns = {
+    published_at = true,
+    updated_at = true,
+    ['collections.created_at'] = true
+}
 
 CollectionController = {
     run_query = function (self, query)
@@ -45,10 +54,11 @@ CollectionController = {
                     '%' .. self.params.search_term .. '%',
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
-            ' ORDER BY ' .. (self.params.order or 'published_at DESC'),
+            ' ORDER BY ' .. order_by_clause(
+                self.params.order, sortable_columns, 'published_at DESC'),
             {
                 per_page = self.params.per_page or 15,
-                fields = self.params.fields or
+                fields = self.fields or
                     [[collections.id, collections.creator_id, collections.created_at,
                     published, collections.published_at, shared,
                     collections.shared_at, collections.updated_at, name,
@@ -150,7 +160,7 @@ CollectionController = {
     end),
     containing_project = capture_errors(function (self)
         self.params.order =  'collections.created_at DESC'
-        self.params.fields =
+        self.fields =
             [[collections.creator_id, collections.name,
             collection_memberships.project_id, collections.thumbnail_id,
             collections.shared, collections.published, users.username]]
