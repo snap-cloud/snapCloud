@@ -173,3 +173,93 @@ For lapis API responses, expect `content-encoding: gzip` but no
 curl -sI -H 'Accept-Encoding: gzip' https://snap.berkeley.edu/api/v1/projects \
     | grep -i 'content-encoding\|transfer-encoding'
 ```
+
+## Database connections
+
+Lapis opens one [pgmoon](https://github.com/leafo/pgmoon) connection per
+request and hands it back to OpenResty's cosocket keepalive pool when the
+request finishes, so idle connections are reused by later requests on the
+same nginx worker. On its own that pool has no upper bound: under load every
+in-flight request opens its own connection, and with
+`num_workers * worker_connections` requests possible at once the Snap!Cloud
+can exhaust Postgres' `max_connections` (100 by default).
+
+`config.lua` therefore sets two pgmoon options that OpenResty enforces per
+worker:
+
+- `pool_size` — a hard cap on open connections (busy + idle) from one worker
+  to the same host/port/database/user.
+- `backlog` — how many requests may wait for a connection once the cap is
+  reached. Queued requests resume as soon as a connection is released.
+
+Both are listed under pgmoon's
+[`new(options)`](https://github.com/leafo/pgmoon#newoptions) and passed
+through to OpenResty, whose
+[`tcpsock:connect`](https://github.com/openresty/lua-nginx-module#tcpsockconnect)
+docs define the exact behaviour. Lapis passes the whole `postgres` config table
+to pgmoon
+([`lapis/db/postgres.moon`](https://github.com/leafo/lapis/blob/master/lapis/db/postgres.moon)).
+Postgres itself only has
+[`max_connections`](https://www.postgresql.org/docs/current/runtime-config-connection.html).
+
+The total number of server connections the Snap!Cloud can hold is
+`num_workers * pool_size`. `pool_size` is derived from the database's
+capacity:
+
+```
+pool_size = floor((DATABASE_MAX_CONNECTIONS - DATABASE_RESERVED_CONNECTIONS) / num_workers)
+```
+
+### Environment variables
+
+All optional. They are read by `config.lua`, and must be declared in `.env`
+and `nginx.conf`.
+
+| Variable                        | Purpose                                                     |
+| ------------------------------- | ----------------------------------------------------------- |
+| `DATABASE_MAX_CONNECTIONS`      | Postgres `max_connections`, or pgbouncer's `max_client_conn` |
+| `DATABASE_RESERVED_CONNECTIONS` | Connections left free for other clients (default 20)         |
+| `DATABASE_POOL_SIZE`            | Per-worker cap; skips the calculation entirely               |
+| `DATABASE_POOL_BACKLOG`         | Per-worker wait queue (default `4 * pool_size`)              |
+
+Check the server's actual limit before tuning:
+
+```sql
+show max_connections;
+```
+
+### What happens when the pool is full
+
+- Requests wait in the backlog until a connection frees up. They give up
+  after the cosocket connect timeout (60s unless `lua_socket_connect_timeout`
+  is set in `nginx.conf`) with a `postgres (default) failed to connect:
+  timeout` error.
+- Once the backlog is also full, requests fail immediately with
+  `too many waiting connect operations`. Both surface as a 500 and land in
+  Sentry, so a spike of them means the database is the bottleneck.
+- Idle connections are closed after `lua_socket_keepalive_timeout` (60s by
+  default), so a quiet server drops back towards zero connections.
+
+### Monitoring
+
+Connections identify themselves as `snapcloud` via `application_name`:
+
+```sql
+select state, count(*)
+from pg_stat_activity
+where application_name = 'snapcloud'
+group by state;
+```
+
+The count should never exceed `num_workers * pool_size`. Sustained
+`active` rows near the cap, or connect timeouts in the logs, mean the
+database needs more capacity (raise `max_connections`, or put pgbouncer in
+front of it and raise `DATABASE_MAX_CONNECTIONS` to its `max_client_conn`).
+
+### Caveat
+
+The pool lives inside the Lua VM, so it needs `lua_code_cache on`. Production
+and staging already have it. Development defaults to off, which rebuilds the
+VM (and drops the pool) on every request. Run with `CODE_CACHE=on` to test
+pooling locally, e.g. `CODE_CACHE=on DATABASE_POOL_SIZE=2 lapis server` and
+then fire more than two concurrent requests.

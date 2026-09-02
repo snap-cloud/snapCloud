@@ -1,12 +1,52 @@
 local config = require('lapis.config')
 
+-- nginx worker counts. These also size the database connection pool below,
+-- because every worker keeps its own pool.
+local PRODUCTION_WORKERS = 8
+-- the staging server is a low-cpu server.
+local STAGING_WORKERS = 2
+local DEVELOPMENT_WORKERS = 1
+
+-- Postgres connection pool
+-- ========================
+-- pgmoon's `pool_size` and `backlog` options make OpenResty cap the number of
+-- connections each nginx worker may open, so the whole app never holds more
+-- than `num_workers * pool_size`. How this works, links to the pgmoon and
+-- OpenResty docs, the environment variables, and how to test it are in
+-- docs/INSTALL.md ("Database connection pool") and docs/DEPLOYMENT.md.
+local function pool_config(num_workers)
+    -- Postgres defaults to 100; production is set to 200.
+    -- Verify on the server with `show max_connections;`
+    local max_connections =
+        tonumber(os.getenv('DATABASE_MAX_CONNECTIONS')) or 100
+    local reserved =
+        tonumber(os.getenv('DATABASE_RESERVED_CONNECTIONS')) or 20
+    local pool_size = tonumber(os.getenv('DATABASE_POOL_SIZE')) or
+        math.max(1, math.floor((max_connections - reserved) / num_workers))
+    local backlog = tonumber(os.getenv('DATABASE_POOL_BACKLOG')) or
+        pool_size * 4
+    return {
+        num_workers = num_workers,
+        postgres = { pool_size = pool_size, backlog = backlog },
+        -- The most connections the whole app can hold open.
+        -- The health check reports usage against this number.
+        max_db_connections = num_workers * pool_size,
+    }
+end
+
+config({'development', 'test'}, pool_config(DEVELOPMENT_WORKERS))
+config('staging', pool_config(STAGING_WORKERS))
+config('production', pool_config(PRODUCTION_WORKERS))
+
 config({'development', 'staging', 'production', 'test'}, {
     postgres = {
         host = os.getenv('DATABASE_HOST') or '127.0.0.1',
         port = os.getenv('DATABASE_PORT') or '5432',
         user = os.getenv('DATABASE_USERNAME') or 'cloud',
         password = os.getenv('DATABASE_PASSWORD') or 'snap-cloud-password',
-        database = os.getenv('DATABASE_NAME') or 'snapcloud'
+        database = os.getenv('DATABASE_NAME') or 'snapcloud',
+        -- Shown in pg_stat_activity, so our connections can be told apart.
+        application_name = 'snapcloud'
     },
     session_name = 'snapsession',
 
@@ -52,8 +92,9 @@ config({'development', 'test'}, {
     port = os.getenv('PORT') or 8080,
     mail_smtp_port = os.getenv('MAIL_SMTP_PORT') or 1025,
     dns_resolver = '8.8.8.8',
-    code_cache = 'off',
-    num_workers = 1,
+    -- The connection pool only survives between requests with the code
+    -- cache on. Use `CODE_CACHE=on` to test pooling locally.
+    code_cache = os.getenv('CODE_CACHE') or 'off',
     log_directive = 'stderr debug',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
 
@@ -85,7 +126,6 @@ config({'production', 'staging'}, {
 
 config('production', {
     site_name = 'Snap Cloud',
-    num_workers = 8,
     non_ssl_nginx_config = 'http-only.conf',
     ssl_nginx_server_config = 'include nginx.conf.d/ssl-production.conf;',
 
@@ -104,8 +144,6 @@ config('production', {
 
 config('staging', {
     site_name = 'staging | Snap Cloud',
-    -- the staging server is a low-cpu server.
-    num_workers = 2,
     non_ssl_nginx_config = 'http-only.conf',
     ssl_nginx_server_config = 'include nginx.conf.d/ssl-staging.conf;',
 
