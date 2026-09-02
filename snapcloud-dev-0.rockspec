@@ -28,7 +28,8 @@ dependencies = {
    "luasec",
    "inspect",
    "luabitop",
-   "bcrypt"
+   "bcrypt",
+   "luafilesystem"
 }
 
 build = {

@@ -123,6 +123,10 @@ err = {
         { msg = 'Please wait a few seconds and try again.', status = 429 },
     session_reused =
         { msg = 'Please use the Snap! site, not scripts.', status = 409 },
+    invalid_order =
+        { msg = 'Invalid sort order.', status = 400 },
+    invalid_filter =
+        { msg = 'Invalid filter.', status = 400 },
     tor_not_allowed =
         { msg = 'Sorry. We cannot let you use Tor for that.', status = 403 },
     teacher_account_required = {
@@ -612,9 +616,54 @@ local function is_likely_course_work(project_name)
     return false
 end
 
+-- SQL fragment whitelisting
+-- =========================
+-- Column names and sort orders can't be passed as bound parameters, so
+-- controllers that build ORDER BY or filter clauses out of request params
+-- must only ever splice in values from an explicit whitelist.
+
+-- Turns a "column [ASC|DESC]" string (usually self.params.order) into a safe
+-- ORDER BY clause. Only columns present in allowed_columns (a set, as in
+-- { column_name = true, ... }) are accepted. Returns default when no order was
+-- requested, and fails the request on anything that is not whitelisted.
+local order_by_clause = function (order, allowed_columns, default)
+    if order == nil or order == '' then return default end
+    local column, direction =
+        tostring(order):match('^%s*([%w_%.]+)%s*(%a*)%s*$')
+    direction = direction and direction:upper() or ''
+    if column and allowed_columns[column] and
+            (direction == '' or direction == 'ASC' or direction == 'DESC') then
+        return column .. (direction ~= '' and (' ' .. direction) or '')
+    end
+    yield_error(err.invalid_order)
+end
+
+-- Builds the " AND field = value" part of a WHERE clause out of params that
+-- look like filter_verified=true or filter_role=reviewer. Only fields present
+-- in allowed_fields (a set) are accepted; values are always bound parameters.
+-- Empty values (the "Any" option in the UI dropdowns) don't filter anything.
+local filter_clause = function (params, allowed_fields)
+    local clause = ''
+    for key, value in pairs(params) do
+        if key:find('filter_') == 1 then
+            local field = key:sub(8)
+            if not allowed_fields[field] then
+                yield_error(err.invalid_filter)
+            end
+            if value ~= nil and value ~= '' then
+                clause = clause ..
+                    db.interpolate_query(' AND ' .. field .. ' = ?', value)
+            end
+        end
+    end
+    return clause
+end
+
 return {
     assert_exists = assert_exists,
     assert_current_user_logged_in = assert_current_user_logged_in,
     is_likely_course_work = is_likely_course_work,
     validate_token = validate_token,
+    order_by_clause = order_by_clause,
+    filter_clause = filter_clause,
 }
