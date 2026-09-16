@@ -195,7 +195,8 @@ function disk:backup_project(id)
     local command = io.popen(self:timestamp_command(dir))
     local last_modified = tonumber(command:read())
     command:close()
-    if (os.time() - last_modified > 43200) then
+    local current_time = tonumber(os.time())
+    if (last_modified and (current_time - last_modified > 43200)) then
         os.execute('mkdir -p ' .. dir .. '/d-2')
         os.execute(
             'cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
