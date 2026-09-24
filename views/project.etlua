@@ -78,10 +78,15 @@
             </div>
 
             <!-- TODO: This autoloads and Snap! steals focus, which it should not. -->
+            <!-- data-axe-excluded: hide the embedded Snap! editor from axe-core
+                 scans. The editor lives inside a sandboxed same-origin iframe
+                 we don't control; its a11y is tracked in the Snap! repo.
+                 See spec/README.md#accessibility-exclusions for the convention. -->
             <iframe allow="geolocation; microphone; camera"
                 sandbox="allow-scripts allow-same-origin"
                 title="project viewer"
                 autofocus=false
+                data-axe-excluded="true"
                 src="<%= project:url_for('viewer', params.devVersion) %>">
             </iframe>
 

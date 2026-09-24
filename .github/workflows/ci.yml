@@ -1,0 +1,179 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Each job below reports its own status check. Keeping them independent means
+# a broken end-to-end test doesn't hide an a11y regression (or vice versa)
+# in the PR summary. Shared setup steps live in .github/actions/*.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Values reused across jobs. GHA workflow YAML doesn't let us anchor the
+# postgres `services:` block across jobs, but env + creds can at least be
+# pulled from one place.
+env:
+  PG_USER: cloud
+  PG_PASSWORD: snap-cloud-password
+  PG_DB: snapcloud_test
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # Lint Lua code with luacheck. No DB, no server.
+  # ---------------------------------------------------------------------------
+  luacheck:
+    name: Luacheck
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup-lua
+        with:
+          tools: luacheck
+      - run: luacheck .
+
+  # ---------------------------------------------------------------------------
+  # Unit tests for pure-Lua modules (busted). Needs postgres for the specs
+  # in spec/models/, but not OpenResty.
+  # ---------------------------------------------------------------------------
+  busted:
+    name: Busted (Lua)
+    runs-on: ubuntu-22.04
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cloud
+          POSTGRES_PASSWORD: snap-cloud-password
+          POSTGRES_DB: snapcloud_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cloud"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      LAPIS_ENVIRONMENT: test
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: cloud
+      DATABASE_PASSWORD: snap-cloud-password
+      DATABASE_NAME: snapcloud_test
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup-lua
+        with:
+          tools: busted luacov
+          postgres-client: "true"
+      - uses: ./.github/actions/load-test-db
+        with:
+          password: snap-cloud-password
+      - run: busted --config-file=.busted --verbose
+
+  # ---------------------------------------------------------------------------
+  # End-to-end browser tests. Runs every Playwright spec NOT tagged @axe.
+  # ---------------------------------------------------------------------------
+  playwright:
+    name: Playwright (e2e)
+    runs-on: ubuntu-22.04
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cloud
+          POSTGRES_PASSWORD: snap-cloud-password
+          POSTGRES_DB: snapcloud_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cloud"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      LAPIS_ENVIRONMENT: test
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: cloud
+      DATABASE_PASSWORD: snap-cloud-password
+      DATABASE_NAME: snapcloud_test
+      PORT: 8080
+      HOSTNAME: localhost
+      CI: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup-lua
+        with:
+          postgres-client: "true"
+      - uses: ./.github/actions/install-snapcloud-deps
+      - uses: ./.github/actions/load-test-db
+        with:
+          password: snap-cloud-password
+      - uses: ./.github/actions/run-browser-specs
+        with:
+          grep-invert: "@axe"
+          report-name: playwright-report
+
+  # ---------------------------------------------------------------------------
+  # Axe-core accessibility audit. Only @axe-tagged specs.
+  # ---------------------------------------------------------------------------
+  axe:
+    name: Axe-core (a11y)
+    runs-on: ubuntu-22.04
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: cloud
+          POSTGRES_PASSWORD: snap-cloud-password
+          POSTGRES_DB: snapcloud_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U cloud"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      LAPIS_ENVIRONMENT: test
+      DATABASE_HOST: 127.0.0.1
+      DATABASE_PORT: 5432
+      DATABASE_USERNAME: cloud
+      DATABASE_PASSWORD: snap-cloud-password
+      DATABASE_NAME: snapcloud_test
+      PORT: 8080
+      HOSTNAME: localhost
+      CI: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - uses: ./.github/actions/setup-lua
+        with:
+          postgres-client: "true"
+      - uses: ./.github/actions/install-snapcloud-deps
+      - uses: ./.github/actions/load-test-db
+        with:
+          password: snap-cloud-password
+      - uses: ./.github/actions/run-browser-specs
+        with:
+          grep: "@axe"
+          report-name: axe-report

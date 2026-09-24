@@ -1,0 +1,43 @@
+name: Set up Lua 5.1 + luarocks
+description: >
+  Installs Lua 5.1, the dev headers, and luarocks from apt. Optionally
+  installs a list of tool rocks (luacheck, busted, luacov, etc.) from a
+  lockfile-free working directory so they don't drag in every project
+  dependency pinned in ./luarocks.lock.
+
+inputs:
+  tools:
+    description: >
+      Space-separated list of rock names to install globally, e.g.
+      "luacheck" or "busted luacov". Leave empty to only install Lua itself.
+    required: false
+    default: ""
+  postgres-client:
+    description: "Also install postgresql-client (for `psql`)."
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: apt-get install lua5.1 + luarocks
+      shell: bash
+      run: |
+        sudo apt-get update
+        pkgs="lua5.1 liblua5.1-0-dev luarocks"
+        if [ "${{ inputs.postgres-client }}" = "true" ]; then
+          pkgs="$pkgs postgresql-client"
+        fi
+        sudo apt-get install -y $pkgs
+
+    - name: Install Lua tools (outside the project dir)
+      if: inputs.tools != ''
+      shell: bash
+      # Run from /tmp so luarocks doesn't auto-detect ./luarocks.lock and try
+      # to install every pinned project dependency as a prerequisite of the
+      # tool rock. Tools like luacheck/busted/luacov aren't project deps.
+      run: |
+        cd /tmp
+        for rock in ${{ inputs.tools }}; do
+          sudo luarocks install --lua-version=5.1 "$rock"
+        done

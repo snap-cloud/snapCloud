@@ -1,0 +1,29 @@
+name: Install Snap!Cloud runtime + Lua deps
+description: >
+  Installs OpenResty from the upstream apt repo and the project's Lua
+  dependencies via bin/install-lua-deps.sh (which applies the C++14
+  workaround for the xml-1.1.3 rock). Intended for jobs that need to run
+  a real Lapis server (playwright, axe).
+
+runs:
+  using: composite
+  steps:
+    - name: Install OpenResty (apt)
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          wget gnupg ca-certificates lsb-release
+        wget -qO - https://openresty.org/package/pubkey.gpg \
+          | sudo gpg --dearmor -o /etc/apt/trusted.gpg.d/openresty.gpg
+        codename=$(lsb_release -sc)
+        echo "deb http://openresty.org/package/ubuntu $codename main" \
+          | sudo tee /etc/apt/sources.list.d/openresty.list
+        sudo apt-get update
+        sudo apt-get install -y openresty
+
+    - name: Install project Lua deps (with xml C++14 workaround)
+      shell: bash
+      # bin/install-lua-deps.sh forces CXX to gnu++14 so the xml-1.1.3 rock
+      # compiles on GCC 11 / clang 14+. Same script is used by `make install`.
+      run: SUDO=sudo LUA_VERSION=5.1 bin/install-lua-deps.sh
