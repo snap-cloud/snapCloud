@@ -249,11 +249,74 @@ You can now point your browser to `http://localhost:8080` (note: `foreman` and `
 
 ### Updating Dependencies / Lockfile
 
-To regenerate `luarocks.rock`, use the following command:
+To regenerate `luarocks.lock`, use the following command:
 
 ```
 $ bin/luarocks-macos build --only-deps --pin snapcloud-dev-0.rockspec
 ```
+
+or on Linux:
+
+```
+$ luarocks install --only-deps --pin snapcloud-dev-0.rockspec
+```
+
+### Database connection pool
+
+Lapis opens one [pgmoon](https://github.com/leafo/pgmoon) connection per
+request and returns it to OpenResty's cosocket keepalive pool when the request
+finishes. On its own that pool has no upper bound, so `config.lua` sets two
+pgmoon options that OpenResty enforces per nginx worker:
+
+- `pool_size` caps the connections (busy + idle) one worker may hold open.
+- `backlog` is how many requests may wait for a free connection before new
+  ones are rejected.
+
+The whole app therefore never holds more than `num_workers * pool_size`
+connections. `pool_size` is derived from the database's capacity; see the
+"Database connections" section of [DEPLOYMENT.md](./DEPLOYMENT.md) for the
+formula, the environment variables, and monitoring.
+
+Where the options are documented:
+
+- Lapis passes the whole `postgres` config table straight to pgmoon's
+  constructor ([`lapis/db/postgres.moon`](https://github.com/leafo/lapis/blob/master/lapis/db/postgres.moon)),
+  so any pgmoon option can be set there. Lapis' own
+  [database docs](https://leafo.net/lapis/reference/database.html) only
+  mention `timeout`.
+- pgmoon lists `pool_name`, `pool_size` and `backlog` as OpenResty-only options
+  under [`new(options)`](https://github.com/leafo/pgmoon#newoptions) and
+  forwards them untouched to the cosocket connect call.
+- The semantics (per-worker cap, queueing, timeouts, error strings) are defined
+  by lua-nginx-module's
+  [`tcpsock:connect`](https://github.com/openresty/lua-nginx-module#tcpsockconnect)
+  options table. The keepalive side is
+  [`tcpsock:setkeepalive`](https://github.com/openresty/lua-nginx-module#tcpsocksetkeepalive),
+  [`lua_socket_pool_size`](https://github.com/openresty/lua-nginx-module#lua_socket_pool_size)
+  and
+  [`lua_socket_keepalive_timeout`](https://github.com/openresty/lua-nginx-module#lua_socket_keepalive_timeout).
+
+#### Testing the pool locally
+
+The pool lives inside the Lua VM, and development turns
+[`lua_code_cache`](https://github.com/openresty/lua-nginx-module#lua_code_cache)
+off, which rebuilds the VM (and drops the pool) on every request. To exercise
+the pool, turn the cache on and make the pool small:
+
+```sh
+$ CODE_CACHE=on DATABASE_POOL_SIZE=2 lapis server
+```
+
+Then send more concurrent requests than the pool size, for example:
+
+```sh
+$ seq 1 40 | xargs -P 40 -I{} curl -s -o /dev/null -w "%{http_code}\n" "http://localhost:8080/api/v1/projects?page={}"
+```
+
+`pg_stat_activity` should never show more than two `snapcloud` connections,
+and `/api/v1/health_check` reports the current usage. With
+`DATABASE_POOL_BACKLOG=1` the surplus requests fail immediately with
+`too many waiting connect operations`.
 
 ## Production Configuration
 
@@ -274,6 +337,12 @@ export DATABASE_NAME=snapcloud
 export HOSTNAME=snap.berkeley.edu
 ```
 There are a lot of options defined in `config.lua`. Setting the environment is helpful because you may want to have a "staging" server with a slightly different configuration.
+
+Optional database pool settings (`DATABASE_MAX_CONNECTIONS`,
+`DATABASE_RESERVED_CONNECTIONS`, `DATABASE_POOL_SIZE`, `DATABASE_POOL_BACKLOG`)
+are documented in [DEPLOYMENT.md](./DEPLOYMENT.md). Any variable read by
+`config.lua` must also appear as an `env` line at the top of `nginx.conf`,
+otherwise nginx strips it before the Lua workers start.
 
 ### Giving permissions to use HTTP(S) ports
 (This section applies only to Linux machines.)

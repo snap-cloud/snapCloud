@@ -18,7 +18,8 @@ description = {
 
 dependencies = {
    "lua ~> 5.1",
-   "lapis == 1.16.0",
+   "lapis == 1.19.0",
+   "pgmoon == 1.18.0",
    "luaossl",
    "xml",
    "lua-resty-mail",
