@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" width="160" height="120" role="img" aria-label="Project thumbnail unavailable">
+  <rect width="160" height="120" fill="#f3f3f3"/>
+  <rect x="0.5" y="0.5" width="159" height="119" fill="none" stroke="#003262" stroke-dasharray="4 3"/>
+  <g fill="#003262" font-family="Helvetica, Arial, sans-serif" text-anchor="middle">
+    <circle cx="80" cy="43" r="18" fill="none" stroke="#003262" stroke-width="2.5"/>
+    <line x1="80" y1="35" x2="80" y2="47" stroke="#003262" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="80" cy="53" r="1.6" fill="#003262"/>
+    <text x="80" y="83" font-size="12">Thumbnail</text>
+    <text x="80" y="92" font-size="12">unavailable</text>
+  </g>
+</svg>
