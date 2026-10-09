@@ -27,6 +27,7 @@ local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local cached = package.loaded.cached
 local respond_to = package.loaded.respond_to
+local config = package.loaded.config
 
 local db = package.loaded.db
 local Users = package.loaded.Users
@@ -326,23 +327,8 @@ app:get('/bookmarked', capture_errors(cached(function (self)
     end
 end)))
 
-app:match('project', '/project', capture_errors(function (self)
-    -- Backwards compatibility with previous URL params
-    if self.params.user and self.params.project then
-        -- Just redirect using the new URL params format
-        return {
-            redirect_to =
-                self:url_for(
-                    'project',
-                    nil,
-                    {
-                        username = self.params.user,
-                        projectname = self.params.project
-                    }
-                )
-        }
-    end
-
+app:match('project', '/users/:username/projects/:projectname',
+        capture_errors(function (self)
     self.project = Projects:find(
         tostring(self.params.username),
         self.params.projectname
@@ -368,7 +354,37 @@ app:match('project', '/project', capture_errors(function (self)
             )[1] ~= nil
     end
 
+    -- Canonical URL must always point at the primary domain, never the
+    -- secondary one, regardless of which host this request arrived on.
+    self.canonical_url = self:build_url(
+        self.project:url_for('site'),
+        { host = config.hostname }
+    )
+
     return { render = 'project' }
+end))
+
+-- Legacy query-string URL: /project?username=...&projectname=... (or user/project).
+-- Permanently redirect to the new canonical path so search engines and bookmarks update.
+app:get('/project', capture_errors(function (self)
+    -- self.params.username is already lower-cased by the global before_filter;
+    -- the legacy 'user' alias is not, so normalize it here.
+    local username = self.params.username or
+        (self.params.user and tostring(self.params.user):lower())
+    local projectname = self.params.projectname or self.params.project
+    if not (username and projectname) then
+        return errorResponse(self, 'Project not found.', 404)
+    end
+    -- Lapis url_for does not URL-encode path params, so escape manually since
+    -- project names can contain spaces and other special characters.
+    local escape = package.loaded.util.escape
+    return {
+        redirect_to = self:url_for(
+            'project',
+            { username = escape(username), projectname = escape(projectname) }
+        ),
+        status = 301
+    }
 end))
 
 -- TODO: Should be able to consolidate these pages.
