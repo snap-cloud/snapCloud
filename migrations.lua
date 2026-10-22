@@ -434,5 +434,70 @@ return {
         schema.drop_index('users', 'password_version')
         schema.drop_column('users', 'password_version')
         update_user_views()
+    end,
+
+    -- The index migrations below use CONCURRENTLY so the tables stay
+    -- writable while they build. That only works because bin/lapis-migrate
+    -- does not wrap migrations in a transaction. If a concurrent build fails
+    -- it leaves an INVALID index behind, which IF NOT EXISTS would then skip:
+    -- drop it and re-run.
+
+    -- users' primary key is username, so lookups by id (Users:find(id),
+    -- model:update(), collection creators) were full table scans.
+    ['2026-10-22:0'] = function ()
+        schema.create_index('users', 'id', {
+            unique = true, concurrently = true, if_not_exists = true
+        })
+    end,
+
+    -- The "latest published projects" list (Explore page, API) sorted all
+    -- ~10M projects on every request. The WHERE clause must match the
+    -- filters in ProjectController.fetch for the planner to use it.
+    ['2026-10-22:1'] = function ()
+        schema.create_index('projects', 'firstpublished', {
+            index_name = 'projects_latest_published_idx',
+            where = 'ispublished AND deleted IS NULL AND NOT likely_class_work',
+            concurrently = true,
+            if_not_exists = true
+        })
+    end,
+
+    -- Lookups by the second column of a composite primary key can't use it.
+    ['2026-10-22:2'] = function ()
+        schema.create_index('bookmarks', 'project_id', {
+            concurrently = true, if_not_exists = true
+        })
+        schema.create_index('followers', 'followed_id', {
+            concurrently = true, if_not_exists = true
+        })
+    end,
+
+    -- remixes never had a primary key and picked up duplicate rows.
+    -- Keep the oldest row of each (original, remixed) pair, then add the key.
+    -- Safe to re-run: the deletes find nothing and the key is only added once.
+    ['2026-10-22:3'] = function ()
+        db.query('BEGIN')
+        db.query([[
+            DELETE FROM remixes WHERE original_project_id IS NULL
+        ]])
+        db.query([[
+            DELETE FROM remixes WHERE ctid IN (
+                SELECT ctid FROM (
+                    SELECT ctid, row_number() OVER (
+                        PARTITION BY original_project_id, remixed_project_id
+                        ORDER BY created NULLS LAST, ctid
+                    ) AS n
+                    FROM remixes
+                ) ranked
+                WHERE n > 1
+            )
+        ]])
+        if not schema.entity_exists('remixes_pkey') then
+            db.query([[
+                ALTER TABLE remixes ADD CONSTRAINT remixes_pkey
+                    PRIMARY KEY (original_project_id, remixed_project_id)
+            ]])
+        end
+        db.query('COMMIT')
     end
 }
