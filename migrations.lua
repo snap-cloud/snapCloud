@@ -434,5 +434,13 @@ return {
         schema.drop_index('users', 'password_version')
         schema.drop_column('users', 'password_version')
         update_user_views()
+    end,
+
+    -- users' primary key is username, so lookups by id (Users:find(id),
+    -- model:update(), collection creators) were full table scans.
+    -- In production, build it first without locking the table:
+    --   CREATE UNIQUE INDEX CONCURRENTLY users_id_idx ON users (id);
+    ['2026-10-22:0'] = function ()
+        schema.create_index('users', 'id', { unique = true, if_not_exists = true })
     end
 }
