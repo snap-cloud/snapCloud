@@ -18,10 +18,10 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.3"
+    "bootstrap": "^5.3.8"
   },
   "devDependencies": {
-    "maildev": "^2.2.1",
-    "sass": "1.77.2"
+    "maildev": "^3.0.0",
+    "sass": "^1.77.2"
   }
 }
