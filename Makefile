@@ -1,4 +1,5 @@
-.PHONY: annotate install-annotate install migrate deploy
+.PHONY: annotate install-annotate install migrate deploy \
+	vendor vendor-bootstrap vendor-fontawesome vendor-filesaver
 
 UNAME := $(shell uname)
 
@@ -39,3 +40,37 @@ deploy:
 deploy-staging:
 	ssh staging.snap.berkeley.edu "cd snapCloud/; bin/deploy ${branch}"
 	$(open_command) "https://staging.snap.berkeley.edu/"
+
+# Front-end libraries: copy from node_modules into static/vendor and update
+# the ?v cache busters in the layout templates. Run `npm install` first.
+NM := node_modules
+VENDOR := static/vendor
+HEAD := views/layout/head.etlua
+SCRIPTS := views/layout/delayed_scripts.etlua
+
+# $(call version,pkg)
+version = $$(node -p "require('./$(NM)/$(1)/package.json').version")
+# $(call bust,url-path,template,pkg): set ?v<version> on every reference to url-path
+bust = perl -pi -e 's{(\Q$(1)\E)(\?v[^"\x27]*)?}{$$1?v'"$(call version,$(3))"'}g' $(2)
+
+vendor: vendor-bootstrap vendor-fontawesome vendor-filesaver
+
+vendor-bootstrap:
+	cp $(NM)/bootstrap/dist/css/bootstrap.min.css* $(VENDOR)/style/
+	cp $(NM)/bootstrap/dist/js/bootstrap.bundle.min.js* $(VENDOR)/js/
+	cp $(NM)/@popperjs/core/dist/umd/popper.min.js $(NM)/@popperjs/core/dist/umd/popper.min.js.map $(VENDOR)/js/
+	$(call bust,/static/vendor/style/bootstrap.min.css,$(HEAD),bootstrap)
+	$(call bust,/static/vendor/js/bootstrap.bundle.min.js,$(SCRIPTS),bootstrap)
+
+# Wipe the old copy so files removed upstream don't linger.
+vendor-fontawesome:
+	rm -rf $(VENDOR)/fontawesome
+	mkdir -p $(VENDOR)/fontawesome/style
+	cp $(NM)/@fortawesome/fontawesome-free/css/all.min.css $(VENDOR)/fontawesome/style/
+	cp -R $(NM)/@fortawesome/fontawesome-free/webfonts $(VENDOR)/fontawesome/
+	cp $(NM)/@fortawesome/fontawesome-free/LICENSE.txt $(VENDOR)/fontawesome/
+	$(call bust,/static/vendor/fontawesome/style/all.min.css,$(HEAD),@fortawesome/fontawesome-free)
+
+vendor-filesaver:
+	cp $(NM)/file-saver/dist/FileSaver.min.js* $(VENDOR)/js/
+	$(call bust,/static/vendor/js/FileSaver.min.js,$(SCRIPTS),file-saver)
