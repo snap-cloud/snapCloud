@@ -4,9 +4,10 @@
   "description": "Snap! Community Site",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "vendor-bootstrap": "node bin/vendor.mjs bootstrap",
-    "vendor-fontawesome": "node bin/vendor.mjs fontawesome",
-    "vendor-filesaver": "node bin/vendor.mjs filesaver"
+    "vendor": "make vendor",
+    "vendor-bootstrap": "make vendor-bootstrap",
+    "vendor-fontawesome": "make vendor-fontawesome",
+    "vendor-filesaver": "make vendor-filesaver"
   },
   "repository": {
     "type": "git",
