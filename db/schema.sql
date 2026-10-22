@@ -2,8 +2,7 @@
 -- PostgreSQL database dump
 --
 
-
--- Dumped from database version 16.10 (Homebrew)
+-- Dumped from database version 16.7 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -434,7 +433,7 @@ CREATE VIEW public.recent_projects_2_days AS
 --
 
 CREATE TABLE public.remixes (
-    original_project_id integer,
+    original_project_id integer NOT NULL,
     remixed_project_id integer NOT NULL,
     created timestamp with time zone
 );
@@ -587,6 +586,14 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: remixes remixes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.remixes
+    ADD CONSTRAINT remixes_pkey PRIMARY KEY (original_project_id, remixed_project_id);
+
+
+--
 -- Name: projects unique_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -627,6 +634,13 @@ ALTER TABLE ONLY public.tokens
 
 
 --
+-- Name: bookmarks_project_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX bookmarks_project_id_idx ON public.bookmarks USING btree (project_id);
+
+
+--
 -- Name: collection_memberships_collection_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -662,10 +676,24 @@ CREATE UNIQUE INDEX flagged_projects_flagger_id_project_id_idx ON public.flagged
 
 
 --
+-- Name: followers_followed_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX followers_followed_id_idx ON public.followers USING btree (followed_id);
+
+
+--
 -- Name: original_project_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX original_project_id_index ON public.remixes USING btree (original_project_id);
+
+
+--
+-- Name: projects_latest_published_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX projects_latest_published_idx ON public.projects USING btree (firstpublished) WHERE (ispublished AND (deleted IS NULL) AND (NOT likely_class_work));
 
 
 --
@@ -687,6 +715,13 @@ CREATE INDEX remixed_project_id_index ON public.remixes USING btree (remixed_pro
 --
 
 CREATE INDEX users_email_idx ON public.users USING btree (email);
+
+
+--
+-- Name: users_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX users_id_idx ON public.users USING btree (id);
 
 
 --
@@ -736,8 +771,6 @@ ALTER TABLE ONLY public.tokens
 
 
 
-
-
 COPY public.lapis_migrations (name) FROM stdin;
 20190140
 201901291
@@ -762,13 +795,16 @@ COPY public.lapis_migrations (name) FROM stdin;
 2025-06-18:0
 2025-09-04:0
 2026-04-06:0
-2026-04-06:2
 2026-04-14:0
+2026-04-06:2
 2026-04-14:1
 2026-05-04:0
 2026-05-11:0
+2026-10-22:0
+2026-10-22:1
+2026-10-22:2
+2026-10-22:3
 \.
-
 
 
 
