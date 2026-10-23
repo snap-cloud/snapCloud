@@ -1,5 +1,14 @@
 <script src="/static/js/project.js"></script>
 
+<div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+    <strong>Scheduled maintenance:</strong>
+    The Snap<em>!</em> Cloud will be unavailable for about 1 hour starting
+    <strong>Saturday, October 24 at 11:00 PM PDT</strong>
+    (Sunday, October 25, 06:00&ndash;07:00 UTC / 07:00&ndash;08:00 CET).
+    You will not be able to save or open cloud projects during this time.
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+
 <% render('views.partials.slideshow') %>
 
 <h1>
