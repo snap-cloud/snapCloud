@@ -60,3 +60,6 @@ node_modules/
 # Pre-compressed static assets produced by bin/compress (run on the server
 # at deploy time). The .sql.gz rule above already covers backups.
 static/**/*.gz
+
+# Claude Code local settings
+.claude/
