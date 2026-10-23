@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# Turn Snap!Cloud maintenance mode on or off. No restart needed: the app checks
+# the flag file (tmp/maintenance_mode) on every request. See maintenance.lua.
+#
+#   bin/maintenance-mode on   [note]   read-only: pages and GET requests work, saves/logins don't
+#   bin/maintenance-mode down [note]   everything returns a 503 maintenance message
+#   bin/maintenance-mode off
+#   bin/maintenance-mode status
+#
+#   note   optional text shown to users, e.g. "until about 09:00 PT"
+#   --db   also make the database itself read-only (on/down) or writable again (off),
+#          then reload the app so pooled DB connections pick it up. Use this for
+#          migrations, so a write the app doesn't block fails instead of being lost.
+#
+# Run as the cloud user from anywhere.
+set -euo pipefail
+
+APP_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+FLAG="$APP_DIR/tmp/maintenance_mode"
+
+usage() { sed -n '2,15p' "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+
+DB=false
+ARGS=()
+for arg in "$@"; do
+    case "$arg" in
+        --db) DB=true ;;
+        -h|--help) usage ;;
+        *) ARGS+=("$arg") ;;
+    esac
+done
+[ ${#ARGS[@]} -ge 1 ] || usage
+CMD="${ARGS[0]}"
+NOTE="${ARGS[*]:1}"
+
+# DB name and connection from .env (DATABASE_NAME etc.), without echoing secrets.
+load_env() {
+    if [ -f "$APP_DIR/.env" ]; then
+        set +u; set -a; . "$APP_DIR/.env"; set +a; set -u
+    fi
+    DB_NAME="${DATABASE_NAME:-snapcloud}"
+}
+
+# Run SQL in a session that is never read-only, so `off` works on a read-only DB.
+psql_rw() {
+    PGOPTIONS='-c default_transaction_read_only=off' \
+        psql -X -q -At -v ON_ERROR_STOP=1 -d "$DB_NAME" -c "$1"
+}
+
+db_read_only_setting() {
+    # What a *new* connection gets (on/off).
+    psql -X -At -d "$DB_NAME" -c 'SHOW default_transaction_read_only' 2>/dev/null || echo unknown
+}
+
+reload_app() {
+    if command -v service >/dev/null && [ -f /etc/init.d/snapcloud_daemon ]; then
+        echo "Reloading the app so pooled DB connections reconnect..."
+        sudo -n service snapcloud_daemon reload
+    else
+        echo "No snapcloud_daemon service here; restart your dev server to drop pooled DB connections."
+    fi
+}
+
+set_db_read_only() {
+    load_env
+    if [ "$1" = on ]; then
+        psql_rw "ALTER DATABASE \"$DB_NAME\" SET default_transaction_read_only = on"
+    else
+        psql_rw "ALTER DATABASE \"$DB_NAME\" RESET default_transaction_read_only"
+    fi
+    echo "Database $DB_NAME: new connections read-only = $(db_read_only_setting)"
+    reload_app
+}
+
+status() {
+    if [ -f "$FLAG" ]; then
+        echo "App: $(head -1 "$FLAG")  (since $(date -r "$FLAG" '+%F %T %Z' 2>/dev/null || stat -c %y "$FLAG"))"
+    else
+        echo "App: normal (no $FLAG)"
+    fi
+    load_env
+    echo "Database $DB_NAME: new connections read-only = $(db_read_only_setting)"
+    if [ "${MAINTENANCE_MODE:-false}" = "true" ]; then
+        echo "Note: MAINTENANCE_MODE=true in .env also forces 'down' (read at server start)."
+    fi
+}
+
+case "$CMD" in
+    on|read-only|read_only|down)
+        mode=read_only; [ "$CMD" = down ] && mode=down
+        mkdir -p "$(dirname "$FLAG")"
+        printf '%s %s\n' "$mode" "$NOTE" > "$FLAG.tmp" && mv "$FLAG.tmp" "$FLAG"
+        echo "Maintenance mode: $mode${NOTE:+ ($NOTE)}. Takes effect within ~1 second."
+        if $DB; then set_db_read_only on; fi
+        ;;
+    off)
+        # Make the DB writable before the app starts accepting writes again.
+        if $DB; then set_db_read_only off; fi
+        rm -f "$FLAG"
+        echo "Maintenance mode: off."
+        ;;
+    status) status ;;
+    *) usage ;;
+esac

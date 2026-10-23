@@ -40,6 +40,9 @@ local capitalize = require('lib.util').capitalize
 local create_signature, extract_payload, build_payload, create_redirect_url
 
 app:get('/api/v1/discourse-sso', capture_errors(function(self)
+    -- Forum sign-in can write (users.unique_email), so pause it during maintenance.
+    local blocked = package.loaded.maintenance.block_writes(self)
+    if blocked then return blocked end
     if self.session.username == '' then
         local signin_url = '/login?redirect_to='
         local encoded_params = util.encode_query_string(self.params)

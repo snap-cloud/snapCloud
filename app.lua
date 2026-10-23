@@ -79,6 +79,8 @@ end
 
 require 'models'
 require 'responses'
+local maintenance = require('maintenance')
+package.loaded.maintenance = maintenance
 
 -- Resolve the user this request belongs to, based on the session cookie.
 --
@@ -115,6 +117,9 @@ local function resolve_current_user(self)
         return nil
     end
 
+    -- Read-only maintenance: keep the user logged in, but don't write a token.
+    if maintenance.is_read_only() then return user end
+
     self.session.remember_token = user:rotate_remember_token()
     return user
 end
@@ -122,6 +127,8 @@ end
 -- Track a "session" (a 4-hour window of activity) for the user. Called
 -- after a request has been authenticated and current_user is set.
 local function track_session_activity(self)
+    -- Session counts are paused during read-only maintenance.
+    if maintenance.is_read_only() then return end
     local should_count_session = false
     local last_session_at = self.current_user.last_session_at
     if not last_session_at then
@@ -280,6 +287,18 @@ app:before_filter(function (self)
         return
     end
 
+    -- Maintenance (see maintenance.lua, bin/maintenance-mode). Checked after the
+    -- CORS headers are set, so the Snap! editor can read the error message.
+    self.maintenance_mode = maintenance.mode()
+    if self.maintenance_mode then
+        self.maintenance_message = maintenance.message()
+        if self.maintenance_mode == 'down' or
+                not maintenance.allows_method(ngx.req.get_method()) then
+            self:write(maintenance.response(self))
+            return
+        end
+    end
+
     if ngx.req.get_method() == 'POST' then
         -- read body params for all POST requests
         ngx.req.read_body()
@@ -381,16 +400,6 @@ function app:handle_error(err, trace)
         end
     end
     return errorResponse(self, "An unexpected error occurred: " .. err_msg, 500)
-end
-
--- Enable the ability to have a maintenance mode
--- No routes are served, and a generic error is returned.
-if config.maintenance_mode == 'true' then
-    local msg = 'The Snap!Cloud is currently down for maintenance.'
-    app:match('/*', function(self)
-        return errorResponse(self, msg, 500)
-    end)
-    return app
 end
 
 -- The API for the Snap! editor is implemented in the api.lua file
