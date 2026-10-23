@@ -74,8 +74,8 @@ curl -s -o /dev/null -w "%{http_code}" -XPOST \
 echo
 
 
-# Always update the letsencrypt script incase it changes.
-cp ./bin/deploy-certs ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
+# Cert deploys: bin/renew-certs passes `--deploy-hook bin/deploy-certs` to certbot.
+# Don't also copy it into ~/lets-encrypt/renewal-hooks/, or it runs twice per renewal.
 
 # The cloud user only has the ability to restart this service.
 echo 'Restarting snapcloud daemon'
