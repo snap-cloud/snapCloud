@@ -169,7 +169,9 @@ UserController = {
                         message = package.loaded.locale.get(
                             'learner_first_login_meesage',
                             self.queried_user.username,
-                            self:build_url('/profile')
+                            self:build_url('/profile'),
+                            -- The site shows this as HTML, the editor as text
+                            { escape = self.req.source ~= 'snap' }
                         ),
                         redirect = self:build_url('/')
                     })

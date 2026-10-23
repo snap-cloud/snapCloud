@@ -23,6 +23,7 @@
 local yield_error = package.loaded.yield_error
 
 local lfs = require('lfs')
+local escape_html = require('lib.util').escape_html
 local localizer = { locales = {} }
 
 localizer.read_locales = function ()
@@ -37,16 +38,28 @@ localizer.read_locales = function ()
 end
 
 localizer.apply_params = function (string, ...)
-    -- Substitutes params of the type @1, @2 in strings
-    local parametrized = string
-    for i, v in ipairs({...}) do
-        if tostring(v):find('%%') then
-            v = tostring(v):gsub('%%', '%%%%') -- in case string contains "%"
-        end
-        parametrized =
-            parametrized:gsub('@' .. i, v)
+    -- Substitutes params of the type @1, @2 in strings.
+    -- Params are HTML-escaped, since they're often user data. To pass markup
+    -- (or to get plain text for a <title>, prompt() etc.), add an options
+    -- table as the last argument:
+    --   locale.get('welcome', '<em>!</em>', { escape = false })
+    local params = { ... }
+    local count = select('#', ...)
+    local escape = true
+    local last = params[count]
+    if type(last) == 'table' and last.escape ~= nil then
+        escape = last.escape
+        params[count] = nil
     end
-    return parametrized
+
+    -- Replace every placeholder in a single pass, so a param that itself
+    -- contains "@2" isn't substituted again.
+    return (string:gsub('@(%d+)', function (index)
+        local value = params[tonumber(index)]
+        if value == nil then return nil end -- leave the placeholder as is
+        if escape then return escape_html(value) end
+        return tostring(value)
+    end))
 end
 
 localizer.localize = function (selector, lang_code, ...)

@@ -1,10 +1,9 @@
-<% local util = require('lib.util') %>
 <% if current_user and current_user:has_min_role('moderator') then %>
 <link rel="stylesheet" href="/static/style/admin.css">
 <% end %>
 
-<% content_for('title', locale.get('public_page', username)) %>
-<h1><%= locale.get('public_page', username) %></h1>
+<% content_for('title', locale.get('public_page', username, { escape = false })) %>
+<h1><%- locale.get('public_page', username) %></h1>
 
 <%
 -- PUBLIC PROJECTS

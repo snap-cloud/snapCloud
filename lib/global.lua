@@ -54,6 +54,7 @@ string.from_sql_date = function (sql_date)
         'date',
         actual_date:getday(),
         package.loaded.locale.get(month_names[actual_date:getmonth()]),
-        actual_date:getyear()
+        actual_date:getyear(),
+        { escape = false }
     )
 end

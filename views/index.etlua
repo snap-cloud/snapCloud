@@ -4,21 +4,21 @@
 
 <h1>
     <% if current_user then %>
-    <%= locale.get('welcome_logged_in', current_user.username) %>
+    <%- locale.get('welcome_logged_in', current_user.username) %>
     <% else %>
-    <%- locale.get('welcome', '<em>!</em>') %>
+    <%- locale.get('welcome', '<em>!</em>', { escape = false }) %>
     <% end %>
 </h1>
 
 <div class="row">
-    <div class="col-12"><%- locale.get('snap_description', '<em>!</em>') %></div>
+    <div class="col-12"><%- locale.get('snap_description', '<em>!</em>', { escape = false }) %></div>
 
     <div class="col-12 py-3">
         <a href="/snap"
             target="<%- prefer_new_tab and '_blank' or '_self' %>"
             class="m-1 btn btn-lg btn-primary"
             ><%- locale.get('run_now',
-            '<img src="/static/img/snap-logo-white.svg" alt="Snap!" style="height: 1.5rem" />') %>
+            '<img src="/static/img/snap-logo-white.svg" alt="Snap!" style="height: 1.5rem" />', { escape = false }) %>
         </a>
         <% if current_user then %>
         <a href="/my_projects" class="m-1 btn btn-lg btn-outline-success"
@@ -30,7 +30,7 @@
             <%- locale.get('examples') %>
         </a>
         <a href="/learn" class="m-1 btn btn-lg btn-outline-secondary" target="_blank"
-            ><%- locale.get('learn_snap', 'Snap<em>!</em>') %></a>
+            ><%- locale.get('learn_snap', 'Snap<em>!</em>', { escape = false }) %></a>
         <% end %>
     </div>
 </div>
@@ -68,7 +68,7 @@ end
 
 local function title_for (descriptor, collection_name)
     if descriptor.type == 'totm' then
-        return locale.get('totm', collection_name)
+        return locale.get('totm', collection_name, { escape = false })
     else
         return collection_name
     end

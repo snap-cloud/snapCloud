@@ -1,4 +1,3 @@
-<% local util = require('lib.util') %>
 <div class="project small col-md col-sm-4 col-6">
     <% if (item.thumbnail == nil) then %>
     <i class="no-image fas fa-question-circle"></i>
@@ -33,7 +32,7 @@
         locale.get('project_by_thumb',
             '<a href="' .. item:url_for('author') .. '"' ..
               'title="' .. util.escape_html(item.username) .. '"><strong>' ..
-              util.escape_html(item.username) .. '</strong></a>')
+              util.escape_html(item.username) .. '</strong></a>', { escape = false })
     %></span>
 <% end %>
 

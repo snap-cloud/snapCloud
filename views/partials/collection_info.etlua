@@ -1,4 +1,3 @@
-<% local util = require('lib.util') %>
 <div class="row py-1">
     <% render('views.partials.collection_thumbnail') %>
     <% render('views.partials.collection_dates') %>

@@ -1,5 +1,5 @@
-<% content_for('title', locale.get('log_into_snap', '!')) %>
-<h1><%- locale.get('log_into_snap', '<em>!</em>' ) %></h1>
+<% content_for('title', locale.get('log_into_snap', '!', { escape = false })) %>
+<h1><%- locale.get('log_into_snap', '<em>!</em>', { escape = false }) %></h1>
 
 <form id="login" class="form-horizontal my-4" onsubmit="handleLoginSubmit(event)">
   <input type="hidden" name="csrf_token" id="csrf_token" value="<%- csrf_token %>">

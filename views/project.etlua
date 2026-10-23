@@ -1,6 +1,5 @@
-<% local util = require('lib.util') %>
 <!-- <script src="/static/js/inplace.js"></script> -->
-<% content_for('title', project.projectname .. " " .. locale.get('project_by', project.username)) %>
+<% content_for('title', project.projectname .. " " .. locale.get('project_by', project.username, { escape = false })) %>
 
 <!-- TODO-BS: Replace .project.big with a single CSS class. Extract to partial? -->
 <div class="project big mt-3">
@@ -15,7 +14,8 @@
                     'project_by',
                     '<a href="' .. project:url_for('author') ..
                         '"target=""><strong>' .. util.escape_html(project.username) ..
-                        '</strong></a>'
+                        '</strong></a>',
+                    { escape = false }
                 )
             %></div>
             <% if remixed_from then %>
@@ -28,7 +28,8 @@
                         '</a></span>',
                     '<a href="' .. remixed_from:url_for('author') ..
                         '"><strong>' .. util.escape_html(remixed_from.username) ..
-                        '</strong></a>')
+                        '</strong></a>',
+                    { escape = false })
             %></div>
             <% end %>
         </div>

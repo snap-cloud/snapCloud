@@ -1,4 +1,3 @@
-<% local util = require('lib.util') %>
 <% flags = project:get_flags() %>
 <div class="flag-list">
 <% if not flags then %>

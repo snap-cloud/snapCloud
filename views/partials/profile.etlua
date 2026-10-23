@@ -1,5 +1,4 @@
 <%
-  local util = require 'lib.util'
   card_classes = (item.role or '') .. ' ' .. (item.verified and '' or 'unverified')
   role_bg_color = ({
     moderator = 'info',
@@ -158,7 +157,7 @@
                 <li><a class="dropdown-item" role="button"
                     onclick="
                         prompt(
-                            <%- util.js_string(locale.get('new_username', item.username)) %>,
+                            <%- util.js_string(locale.get('new_username', item.username, { escape = false })) %>,
                             username => {
                                 cloud.post(
                                     '/users/' + <%- util.js_string(item.username) %> + '/change_username',
@@ -189,7 +188,7 @@
                 <li><a class="dropdown-item" role="button"
                     onclick="
                     confirm(
-                            <%- util.js_string(util.escape_html(locale.get('confirm_reset_password', item.username))) %>,
+                            <%- util.js_string(locale.get('confirm_reset_password', item.username)) %>,
                             () => {
                             cloud.post(
                                     '/users/' + <%- util.js_string(item.username) %> + '/password_reset'
@@ -200,7 +199,7 @@
                 <li><a class="dropdown-item" role="button"
                     onclick="
                     confirm(
-                            <%- util.js_string(util.escape_html(locale.get('confirm_reset_password', item.username))) %>,
+                            <%- util.js_string(locale.get('confirm_reset_password', item.username)) %>,
                             () => {
                             cloud.post(
                                     '/users/' + <%- util.js_string(item.username) %> + '/password_reset',
@@ -258,7 +257,7 @@
                 <li><a class="dropdown-item" role="button"
                     onclick="
                         confirm(
-                            <%- util.js_string(util.escape_html(locale.get('confirm_revive', item.username))) %>,
+                            <%- util.js_string(locale.get('confirm_revive', item.username)) %>,
                             () => {
                                 cloud.post('/zombies/' + <%- util.js_string(item.username) %> + '/revive');
                             }
