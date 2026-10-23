@@ -54,6 +54,20 @@ local function escape_html(text)
   end))
 end
 
+-- Turns a value into a JavaScript string literal, quotes included, for use
+-- in templates. Quotes, backslashes, <, >, & and control characters are
+-- written as \u escapes, so the result can't end the string, a <script> tag
+-- or an HTML attribute. That makes it safe both in <script> blocks and in
+-- attributes like onclick="...". Always output it raw:
+--   cloud.post('/users/' + <%- util.js_string(item.username) %> + '/verify')
+local function js_string(value)
+  if value == nil then return "''" end
+  local escaped = tostring(value):gsub('[%c\\\'"<>&]', function (char)
+    return string.format('\\u%04x', char:byte())
+  end)
+  return "'" .. escaped .. "'"
+end
+
 local function visualize_whitespace_html(str)
     if not str then
         return "<code>[nil]</code>"
@@ -117,6 +131,7 @@ return {
   capitalize = capitalize,
   domain_name = domain_name,
   escape_html = escape_html,
+  js_string = js_string,
   visualize_whitespace_html = visualize_whitespace_html,
   group_by_type = group_by_type,
   cache_buster = cache_buster,

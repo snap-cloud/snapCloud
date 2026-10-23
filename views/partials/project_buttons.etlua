@@ -1,3 +1,4 @@
+<% local util = require('lib.util') %>
 <% local is_users_project = (current_user and current_user.username == project.username)
    local can_manage = current_user and current_user:has_min_role('moderator')
    local is_admin = current_user and current_user:isadmin() %>
@@ -75,8 +76,8 @@
 <script>
 function embedDialog () {
     function update (form) {
-        let base_embed_url = '<%- project:url_for('embed') %>',
-            project_name = '<%- project.projectname %>',
+        let base_embed_url = <%- util.js_string(project:url_for('embed')) %>,
+            project_name = <%- util.js_string(project.projectname) %>,
             options = Object.values(
                 form.querySelectorAll('input[type="checkbox"]:checked')
             ).map(input => `${input.value}=true`).join('&'),
@@ -174,7 +175,7 @@ function markAsRemix () {
                 '/api/v1/project/<%= project.id %>/mark_as_remix',
                 null,
                 {
-                    username: '<%= project.username %>',
+                    username: <%- util.js_string(project.username) %>,
                     created: '<%= project.created %>',
                     original_username: url.searchParams.get('username'),
                     original_projectname: url.searchParams.get('projectname')
