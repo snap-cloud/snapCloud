@@ -86,7 +86,7 @@
                             <% for _, role in ipairs(role_order) do %>
                             <li><button type="button" class="dropdown-item"
                                 onclick="cloud.post(
-                                    '/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/set_role',
+                                    <%- util.js_string(item:api_path('set_role')) %>,
                                     null,
                                     { username: <%- util.js_string(item.username) %>, role: '<%= role %>' }
                                 );">
@@ -97,7 +97,7 @@
                             <li><hr class="dropdown-divider"></li>
                             <li><button type="button" class="dropdown-item text-danger"
                                 onclick="cloud.post(
-                                    '/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/set_role',
+                                    <%- util.js_string(item:api_path('set_role')) %>,
                                     null,
                                     { username: <%- util.js_string(item.username) %>, role: 'banned' }
                                 );">
@@ -120,7 +120,7 @@
                             id="<%- label_id %>"
                             <%- item.is_teacher and 'checked' or '' %>
                             onchange="cloud.post(
-                                '/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/set_teacher',
+                                <%- util.js_string(item:api_path('set_teacher')) %>,
                                 null,
                                 { username: <%- util.js_string(item.username) %>, is_teacher: this.checked }
                             );"
@@ -142,11 +142,11 @@
                 <% need_divider = false %>
                 <% if show_admin_group then %>
                 <li><a class="dropdown-item become" role="button"
-                    onclick="cloud.post('/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/become');"
+                    onclick="cloud.post(<%- util.js_string(item:api_path('become')) %>);"
                     ><%- locale.get('become') %></a></li>
                 <% if not item.verified and current_user:has_min_role('moderator') then %>
                 <li><a class="dropdown-item verify" role="button"
-                    onclick="cloud.post('/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/verify');"
+                    onclick="cloud.post(<%- util.js_string(item:api_path('verify')) %>);"
                     ><%- locale.get('verify') %></a></li>
                 <% end %>
                 <% need_divider = true %>
@@ -160,7 +160,7 @@
                             <%- util.js_string(locale.get('new_username', item.username, { escape = false })) %>,
                             username => {
                                 cloud.post(
-                                    '/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/change_username',
+                                    <%- util.js_string(item:api_path('change_username')) %>,
                                     null,
                                     { new_username: username }
                                 );
@@ -174,7 +174,7 @@
                             '<%- locale.get('new_email') %>',
                             email => {
                                 cloud.post(
-                                    '/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/change_email',
+                                    <%- util.js_string(item:api_path('change_email')) %>,
                                     null,
                                     {
                                         email: email,
@@ -191,7 +191,7 @@
                             <%- util.js_string(locale.get('confirm_reset_password', item.username)) %>,
                             () => {
                             cloud.post(
-                                    '/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/password_reset'
+                                    <%- util.js_string(item:api_path('password_reset')) %>
                                     );
                             }
                            );
@@ -202,7 +202,7 @@
                             <%- util.js_string(locale.get('confirm_reset_password', item.username)) %>,
                             () => {
                             cloud.post(
-                                    '/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/password_reset',
+                                    <%- util.js_string(item:api_path('password_reset')) %>,
                                     nop,
                                     { do_not_email: true }
                                     );
@@ -225,7 +225,7 @@
                                     subject = form.querySelector('input').value,
                                     contents = form.querySelector('textarea').value;
                                 cloud.post(
-                                    '/users/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/send_email',
+                                    <%- util.js_string(item:api_path('send_email')) %>,
                                     null,
                                     {
                                         subject: subject,
@@ -247,7 +247,7 @@
                             <%- util.js_string(package.loaded.dialog('delete_user', { username = item.username })) %>,
                             () => {
                                 cloud.delete(
-                                    '/<%= zombie and 'zombies' or 'users' %>/' + encodeURIComponent(<%- util.js_string(item.username) %>)
+                                    <%- util.js_string(item:api_path()) %>
                                 );
                             }
                         );
@@ -259,7 +259,7 @@
                         confirm(
                             <%- util.js_string(locale.get('confirm_revive', item.username)) %>,
                             () => {
-                                cloud.post('/zombies/' + encodeURIComponent(<%- util.js_string(item.username) %>) + '/revive');
+                                cloud.post(<%- util.js_string(item:api_path('revive')) %>);
                             }
                         );
                     "
