@@ -33,6 +33,34 @@ local db = require("lapis.db")
 local schema = require("lapis.db.schema")
 local types = schema.types
 
+-- The snapanalytics role (Metabase) gets column-level SELECT on users and its
+-- views, minus credential columns. New columns aren't visible to it until
+-- granted, and dropping a view loses its grants, so re-grant after any change.
+-- Skipped when the role doesn't exist (e.g. development).
+local grant_analytics_user_columns = function ()
+    db.query([[
+        DO $$
+        DECLARE
+            rel  text;
+            cols text;
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'snapanalytics') THEN
+                RETURN;
+            END IF;
+            FOREACH rel IN ARRAY ARRAY['users', 'active_users', 'deleted_users'] LOOP
+                SELECT string_agg(quote_ident(column_name), ', ')
+                  INTO cols
+                  FROM information_schema.columns
+                 WHERE table_schema = 'public'
+                   AND table_name = rel
+                   AND column_name NOT IN ('password', 'salt', 'remember_token');
+                EXECUTE format('GRANT SELECT (%s) ON public.%I TO snapanalytics', cols, rel);
+            END LOOP;
+        END
+        $$
+    ]])
+end
+
 -- You MUST recreate the views modifying the users table.
 local update_user_views = function ()
     db.query([[
@@ -45,6 +73,7 @@ local update_user_views = function ()
             SELECT * FROM users WHERE deleted is not null
         )
     ]])
+    grant_analytics_user_columns()
 end
 
 local update_project_views = function ()
