@@ -29,6 +29,29 @@ local yield_error = package.loaded.yield_error
 
 local disk = {}
 
+-- How many previous versions of each project we keep. They live in folders
+-- named d-1 to d-N inside the project's directory:
+--   d-1: the version from right before the latest save
+--   d-2: the last version that was more than 12 hours old
+-- A "delta" is the number that picks one: nil or 0 for the current version,
+-- -1 to -BACKUP_VERSIONS for a backup.
+disk.BACKUP_VERSIONS = 2
+
+-- Returns the directory holding the given version of a project.
+-- delta often comes straight from a request param and ends up in a file path,
+-- so anything that isn't a known version is rejected.
+function disk:version_directory (id, delta)
+    local dir = self:directory_for_id(id)
+    if delta == nil or delta == '' then return dir end
+    local version = tonumber(delta)
+    if version == 0 then return dir end
+    if version == nil or version ~= math.floor(version) or
+            version > 0 or version < -disk.BACKUP_VERSIONS then
+        yield_error(err.invalid_project_version)
+    end
+    return dir .. string.format('/d%d', version)
+end
+
 function disk:timestamp_command(dir)
     return 'stat ' .. config.stat_arguments .. ' ' .. dir .. '/project.xml'
 end
@@ -48,10 +71,7 @@ function disk:save (id, filename, contents)
 end
 
 function disk:retrieve (id, filename, delta)
-    local dir = self:directory_for_id(id)
-    -- if delta exists, we look for a previous version of the file
-    -- under dir/d[delta]
-    if (delta) then dir = dir .. '/d' .. delta end
+    local dir = self:version_directory(id, delta)
     local file = io.open(dir .. '/' .. filename, 'r')
     if (file) then
         local contents = file:read("*all")
@@ -80,10 +100,7 @@ function disk:generate_thumbnail (id)
 end
 
 function disk:parse_notes (id, delta)
-    local dir = self:directory_for_id(id)
-    -- if delta exists, we look for a previous version of the file
-    -- under dir/d[delta]
-    if (delta) then dir = dir .. '/d' .. delta end
+    local dir = self:version_directory(id, delta)
     local project_file = io.open(dir .. '/project.xml', 'r')
     local notes
     if (project_file) then
@@ -164,7 +181,7 @@ function disk:update_xml(id, update_function)
 end
 
 function disk:get_version_metadata(id, delta)
-    local dir = self:directory_for_id(id) .. '/d' .. delta
+    local dir = self:version_directory(id, delta)
     local project_file = io.open(dir .. '/project.xml', 'r')
     if (project_file) then
         local command = io.popen(self:timestamp_command(dir))
