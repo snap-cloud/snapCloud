@@ -248,7 +248,7 @@ app:get('/collection', capture_errors(function (self)
     return { render = 'collection' }
 end))
 
-app:get('/user', capture_errors(function (self)
+app:get('user', '/user', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     if self.params.user and self.params.user ~= '' and self.params.username == nil then
         -- Just redirect using the new URL params format
