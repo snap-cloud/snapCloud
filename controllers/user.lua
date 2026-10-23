@@ -1005,7 +1005,7 @@ app:match(
                             'Password reset',
                             '<p>Your password has been successfully ' ..
                             'changed for account <strong>' ..
-                            user.username .. '</strong>.</p>' ..
+                            escape_html(user.username) .. '</strong>.</p>' ..
                             '<p>You may now log in with your ' ..
                             'new password.</p>'
                         )
@@ -1028,7 +1028,7 @@ app:match(
                 return html_message_page(
                     self,
                     'User verified | Welcome to Snap<em>!</em>',
-                    '<p>Your account <strong>' .. user.username ..
+                    '<p>Your account <strong>' .. escape_html(user.username) ..
                     '</strong> has been verified.</p>' ..
                     '<p>Thank you!</p>' ..
                     '<p><a href="https://snap.berkeley.edu/">' ..
