@@ -83,7 +83,6 @@ domain_allowed['microworld.edc.org'] = true
 
 -- SoundScope Sites
 -- CONTACT:
-domain_allowed['soundscope-website-beta.s3.amazonaws.com/index.html'] = true
 domain_allowed['soundscope-website-beta.s3.amazonaws.com'] = true
 domain_allowed['soundscope-website.web.app'] = true
 domain_allowed['tunescope.org'] = true
@@ -118,5 +117,8 @@ domain_allowed['studygiggle.onrender.com'] = true
 -- CONTACT: Snap! Team
 domain_allowed['localhost'] = true
 domain_allowed['jmoenig.github.io'] = true
+-- Michael's Website for testing
+domain_allowed['mball.co'] = true
+domain_allowed['snap.mball.co'] = true
 
 return domain_allowed

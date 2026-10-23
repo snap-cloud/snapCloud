@@ -440,11 +440,13 @@ ProjectController = {
                 tostring(self.params.original_projectname)
             )
         if original_project then
-            Remixes:create({
+            -- remixes has a primary key on (original, remixed); marking the
+            -- same remix twice is a no-op rather than an error.
+            db.insert('remixes', {
                 original_project_id = original_project.id,
                 remixed_project_id = self.params.id,
                 created = self.params.created
-            })
+            }, { on_conflict = 'do_nothing' })
         end
 
         return okResponse()
