@@ -163,13 +163,15 @@
       if (email !== emailRepeat) {
           genericError(
               "<%- locale.get('err_email_mismatch', '<br>', { escape = false }) %>",
-              "<%- locale.get('err_email_mismatch_title') %>"
+              "<%- locale.get('err_email_mismatch_title') %>",
+              true
           );
           return;
       } else if (password !== passwordRepeat) {
           genericError(
               "<%- locale.get('err_password_mismatch', '<br>', { escape = false }) %>",
               "<%- locale.get('err_password_mismatch_title') %>",
+              true
           );
           return;
       }
@@ -185,8 +187,8 @@
       successMessage => {
         if (successMessage) {
             alert(
-                localizer.localize(successMessage),
-                { title: localizer.localize('Account Created') },
+                serverMessageHtml(successMessage),
+                { title: escapeHtml(localizer.localize('Account Created')) },
                 () => location.href = '/login'
             );
         } else {
@@ -195,8 +197,8 @@
       },
       errorMessage => {
         alert(
-            localizer.localize(errorMessage),
-            { title: localizer.localize('Error') }
+            serverMessageHtml(errorMessage),
+            { title: escapeHtml(localizer.localize('Error')) }
         )
       }
     );

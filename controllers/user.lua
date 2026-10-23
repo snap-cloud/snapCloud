@@ -170,8 +170,8 @@ UserController = {
                             'learner_first_login_meesage',
                             self.queried_user.username,
                             self:build_url('/profile'),
-                            -- The site shows this as HTML, the editor as text
-                            { escape = self.req.source ~= 'snap' }
+                            -- Plain text: the site escapes it for display
+                            { escape = false }
                         ),
                         redirect = self:build_url('/')
                     })
@@ -647,10 +647,10 @@ UserController = {
             usernames = {}
             local msg =
                 'No user accounts created! ' ..
-                #existing_users .. ' users already exist.<br>' ..
-                'Please provide new usernames for the following users:<br><br>'
+                #existing_users .. ' users already exist.\n' ..
+                'Please provide new usernames for the following users:\n\n'
             for _, user in pairs(existing_users) do
-                msg = msg .. user.username .. '<br>'
+                msg = msg .. user.username .. '\n'
             end
             return errorResponse(self, msg, 400)
         end
@@ -672,8 +672,8 @@ UserController = {
                     db.query('ROLLBACK;')
                     return errorResponse(self,
                         'Could not create collection ' ..
-                        self.params.collection_name .. '.<br>' ..
-                        'Please make sure you do not already have a<br>' ..
+                        self.params.collection_name .. '.\n' ..
+                        'Please make sure you do not already have a\n' ..
                         'collection with that name.'
                     )
                 end

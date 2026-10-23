@@ -109,7 +109,7 @@ err = {
         status = 409 },
     too_many_password_resets = {
         msg = 'A password reset email has already been sent to this user ' ..
-            'recently.<br/>Please check your spam folder, or wait a few ' ..
+            'recently.\nPlease check your spam folder, or wait a few ' ..
             'minutes and try again.',
         status = 429 },
     project_already_flagged =

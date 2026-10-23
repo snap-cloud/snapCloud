@@ -68,8 +68,8 @@
       (user, role, response) => {
         if (response.title) {
           alert(
-            localizer.localize(response.message),
-            { title: localizer.localize(response.title) },
+            serverMessageHtml(response.message, response.html),
+            { title: escapeHtml(localizer.localize(response.title)) },
             () => { location.href = response.redirect }
           );
         } else {
@@ -77,9 +77,11 @@
         }
       }, // onSuccess
       response => {
+        // Login errors are fixed strings, one of them with a link and image
         genericError(
           response,
-          '<%= locale.get('err_login_failed') %>'
+          '<%= locale.get('err_login_failed') %>',
+          true
         );
       }
     );

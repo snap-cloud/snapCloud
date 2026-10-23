@@ -55,7 +55,8 @@
         if (email !== emailRepeat) {
             genericError(
                 "<%- locale.get('err_email_mismatch', '<br>', { escape = false }) %>",
-                "<%- locale.get('err_email_mismatch_title') %>"
+                "<%- locale.get('err_email_mismatch_title') %>",
+                true
             );
             return;
         }
