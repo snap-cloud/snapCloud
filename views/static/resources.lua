@@ -151,7 +151,7 @@ local materials = {
     links = {
       { label = "Reference", url = "http://www.abhayjoshi.net/spark/snap.htm" },
       { label = "Bookshop", url = "https://bookshop.org/a/124937/9781728921716" },
-      { label = "Amazon", url = "https://amzn.com/gp/product/1090818815?tag=calphoto" }
+      { label = "Amazon", url = "https://amzn.com/gp/product/1728921716?tag=calphoto-20" }
     },
     language = {"English"},
     type = "book",
@@ -213,7 +213,7 @@ local materials = {
     links = {
       { label = "Reference", url = "http://www.abhayjoshi.net/spark/python_page.htm" },
       { label = "Bookshop", url = "https://bookshop.org/a/124937/9798502337588" },
-      { label = "Amazon", url = "https://amzn.com/gp/product/B094ZQ1J62?tag=calphoto" }
+      { label = "Amazon", url = "https://amzn.com/gp/product/B094ZQ1J62?tag=calphoto-20" }
     },
     language = {"English"},
     type = "book",

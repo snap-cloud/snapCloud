@@ -16,9 +16,9 @@
             <% if item.author then %>
                 by <%- item.author %>
             <% end %>
-			<% if item.links then %>
-				(<% for index, link in ipairs(item.links) do %><% if index > 1 then %> | <% end %><a href="<%= link.url %>"><%= link.label %></a><% end %>)
-			<% end %>
+            <% if item.links then %>
+                (<% for index, link in ipairs(item.links) do %><% if index > 1 then %> | <% end %><a href="<%= link.url %>"><%= link.label %></a><% end %>)
+            <% end %>
             <span class="mt-1">
                 <% for _, lang in ipairs(item.language) do %>
                     <span class="badge text-bg-primary"><%= (lang) %></span>
