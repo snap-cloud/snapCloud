@@ -3,6 +3,8 @@
 This guide covers production-only deployment concerns. For local
 development setup see [`INSTALL.md`](./INSTALL.md).
 
+nginx serves static error pages from `static/errors/`.
+
 ## Snap! checkouts on the server
 
 The production server keeps several independent Snap! checkouts. They are
