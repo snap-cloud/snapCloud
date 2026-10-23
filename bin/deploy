@@ -74,9 +74,6 @@ curl -s -o /dev/null -w "%{http_code}" -XPOST \
 echo
 
 
-# Always update the letsencrypt script incase it changes.
-cp ./bin/deploy-certs ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
-
 # The cloud user only has the ability to restart this service.
 echo 'Restarting snapcloud daemon'
 sudo service snapcloud_daemon restart
