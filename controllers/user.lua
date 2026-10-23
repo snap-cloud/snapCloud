@@ -156,26 +156,15 @@ UserController = {
                 purpose = 'verify_user'
             })
 
+            -- A student's first login is a null last_login_at, not the
+            -- verification flag: students are already verified.
+            local student_first_login =
+                self.queried_user:is_student()
+                    and self.queried_user.last_login_at == nil
+
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
-                if self.queried_user:is_student() then
-                    self.queried_user:update({
-                        verified = true,
-                        last_login_at = db.format_date()
-                    })
-                    return jsonResponse({
-                        title = 'Welcome to Snap!',
-                        message = package.loaded.locale.get(
-                            'learner_first_login_meesage',
-                            self.queried_user.username,
-                            self:build_url('/profile'),
-                            -- Plain text: the site escapes it for display
-                            { escape = false }
-                        ),
-                        redirect = self:build_url('/')
-                    })
-                end
                 local message =
                     self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
@@ -205,6 +194,21 @@ UserController = {
             self.queried_user:update({
                 last_login_at = db.format_date()
             })
+
+            if student_first_login then
+                return jsonResponse({
+                    title = 'Welcome to Snap!',
+                    message = package.loaded.locale.get(
+                        'learner_first_login_meesage',
+                        self.queried_user.username,
+                        self:build_url('/profile'),
+                        -- Plain text: the site escapes it for display
+                        { escape = false }
+                    ),
+                    redirect = self:build_url('/')
+                })
+            end
+
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
@@ -691,7 +695,8 @@ UserController = {
             user.salt = ''
             user.password = bcrypt_hash(prehash)
             user.email = (user.email or self.current_user.email)
-            user.verified = false
+            -- Students live under the teacher's verified email; verify at creation.
+            user.verified = true
             user.role = 'student'
             user.creator_id = self.current_user.id
             result = Users:create(user)
