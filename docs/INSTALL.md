@@ -44,8 +44,8 @@ The other sections not listed are not needed for development, but may be needed 
 For Ubuntu, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies.
 
 **macOS Users**
-MacOS users can run `bin/setup-macos`. You will still need to follow all steps after "Setting up a the database" afterwards.
-We recommend you use the latest version of `gcc` avaiable.
+MacOS users can run `bin/setup-macos`. You will still need to follow all steps after "Setting up the database" afterwards.
+We recommend you use the latest version of `gcc` available.
 
 **Warning for Ubuntu users**
 If you are not running an LTS (long term support) Ubuntu release, you will need to look for this line in `bin/prereqs.sh`:
@@ -85,7 +85,7 @@ All Lua dependencies are contained in the rockspec.
 ### Note About `git` protocols
 
 Some rocks still use the `git://` protocol, which GitHub no longer accepts.
-The 'easy' was to get around this is to use a global git configuration:
+The 'easy' way to get around this is to use a global git configuration:
 
 ```
 $ git config --global url."https://github".insteadOf git://github
@@ -96,7 +96,7 @@ $ git config --global url."https://github".insteadOf git://github
 `luarocks` will default to lua 5.3, which we do not use. Instead, `bin/luarocks-macos` "wraps" luarocks with our defaults,
 and includes the appropriate C/C++ flags so dependencies compile on recent macOS versions.
 
-You can pass all the same commmands to luarocks, e.g.
+You can pass all the same commands to luarocks, e.g.
 
 ```
 $ bin/luarocks-macos install --only-deps snapcloud-dev-0.rockspec
@@ -106,7 +106,7 @@ $ bin/luarocks-macos install --only-deps snapcloud-dev-0.rockspec
 # luarocks install --only-deps snapcloud-dev-0.rockspec
 ```
 
-Using `--only-deps` avoids an unecessary need to clone the repo from GitHub.
+Using `--only-deps` avoids an unnecessary need to clone the repo from GitHub.
 
 ### Authbind
 
@@ -118,7 +118,7 @@ In order to serve the cloud over HTTPS, we need the cloud user to have permissio
 
 ### PostgreSQL
 
-The Snap!Cloud backend uses PostreSQL for storage, so you'll need to install it too. Again, under Debian/Ubuntu this is trivial:
+The Snap!Cloud backend uses PostgreSQL for storage, so you'll need to install it too. Again, under Debian/Ubuntu this is trivial:
 
 ```
 # apt-get install postgresql postgresql-client
@@ -148,7 +148,7 @@ $ bin/lapis-migrate
 
 If all goes well, this will create a local database, and run the initial schema load and seeds.
 
-If you are developing locally, you should be able to authenticate if your postgres user matches your user you are using to run the app. Otherwise, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
+If you are developing locally, you should be able to authenticate if your postgres user matches your user you are using to run the app. Otherwise, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud_development`, owned by that user:
 
 ```sh
 $ psql postgres
@@ -156,7 +156,7 @@ $ psql postgres
 # Enter these in the PSQL command line
 > CREATE USER cloud WITH PASSWORD 'snap-cloud-password';
 > ALTER ROLE cloud WITH LOGIN;
-> CREATE DATABASE snapcloud OWNER cloud;
+> CREATE DATABASE snapcloud_development OWNER cloud;
 ```
 
 Alternatively, if you are on Linux, you can have postgres become the superuser, but that is not required
@@ -173,7 +173,7 @@ $ psql
 # Note: Enter these in the PSQL command line
 > CREATE USER cloud WITH PASSWORD 'snap-cloud-password';
 > ALTER ROLE cloud WITH LOGIN;
-> CREATE DATABASE snapcloud OWNER cloud;
+> CREATE DATABASE snapcloud_development OWNER cloud;
 ```
 
 ### Building the database schema
@@ -181,7 +181,7 @@ $ psql
 Continue by logging in as `cloud` and running the provided SQL file in the main Terminal:
 
 ```sh
-$ psql -U cloud -d snapcloud -a -f db/schema.sql
+$ psql -U cloud -d snapcloud_development -a -f db/schema.sql
 ```
 
 Linux users can run the following to set the "cloud" to create a substitute user (after running `sudo -i`) before running the above:
@@ -220,7 +220,7 @@ To install maildev, you need node/npm.
 
 Run: (The macOS install script includes this already.)
 ```sh
-$ npm i -g maildev
+$ npm install
 ```
 
 Start maildev by just typing `maildev`:
@@ -228,28 +228,29 @@ Start maildev by just typing `maildev`:
 $ maildev
 ```
 
-When you start maildev, all emails sent by the Snap!Cloud will be avaialbe at:
+When you start maildev, all emails sent by the Snap!Cloud will be available at:
 http://localhost:1080
 
 ### A Procfile Runner
 We've included a Procfile, which declares all the resources needed to run the app, including postgres.
 
-You can use any tool you'd like to run a procfile, but two common ones are [foreman][foreman] or [node-foreman][nf]. These make it really easy to run all the resources:
+You can use any tool you'd like to run a procfile, but common ones are [foreman][foreman] or [node-foreman][nf], and [overmind][overmind]. These make it really easy to run all the resources:
 
 ```sh
 $ foreman s[tart] -p 8080 # OR
-$ nf start -x 8080
+$ nf start -x 8080 # OR
+$ overmind s[tart]
 ```
 
-You can now point your browser to `http://localhost:8080` (note: `foreman` and `node-forman (nf)` by default goes to 5000 without the `-p` or `-x` port flag).
+You can now point your browser to `http://localhost:8080` (note: `foreman` and `node-foreman (nf)` by default goes to 5000 without the `-p` or `-x` port flag).
 
 [foreman]: https://github.com/ddollar/foreman
 [nf]: https://github.com/strongloop/node-foreman
-
+[overmind]: https://github.com/DarthSim/overmind
 
 ### Updating Dependencies / Lockfile
 
-To regenerate `luarocks.rock`, use the following command:
+To regenerate `luarocks.lock`, use the following command:
 
 ```
 $ bin/luarocks-macos build --only-deps --pin snapcloud-dev-0.rockspec
@@ -262,7 +263,7 @@ The production instance needs SSL to run. See [certs/README.md](../certs/README.
 
 ### Setting Environment Variables
 
-SnapCloud will read variables from a file `.env` which contains contains data specific to that system. It should look something like this:
+SnapCloud will read variables from a file `.env` which contains data specific to that system. It should look something like this:
 
 ```sh
 export LAPIS_ENVIRONMENT=production
@@ -306,7 +307,7 @@ When running locally, follow the instructions listed in "Starting up a local Pos
 
 ## Setting up the Snap!Cloud as a system daemon
 
-We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace `cloud` by your actual user. If you have followed this guide, this is not necessary.
+We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `bin/snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace `cloud` by your actual user. If you have followed this guide, this is not necessary.
 
 
 `runuser -l cloud`

@@ -1,76 +1,34 @@
 #! /usr/bin/env bash
 
-# Simple macOS wrapper around `luarocks install` because this
-# command is a little too complex to remember.
+# Simple macOS wrapper around `luarocks` that adds the compiler and openssl
+# settings needed to build some rocks (luasec, luaossl, bcrypt).
 
-# This script assumes that luarocks and lua@5.1 are installed via Homebrew.
-# openssl and gcc are needed, too.
-# ARM Macs need >= gcc-12, see bin/setup-macos
+# Assumes lua 5.1 and luarocks come from mise (see .tool-versions and mise.toml).
+# ARM Macs need >= gcc-12. The newest homebrew gcc is used, see bin/setup-macos
 
-USE_MISE_LUA=false
+OPENSSL_PREFIX="$(brew --prefix openssl@3)"
 
-if [[ -n `which mise` ]]; then
-    USE_MISE_LUA=true
-    mise shell lua 5.1
-    LUA_DIR=''
-    # LUA_DIR="$(mise which lua)"
-else
-    LUA_DIR="--lua-dir=$(brew --prefix lua@$LUA_VERSION)"
-fi
+# Use the newest gcc from the homebrew `gcc` formula, e.g. gcc-15
+GCC_PREFIX="$(brew --prefix gcc)"
+gcc_command=$(basename "$(ls "$GCC_PREFIX"/bin/gcc-[0-9]* | sort -V | tail -1)")
 
-LUA_VERSION=5.1
-BREW_PREFIX=$(brew --prefix)
-OPENSSL_BREW="$(brew --prefix openssl)"
-gcc_command='gcc-15'
-gcc_version='15.1.0'
+# Homebrew's gcc looks for the macOS SDK it was built with, which may not
+# exist after a macOS update ("ld: library 'System' not found").
+export SDKROOT="${SDKROOT:-$(xcrun --show-sdk-path)}"
 
 export CXXFLAGS="-std=c++14"
-export CXX=gcc-15
-export CC=gcc-15
-export LD=gcc-15
+export CXX=$gcc_command
+export CC=$gcc_command
+export LD=$gcc_command
 
-# For some reason luarocks needs both lua-dir and lua-versions specified...
+# --local installs to ~/.luarocks, which is where mise.toml points LUA_PATH.
 # cc, ld flags, openssl, etc are needed for luasec and luaossl
-luarocks $LUA_DIR --lua-version=$LUA_VERSION \
-  OPENSSL_DIR="$BREW_PREFIX/opt/openssl@3/" \
-  CRYPTO_DIR="$BREW_PREFIX/opt/openssl@3/" \
+luarocks --local \
+  OPENSSL_DIR="$OPENSSL_PREFIX/" \
+  CRYPTO_DIR="$OPENSSL_PREFIX/" \
   CXX=$gcc_command \
   LD=$gcc_command \
   CXXFLAGS="-std=c++14" \
-  LDFLAGS="-L$BREW_PREFIX/opt/openssl@3/lib" \
-  STDCPP_LIBDIR=$BREW_PREFIX/Cellar/gcc/$gcc_version/lib/gcc/current/ \
-  $@;
-
-
-###### NOTE: WHEN INSTALLING WITH MISE the luarocks Paths are messed up and not set correctly.
-# Try the following.
-# luarocks_share="luarocks/share/lua/5.1/"
-# luarocks_lib="luarocks/lib/lua/5.1/"
-# endings=(
-#   "?.lua"
-#   "?/init.lua"
-# )
-# mise_lua="$HOME/.local/share/mise/installs/lua/5.1"
-# export LUA_VERSION="5.1"
-# lua_paths=(
-#   "./"
-#   "$mise_lua/$luarocks_share"
-#   "$mise_lua/$luarocks_lib"
-#   "$HOME/.$luarocks_share"
-#   "$HOME/.$luarocks_lib"
-# )
-# for str in ${lua_paths[@]}; do
-#   for ending in ${endings[@]}; do
-#     export LUA_PATH="$str$ending;$LUA_PATH";
-#   done
-# done
-# lua_cpaths=(
-# "./?.so"
-# "$HOME/.luarocks/lib/lua/5.1/?.so"
-# "$mise_lua/lib/lua/5.1/?.so"
-# "$mise_lua/$luarocks_share?.so"
-# "$mise_lua/$luarocks_lib?.so"
-# )
-# for str in ${lua_cpaths[@]}; do
-#   export LUA_CPATH="$str;$LUA_CPATH";
-# done
+  LDFLAGS="-L$OPENSSL_PREFIX/lib" \
+  STDCPP_LIBDIR="$GCC_PREFIX/lib/gcc/current/" \
+  "$@";
