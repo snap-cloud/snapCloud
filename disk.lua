@@ -52,6 +52,43 @@ function disk:version_directory (id, delta)
     return dir .. string.format('/d%d', version)
 end
 
+-- Rendered in place of a real thumbnail when project.xml can't be parsed.
+disk.missing_thumbnail = '/static/img/missing-thumbnail.svg'
+
+local function report_thumbnail_failure(id, reason)
+    -- Lazy-require: disk.lua loads before lib.exceptions in app.lua.
+    local ok, exceptions = pcall(require, 'lib.exceptions')
+    if not ok or not exceptions.rvn then return end
+    exceptions.rvn:captureMessage(
+        'Thumbnail generation failed for project id=' .. tostring(id),
+        {
+            level = 'warning',
+            tags = { component = 'disk.generate_thumbnail' },
+            extra = { project_id = id, reason = tostring(reason) },
+        }
+    )
+end
+
+-- Safely parse a project.xml buffer. Returns (doc, err): the parsed table on
+-- success, nil on a parse failure (with the lubyk error in `err`), or
+-- nil/nil if the file is empty or whitespace-only. Strips embedded NULs
+-- first because lubyk's Lua->C bridge truncates the buffer at the first \0
+-- and masks otherwise-valid XML behind "unexpected end of data" -- any NULs
+-- found are reported to Sentry against `id` since they signal corruption.
+local function protected_load_xml(id, raw)
+    local contents, nuls = (raw or ''):gsub('%z', '')
+    if nuls > 0 then
+        report_thumbnail_failure(id,
+            'stripped ' .. nuls .. ' NUL byte(s) from project.xml')
+    end
+    -- Empty / whitespace-only input would segfault or error in lubyk; treat
+    -- it as "nothing to parse" rather than a load failure.
+    if not contents:find('%S') then return nil end
+    local ok, result = pcall(xml.load, contents)
+    if ok then return result end
+    return nil, result
+end
+
 function disk:timestamp_command(dir)
     return 'stat ' .. config.stat_arguments .. ' ' .. dir .. '/project.xml'
 end
@@ -88,15 +125,26 @@ end
 
 function disk:generate_thumbnail (id)
     local project_file = io.open(self:directory_for_id(id) .. '/project.xml')
-    if (project_file) then
-        local project = xml.load(project_file:read('*all'))
-        local thumbnail = xml.find(project, 'thumbnail')[1]
-        project_file:close()
-        self:save(id, 'thumbnail', thumbnail)
-        return thumbnail
-    else
-        return false
+    if not project_file then return end
+    local raw = project_file:read('*all')
+    project_file:close()
+
+    local project, err = protected_load_xml(id, raw)
+    if err then
+        report_thumbnail_failure(id, err)
+        return
     end
+    if not project then return end
+
+    local found = xml.find(project, 'thumbnail')
+    local thumbnail = found and found[1]
+    if not thumbnail then
+        report_thumbnail_failure(id, 'no <thumbnail> in project.xml')
+        return
+    end
+
+    self:save(id, 'thumbnail', thumbnail)
+    return thumbnail
 end
 
 function disk:parse_notes (id, delta)
@@ -240,7 +288,8 @@ function disk:process_thumbnails (items, id_selector)
         if (item[id_selector or 'id']) then
             item.thumbnail =
                 self:retrieve_thumbnail(item[id_selector or 'id']) or
-                self:generate_thumbnail(item[id_selector or 'id'])
+                self:generate_thumbnail(item[id_selector or 'id']) or
+                self.missing_thumbnail
         end
     end
 end
