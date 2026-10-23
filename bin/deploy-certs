@@ -17,25 +17,25 @@ curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394
 # TODO: Clean this up... use $RENEWED_DOMAINS?
 sourceDir=/home/$USER/lets-encrypt/live/
 destDir=$REPO_DIR/certs/
-domain=''
-# We need to be in the correct directory since this uses git to set env variables.
 
 if [ "$LAPIS_ENVIRONMENT" = 'production' ]; then
-    domain='cloud';
-    cp -r -u --verbose -L ${sourceDir}snap.berkeley.edu $destDir;
-    cp -r -u --verbose -L ${sourceDir}extensions.snap.berkeley.edu $destDir;
+    domains='snap.berkeley.edu extensions.snap.berkeley.edu snap-cloud.cs10.org'
 else
-    domain='staging';
+    domains='staging.snap.berkeley.edu snap-staging.cs10.org'
 fi
 
-cp -r -u --verbose -L ${sourceDir}snap-${domain}.cs10.org $destDir;
-cp -r -u --verbose -L ${sourceDir}${domain}.snap.berkeley.edu $destDir;
+for domain in $domains; do
+    cp -r -u --verbose -L ${sourceDir}${domain} $destDir;
+done
+
+# cp -L writes the private keys with default permissions; keep them private.
+chmod 600 ${destDir}*/privkey*.pem
 
 curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY \
  -H 'Content-Type: application/json' \
  -d "{\"message\":\"Deployed Certs to $LAPIS_ENVIRONMENT\"}"
 
-# restart for nginx to reload the certs.
-sudo service snapcloud_daemon restart;
+# Reload so nginx picks up the new certs without dropping connections.
+sudo service snapcloud_daemon reload;
 
 cd $cwd;

@@ -10,17 +10,15 @@ echo "Deploying branch: $branch"
 # Deploy a copy of snapCloud
 pushd ~/snapCloud/ > /dev/null;
 
-git checkout $branch
-git pull origin $branch
-# Always init, just incase we add a submodule.
-git submodule init
-git submodule update --recursive --remote
+# Stop before restarting anything if the code can't be updated.
+git checkout $branch || { echo "git checkout $branch failed"; exit 1; }
+git pull origin $branch || { echo "git pull failed"; exit 1; }
+# Always init, just incase we add a submodule. Use the commits pinned in this
+# repo (no --remote), and sync so URL changes in .gitmodules take effect.
+git submodule sync --recursive
+git submodule update --init --recursive || { echo "submodule update failed"; exit 1; }
 
-# TODO: Clean this up...
-pushd ~/snapCloud/bin/;
-./renew-certs
-./deploy-certs
-popd;
+# Certs are renewed by the nightly renew-certs cron, not on every deploy.
 
 # Pre-compress snapCloud's own static assets (CSS/JS/SVG) so nginx can
 # serve them via `gzip_static on` rather than gzipping on every request.
@@ -29,9 +27,10 @@ popd;
 # ./update-snap
 
 
-# Disabled Until we fix sudo access for luarocks.
-# echo "Updating Dependencies:"
-# sudo luarocks install --only-deps snapcloud-dev-0.rockspec
+# Needs /etc/sudoers.d/cloud-luarocks. -n: fail instead of asking for a password.
+echo "Updating Dependencies:"
+sudo -n luarocks install --only-deps snapcloud-dev-0.rockspec \
+  || echo "WARNING: luarocks install failed; dependencies were not updated."
 echo;
 echo;
 
