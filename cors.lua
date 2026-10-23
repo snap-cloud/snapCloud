@@ -1,11 +1,11 @@
 -- CORS module
--- ==========
+-- ===========
 --
 -- A list of allowed domains that we support.
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
--- Copyright (C) 2019 by Bernat Romagosa and Michael Ball
+-- Copyright (C) 2026 by Bernat Romagosa and Michael Ball
 --
 -- This file is part of Snap Cloud.
 --
@@ -42,7 +42,7 @@ domain_allowed['web.media.mit.edu'] = true
 
 -- ===========================================================
 -- OFFICIALLY ENDORSED 3RD PARTY HOSTS
--- Each "section" of URLs should come with a brief description and a contact.
+-- Each section of URLs should come with a brief description and a contact.
 
 -- Snap4Arduino, and its Chromebook version
 -- CONTACT:
@@ -60,7 +60,7 @@ domain_allowed['isnap.csc.ncsu.edu'] = true
 domain_allowed['eliza.csc.ncsu.edu'] = true
 domain_allowed['arena.csc.ncsu.edu'] = true
 domain_allowed['snapapps.fi.ncsu.edu'] = true
--- CONTACT Saminur Islam <sislam8@ncsu.edu>,, Tiffany Barnes <tmbarnes@ncsu.edu>,, Veronica Catete <vmcatete@ncsu.edu>, Ally Limke <anlimke@ncsu.edu>
+-- CONTACT Saminur Islam <sislam8@ncsu.edu>, Tiffany Barnes <tmbarnes@ncsu.edu>, Veronica Catete <vmcatete@ncsu.edu>, Ally Limke <anlimke@ncsu.edu>
 domain_allowed['lin-class17.csc.ncsu.edu'] = true
 
 -- CONTACT: Ken Khan
@@ -68,21 +68,8 @@ domain_allowed['ecraft2learn.github.io'] = true
 -- CONTACT:
 domain_allowed['microworld.edc.org'] = true
 
--- All edX Sites, and test sites
--- CONTACT: Michael Ball
--- domain_allowed['courses.edge.edx.org'] = true
--- domain_allowed['courses.edx.org'] = true
--- domain_allowed['d37djvu3ytnwxt.cloudfront.net'] = true
--- domain_allowed['preview.courses.edge.edx.org'] = true
--- domain_allowed['preview.courses.edx.org'] = true
--- domain_allowed['preview.edge.edx.org'] = true
--- domain_allowed['preview.edx.org'] = true
--- domain_allowed['studio.edge.edx.org'] = true
--- domain_allowed['studio.edx.org'] = true
--- domain_allowed['edge.edx.org'] = true
-
 -- SoundScope Sites
--- CONTACT:
+-- CONTACT: Glenn Bull <>
 domain_allowed['soundscope-website-beta.s3.amazonaws.com'] = true
 domain_allowed['soundscope-website.web.app'] = true
 domain_allowed['tunescope.org'] = true
@@ -93,14 +80,15 @@ domain_allowed['tune-scope.firebaseapp.com'] = true
 domain_allowed['alpha-tunescope.web.app'] = true
 domain_allowed['alpha-tunescope.firebaseapp.com'] = true
 domain_allowed['alpha.tunescope.org'] = true
+-- CONTACT:
+domain_allowed['www.maketolearn.org'] = true
 -- TensorSnap Sites
 -- CONTACT:
 domain_allowed['tensor-snap.web.app'] = true
 domain_allowed['tensor-snap.firebaseapp.com'] = true
 
--- CONTACT:
-domain_allowed['www.maketolearn.org'] = true
--- CONTACT:
+
+-- CONTACT: Tony Gordon <>
 domain_allowed['snap.techlit.org'] = true
 domain_allowed['bjc.techlit.org'] = true
 
@@ -115,7 +103,6 @@ domain_allowed['studygiggle.onrender.com'] = true
 
 -- Development
 -- CONTACT: Snap! Team
-domain_allowed['localhost'] = true
 domain_allowed['jmoenig.github.io'] = true
 -- Michael's Website for testing
 domain_allowed['mball.co'] = true
