@@ -30,8 +30,8 @@ local materials = {
     language = {"English"},
     type = "documentation",
     level = 'everyone',
-    date = nil,
-    description = nil,
+    date = '2026',
+    description = 'An online version of the Snap! manual',
     image = nil
   },
   {
@@ -41,8 +41,8 @@ local materials = {
     language = {"English"},
     type = "documentation",
     level = 'everyone',
-    date = nil,
-    description = nil,
+    date = '2022',
+    description = 'A printable PDF of the Snap! manual. (Last updated for version 8)',
     image = nil
   },
   {
@@ -137,6 +137,7 @@ local materials = {
     title = "The Coding Book",
     author = "Virginia King, Lee Ryall and Invent the World",
     url = "https://www.hinkler.com.au/the-coding-book",
+    isbn = '9781488909924',
     language = {"English"},
     type = "book",
     level = nil,
@@ -159,9 +160,10 @@ local materials = {
     title = "Learn CS Concepts With Snap<em>!</em>",
     author = "Abhay B. Joshi",
     url = "http://www.abhayjoshi.net/spark/snap/bsnap.pdf",
+    isbn = '9781728921716',
     links = {
-      { label = "Reference", url = "http://www.abhayjoshi.net/spark/snap.htm" },
-      { label = "Bookshop", url = "https://bookshop.org/a/124937/9781728921716" },
+      { label = "Website", url = "http://www.abhayjoshi.net/spark/snap.htm" },
+      { label = "Bookshop.org", url = "https://bookshop.org/a/124937/9781728921716" },
       { label = "Amazon", url = "https://amzn.com/gp/product/1728921716?tag=calphoto-20" }
     },
     language = {"English"},
@@ -175,8 +177,9 @@ local materials = {
     title = "Practice CS Concepts with Snap<em>!</em>",
     author = "Abhay B. Joshi",
     url = "http://www.abhayjoshi.net/spark/snap/book0s/PracticeWithSnap.pdf",
+    isbn = '9781090818812',
     links = {
-      { label = "Reference", url = "http://www.abhayjoshi.net/spark/snap.htm" },
+      { label = "Website", url = "http://www.abhayjoshi.net/spark/snap.htm" },
       { label = "Amazon", url = "https://amzn.com/gp/product/1090818815?tag=calphoto-20" }
     },
     language = {"English"},
@@ -190,9 +193,10 @@ local materials = {
     title = "Pen Art in Snap<em>!</em> Programming",
     author = "Abhay B. Joshi, Sandesh R Gaikwad",
     url = "http://www.abhayjoshi.net/spark/snap/psnap.pdf",
+    isbn = '9781093754711',
     links = {
-      { label = "Reference", url = "http://www.abhayjoshi.net/spark/snap.htm" },
-      { label = "Bookshop", url = "https://bookshop.org/a/124937/9781093754711" },
+      { label = "Website", url = "http://www.abhayjoshi.net/spark/snap.htm" },
+      { label = "Bookshop.org", url = "https://bookshop.org/a/124937/9781093754711" },
       { label = "Amazon", url = "https://amzn.com/gp/product/1093754710/?tag=calphoto-20" }
     },
     language = {"English"},
@@ -206,8 +210,9 @@ local materials = {
     title = "Adventures in Snap<em>!</em> Programming",
     author = "Abhay B. Joshi",
     url = "http://www.abhayjoshi.net/spark/snap.htm",
+    isbn = '9798551045519',
     links = {
-      { label = "Bookshop", url = "https://bookshop.org/a/124937/9798551045519" },
+      { label = "Bookshop.org", url = "https://bookshop.org/a/124937/9798551045519" },
       { label = "Amazon", url = "https://amzn.com/gp/product/B08LQYLVLV?tag=calphoto-20" }
     },
     language = {"English"},
@@ -221,9 +226,10 @@ local materials = {
     title = "Learn Python in a Snap<em>!</em>",
     author = "Abhay B. Joshi",
     url = "http://www.abhayjoshi.net/spark/python/pythonsnap.pdf",
+    isbn = '9798502337588',
     links = {
-      { label = "Reference", url = "http://www.abhayjoshi.net/spark/python_page.htm" },
-      { label = "Bookshop", url = "https://bookshop.org/a/124937/9798502337588" },
+      { label = "Website", url = "http://www.abhayjoshi.net/spark/python_page.htm" },
+      { label = "Bookshop.org", url = "https://bookshop.org/a/124937/9798502337588" },
       { label = "Amazon", url = "https://amzn.com/gp/product/B094ZQ1J62?tag=calphoto-20" }
     },
     language = {"English"},
