@@ -43,6 +43,8 @@ localizer.apply_params = function (string, ...)
     -- (or to get plain text for a <title>, prompt() etc.), add an options
     -- table as the last argument:
     --   locale.get('welcome', '<em>!</em>', { escape = false })
+    -- Missing strings return nil, so templates can fall back with `or`.
+    if not string then return nil end
     local params = { ... }
     local count = select('#', ...)
     local escape = true
