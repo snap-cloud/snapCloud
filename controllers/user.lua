@@ -431,7 +431,7 @@ UserController = {
         local body = '<ul>'
 
         for _, user in pairs(users) do
-            body = body .. '<li>' .. user.username .. '</li>'
+            body = body .. '<li>' .. escape_html(user.username) .. '</li>'
         end
 
         body = body .. '</ul>'
@@ -836,7 +836,8 @@ UserController = {
             send_mail(
                 self.queried_user.email,
                 self.params.subject or mail_subjects.generic,
-                self.params.contents
+                -- Typed into a plain textarea
+                utils.text_to_html(self.params.contents)
             )
         else
             yield_error(err.mail_body_empty)
