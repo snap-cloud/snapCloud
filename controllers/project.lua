@@ -41,6 +41,7 @@ local Users = package.loaded.Users
 local validation = package.loaded.validation
 
 local is_likely_course_work = validation.is_likely_course_work
+local assert_current_user_logged_in = validation.assert_current_user_logged_in
 
 ProjectController = {
     run_query = function (self, query)
@@ -126,11 +127,82 @@ ProjectController = {
         )
     end),
     my_projects = capture_errors(function (self)
+        if self.params.group_by_collection then
+            return ProjectController.my_projects_grouped(self)
+        end
         self.params.order = 'lastupdated DESC'
         return ProjectController.run_query(
             self,
             db.interpolate_query('WHERE username = ?', self.session.username)
         )
+    end),
+    my_projects_grouped = capture_errors(function (self)
+        -- Return the current user's projects organised as folders by
+        -- collection. A project that lives in multiple of the user's
+        -- collections appears once per collection; projects not in any of the
+        -- user's collections fall into the top-level `projects` bucket.
+        -- Only collections the user owns or co-edits count as folders here
+        -- — a project sitting in someone else's public collection is still
+        -- "loose" from this user's point of view.
+        assert_current_user_logged_in(self)
+        local user_id = self.current_user.id
+        local username = self.current_user.username
+
+        local collections = Collections:select(
+            [[WHERE (creator_id = ? OR editor_ids @> ARRAY[?])
+              ORDER BY updated_at DESC]],
+            user_id,
+            user_id,
+            {
+                fields = [[id, name, creator_id, thumbnail_id, description,
+                    shared, shared_at, published, published_at,
+                    created_at, updated_at, editor_ids]]
+            }
+        )
+        disk:process_thumbnails(collections, 'thumbnail_id')
+
+        local collection_ids = {}
+        for _, collection in ipairs(collections) do
+            table.insert(collection_ids, collection.id)
+            local projects = Projects:select(
+                [[INNER JOIN collection_memberships
+                    ON collection_memberships.project_id = active_projects.id
+                  WHERE collection_memberships.collection_id = ?
+                    AND active_projects.username = ?
+                  ORDER BY collection_memberships.created_at DESC]],
+                collection.id,
+                username
+            )
+            disk:process_thumbnails(projects)
+            collection.projects = projects
+        end
+
+        local ungrouped
+        if #collection_ids == 0 then
+            ungrouped = Projects:select(
+                'WHERE username = ? ORDER BY lastupdated DESC',
+                username
+            )
+        else
+            ungrouped = Projects:select(
+                db.interpolate_query(
+                    [[WHERE username = ?
+                      AND id NOT IN (
+                          SELECT project_id FROM collection_memberships
+                          WHERE collection_id IN ?
+                      )
+                      ORDER BY lastupdated DESC]],
+                    username,
+                    db.list(collection_ids)
+                )
+            )
+        end
+        disk:process_thumbnails(ungrouped)
+
+        return jsonResponse({
+            collections = collections,
+            projects = ungrouped
+        })
     end),
     user_projects = capture_errors(function (self)
         if users_match(self) and not self.params.show_public then
