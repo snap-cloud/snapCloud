@@ -353,9 +353,8 @@ $ seq 1 40 | xargs -P 40 -I{} curl -s -o /dev/null -w "%{http_code}\n" "http://l
 ```
 
 `pg_stat_activity` should never show more than two `snapcloud` connections,
-and `/api/v1/health_check` reports the current usage. With
-`DATABASE_POOL_BACKLOG=1` the surplus requests fail immediately with
-`too many waiting connect operations`.
+and `/api/v1/health_check` reports the current usage. Requests beyond the
+pool's backlog fail with `too many waiting connect operations`.
 
 ## Production Configuration
 
@@ -378,8 +377,7 @@ export HOSTNAME=snap.berkeley.edu
 There are a lot of options defined in `config.lua`. Setting the environment is helpful because you may want to have a "staging" server with a slightly different configuration.
 
 Optional database pool settings (`DATABASE_MAX_CONNECTIONS`,
-`DATABASE_RESERVED_CONNECTIONS`, `DATABASE_POOL_SIZE`, `DATABASE_POOL_BACKLOG`)
-are documented in [DEPLOYMENT.md](./DEPLOYMENT.md). Any variable read by
+`DATABASE_POOL_SIZE`) are documented in [DEPLOYMENT.md](./DEPLOYMENT.md). Any variable read by
 `config.lua` must also appear as an `env` line at the top of `nginx.conf`,
 otherwise nginx strips it before the Lua workers start.
 

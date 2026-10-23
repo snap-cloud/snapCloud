@@ -1,42 +1,33 @@
 local config = require('lapis.config')
 
--- nginx worker counts. These also size the database connection pool below,
--- because every worker keeps its own pool.
-local PRODUCTION_WORKERS = 8
--- the staging server is a low-cpu server.
-local STAGING_WORKERS = 2
-local DEVELOPMENT_WORKERS = 1
-
 -- Postgres connection pool
 -- ========================
--- pgmoon's `pool_size` and `backlog` options make OpenResty cap the number of
--- connections each nginx worker may open, so the whole app never holds more
--- than `num_workers * pool_size`. How this works, links to the pgmoon and
--- OpenResty docs, the environment variables, and how to test it are in
--- docs/INSTALL.md ("Database connection pool") and docs/DEPLOYMENT.md.
+-- pgmoon's `pool_size` and `backlog` make OpenResty cap the connections each
+-- nginx worker may open, so the app never holds more than
+-- `num_workers * pool_size`. See docs/INSTALL.md and docs/DEPLOYMENT.md.
 local function pool_config(num_workers)
     -- Postgres defaults to 100; production is set to 200.
     -- Verify on the server with `show max_connections;`
     local max_connections =
         tonumber(os.getenv('DATABASE_MAX_CONNECTIONS')) or 100
-    local reserved =
-        tonumber(os.getenv('DATABASE_RESERVED_CONNECTIONS')) or 20
+    -- Left free for psql, pg_dump, migrations, and the superuser.
+    local reserved = 20
     local pool_size = tonumber(os.getenv('DATABASE_POOL_SIZE')) or
         math.max(1, math.floor((max_connections - reserved) / num_workers))
-    local backlog = tonumber(os.getenv('DATABASE_POOL_BACKLOG')) or
-        pool_size * 4
     return {
         num_workers = num_workers,
-        postgres = { pool_size = pool_size, backlog = backlog },
-        -- The most connections the whole app can hold open.
+        postgres = { pool_size = pool_size, backlog = pool_size * 4 },
         -- The health check reports usage against this number.
         max_db_connections = num_workers * pool_size,
     }
 end
 
-config({'development', 'test'}, pool_config(DEVELOPMENT_WORKERS))
-config('staging', pool_config(STAGING_WORKERS))
-config('production', pool_config(PRODUCTION_WORKERS))
+-- nginx worker counts. The staging server is a low-cpu server.
+for env, workers in pairs({
+    development = 1, test = 1, staging = 2, production = 8
+}) do
+    config(env, pool_config(workers))
+end
 
 config({'development', 'staging', 'production', 'test'}, {
     postgres = {

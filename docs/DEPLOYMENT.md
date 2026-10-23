@@ -207,20 +207,21 @@ The total number of server connections the Snap!Cloud can hold is
 capacity:
 
 ```
-pool_size = floor((DATABASE_MAX_CONNECTIONS - DATABASE_RESERVED_CONNECTIONS) / num_workers)
+pool_size = floor((DATABASE_MAX_CONNECTIONS - 20) / num_workers)
 ```
+
+The 20 are left free for `psql`, `pg_dump`, migrations, and the superuser.
+`backlog` is four times `pool_size`.
 
 ### Environment variables
 
 All optional. They are read by `config.lua`, and must be declared in `.env`
 and `nginx.conf`.
 
-| Variable                        | Purpose                                                     |
-| ------------------------------- | ----------------------------------------------------------- |
-| `DATABASE_MAX_CONNECTIONS`      | Postgres `max_connections`, or pgbouncer's `max_client_conn` |
-| `DATABASE_RESERVED_CONNECTIONS` | Connections left free for other clients (default 20)         |
-| `DATABASE_POOL_SIZE`            | Per-worker cap; skips the calculation entirely               |
-| `DATABASE_POOL_BACKLOG`         | Per-worker wait queue (default `4 * pool_size`)              |
+| Variable                   | Purpose                                                      |
+| -------------------------- | ------------------------------------------------------------ |
+| `DATABASE_MAX_CONNECTIONS` | Postgres `max_connections`, or pgbouncer's `max_client_conn` |
+| `DATABASE_POOL_SIZE`       | Per-worker cap; skips the calculation entirely               |
 
 Check the server's actual limit before tuning:
 

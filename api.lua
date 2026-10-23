@@ -28,6 +28,7 @@ local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local json_params = package.loaded.json_params
 local lapis_respond_to = package.loaded.respond_to
+local exceptions = require('lib.exceptions')
 
 require 'validation'
 
@@ -84,12 +85,7 @@ app:match(api_route('version'), respond_to({
     end)
 }))
 
--- TODO: After deprecating the optional 'api/v1/' prefix
--- Allow this endpoint to be accessed at /health_check as well, for easier monitoring.
--- Reports database connection pool usage, so monitors can alert before the
--- pool fills up. Our connections are counted server-side via
--- pg_stat_activity, where they carry the `snapcloud` application_name.
--- The cap comes from config.lua, see docs/DEPLOYMENT.md.
+-- Reports database connection pool usage against the cap set in config.lua.
 app:match(api_route('health_check'), respond_to({
     GET = capture_errors(function (self)
         local db = package.loaded.db
@@ -108,11 +104,8 @@ app:match(api_route('health_check'), respond_to({
             message = 'Database connection pool at ' .. capacity .. '% (' ..
                 current .. '/' .. max .. ' connections)'
             ngx.log(ngx.WARN, message)
-            local exceptions = require('lib.exceptions')
             if exceptions.rvn then
-                local _, err = exceptions.rvn:captureMessage(message,
-                    { level = 'warning' })
-                if err then ngx.log(ngx.ERR, err) end
+                exceptions.rvn:captureMessage(message, { level = 'warning' })
             end
         end
 
