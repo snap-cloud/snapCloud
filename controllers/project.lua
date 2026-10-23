@@ -470,10 +470,11 @@ ProjectController = {
             assert_admin(self, err.nonexistent_project)
         end
 
-        -- self.params.delta is a version indicator
+        -- self.params.delta picks a version (see disk.BACKUP_VERSIONS):
         -- delta = null will fetch the current version
         -- delta = -1 will fetch the previous saved version
         -- delta = -2 will fetch the last version before today
+        -- Any other value is rejected by disk:version_directory.
 
         return xmlResponse(
             '<snapdata remixID="' .. project.id .. '">' ..
@@ -527,17 +528,20 @@ ProjectController = {
             'extract(epoch from age(now(), ?::timestamp))',
             project.lastupdated)[1]
 
-        return jsonResponse({
+        local versions = {
             {
                 lastupdated = query.date_part,
                 thumbnail = disk:retrieve(project.id, 'thumbnail') or
                     disk:generate_thumbnail(project.id),
                 notes = disk:parse_notes(project.id),
                 delta = 0
-            },
-            disk:get_version_metadata(project.id, -1),
-            disk:get_version_metadata(project.id, -2)
-        })
+            }
+        }
+        for delta = -1, -disk.BACKUP_VERSIONS, -1 do
+            table.insert(versions, disk:get_version_metadata(project.id, delta))
+        end
+
+        return jsonResponse(versions)
     end),
     save = capture_errors(function (self)
         -- rate_limit(self)

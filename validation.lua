@@ -90,6 +90,8 @@ err = {
     unparseable_xml =
         { msg = 'Project file could not be parsed', status = 500 },
     file_not_found = { msg = 'Project file not found', status = 404 },
+    invalid_project_version =
+        { msg = 'This project version does not exist', status = 400 },
     mail_body_empty = { msg = 'Missing email body contents', status = 400 },
     project_already_in_collection =
         { msg = 'This project is already in that collection', status = 409 },
