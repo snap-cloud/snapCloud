@@ -74,9 +74,6 @@ curl -s -o /dev/null -w "%{http_code}" -XPOST \
 echo
 
 
-# Certbot runs bin/deploy-certs directly (renew_hook in each renewal .conf and
-# --deploy-hook in bin/renew-certs), so no copy in renewal-hooks/ is needed.
-
 # The cloud user only has the ability to restart this service.
 echo 'Restarting snapcloud daemon'
 sudo service snapcloud_daemon restart
