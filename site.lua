@@ -248,13 +248,12 @@ app:get('/collection', capture_errors(function (self)
     return { render = 'collection' }
 end))
 
-app:get('user', '/user', capture_errors(function (self)
+app:get('user_profile', '/user', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     if self.params.user and self.params.user ~= '' and self.params.username == nil then
-        -- Just redirect using the new URL params format
         return {
             redirect_to =
-                self:url_for('user', nil, { username = self.params.user })
+                self:url_for('user_profile', nil, { username = self.params.user })
         }
     end
 
