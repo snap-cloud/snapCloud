@@ -74,8 +74,8 @@ curl -s -o /dev/null -w "%{http_code}" -XPOST \
 echo
 
 
-# Always update the letsencrypt script incase it changes.
-cp ./bin/deploy-certs ../lets-encrypt/renewal-hooks/deploy/1-deploy.sh
+# Certbot runs bin/deploy-certs directly (renew_hook in each renewal .conf and
+# --deploy-hook in bin/renew-certs), so no copy in renewal-hooks/ is needed.
 
 # The cloud user only has the ability to restart this service.
 echo 'Restarting snapcloud daemon'
