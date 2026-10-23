@@ -1,10 +1,7 @@
--- Snap<em>!</em> Resources
--- ===============
+-- Snap!Cloud Learner Resources
+-- ============================
 -- This file contains the data rendered on the /learn page.
 -- Resources are any kinds of materials that are helpful to learning Snap<em>!</em>
---
--- Routes for all community website pages. We're in the process of starting to
--- transition the whole site to Lua.
 --
 -- Written by Bernat Romagosa and Michael Ball
 --
@@ -143,6 +140,84 @@ local materials = {
     language = {"English"},
     type = "book",
     level = nil,
+    date = nil,
+    description = nil,
+    image = nil
+  },
+  {
+    title = "Learn CS Concepts With Snap<em>!</em>",
+    author = "Abhay B. Joshi",
+    url = "http://www.abhayjoshi.net/spark/snap/bsnap.pdf",
+    links = {
+      { label = "Reference", url = "http://www.abhayjoshi.net/spark/snap.htm" },
+      { label = "Bookshop", url = "https://bookshop.org/a/124937/9781728921716" },
+      { label = "Amazon", url = "https://amzn.com/gp/product/1728921716?tag=calphoto-20" }
+    },
+    language = {"English"},
+    type = "book",
+    level = 'everyone',
+    date = nil,
+    description = nil,
+    image = nil
+  },
+  {
+    title = "Practice CS Concepts with Snap<em>!</em>",
+    author = "Abhay B. Joshi",
+    url = "http://www.abhayjoshi.net/spark/snap/book0s/PracticeWithSnap.pdf",
+    links = {
+      { label = "Reference", url = "http://www.abhayjoshi.net/spark/snap.htm" },
+      { label = "Amazon", url = "https://amzn.com/gp/product/1090818815?tag=calphoto-20" }
+    },
+    language = {"English"},
+    type = "book",
+    level = 'everyone',
+    date = nil,
+    description = nil,
+    image = nil
+  },
+  {
+    title = "Pen Art in Snap<em>!</em> Programming",
+    author = "Abhay B. Joshi, Sandesh R Gaikwad",
+    url = "http://www.abhayjoshi.net/spark/snap/psnap.pdf",
+    links = {
+      { label = "Reference", url = "http://www.abhayjoshi.net/spark/snap.htm" },
+      { label = "Bookshop", url = "https://bookshop.org/a/124937/9781093754711" },
+      { label = "Amazon", url = "https://amzn.com/gp/product/1093754710/?tag=calphoto-20" }
+    },
+    language = {"English"},
+    type = "book",
+    level = 'everyone',
+    date = nil,
+    description = nil,
+    image = nil
+  },
+  {
+    title = "Adventures in Snap<em>!</em> Programming",
+    author = "Abhay B. Joshi",
+    url = "http://www.abhayjoshi.net/spark/snap.htm",
+    links = {
+      { label = "Bookshop", url = "https://bookshop.org/a/124937/9798551045519" },
+      { label = "Amazon", url = "https://amzn.com/gp/product/B08LQYLVLV?tag=calphoto-20" }
+    },
+    language = {"English"},
+    type = "book",
+    level = 'everyone',
+    date = nil,
+    description = nil,
+    image = nil
+  },
+  {
+    title = "Learn Python in a Snap<em>!</em>",
+    author = "Abhay B. Joshi",
+    url = "http://www.abhayjoshi.net/spark/python/pythonsnap.pdf",
+    links = {
+      { label = "Reference", url = "http://www.abhayjoshi.net/spark/python_page.htm" },
+      { label = "Bookshop", url = "https://bookshop.org/a/124937/9798502337588" },
+      { label = "Amazon", url = "https://amzn.com/gp/product/B094ZQ1J62?tag=calphoto-20" }
+    },
+    language = {"English"},
+    type = "book",
+    level = 'everyone',
     date = nil,
     description = nil,
     image = nil

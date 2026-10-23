@@ -44,17 +44,19 @@ The other sections not listed are not needed for development, but may be needed 
 For Ubuntu, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies.
 
 **macOS Users**
-MacOS users can run `bin/setup-macos`. You will still need to follow all steps after "Setting up a the database" afterwards.
-We recommend you use the latest version of `gcc` avaiable.
+macOS users can run `bin/setup-macos`, which installs everything in this section and then sets up the database. It is safe to re-run.
+
+It uses [Homebrew](https://brew.sh) for OpenResty, PostgreSQL 16, and `gcc`, and [mise](https://mise.jdx.dev) for Lua 5.1, `luarocks`, and node.
+Versions are pinned in `.tool-versions`. You'll need mise activated in your shell (`eval "$(mise activate zsh)"`, or `bash`); the script adds this to your shell config if it's missing.
 
 **Warning for Ubuntu users**
-If you are not running an LTS (long term support) Ubuntu release, you will need to look for this line in `bin/prereqs.sh`:
+`bin/prereqs.sh` adds the OpenResty package repository for **Debian**, using the codename from `/etc/os-release`:
 
 ```
-echo "deb http://openresty.org/package/ubuntu $(lsb_release -sc) main" \
+echo "deb http://openresty.org/package/debian $codename openresty" \
 ```
 
-And change `$(lsb_release -sc)` for the latest possible LTS codename that's still compatible with your distro. For example, if you're running Ubuntu 20.10 groovy, you'll need to use `focal`, which is the latest LTS release before groovy.
+On Ubuntu, change `debian` to `ubuntu` and make sure `$codename` is a release OpenResty publishes packages for. If you are not running an LTS (long term support) release, use the latest LTS codename that's still compatible with your distro. For example, if you're running Ubuntu 20.10 groovy, you'll need to use `focal`, which is the latest LTS release before groovy.
 
 ### Lua 5.1
 
@@ -66,9 +68,19 @@ Lua is the language that powers the whole Snap!Cloud. Under Debian/Ubuntu, you c
 
 Please note that you need version 5.1 specifically.
 
+On macOS, Lua 5.1 is no longer in Homebrew. We use mise instead: `mise install` in the repo installs the version in `.tool-versions`.
+
 ### OpenResty
 
 The Snap!Cloud system is built on top of [Lapis](http://leafo.net/lapis/), a server-side Lua (or MoonScript) web framework that runs on [OpenResty](http://openresty.org), a modified version of Nginx. First of all, you need to [download](http://openresty.org/#Download) and install OpenResty by following its [official install guide](http://openresty.org/#Installation).
+
+On macOS, install it from the OpenResty Homebrew tap **without the GeoIP module**.
+
+```
+$ brew install openresty/brew/openresty --without-geoip
+```
+
+If `lapis server` says "Unable to find an OpenResty installation", run `openresty -v`. If it crashes with `Library not loaded: .../libGeoIP.1.dylib`, uninstall OpenResty and reinstall it with the command above.
 
 ### Lapis and extra Lua modules
 
@@ -78,14 +90,16 @@ Once OpenResty is ready, installing Lapis is just a matter of asking the LuaRock
 # apt-get install luarocks
 ```
 
-Additional Lua packages you need for the Snap!Cloud to work properly are the Bcrypt module and the md5 module used for secure password encryption. You can use LuaRocks to install them all as root:
+All the Lua packages the Snap!Cloud needs (Lapis, bcrypt, luaossl, etc.) are listed in `snapcloud-dev-0.rockspec`. You can use LuaRocks to install them all as root:
 
-All Lua dependencies are contained in the rockspec.
+```
+# luarocks install --only-deps snapcloud-dev-0.rockspec
+```
 
 ### Note About `git` protocols
 
 Some rocks still use the `git://` protocol, which GitHub no longer accepts.
-The 'easy' was to get around this is to use a global git configuration:
+The 'easy' way to get around this is to use a global git configuration:
 
 ```
 $ git config --global url."https://github".insteadOf git://github
@@ -93,20 +107,21 @@ $ git config --global url."https://github".insteadOf git://github
 
 ### Lua Dependencies and `luarocks` macOS
 
-`luarocks` will default to lua 5.3, which we do not use. Instead, `bin/luarocks-macos` "wraps" luarocks with our defaults,
-and includes the appropriate C/C++ flags so dependencies compile on recent macOS versions.
+On macOS, `luarocks` comes from mise, so it already uses Lua 5.1. `bin/luarocks-macos` "wraps" it with the flags some rocks (luasec, luaossl, bcrypt) need to compile on recent macOS versions:
 
-You can pass all the same commmands to luarocks, e.g.
+* It uses the newest Homebrew `gcc` (ARM Macs need gcc 12 or newer) and Homebrew's `openssl@3`.
+* It sets `SDKROOT`, because Homebrew's `gcc` can fail to link (`ld: library 'System' not found`) after a macOS update.
+* It installs with `--local`, into `~/.luarocks`.
+
+You can pass all the same commands to luarocks, e.g.
 
 ```
 $ bin/luarocks-macos install --only-deps snapcloud-dev-0.rockspec
 ```
 
-```
-# luarocks install --only-deps snapcloud-dev-0.rockspec
-```
+Using `--only-deps` avoids an unnecessary need to clone the repo from GitHub.
 
-Using `--only-deps` avoids an unecessary need to clone the repo from GitHub.
+OpenResty does not read the Lua paths mise sets up (`LUA_INIT`), only `LUA_PATH` and `LUA_CPATH`. The repo's `mise.toml` sets these, and adds `~/.luarocks/bin` to your `PATH`, whenever you are in the project folder. You should not need any Lua settings in your shell config. If you see `module 'lapis' not found`, check that mise is activated and run `mise trust` in the repo.
 
 ### Authbind
 
@@ -118,7 +133,7 @@ In order to serve the cloud over HTTPS, we need the cloud user to have permissio
 
 ### PostgreSQL
 
-The Snap!Cloud backend uses PostreSQL for storage, so you'll need to install it too. Again, under Debian/Ubuntu this is trivial:
+The Snap!Cloud backend uses PostgreSQL for storage, so you'll need to install it too. Again, under Debian/Ubuntu this is trivial:
 
 ```
 # apt-get install postgresql postgresql-client
@@ -138,6 +153,29 @@ Heroku has a good guide on [generating self-signed certs][heroku-guide].
 
 Follow instructions [here](https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html), depending on your operating system.
 
+On macOS with Homebrew:
+
+```sh
+$ brew services start postgresql@16
+```
+
+Homebrew doesn't put `postgresql@16` on your `PATH`, so add `$(brew --prefix)/opt/postgresql@16/bin` to it (`bin/setup-macos` does this for you).
+
+### The `.env` file
+
+`bin/lapis-migrate`, `db/init.sh` and `start.sh` read settings from a `.env` file in the repo root. It is not checked in. `bin/setup-macos` creates one for development if it's missing; otherwise create it yourself:
+
+```sh
+export LAPIS_ENVIRONMENT=development
+export DATABASE_HOST=localhost
+export DATABASE_USERNAME=$USER
+export DATABASE_NAME=snapcloud_development
+export PORT=8080
+export HOSTNAME=localhost
+```
+
+See "Setting Environment Variables" below for the production version.
+
 ### Creating a user and a database
 
 First, try running:
@@ -148,7 +186,7 @@ $ bin/lapis-migrate
 
 If all goes well, this will create a local database, and run the initial schema load and seeds.
 
-If you are developing locally, you should be able to authenticate if your postgres user matches your user you are using to run the app. Otherwise, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud`, owned by that user:
+If you are developing locally, you should be able to authenticate if your postgres user matches your user you are using to run the app. Otherwise, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud_development`, owned by that user:
 
 ```sh
 $ psql postgres
@@ -156,7 +194,7 @@ $ psql postgres
 # Enter these in the PSQL command line
 > CREATE USER cloud WITH PASSWORD 'snap-cloud-password';
 > ALTER ROLE cloud WITH LOGIN;
-> CREATE DATABASE snapcloud OWNER cloud;
+> CREATE DATABASE snapcloud_development OWNER cloud;
 ```
 
 Alternatively, if you are on Linux, you can have postgres become the superuser, but that is not required
@@ -173,7 +211,7 @@ $ psql
 # Note: Enter these in the PSQL command line
 > CREATE USER cloud WITH PASSWORD 'snap-cloud-password';
 > ALTER ROLE cloud WITH LOGIN;
-> CREATE DATABASE snapcloud OWNER cloud;
+> CREATE DATABASE snapcloud_development OWNER cloud;
 ```
 
 ### Building the database schema
@@ -181,7 +219,7 @@ $ psql
 Continue by logging in as `cloud` and running the provided SQL file in the main Terminal:
 
 ```sh
-$ psql -U cloud -d snapcloud -a -f db/schema.sql
+$ psql -U cloud -d snapcloud_development -a -f db/schema.sql
 ```
 
 Linux users can run the following to set the "cloud" to create a substitute user (after running `sudo -i`) before running the above:
@@ -220,7 +258,7 @@ To install maildev, you need node/npm.
 
 Run: (The macOS install script includes this already.)
 ```sh
-$ npm i -g maildev
+$ npm install
 ```
 
 Start maildev by just typing `maildev`:
@@ -228,24 +266,25 @@ Start maildev by just typing `maildev`:
 $ maildev
 ```
 
-When you start maildev, all emails sent by the Snap!Cloud will be avaialbe at:
+When you start maildev, all emails sent by the Snap!Cloud will be available at:
 http://localhost:1080
 
 ### A Procfile Runner
-We've included a Procfile, which declares all the resources needed to run the app, including postgres.
+We've included a Procfile, which declares all the resources needed to run the app: the Lapis server, the sass watcher, and maildev. Postgres is not included; start it separately (see "Starting up a local PostgreSql server").
 
-You can use any tool you'd like to run a procfile, but two common ones are [foreman][foreman] or [node-foreman][nf]. These make it really easy to run all the resources:
+You can use any tool you'd like to run a procfile, but common ones are [foreman][foreman] or [node-foreman][nf], and [overmind][overmind]. These make it really easy to run all the resources:
 
 ```sh
 $ foreman s[tart] -p 8080 # OR
-$ nf start -x 8080
+$ nf start -x 8080 # OR
+$ overmind s[tart]
 ```
 
-You can now point your browser to `http://localhost:8080` (note: `foreman` and `node-forman (nf)` by default goes to 5000 without the `-p` or `-x` port flag).
+You can now point your browser to `http://localhost:8080`. The app listens on the `PORT` set in `.env`. (Note: `foreman` and `node-foreman (nf)` by default go to 5000 without the `-p` or `-x` port flag.)
 
 [foreman]: https://github.com/ddollar/foreman
 [nf]: https://github.com/strongloop/node-foreman
-
+[overmind]: https://github.com/DarthSim/overmind
 
 ### Updating Dependencies / Lockfile
 
@@ -325,7 +364,7 @@ The production instance needs SSL to run. See [certs/README.md](../certs/README.
 
 ### Setting Environment Variables
 
-SnapCloud will read variables from a file `.env` which contains contains data specific to that system. It should look something like this:
+SnapCloud will read variables from a file `.env` which contains data specific to that system. It should look something like this:
 
 ```sh
 export LAPIS_ENVIRONMENT=production
@@ -375,7 +414,7 @@ When running locally, follow the instructions listed in "Starting up a local Pos
 
 ## Setting up the Snap!Cloud as a system daemon
 
-We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace `cloud` by your actual user. If you have followed this guide, this is not necessary.
+We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `bin/snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace `cloud` by your actual user. If you have followed this guide, this is not necessary.
 
 
 `runuser -l cloud`
