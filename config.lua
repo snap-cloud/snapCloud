@@ -37,6 +37,7 @@ config({'development', 'staging', 'production', 'test'}, {
     hostname = os.getenv('HOSTNAME') or 'localhost',
     secondary_hostname = os.getenv('SECONDARY_HOSTNAME') or 'localhost',
     maintenance_mode = os.getenv('MAINTENANCE_MODE') or 'false',
+    maintenance_note = os.getenv('MAINTENANCE_NOTE') or '',
 
     measure_performance = true,
     logging = {

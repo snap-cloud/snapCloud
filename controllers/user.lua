@@ -931,10 +931,6 @@ app:match(
                 -- Step 1: User clicks the reset password link in their email.
                 -- Validate the token, but do not consume it yet.
                 -- Show a confirmation page with a button to proceed.
-                -- validate_token deletes expired tokens, and the POST step
-                -- can't run during maintenance anyway.
-                local blocked = package.loaded.maintenance.block_writes(self)
-                if blocked then return blocked end
                 local token = Tokens:find(self.params.token)
                 local valid, err_response = validate_token(
                     self, token, 'password_reset')
@@ -1058,9 +1054,6 @@ app:match(
             if user.verified then
                 return user_page(user)
             else
-                -- Verifying writes to the DB (and may delete the token).
-                local blocked = package.loaded.maintenance.block_writes(self)
-                if blocked then return blocked end
                 return check_token(
                     self,
                     token,

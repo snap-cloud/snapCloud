@@ -178,25 +178,19 @@ curl -sI -H 'Accept-Encoding: gzip' https://snap.berkeley.edu/api/v1/projects \
 
 ## Maintenance mode
 
-`bin/maintenance-mode` turns maintenance on and off without a restart. It writes
-`tmp/maintenance_mode`, which the app checks on each request (see `maintenance.lua`).
-
 ```
 bin/maintenance-mode on "until about 09:00 PT"   # read-only
 bin/maintenance-mode down                         # everything returns 503
 bin/maintenance-mode off
-bin/maintenance-mode status
 ```
 
-- **Read-only (`on`)**: site pages, the Snap! editor, and GET API requests keep working, and
-  logged-in users stay logged in. Saves, logins, sign-ups, and anything else that writes
-  get a 503 with a message the editor shows. So do the few GET routes that write
-  (collection join links, email verification, password-reset links, forum sign-in).
-  Session tracking is paused. Site pages show a banner.
-- **Down (`down`)**: every app request gets a 503 maintenance message. Static files
-  (including the editor at `/snap/`) are still served by nginx.
-- **`--db`**: also sets the database's `default_transaction_read_only`, then reloads the
-  app so pooled connections pick it up. Use it for migrations, so any write the app
-  doesn't block fails instead of being lost. `off --db` makes the database writable
-  again *before* the app starts accepting writes.
-- `MAINTENANCE_MODE=true` in `.env` still means `down`, but it's only read at server start.
+The script sets `MAINTENANCE_MODE` (and an optional `MAINTENANCE_NOTE`) in `.env`, makes the
+database read-only (`ALTER DATABASE … SET default_transaction_read_only`) or writable again, and
+restarts the app. The app reads the mode once, at start (see `maintenance.lua`).
+
+- **Read-only (`on`)**: site pages, the editor and GET API requests work, and logged-in users stay
+  logged in (session tracking is paused). POST/PUT/DELETE requests get a 503 with a message the editor
+  shows. Any other write (e.g. a GET route that updates a row) is refused by the database, and the app
+  shows the same message instead of a 500. Site pages show a banner.
+- **Down**: every app request gets a 503. Static files (including the editor at `/snap/`) still load.
+- `off` unlocks the database before restarting, so the app never runs writable against a locked DB.

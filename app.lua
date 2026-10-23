@@ -118,7 +118,7 @@ local function resolve_current_user(self)
     end
 
     -- Read-only maintenance: keep the user logged in, but don't write a token.
-    if maintenance.is_read_only() then return user end
+    if maintenance.mode then return user end
 
     self.session.remember_token = user:rotate_remember_token()
     return user
@@ -128,7 +128,7 @@ end
 -- after a request has been authenticated and current_user is set.
 local function track_session_activity(self)
     -- Session counts are paused during read-only maintenance.
-    if maintenance.is_read_only() then return end
+    if maintenance.mode then return end
     local should_count_session = false
     local last_session_at = self.current_user.last_session_at
     if not last_session_at then
@@ -287,13 +287,15 @@ app:before_filter(function (self)
         return
     end
 
-    -- Maintenance (see maintenance.lua, bin/maintenance-mode). Checked after the
-    -- CORS headers are set, so the Snap! editor can read the error message.
-    self.maintenance_mode = maintenance.mode()
-    if self.maintenance_mode then
-        self.maintenance_message = maintenance.message()
-        if self.maintenance_mode == 'down' or
-                not maintenance.allows_method(ngx.req.get_method()) then
+    -- Maintenance (see maintenance.lua). After the CORS headers, so the Snap!
+    -- editor can read the message. The DB is read-only in maintenance; refusing
+    -- writes here too gives a clear message and stops disk-only writes.
+    if maintenance.mode then
+        self.maintenance_mode = maintenance.mode
+        self.maintenance_message = maintenance.message
+        local method = ngx.req.get_method()
+        if maintenance.mode == 'down' or
+                (method ~= 'GET' and method ~= 'HEAD') then
             self:write(maintenance.response(self))
             return
         end
@@ -365,6 +367,12 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    -- The database is read-only during maintenance, so a route that tries to
+    -- write ends up here. Show the maintenance message, not a 500.
+    if maintenance.is_read_only_db_error(err) then
+        return maintenance.response(self)
+    end
+
     -- Lapis raises this error from `respond_to` when a request uses an HTTP
     -- method the route does not handle. Return a 405 instead of a 500.
     if type(err) == 'string' and err:match("don't know how to respond to") then

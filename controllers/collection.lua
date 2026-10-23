@@ -458,9 +458,6 @@ CollectionController = {
                 table.insert(token, charset[math.random(#charset)])
             end
             -- TODO: Ensure token is unique?
-            -- This also runs on GET; don't create a token during maintenance.
-            local blocked = package.loaded.maintenance.block_writes(self)
-            if blocked then return blocked end
             collection:update({ join_token = table.concat(token) })
         end
         return jsonResponse({ join_token = collection.join_token })

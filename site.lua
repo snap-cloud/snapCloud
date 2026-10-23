@@ -190,9 +190,6 @@ end))
 
 -- TODO: Consider making this an API/POST route as well
 app:get('/collection/:token/join', capture_errors(function (self)
-    -- Writes on GET (adds the user as an editor), so pause it during maintenance.
-    local blocked = package.loaded.maintenance.block_writes(self)
-    if blocked then return blocked end
     local collection = Collections:find({ join_token = self.params.token })
     assert(collection, 'Collection not found')
 
