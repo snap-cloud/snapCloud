@@ -256,6 +256,9 @@ app:before_filter(function (self)
     self.locale = package.loaded.locale
     self.locale.language = self.session.locale or 'en'
 
+    -- Make our utilities (escape_html, js_string...) available to templates
+    self.util = utils
+
     self.req.source =
         (self.req.headers['content-type'] and
             self.req.headers['content-type']:find('json')) and 'snap' or 'site'

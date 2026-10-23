@@ -169,7 +169,9 @@ UserController = {
                         message = package.loaded.locale.get(
                             'learner_first_login_meesage',
                             self.queried_user.username,
-                            self:build_url('/profile')
+                            self:build_url('/profile'),
+                            -- Plain text: the site escapes it for display
+                            { escape = false }
                         ),
                         redirect = self:build_url('/')
                     })
@@ -429,7 +431,7 @@ UserController = {
         local body = '<ul>'
 
         for _, user in pairs(users) do
-            body = body .. '<li>' .. user.username .. '</li>'
+            body = body .. '<li>' .. escape_html(user.username) .. '</li>'
         end
 
         body = body .. '</ul>'
@@ -645,10 +647,10 @@ UserController = {
             usernames = {}
             local msg =
                 'No user accounts created! ' ..
-                #existing_users .. ' users already exist.<br>' ..
-                'Please provide new usernames for the following users:<br><br>'
+                #existing_users .. ' users already exist.\n' ..
+                'Please provide new usernames for the following users:\n\n'
             for _, user in pairs(existing_users) do
-                msg = msg .. user.username .. '<br>'
+                msg = msg .. user.username .. '\n'
             end
             return errorResponse(self, msg, 400)
         end
@@ -670,8 +672,8 @@ UserController = {
                     db.query('ROLLBACK;')
                     return errorResponse(self,
                         'Could not create collection ' ..
-                        self.params.collection_name .. '.<br>' ..
-                        'Please make sure you do not already have a<br>' ..
+                        self.params.collection_name .. '.\n' ..
+                        'Please make sure you do not already have a\n' ..
                         'collection with that name.'
                     )
                 end
@@ -834,7 +836,8 @@ UserController = {
             send_mail(
                 self.queried_user.email,
                 self.params.subject or mail_subjects.generic,
-                self.params.contents
+                -- Typed into a plain textarea
+                utils.text_to_html(self.params.contents)
             )
         else
             yield_error(err.mail_body_empty)
@@ -1003,7 +1006,7 @@ app:match(
                             'Password reset',
                             '<p>Your password has been successfully ' ..
                             'changed for account <strong>' ..
-                            user.username .. '</strong>.</p>' ..
+                            escape_html(user.username) .. '</strong>.</p>' ..
                             '<p>You may now log in with your ' ..
                             'new password.</p>'
                         )
@@ -1026,7 +1029,7 @@ app:match(
                 return html_message_page(
                     self,
                     'User verified | Welcome to Snap<em>!</em>',
-                    '<p>Your account <strong>' .. user.username ..
+                    '<p>Your account <strong>' .. escape_html(user.username) ..
                     '</strong> has been verified.</p>' ..
                     '<p>Thank you!</p>' ..
                     '<p><a href="https://snap.berkeley.edu/">' ..

@@ -22,6 +22,7 @@
 
 local config = package.loaded.config
 local mail = require "resty.mail"
+local escape_html = require('lib.util').escape_html
 
 local mailer, err = mail.new({
   host = config.mail_server,
@@ -68,7 +69,7 @@ mail_bodies = {
                       '<p>This is the list of Snap<em>!</em> usernames associated to your email account:</p>',
     bad_flag = function (user, project)
         return '<h1>Flagging System Abuse</h1>' ..
-        '<p>You have flagged the project ' .. project.projectname .. ' by ' ..  project.username .. ', but we have not found it to violate any of our guidelines.</p>' ..
+        '<p>You have flagged the project ' .. escape_html(project.projectname) .. ' by ' ..  escape_html(project.username) .. ', but we have not found it to violate any of our guidelines.</p>' ..
         '<p>Bear in mind that abusing the flagging system <em>is</em> a violation of our policy and can result in the suspension of your user account.</p>' ..
         '<p>' .. (user.bad_flags > 1 and
             ('You have already been asked to not flag legitimate projects in ' .. user.bad_flags .. ' occasions.') or
@@ -94,14 +95,18 @@ mail_subjects = {
     bad_flag = 'Flagged project'
 }
 
+-- html is sent as is, so escape any user data in it (see util.text_to_html).
 send_mail = function (address, subject, html, url)
     if url then
+        url = escape_html(url)
         html = html .. '<p><a href="' .. url .. '">' .. url .. '</a></p>'
     end
     local ok, err = mailer:send({
         from = config.mail_from_name .. ' <' .. config.mail_from .. '>',
         to = { address },
-        subject = subject,
+        -- Subjects often include usernames. Keep them to one line so they
+        -- can't add mail headers.
+        subject = subject and (tostring(subject):gsub('%c', ' ')),
         html = html .. config.mail_footer
     })
     return err or ok

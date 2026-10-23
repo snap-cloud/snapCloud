@@ -65,13 +65,13 @@
     <script>
         function confirmFFA (data) {
            confirm(
-                "<%- locale.get('confirm_ffa' , '<br>') %>",
+                "<%- locale.get('confirm_ffa', '<br>', { escape = false }) %>",
                 () => cloud.post('/collection/<%= collection.id %>/ffa')
             );
         };
         function confirmUnFFA (data) {
            confirm(
-                "<%- locale.get('confirm_unffa' , '<br>') %>",
+                "<%- locale.get('confirm_unffa', '<br>', { escape = false }) %>",
                 () => cloud.delete('/collection/<%= collection.id %>/ffa')
             );
         };

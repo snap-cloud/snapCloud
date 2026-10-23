@@ -1,5 +1,5 @@
-<% content_for('title', locale.get('learn_snap', 'Snap!')) %>
-<h1 ><%- locale.get('learn_snap', 'Snap<em>!</em>') %></h1>
+<% content_for('title', locale.get('learn_snap', 'Snap!', { escape = false })) %>
+<h1 ><%- locale.get('learn_snap', 'Snap<em>!</em>', { escape = false }) %></h1>
 
 <%
 -- Plain-text title for use in accessible labels.

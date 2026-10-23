@@ -301,7 +301,8 @@ ProjectController = {
                 self.queried_user.email,
                 mail_subjects.project_deleted .. tostring(project.projectname),
                 mail_bodies.project_deleted .. self.current_user.role ..
-                    '.</p><p>' .. self.params.reason .. '</p>')
+                    '.</p><p>' ..
+                    require('lib.util').text_to_html(self.params.reason) .. '</p>')
         end
 
         -- Do not actually delete the project; flag it as deleted.
