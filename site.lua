@@ -248,6 +248,13 @@ app:get('/collection', capture_errors(function (self)
     return { render = 'collection' }
 end))
 
+app:get('user_show', '/user/:username', capture_errors(function (self)
+    assert_user_exists(self)
+    self.username = self.queried_user.username
+    self.user_id = self.queried_user.id
+    return { render = 'user' }
+end))
+
 app:get('user_profile', '/user', capture_errors(function (self)
     -- Backwards compatibility with previous URL params
     if self.params.user and self.params.user ~= '' and self.params.username == nil then
