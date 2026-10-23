@@ -1,4 +1,4 @@
- #! /usr/bin/env sh
+#!/usr/bin/env sh
 
 ## NOTE: lets-encrypt renewals runs this using sh not bash.
 ## pushd / popd are not available.
@@ -20,7 +20,7 @@ destDir=$REPO_DIR/certs/
 domain=''
 # We need to be in the correct directory since this uses git to set env variables.
 
-if [ $LAPIS_ENVIRONMENT == 'production' ]; then
+if [ "$LAPIS_ENVIRONMENT" = 'production' ]; then
     domain='cloud';
     cp -r -u --verbose -L ${sourceDir}snap.berkeley.edu $destDir;
     cp -r -u --verbose -L ${sourceDir}extensions.snap.berkeley.edu $destDir;
