@@ -1,0 +1,7 @@
+# mise config for snapCloud. Tool versions are pinned in .tool-versions.
+# OpenResty ignores LUA_INIT (which mise's lua uses), so we set LUA_PATH and
+# LUA_CPATH here. Rocks live in the user tree (~/.luarocks), see bin/luarocks-macos.
+[env]
+LUA_PATH = "./?.lua;./?/init.lua;{{env.HOME}}/.luarocks/share/lua/5.1/?.lua;{{env.HOME}}/.luarocks/share/lua/5.1/?/init.lua;;"
+LUA_CPATH = "./?.so;{{env.HOME}}/.luarocks/lib/lua/5.1/?.so;;"
+_.path = ["{{env.HOME}}/.luarocks/bin"]
