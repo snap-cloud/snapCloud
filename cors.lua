@@ -32,6 +32,7 @@ domain_allowed['extensions.snap.berkeley.edu'] = true
 -- However, we want to allow access on http hosted versions of Snap!.
 domain_allowed['snap-cloud.cs10.org'] = true
 -- App Server Staging Domains
+domain_allowed['snap-staging.cs10.org'] = true
 domain_allowed['staging.snap.berkeley.edu'] = true
 -- Snap! Mirrors
 -- CONTACT: Snap! Team
