@@ -46,6 +46,8 @@ local date = require('date')
 -- Cookie names, attributes and the __Host- session cookie migration.
 -- Needs package.loaded.config; must load before the first request.
 local cookies = require('lib.cookies')
+-- Guards lapis.csrf.validate_token against non-string tokens (500 -> 4xx).
+require('lib.csrf')
 
 package.loaded.disk = require('disk')
 package.loaded.locale = require('locale')
@@ -283,6 +285,26 @@ app:before_filter(function (self)
         return
     end
 
+    -- CSRF: our cookies are SameSite=None (the editor runs on other
+    -- origins), so the browser attaches them to any cross-site POST. A plain
+    -- HTML form can produce a JSON-looking body without a preflight, so we
+    -- refuse state-changing requests whose Origin is neither us nor an
+    -- allow-listed cloud client. Browsers always send Origin on cross-site
+    -- POST/PUT/DELETE; same-origin requests and non-browser clients that
+    -- omit it are unaffected. An `Origin: null` (file://, sandboxed frames)
+    -- is treated as untrusted, which matches the CORS handling above.
+    local method = ngx.req.get_method()
+    if method ~= 'GET' and method ~= 'HEAD' then
+        local origin = self.req.headers.origin
+        if origin and not (domain_allowed[domain] or domain == ngx.var.host) then
+            ngx.log(ngx.WARN, 'Blocked cross-origin ' .. method ..
+                ' from ' .. tostring(origin) .. ' to ' .. self.req.cmd_url)
+            self:write(errorResponse(self,
+                'Cross-origin request blocked', 403))
+            return
+        end
+    end
+
     -- Maintenance (see maintenance.lua). After the CORS headers, so the Snap!
     -- editor can read the message. The DB is read-only in maintenance; refusing
     -- writes here too gives a clear message and stops disk-only writes.
@@ -301,9 +323,21 @@ app:before_filter(function (self)
         -- read body params for all POST requests
         ngx.req.read_body()
         local body = ngx.req.get_body_data()
-        -- try to decode it, if it fails it's not proper JSON
-        if pcall(function () package.loaded.util.from_json(body) end) then
-            local post_params = package.loaded.util.from_json(body)
+        -- Merge the body into params only when the client declared it as
+        -- JSON (self.req.source == 'snap'). Browsers cannot send that
+        -- Content-Type cross-site without a CORS preflight, which is what
+        -- keeps form-encoded or text/plain bodies from being parsed as JSON.
+        -- Lapis already parses form-encoded bodies into self.params itself.
+        -- A JSON body that is not an object (or not JSON at all, like the
+        -- raw password sent to /login) is kept verbatim in params.body.
+        local post_params
+        if self.req.source == 'snap' and body then
+            local ok, decoded = pcall(package.loaded.util.from_json, body)
+            if ok and type(decoded) == 'table' then
+                post_params = decoded
+            end
+        end
+        if post_params then
             for k, v in pairs(post_params) do
                 self.params[k] = v
             end
