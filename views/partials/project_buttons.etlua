@@ -75,8 +75,8 @@
 <script>
 function embedDialog () {
     function update (form) {
-        let base_embed_url = '<%- project:url_for('embed') %>',
-            project_name = '<%- project.projectname %>',
+        let base_embed_url = <%- util.js_string(project:url_for('embed')) %>,
+            project_name = <%- util.js_string(project.projectname) %>,
             options = Object.values(
                 form.querySelectorAll('input[type="checkbox"]:checked')
             ).map(input => `${input.value}=true`).join('&'),
@@ -135,7 +135,7 @@ function confirmDelete () {
 
 function confirmFlag () {
     confirm(
-        "<p class='text-start'><%- locale.get('flag_prewarning' , '<br>') %></p>",
+        "<p class='text-start'><%- locale.get('flag_prewarning', '<br>', { escape = false }) %></p>",
         () => {
             dialog(
                 "<%- locale.get('choose_flag_reason') %>",
@@ -174,7 +174,7 @@ function markAsRemix () {
                 '/api/v1/project/<%= project.id %>/mark_as_remix',
                 null,
                 {
-                    username: '<%= project.username %>',
+                    username: <%- util.js_string(project.username) %>,
                     created: '<%= project.created %>',
                     original_username: url.searchParams.get('username'),
                     original_projectname: url.searchParams.get('projectname')

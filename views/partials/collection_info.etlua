@@ -59,7 +59,7 @@
     <script>
     function copyJoinUrl() {
         const token = document.getElementById('join-token').value;
-        const url = window.location.origin + "<%= collection:url_for('join') %>";
+        const url = window.location.origin + <%- util.js_string(collection:url_for('join')) %>;
         navigator.clipboard.writeText(url);
         // alert('Join URL copied to clipboard!');
     }

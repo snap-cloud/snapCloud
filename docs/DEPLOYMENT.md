@@ -3,6 +3,8 @@
 This guide covers production-only deployment concerns. For local
 development setup see [`INSTALL.md`](./INSTALL.md).
 
+nginx serves static error pages from `static/errors/`.
+
 ## Snap! checkouts on the server
 
 The production server keeps several independent Snap! checkouts. They are
@@ -264,3 +266,22 @@ and staging already have it. Development defaults to off, which rebuilds the
 VM (and drops the pool) on every request. Run with `CODE_CACHE=on` to test
 pooling locally, e.g. `CODE_CACHE=on DATABASE_POOL_SIZE=2 lapis server` and
 then fire more than two concurrent requests.
+
+## Maintenance mode
+
+```
+bin/maintenance-mode on     # read-only
+bin/maintenance-mode down   # everything returns 503
+bin/maintenance-mode off
+```
+
+The script sets `MAINTENANCE_MODE` in `.env`, makes the
+database read-only (`ALTER DATABASE … SET default_transaction_read_only`) or writable again, and
+restarts the app. The app reads the mode once, at start (see `maintenance.lua`).
+
+- **Read-only (`on`)**: site pages, the editor and GET API requests work, and logged-in users stay
+  logged in (session tracking is paused). POST/PUT/DELETE requests get a 503 with a message the editor
+  shows. Any other write (e.g. a GET route that updates a row) is refused by the database, and the app
+  shows the same message instead of a 500. Site pages show a banner.
+- **Down**: every app request gets a 503. Static files (including the editor at `/snap/`) still load.
+- `off` unlocks the database before restarting, so the app never runs writable against a locked DB.

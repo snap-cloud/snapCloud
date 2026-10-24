@@ -1,5 +1,5 @@
-<% content_for('title', locale.get('search_results', params.query)) %>
-<h1><%= locale.get('search_results', params.query) %></h1>
+<% content_for('title', locale.get('search_results', params.query, { escape = false })) %>
+<h1><%- locale.get('search_results', params.query) %></h1>
 
 <%
 render(

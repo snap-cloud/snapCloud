@@ -156,24 +156,15 @@ UserController = {
                 purpose = 'verify_user'
             })
 
+            -- A student's first login is a null last_login_at, not the
+            -- verification flag: students are already verified.
+            local student_first_login =
+                self.queried_user:is_student()
+                    and self.queried_user.last_login_at == nil
+
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
-                if self.queried_user:is_student() then
-                    self.queried_user:update({
-                        verified = true,
-                        last_login_at = db.format_date()
-                    })
-                    return jsonResponse({
-                        title = 'Welcome to Snap!',
-                        message = package.loaded.locale.get(
-                            'learner_first_login_meesage',
-                            self.queried_user.username,
-                            self:build_url('/profile')
-                        ),
-                        redirect = self:build_url('/')
-                    })
-                end
                 local message =
                     self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
@@ -203,6 +194,21 @@ UserController = {
             self.queried_user:update({
                 last_login_at = db.format_date()
             })
+
+            if student_first_login then
+                return jsonResponse({
+                    title = 'Welcome to Snap!',
+                    message = package.loaded.locale.get(
+                        'learner_first_login_meesage',
+                        self.queried_user.username,
+                        self:build_url('/profile'),
+                        -- Plain text: the site escapes it for display
+                        { escape = false }
+                    ),
+                    redirect = self:build_url('/')
+                })
+            end
+
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
@@ -429,7 +435,7 @@ UserController = {
         local body = '<ul>'
 
         for _, user in pairs(users) do
-            body = body .. '<li>' .. user.username .. '</li>'
+            body = body .. '<li>' .. escape_html(user.username) .. '</li>'
         end
 
         body = body .. '</ul>'
@@ -645,10 +651,10 @@ UserController = {
             usernames = {}
             local msg =
                 'No user accounts created! ' ..
-                #existing_users .. ' users already exist.<br>' ..
-                'Please provide new usernames for the following users:<br><br>'
+                #existing_users .. ' users already exist.\n' ..
+                'Please provide new usernames for the following users:\n\n'
             for _, user in pairs(existing_users) do
-                msg = msg .. user.username .. '<br>'
+                msg = msg .. user.username .. '\n'
             end
             return errorResponse(self, msg, 400)
         end
@@ -670,8 +676,8 @@ UserController = {
                     db.query('ROLLBACK;')
                     return errorResponse(self,
                         'Could not create collection ' ..
-                        self.params.collection_name .. '.<br>' ..
-                        'Please make sure you do not already have a<br>' ..
+                        self.params.collection_name .. '.\n' ..
+                        'Please make sure you do not already have a\n' ..
                         'collection with that name.'
                     )
                 end
@@ -689,7 +695,8 @@ UserController = {
             user.salt = ''
             user.password = bcrypt_hash(prehash)
             user.email = (user.email or self.current_user.email)
-            user.verified = false
+            -- Students live under the teacher's verified email; verify at creation.
+            user.verified = true
             user.role = 'student'
             user.creator_id = self.current_user.id
             result = Users:create(user)
@@ -834,7 +841,8 @@ UserController = {
             send_mail(
                 self.queried_user.email,
                 self.params.subject or mail_subjects.generic,
-                self.params.contents
+                -- Typed into a plain textarea
+                utils.text_to_html(self.params.contents)
             )
         else
             yield_error(err.mail_body_empty)
@@ -1003,7 +1011,7 @@ app:match(
                             'Password reset',
                             '<p>Your password has been successfully ' ..
                             'changed for account <strong>' ..
-                            user.username .. '</strong>.</p>' ..
+                            escape_html(user.username) .. '</strong>.</p>' ..
                             '<p>You may now log in with your ' ..
                             'new password.</p>'
                         )
@@ -1026,7 +1034,7 @@ app:match(
                 return html_message_page(
                     self,
                     'User verified | Welcome to Snap<em>!</em>',
-                    '<p>Your account <strong>' .. user.username ..
+                    '<p>Your account <strong>' .. escape_html(user.username) ..
                     '</strong> has been verified.</p>' ..
                     '<p>Thank you!</p>' ..
                     '<p><a href="https://snap.berkeley.edu/">' ..

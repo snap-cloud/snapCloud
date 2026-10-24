@@ -43,11 +43,22 @@ function escapeHtml (text) {
 
 // Error handling
 
-function genericError (errorString, title) {
+// Messages from the server are plain text, and may contain user data like
+// usernames. Escape them before they go into a dialog, which renders HTML,
+// and keep their line breaks. A response opts in to HTML with `html: true`.
+function serverMessageHtml (text, isHtml) {
+    if (text === null || text === undefined) { return ''; }
+    text = localizer.localize(text);
+    return isHtml ? text : escapeHtml(text).replaceAll('\n', '<br>');
+}
+
+// Shows an error. errorString is treated as plain text unless isHtml is true,
+// which is only for markup written in our own templates.
+function genericError (errorString, title, isHtml) {
     doneLoading();
     alert(
-        localizer.localize(errorString || 'Unknown error'),
-        { title: localizer.localize(title || 'Error')}
+        serverMessageHtml(errorString || 'Unknown error', isHtml),
+        { title: escapeHtml(localizer.localize(title || 'Error')) }
     );
     console.error(errorString);
 };
@@ -78,8 +89,7 @@ function doneLoading (selector) {
 
 function enableEnterSubmit () {
     // Submits "forms" when enter is pressed on any of their inputs
-    // TODO-BS: Remove pure CSS when transition to Bootstrap 5 is complete
-    document.querySelectorAll('.pure-form input, input.form-control').forEach(
+    document.querySelectorAll('input.form-control').forEach(
         input => {
             input.onkeypress = function (evt) {
                 if (evt.keyCode == 13) { submit(); }
@@ -134,8 +144,8 @@ Cloud.redirect = function (response) {
     } else {
         if (response.title || response.message) {
             alert(
-                localizer.localize(response.message),
-                { title: localizer.localize(response.title) },
+                serverMessageHtml(response.message, response.html),
+                { title: escapeHtml(localizer.localize(response.title)) },
                 () => location.href = response.redirect
             );
         } else {
@@ -172,7 +182,7 @@ Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
             var response = JSON.parse(okResponse);
             if (response && response.title) {
                 alert(
-                    localizer.localize(response.message),
+                    serverMessageHtml(response.message, response.html),
                     { title: escapeHtml(localizer.localize(response.title)) },
                     function () { onSuccess.call(this, response) }
                 );
@@ -182,7 +192,7 @@ Cloud.prototype.apiRequest = function (method, path, onSuccess, body) {
         },
         errorMessage => {
             alert(
-                localizer.localize(errorMessage),
+                serverMessageHtml(errorMessage),
                 { title: escapeHtml(localizer.localize('Error')) },
                 Cloud.redirect
             )

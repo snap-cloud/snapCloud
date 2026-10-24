@@ -79,6 +79,8 @@ end
 
 require 'models'
 require 'responses'
+local maintenance = require('maintenance')
+package.loaded.maintenance = maintenance
 
 -- Resolve the user this request belongs to, based on the session cookie.
 --
@@ -115,6 +117,9 @@ local function resolve_current_user(self)
         return nil
     end
 
+    -- Read-only maintenance: keep the user logged in, but don't write a token.
+    if maintenance.mode then return user end
+
     self.session.remember_token = user:rotate_remember_token()
     return user
 end
@@ -122,6 +127,8 @@ end
 -- Track a "session" (a 4-hour window of activity) for the user. Called
 -- after a request has been authenticated and current_user is set.
 local function track_session_activity(self)
+    -- Session counts are paused during read-only maintenance.
+    if maintenance.mode then return end
     local should_count_session = false
     local last_session_at = self.current_user.last_session_at
     if not last_session_at then
@@ -256,6 +263,9 @@ app:before_filter(function (self)
     self.locale = package.loaded.locale
     self.locale.language = self.session.locale or 'en'
 
+    -- Make our utilities (escape_html, js_string...) available to templates
+    self.util = utils
+
     self.req.source =
         (self.req.headers['content-type'] and
             self.req.headers['content-type']:find('json')) and 'snap' or 'site'
@@ -275,6 +285,20 @@ app:before_filter(function (self)
             'GET, POST, DELETE, OPTIONS'
         self:write(rawResponse('preflight processed'))
         return
+    end
+
+    -- Maintenance (see maintenance.lua). After the CORS headers, so the Snap!
+    -- editor can read the message. The DB is read-only in maintenance; refusing
+    -- writes here too gives a clear message and stops disk-only writes.
+    if maintenance.mode then
+        self.maintenance_mode = maintenance.mode
+        self.maintenance_message = maintenance.message
+        local method = ngx.req.get_method()
+        if maintenance.mode == 'down' or
+                (method ~= 'GET' and method ~= 'HEAD') then
+            self:write(maintenance.response(self))
+            return
+        end
     end
 
     if ngx.req.get_method() == 'POST' then
@@ -343,6 +367,12 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    -- The database is read-only during maintenance, so a route that tries to
+    -- write ends up here. Show the maintenance message, not a 500.
+    if maintenance.is_read_only_db_error(err) then
+        return maintenance.response(self)
+    end
+
     -- Lapis raises this error from `respond_to` when a request uses an HTTP
     -- method the route does not handle. Return a 405 instead of a 500.
     if type(err) == 'string' and err:match("don't know how to respond to") then
@@ -378,16 +408,6 @@ function app:handle_error(err, trace)
         end
     end
     return errorResponse(self, "An unexpected error occurred: " .. err_msg, 500)
-end
-
--- Enable the ability to have a maintenance mode
--- No routes are served, and a generic error is returned.
-if config.maintenance_mode == 'true' then
-    local msg = 'The Snap!Cloud is currently down for maintenance.'
-    app:match('/*', function(self)
-        return errorResponse(self, msg, 500)
-    end)
-    return app
 end
 
 -- The API for the Snap! editor is implemented in the api.lua file

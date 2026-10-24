@@ -13,7 +13,7 @@
           <a class="nav-link run min-width"
             target="<%- prefer_new_tab and '_blank' or '_self' %>"
             href="<%= build_url('/snap/snap.html') %>">
-            <%- locale.get('run_snap', '<em>!</em>') %>
+            <%- locale.get('run_snap', '<em>!</em>', { escape = false }) %>
           </a>
         </li>
         <li class="nav-item">
