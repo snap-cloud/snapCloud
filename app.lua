@@ -335,8 +335,10 @@ app:before_filter(function (self)
         end
     end
 
-    -- Users still carrying the pre-__Host- session cookie are moved over
-    -- (and the old cookie expired) before the session is read.
+    -- Users still carrying the pre-__Host- session cookie, or its
+    -- percent-encoded twin, are moved over (and the old cookie expired)
+    -- before the session is read.
+    cookies.drop_encoded_twins(self)
     cookies.migrate_legacy_session(self)
 
     establish_session(self)
