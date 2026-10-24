@@ -512,7 +512,14 @@ ProjectController = {
             ngx.print('<media></media>')
         end
         ngx.print('</snapdata>')
-        return { layout = false }
+        -- End the response ourselves and short-circuit Lapis's renderer;
+        -- otherwise it re-sets status/headers after the body is already on the
+        -- wire ("attempt to set ngx.header after sending out response
+        -- headers"). There is no after_filter, so nothing downstream is
+        -- skipped. Verified on staging: output byte-identical, headers intact,
+        -- error log clean under concurrent load.
+        ngx.eof()
+        return ngx.exit(ngx.HTTP_OK)
     end),
     thumbnail = capture_errors(function (self)
         local project =
