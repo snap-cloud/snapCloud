@@ -16,6 +16,8 @@ local function pool_config(num_workers)
         math.max(1, math.floor((max_connections - reserved) / num_workers))
     return {
         num_workers = num_workers,
+        -- To disable pooling quickly, comment out the `postgres` line below
+        -- and restart; OpenResty reverts to its uncapped keepalive behaviour.
         postgres = { pool_size = pool_size, backlog = pool_size * 4 },
         -- The health check reports usage against this number.
         max_db_connections = num_workers * pool_size,
