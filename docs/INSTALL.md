@@ -444,7 +444,7 @@ cloud        ALL=NOPASSWD: /usr/sbin/service snapcloud_daemon *
 
 The `cloud` user may now run `sudo service snapcloud_daemon restart`
 
-Don't give `cloud` any other root commands, in particular not `luarocks`: root running anything `cloud` can edit (the repo, the rockspec) makes any code execution in the app a root compromise. When `bin/snapcloud_daemon` changes, review it before copying it to `/etc/init.d/`.
+Don't let `cloud` run `luarocks` as root: it would run untrusted code as root.
 
 ### Production Log Rotation
 
