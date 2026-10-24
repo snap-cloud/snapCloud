@@ -8,6 +8,9 @@ logs
 tmp/*
 nginx.conf.compiled
 
+# Project-local Lua rocks (bin/install-rocks)
+lua_modules/
+
 .htpasswd
 
 # Certificates and keys

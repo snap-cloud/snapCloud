@@ -11,4 +11,6 @@ if [[ "$LAPIS_ENVIRONMENT" == 'development' ]]; then
     rm -f static/style/compiled/*.css.gz
     sass --watch static/scss/:static/style/compiled/ --style compressed &
 fi
+# The lapis command from the project's rocks (bin/install-rocks).
+export PATH="$PWD/lua_modules/bin:$PATH"
 authbind --deep lapis server $LAPIS_ENVIRONMENT

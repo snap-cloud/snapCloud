@@ -90,11 +90,15 @@ Once OpenResty is ready, installing Lapis is just a matter of asking the LuaRock
 # apt-get install luarocks
 ```
 
-All the Lua packages the Snap!Cloud needs (Lapis, bcrypt, luaossl, etc.) are listed in `snapcloud-dev-0.rockspec`. You can use LuaRocks to install them all as root:
+All the Lua packages the Snap!Cloud needs (Lapis, bcrypt, luaossl, etc.) are listed in `snapcloud-dev-0.rockspec` and pinned in `luarocks.lock`.
+
+On a server, install them **as the `cloud` user, not root**, into the project's `lua_modules/` folder (`bin/deploy` does this):
 
 ```
-# luarocks install --only-deps snapcloud-dev-0.rockspec
+$ bin/install-rocks
 ```
+
+`nginx.conf`, `start.sh`, `bin/lapis-migrate` and `bin/snapcloud_daemon` look in `lua_modules/` first. Building the C rocks needs `build-essential`, `liblua5.1-dev` and `libssl-dev`. For development, install them as below (`bin/luarocks-macos` on macOS).
 
 ### Note About `git` protocols
 
@@ -245,7 +249,7 @@ In development, it's completely fine to stick with these provided values. Howeve
 ## Development Tools
 The Snap!Cloud uses the SASS compiler to compile (some) CSS.
 
-All you need to do is run `npm install` or `npm install -g sass`
+All you need to do is run `npm ci` (installs exactly what `package-lock.json` lists) or `npm install -g sass`
 
 This compiles `static/scss` to `static/style/compiled/`.
 
@@ -258,7 +262,7 @@ To install maildev, you need node/npm.
 
 Run: (The macOS install script includes this already.)
 ```sh
-$ npm install
+$ npm ci
 ```
 
 Start maildev by just typing `maildev`:
@@ -439,6 +443,8 @@ cloud        ALL=NOPASSWD: /usr/sbin/service snapcloud_daemon *
 ```
 
 The `cloud` user may now run `sudo service snapcloud_daemon restart`
+
+Don't let `cloud` run `luarocks` as root: it would run untrusted code as root.
 
 ### Production Log Rotation
 

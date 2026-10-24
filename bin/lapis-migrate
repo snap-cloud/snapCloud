@@ -2,6 +2,8 @@
 # Wrap `lapis migrate` to ensure we always dump the current schema to the $SCHEMA_FILE
 
 source .env
+# lapis comes from the project's rocks (bin/install-rocks).
+export PATH="$PWD/lua_modules/bin:$PATH"
 
 # The database is whatever .env says (snapcloud_production, snapcloud_staging, ...),
 # the same one the app uses. Without DATABASE_NAME, fall back to snapcloud_<env>.
