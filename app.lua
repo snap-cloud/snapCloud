@@ -43,6 +43,10 @@ package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.html = require('lapis.html')
 local date = require('date')
 
+-- Cookie names, attributes and the __Host- session cookie migration.
+-- Needs package.loaded.config; must load before the first request.
+local cookies = require('lib.cookies')
+
 package.loaded.disk = require('disk')
 package.loaded.locale = require('locale')
 package.loaded.validation = require("validation")
@@ -159,24 +163,11 @@ local function establish_session(self)
     end
 end
 
-app.cookie_attributes = function (self)
-    -- Cookies are 'session cookies' unless they have an expiration date.
-    -- Cookies have a Max-Age of 35 days, because this is continually reset
-    -- using the Snap!Cloud will continue to extend the user's cookie. (See before_filter)
-    -- Any update to `self.session.x` will extend the cookie's life.
-    -- See https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html
-    local attributes = "Domain=" .. ngx.var.host .. "; Path=/;"
-    if (config._name == 'development') then
-        attributes = attributes .. " HttpOnly; SameSite=Lax; "
-    else
-        -- SameSite must be None on production to allow extensions (and CORS) to work right.
-        attributes = attributes .. " Secure; HttpOnly; SameSite=None;"
-    end
-    if self.session.persist_session == 'true' then
-        local max_seconds = 35 * 24 * 60 * 60 -- 35 days, 24 hours, 60 minutes, 60 seconds
-        attributes = "Max-Age=" .. max_seconds .. "; " .. attributes
-    end
-    return attributes
+-- Lapis calls this once per cookie it writes. The policy (Secure, HttpOnly,
+-- SameSite, Max-Age for "remember me", no Domain so __Host- works) and the
+-- expiry of the legacy session cookie live in lib/cookies.lua.
+app.cookie_attributes = function (self, name)
+    return cookies.attributes(self, name)
 end
 
 -- CACHING UTILITIES
@@ -343,6 +334,10 @@ app:before_filter(function (self)
                 )
         end
     end
+
+    -- Users still carrying the pre-__Host- session cookie are moved over
+    -- (and the old cookie expired) before the session is read.
+    cookies.migrate_legacy_session(self)
 
     establish_session(self)
 
