@@ -53,6 +53,24 @@ local sortable_columns = {
     flag_count = true
 }
 
+-- Read-path HTTP caching. A project's stored files (project.xml, media.xml,
+-- thumbnail) change only when the project is saved, so a read can be tagged
+-- with an ETag derived from the project id, its lastupdated time and the
+-- requested version. A client or shared cache that already holds the current
+-- version then revalidates cheaply and gets a 304 instead of re-downloading
+-- the whole project -- which is the single heaviest route in prod (see
+-- infra/log/2026-10-24-new-prod-perf.md). Sets the headers and returns true
+-- when the client's If-None-Match already matches, so the caller can 304.
+local function not_modified (self, project, delta, tag, max_age)
+    local etag = string.format('"%s-%s-%s-%s"', tag, tostring(project.id),
+        tostring(project.lastupdated), tostring(delta or 0))
+    self.res.headers['ETag'] = etag
+    self.res.headers['Cache-Control'] = project.ispublic
+        and ('public, max-age=' .. max_age)
+        or 'private, max-age=0, must-revalidate'
+    return self.req.headers['if-none-match'] == etag
+end
+
 ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
@@ -490,6 +508,12 @@ ProjectController = {
         -- delta = -2 will fetch the last version before today
         -- Any other value is rejected by disk:version_directory.
 
+        -- Skip the (potentially multi-MB) read + send if the client already
+        -- holds this version.
+        if not_modified(self, project, self.params.delta, 'p', 30) then
+            return { status = 304, layout = false }
+        end
+
         return xmlResponse(
             '<snapdata remixID="' .. project.id .. '">' ..
                 (disk:retrieve(
@@ -513,6 +537,12 @@ ProjectController = {
         if not users_match(self)
             and not project.ispublic then
             yield_error(err.nonexistent_project)
+        end
+
+        -- Thumbnails are loaded many-per-page in grids and change only on
+        -- save, so they cache well. 304 before any disk read/generation.
+        if not_modified(self, project, nil, 't', 300) then
+            return { status = 304, layout = false }
         end
 
         -- Lazy thumbnail generation:
