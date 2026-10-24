@@ -85,7 +85,8 @@ CREATE TABLE public.projects (
     firstpublished timestamp with time zone,
     deleted timestamp with time zone,
     likely_class_work boolean DEFAULT false NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.02', autovacuum_analyze_scale_factor='0.01');
 
 
 --
@@ -725,6 +726,13 @@ CREATE UNIQUE INDEX users_id_idx ON public.users USING btree (id);
 
 
 --
+-- Name: users_deleted_username_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_deleted_username_idx ON public.users USING btree (username) WHERE (deleted IS NOT NULL);
+
+
+--
 -- Name: tokens expire_token_trigger; Type: TRIGGER; Schema: public; Owner: -
 --
 
@@ -804,6 +812,8 @@ COPY public.lapis_migrations (name) FROM stdin;
 2026-10-22:1
 2026-10-22:2
 2026-10-22:3
+2026-10-24:0
+2026-10-24:1
 \.
 
 
