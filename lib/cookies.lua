@@ -178,7 +178,9 @@ end
 -- header, so both land on the same key and the last one in the header wins,
 -- which can replace a fresh login with the stale empty session.
 --
--- Call this from the before_filter before the session is read. For the
+-- Call this first thing in the before_filter: lapis decodes the session
+-- cookie the first time anything touches self.session and keeps that
+-- result, so this has to run before the locale lookup. For the
 -- session cookie and its `_token` companion it picks the value of the
 -- exactly named cookie when present (otherwise the twin's, so the session
 -- survives the rename) and queues an expiry for every encoded twin. Returns
