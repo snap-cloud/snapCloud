@@ -9,7 +9,6 @@
 --                               with a maintenance message. Logged-in users
 --                               stay logged in.
 --   MAINTENANCE_MODE=down       (or `true`) Every request gets a 503.
---   MAINTENANCE_NOTE=...        Optional text shown to users ("until 09:00 PT").
 --
 -- Copyright (C) 2026 by Michael Ball
 --
@@ -31,29 +30,18 @@
 local config = package.loaded.config
 local maintenance = {}
 
-local modes = {
-    read_only = 'read_only', ['read-only'] = 'read_only',
-    down = 'down', ['true'] = 'down',
-}
--- nil (normal), 'read_only' or 'down'
-maintenance.mode = modes[tostring(config.maintenance_mode or ''):lower()]
-
-local note = config.maintenance_note
-if note == '' then note = nil end
-
-local function with_note(text)
-    if note then return text .. ' (' .. note .. ')' end
-    return text
-end
+-- nil (normal), 'read_only' or 'down'. `true` was the old setting for down.
+local modes = { read_only = 'read_only', down = 'down', ['true'] = 'down' }
+maintenance.mode = modes[config.maintenance_mode]
 
 if maintenance.mode == 'down' then
-    maintenance.message = with_note(
-        'The Snap!Cloud is down for maintenance. Please try again soon.')
+    maintenance.message =
+        'The Snap!Cloud is down for maintenance. Please try again soon.'
 else
-    maintenance.message = with_note(
+    maintenance.message =
         'The Snap!Cloud is in read-only mode for maintenance, so changes ' ..
         "can't be saved right now. Please try again soon. To keep your " ..
-        'work, use File > Export project to save it to your computer.')
+        'work, use File > Export project to save it to your computer.'
 end
 
 -- Postgres error when writing to a read-only database (default_transaction_read_only).
@@ -65,9 +53,6 @@ end
 -- A 503 in the right format: an HTML page for browsers, JSON ({errors = {msg}})
 -- for the Snap! editor and other API clients.
 function maintenance.response(self)
-    if self.res and self.res.headers then
-        self.res.headers['Retry-After'] = '600'
-    end
     local headers = self.req and self.req.headers
     local accept = headers and headers['accept'] or ''
     if type(accept) == 'table' then accept = table.concat(accept, ',') end

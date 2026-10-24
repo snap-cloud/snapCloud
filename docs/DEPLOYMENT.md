@@ -179,12 +179,12 @@ curl -sI -H 'Accept-Encoding: gzip' https://snap.berkeley.edu/api/v1/projects \
 ## Maintenance mode
 
 ```
-bin/maintenance-mode on "until about 09:00 PT"   # read-only
-bin/maintenance-mode down                         # everything returns 503
+bin/maintenance-mode on     # read-only
+bin/maintenance-mode down   # everything returns 503
 bin/maintenance-mode off
 ```
 
-The script sets `MAINTENANCE_MODE` (and an optional `MAINTENANCE_NOTE`) in `.env`, makes the
+The script sets `MAINTENANCE_MODE` in `.env`, makes the
 database read-only (`ALTER DATABASE … SET default_transaction_read_only`) or writable again, and
 restarts the app. The app reads the mode once, at start (see `maintenance.lua`).
 

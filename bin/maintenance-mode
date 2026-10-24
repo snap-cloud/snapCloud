@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
 # Maintenance mode. Run as cloud on the server. See maintenance.lua.
 #
-#   bin/maintenance-mode on [note]     read-only: pages and GETs work, writes don't
-#   bin/maintenance-mode down [note]   everything returns a 503
+#   bin/maintenance-mode on     read-only: pages and GETs work, writes don't
+#   bin/maintenance-mode down   everything returns a 503
 #   bin/maintenance-mode off
 #
-# Sets MAINTENANCE_MODE / MAINTENANCE_NOTE in .env, makes the database read-only
-# (or writable again), and restarts the app, which reads the mode at start.
+# Sets MAINTENANCE_MODE in .env, makes the database read-only (or writable
+# again), and restarts the app, which reads the mode at start.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-mode=${1:-}; shift || true
-note=$(printf '%s' "$*" | tr -d "'")
+mode=${1:-}
 
 case "$mode" in
     on) mode=read_only ;;
@@ -32,16 +31,13 @@ else
     db_sql "ALTER DATABASE \"$db\" SET default_transaction_read_only = on"
 fi
 
-# Replace the MAINTENANCE_* lines in .env (keeping its owner and permissions).
-{ grep -vE '^(export )?MAINTENANCE_(MODE|NOTE)=' .env || true
-  if [ "$mode" != off ]; then
-      echo "export MAINTENANCE_MODE='$mode'"
-      echo "export MAINTENANCE_NOTE='$note'"
-  fi
+# Replace the MAINTENANCE_MODE line in .env (keeping its owner and permissions).
+{ grep -vE '^(export )?MAINTENANCE_MODE=' .env || true
+  [ "$mode" = off ] || echo "export MAINTENANCE_MODE='$mode'"
 } > .env.new
 cat .env.new > .env && rm .env.new
 
-echo "Maintenance: $mode${note:+ ($note)}. Database $db read-only: $(psql -X -At -d "$db" -c 'SHOW default_transaction_read_only')"
+echo "Maintenance: $mode. Database $db read-only: $(psql -X -At -d "$db" -c 'SHOW default_transaction_read_only')"
 
 if [ -f /etc/init.d/snapcloud_daemon ]; then
     sudo -n service snapcloud_daemon restart
