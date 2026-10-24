@@ -3,14 +3,11 @@
 
 source .env
 
-# TODO: We should standardize the table names with the environment.. oh well.
+# The database is whatever .env says (snapcloud_production, snapcloud_staging, ...),
+# the same one the app uses. Without DATABASE_NAME, fall back to snapcloud_<env>.
 APP_NAME='snapcloud'
+DATABASE_NAME="${DATABASE_NAME:-${APP_NAME}_${LAPIS_ENVIRONMENT}}"
 
-if [[ "$LAPIS_ENVIRONMENT" == 'production' ]]; then
-  DATABASE_NAME="${APP_NAME}";
-else
-  DATABASE_NAME="${APP_NAME}_${LAPIS_ENVIRONMENT}";
-fi
 # db/init.sh needs this
 export DATABASE_NAME;
 DB_USER="${DATABASE_USER:-$USER}";
