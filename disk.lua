@@ -58,19 +58,64 @@ local function last_modified (path)
     return lfs.attributes(path, 'modification')
 end
 
+-- Largest buffer we read or write at once. Bounds peak memory per request:
+-- copy_file streams in COPY_CHUNK-sized pieces rather than holding a whole
+-- (possibly multi-megabyte) project file in the worker's Lua heap at once.
+local COPY_CHUNK = 65536 -- 64 KB
+
+-- A temp path beside `path`, unique per worker and per call, so two requests
+-- writing the same project file (e.g. a double save) never share a .tmp.
+local tmp_seq = 0
+local function temp_name (path)
+    tmp_seq = tmp_seq + 1
+    local pid = (ngx and ngx.worker and ngx.worker.pid and ngx.worker.pid())
+        or 0
+    return string.format('%s.%d.%d.tmp', path, pid, tmp_seq)
+end
+
+-- Write contents to path atomically: fill a sibling temp file, then rename it
+-- over path. rename(2) within a directory is atomic, so a crash or OOM
+-- mid-write can never leave a truncated or empty file where a good one was --
+-- a reader sees either the whole old contents or the whole new, never a mix.
+-- Returns true, or false plus a message (leaving path untouched).
+local function write_file_atomic (path, contents)
+    local tmp = temp_name(path)
+    local output, message = io.open(tmp, 'wb')
+    if not output then return false, message end
+    output:write(contents)
+    output:close()
+    local ok, err = os.rename(tmp, path)
+    if not ok then
+        os.remove(tmp)
+        return false, err
+    end
+    return true
+end
+
 -- Copy a single file, preserving its timestamps like `cp -p` would.
 -- backup_project relies on the modification time to tell versions apart.
+-- Streams through a fixed buffer and renames into place, so a large project
+-- neither spikes worker memory nor leaves a partial copy behind on failure.
 local function copy_file (source, destination)
     local input = io.open(source, 'rb')
     if not input then return false end
-    local output = io.open(destination, 'wb')
+    local tmp = temp_name(destination)
+    local output = io.open(tmp, 'wb')
     if not output then
         input:close()
         return false
     end
-    output:write(input:read('*all'))
+    while true do
+        local chunk = input:read(COPY_CHUNK)
+        if not chunk then break end
+        output:write(chunk)
+    end
     input:close()
     output:close()
+    if not os.rename(tmp, destination) then
+        os.remove(tmp)
+        return false
+    end
     local attributes = lfs.attributes(source)
     if attributes then
         lfs.touch(destination, attributes.access, attributes.modification)
@@ -158,11 +203,9 @@ end
 function disk:save (id, filename, contents)
     local dir = self:directory_for_id(id)
     mkdir_p(dir)
-    local file = io.open(dir .. '/' .. filename, 'w+')
-    if (file) then
-        file:write(contents)
-        file:close()
-    end
+    -- Atomic write: a worker that dies mid-save (e.g. OOM on a large media.xml)
+    -- leaves the previous good file in place rather than a truncated one.
+    write_file_atomic(dir .. '/' .. filename, contents)
 end
 
 function disk:retrieve (id, filename, delta)
@@ -257,9 +300,7 @@ function disk:update_xml(id, update_function)
                 project_file:close()
                 self:backup_project(id)
                 update_function(project)
-                project_file = io.open(dir .. '/project.xml', 'w+')
-                project_file:write(xml.dump(project))
-                project_file:close()
+                write_file_atomic(dir .. '/project.xml', xml.dump(project))
             end)
         if success then
             project_file = io.open(dir .. '/project.xml', 'r')
@@ -268,10 +309,8 @@ function disk:update_xml(id, update_function)
                 -- File length is zero! File got corrupted somehow.
                 -- Let's recover the previous delta, which was backed up right
                 -- before attempting to update the XML.
-                project_file = io.open(dir .. '/project.xml', 'w+')
                 local backup = self:retrieve(id, 'project.xml', '-1')
-                project_file:write(backup)
-                project_file:close()
+                write_file_atomic(dir .. '/project.xml', backup)
                 yield_error(err.update_project_fail)
             else
                 project_file:close()
@@ -342,9 +381,7 @@ function disk:process_thumbnails (items, id_selector)
 end
 
 function disk:save_totm_banner (file)
-    local totm_file = io.open('static/img/totm.png', 'w')
-    totm_file:write(file.content)
-    totm_file:close()
+    write_file_atomic('static/img/totm.png', file.content)
     return true
 end
 
