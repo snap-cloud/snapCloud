@@ -27,10 +27,10 @@ git submodule update --init --recursive || { echo "submodule update failed"; exi
 # ./update-snap
 
 
-# Needs /etc/sudoers.d/cloud-luarocks. -n: fail instead of asking for a password.
+# Lua rocks go in ./lua_modules, installed as cloud (no root).
+# Stop before the restart if they can't be installed: the running app keeps its loaded code.
 echo "Updating Dependencies:"
-sudo -n luarocks install --only-deps snapcloud-dev-0.rockspec \
-  || echo "WARNING: luarocks install failed; dependencies were not updated."
+./bin/install-rocks || { echo "bin/install-rocks failed; not restarting."; exit 1; }
 echo;
 echo;
 

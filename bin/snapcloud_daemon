@@ -20,6 +20,8 @@ DESC="SnapCloud service"
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin
 
 APP_DIR=/home/cloud/snapCloud
+# lapis comes from the project's rocks (bin/install-rocks).
+LAPIS_PATH="PATH=$APP_DIR/lua_modules/bin:\$PATH"
 
 case "$1" in
   start|restart|force-reload)
@@ -34,11 +36,11 @@ case "$1" in
     # Rebuild nginx.conf and send nginx a HUP: new workers pick up config,
     # certs and Lua code, and open connections are not dropped.
     log_daemon_msg "Reloading $DESC" "$NAME"
-    runuser -l cloud -c "cd $APP_DIR && . ./.env && lapis build \$LAPIS_ENVIRONMENT"
+    runuser -l cloud -c "cd $APP_DIR && . ./.env && $LAPIS_PATH lapis build \$LAPIS_ENVIRONMENT"
     ;;
   stop)
     log_daemon_msg "Stopping $DESC" "$NAME"
-    runuser -l cloud -c "cd $APP_DIR && lapis term"
+    runuser -l cloud -c "cd $APP_DIR && $LAPIS_PATH lapis term"
     killall nginx
     pkill -u cloud -f 'sass --watch' || true
     ;;

@@ -23,7 +23,7 @@ install-annotate:
 
 install:
 	$(luarocks_command) install --only-deps snapcloud-dev-0.rockspec
-	npm install
+	npm ci
 	$(MAKE) install-annotate
 
 db:
@@ -42,7 +42,7 @@ deploy-staging:
 	$(open_command) "https://staging.snap.berkeley.edu/"
 
 # Front-end libraries: copy from node_modules into static/vendor and update
-# the ?v cache busters in the layout templates. Run `npm install` first.
+# the ?v cache busters in the layout templates. Run `npm ci` first.
 NM := node_modules
 VENDOR := static/vendor
 HEAD := views/layout/head.etlua
