@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# Install the app's Lua rocks into ./lua_modules as the app user (servers).
+#
+#   bin/install-rocks
+#
+# Never as root: root running a rockspec the app user can edit would turn any
+# code execution in the app into root at the next deploy. Versions come from
+# luarocks.lock (honored because it sits next to the rockspec).
+# Development doesn't need this; see docs/INSTALL.md.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+if [ "$(id -u)" = 0 ]; then
+    echo "Run as the app user (cloud), not root: rocks go in ./lua_modules." >&2
+    exit 1
+fi
+
+# Some rockspecs still use git://, which GitHub no longer serves.
+export GIT_CONFIG_COUNT=1
+export GIT_CONFIG_KEY_0=url.https://github.com/.insteadOf
+export GIT_CONFIG_VALUE_0=git://github.com/
+
+rocks() { luarocks --tree lua_modules "$@"; }
+
+# xml's C++ doesn't compile as C++17 (gcc 11+'s default), so build it as C++14
+# first, at the locked version (bin/luarocks-macos does the same with CXXFLAGS).
+xml_version=$(sed -n 's/^ *xml = "\(.*\)",*$/\1/p' luarocks.lock)
+if ! rocks list --porcelain xml | grep -q "$xml_version"; then
+    rocks install xml "$xml_version" CFLAGS="-O2 -fPIC -std=c++14"
+fi
+
+rocks install --only-deps snapcloud-dev-0.rockspec

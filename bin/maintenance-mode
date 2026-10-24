@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Maintenance mode. Run as cloud on the server. See maintenance.lua.
+#
+#   bin/maintenance-mode on     read-only: pages and GETs work, writes don't
+#   bin/maintenance-mode down   everything returns a 503
+#   bin/maintenance-mode off
+#
+# Sets MAINTENANCE_MODE in .env, makes the database read-only (or writable
+# again), and restarts the app, which reads the mode at start.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+mode=${1:-}
+
+case "$mode" in
+    on) mode=read_only ;;
+    down|off) ;;
+    *) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 1 ;;
+esac
+
+set +u; . ./.env; set -u
+db=${DATABASE_NAME:-snapcloud}
+
+# A session that is never read-only, so `off` works on a locked database.
+db_sql() { PGOPTIONS='-c default_transaction_read_only=off' psql -X -q -v ON_ERROR_STOP=1 -d "$db" -c "$1"; }
+
+# Unlock the DB before the app starts writing; lock it as the app goes read-only.
+if [ "$mode" = off ]; then
+    db_sql "ALTER DATABASE \"$db\" RESET default_transaction_read_only"
+else
+    db_sql "ALTER DATABASE \"$db\" SET default_transaction_read_only = on"
+fi
+
+# Replace the MAINTENANCE_MODE line in .env (keeping its owner and permissions).
+{ grep -vE '^(export )?MAINTENANCE_MODE=' .env || true
+  [ "$mode" = off ] || echo "export MAINTENANCE_MODE='$mode'"
+} > .env.new
+cat .env.new > .env && rm .env.new
+
+echo "Maintenance: $mode. Database $db read-only: $(psql -X -At -d "$db" -c 'SHOW default_transaction_read_only')"
+
+if [ -f /etc/init.d/snapcloud_daemon ]; then
+    sudo -n service snapcloud_daemon restart
+    echo "App restarted."
+else
+    echo "Restart the app (lapis server) to apply it."
+fi

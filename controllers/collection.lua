@@ -33,6 +33,7 @@ local yield_error = package.loaded.yield_error
 local capture_errors = package.loaded.capture_errors
 
 local validations = require('validation')
+local escape_html = require('lib.util').escape_html
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
 local order_by_clause = validations.order_by_clause
 
@@ -321,8 +322,9 @@ CollectionController = {
         end
         collection.creator = Users:find({ id = collection.creator_id })
         return jsonResponse({
-            message = 'Collection <em>' .. collection.name ..
+            message = 'Collection <em>' .. escape_html(collection.name) ..
                 '</em> is now free for all.',
+            html = true,
             title = 'Free for all'
         })
     end),
@@ -338,8 +340,9 @@ CollectionController = {
         end
         collection.creator = Users:find({ id = collection.creator_id })
         return jsonResponse({
-            message = 'Collection <em>' .. collection.name ..
+            message = 'Collection <em>' .. escape_html(collection.name) ..
                 '</em> is no longer free for all.',
+            html = true,
             title = 'Free for all'
         })
     end),
