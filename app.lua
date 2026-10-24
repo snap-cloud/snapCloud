@@ -367,6 +367,10 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    -- Errors raised with a table (yield_error({...}) outside capture_errors)
+    -- would otherwise crash the string concatenations below.
+    err = tostring(err)
+    trace = tostring(trace)
     -- The database is read-only during maintenance, so a route that tries to
     -- write ends up here. Show the maintenance message, not a 500.
     if maintenance.is_read_only_db_error(err) then
@@ -386,9 +390,8 @@ function app:handle_error(err, trace)
 
     if config._name == 'development' then
         debug_print(err, trace)
-        local msg = '<pre style="text-align: left; width: 80ch">'
-            .. err .. '<br>' .. trace .. '</pre>'
-        return errorResponse(self, msg, 500)
+        -- html_error escapes its message and turns newlines into <br>.
+        return errorResponse(self, err .. '\n' .. trace, 500)
     end
 
 
