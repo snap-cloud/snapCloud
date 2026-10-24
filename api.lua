@@ -28,6 +28,7 @@ local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local json_params = package.loaded.json_params
 local lapis_respond_to = package.loaded.respond_to
+local exceptions = require('lib.exceptions')
 
 require 'validation'
 
@@ -84,20 +85,37 @@ app:match(api_route('version'), respond_to({
     end)
 }))
 
--- TODO: After deprecating the optional 'api/v1/' prefix
--- Allow this endpoint to be accessed at /health_check as well, for easier monitoring.
+-- Reports database connection pool usage against the cap set in config.lua.
 app:match(api_route('health_check'), respond_to({
     GET = capture_errors(function (self)
-        local snapcloud = package.loaded.Users:find({ username = 'snapcloud' })
-        if not snapcloud then
-            return errorResponse(self,
-                'Snap!Cloud cannot find `snapcloud` user in the database.',
-                503)
+        local db = package.loaded.db
+        local config = package.loaded.config
+        local rows = db.query(
+            'SELECT COUNT(*) AS count FROM pg_stat_activity ' ..
+            'WHERE application_name = ?',
+            config.postgres.application_name)
+        local current = tonumber(rows[1].count)
+        local max = config.max_db_connections
+        local capacity = math.floor(current / max * 100) -- percent used
+        local status, message = 'ok', 'database connection pool ok'
+
+        if capacity > 90 then
+            status = 'warning'
+            message = 'Database connection pool at ' .. capacity .. '% (' ..
+                current .. '/' .. max .. ' connections)'
+            ngx.log(ngx.WARN, message)
+            if exceptions.rvn then
+                exceptions.rvn:captureMessage(message, { level = 'warning' })
+            end
         end
+
         return jsonResponse({
             name = 'Snap!Cloud',
-            status = 'ok',
-            message = 'snapcloud user found',
+            status = status,
+            message = message,
+            current_db_connections = current,
+            max_db_connections = max,
+            connection_capacity = capacity,
             time = os.date('%Y-%m-%d %H:%M:%S'),
         })
     end)
