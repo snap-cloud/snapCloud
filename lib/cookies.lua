@@ -60,13 +60,18 @@
 -- have aged out (Max-Age is 35 days for "remember me" sessions).
 --
 -- Staging already used the `__Host-snapsession-staging` name. On the wire
--- that was `__Host%2dsnapsession%2dstaging`, which lapis reads under the
--- same key as the corrected name, so there is nothing to migrate there:
--- staging users sign in once more and the stale cookie is ignored.
+-- that was `__Host%2dsnapsession%2dstaging`, with a Domain attribute. Lapis
+-- percent-decodes names when it parses the Cookie header, so that cookie and
+-- the corrected one collide on the same key and whichever the browser lists
+-- last wins. Chrome listed the stale one last, so a fresh login was hidden
+-- behind the old empty session on every following request (2026-10-24).
+-- `drop_encoded_twins` prefers the exact name and expires the encoded one.
 
 local url = require('socket.url')
 local Request = require('lapis.request')
 local session = require('lapis.session')
+local util = require('lapis.util')
+local unescape, trim = util.unescape, util.trim
 local config = package.loaded.config
 
 local cookies = {}
@@ -162,6 +167,66 @@ function cookies.migrate_legacy_session(self)
     -- cookies.attributes() gives this name the expiry attributes.
     self.cookies[legacy] = ''
     return adopted
+end
+
+-- 4. Drop the percent-encoded twin of the session cookie.
+--
+-- Before this file, lapis wrote cookie names through url.escape, so a name
+-- containing `-` reached the browser encoded (`__Host%2dsnapsession%2dstaging`)
+-- and with Domain=<host>. The browser keeps that cookie next to the correctly
+-- named one and sends both. Lapis decodes names when it parses the Cookie
+-- header, so both land on the same key and the last one in the header wins,
+-- which can replace a fresh login with the stale empty session.
+--
+-- Call this first thing in the before_filter: lapis decodes the session
+-- cookie the first time anything touches self.session and keeps that
+-- result, so this has to run before the locale lookup. For the
+-- session cookie and its `_token` companion it picks the value of the
+-- exactly named cookie when present (otherwise the twin's, so the session
+-- survives the rename) and queues an expiry for every encoded twin. Returns
+-- the number of twins expired.
+function cookies.drop_encoded_twins(self)
+    local raw = ngx.var.http_cookie
+    -- Encoded names always contain a `%`; skip the parsing otherwise.
+    if not raw or not raw:find('%', 1, true) then return 0 end
+
+    local wanted = {
+        [config.session_name] = true,
+        [config.session_name .. '_token'] = true,
+    }
+    local exact, fallback, twins = {}, {}, {}
+    for pair in raw:gmatch('[^;]+') do
+        local eq = pair:find('=', 1, true)
+        if eq then
+            local name = trim(pair:sub(1, eq - 1))
+            local decoded = unescape(name)
+            if wanted[decoded] then
+                local value = unescape(pair:sub(eq + 1))
+                if name == decoded then
+                    exact[decoded] = value
+                else
+                    fallback[decoded] = fallback[decoded] or value
+                    twins[#twins + 1] = name
+                end
+            end
+        end
+    end
+    if #twins == 0 then return 0 end
+
+    for name in pairs(wanted) do
+        local value = exact[name] or fallback[name]
+        if value then
+            -- Assigning queues a Set-Cookie under the exact name with the
+            -- normal attributes, and lapis reads this value for the session.
+            self.cookies[name] = value
+        end
+    end
+    for _, name in ipairs(twins) do
+        -- Written raw: the twin's name must stay encoded to match.
+        self.res:add_header('Set-Cookie',
+            name .. '=; ' .. cookies.legacy_expiry_attributes())
+    end
+    return #twins
 end
 
 return cookies
