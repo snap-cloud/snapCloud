@@ -20,4 +20,13 @@ export GIT_CONFIG_COUNT=1
 export GIT_CONFIG_KEY_0=url.https://github.com/.insteadOf
 export GIT_CONFIG_VALUE_0=git://github.com/
 
-luarocks --tree lua_modules install --only-deps snapcloud-dev-0.rockspec
+rocks() { luarocks --tree lua_modules "$@"; }
+
+# xml's C++ doesn't compile as C++17 (gcc 11+'s default), so build it as C++14
+# first, at the locked version (bin/luarocks-macos does the same with CXXFLAGS).
+xml_version=$(sed -n 's/^ *xml = "\(.*\)",*$/\1/p' luarocks.lock)
+if ! rocks list --porcelain xml | grep -q "$xml_version"; then
+    rocks install xml "$xml_version" CFLAGS="-O2 -fPIC -std=c++14"
+fi
+
+rocks install --only-deps snapcloud-dev-0.rockspec
