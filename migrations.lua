@@ -528,5 +528,30 @@ return {
             ]])
         end
         db.query('COMMIT')
+    end,
+
+    -- Most project lists filter out deleted users' projects with
+    -- NOT EXISTS (SELECT 1 FROM deleted_users WHERE username = ...).
+    -- Without this, every such query scans all ~1M users to find the ~4.5k
+    -- deleted ones (Explore page count: 2.2 s -> 0.8 s on staging, 2026-10-24).
+    ['2026-10-24:0'] = function ()
+        schema.create_index('users', 'username', {
+            index_name = 'users_deleted_username_idx',
+            where = 'deleted IS NOT NULL',
+            concurrently = true,
+            if_not_exists = true
+        })
+    end,
+
+    -- projects has ~10M rows, so the default thresholds (20% dead rows to
+    -- vacuum, 10% changed to analyze) mean autovacuum almost never runs on
+    -- it: prod had 445k dead rows and no autovacuum on record (2026-10-24).
+    ['2026-10-24:1'] = function ()
+        db.query([[
+            ALTER TABLE projects SET (
+                autovacuum_vacuum_scale_factor = 0.02,
+                autovacuum_analyze_scale_factor = 0.01
+            )
+        ]])
     end
 }
