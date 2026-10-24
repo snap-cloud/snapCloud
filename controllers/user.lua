@@ -45,6 +45,14 @@ require 'passwords'
 local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
 local validate_token = validations.validate_token
+local order_by_clause = validations.order_by_clause
+local filter_clause = validations.filter_clause
+
+-- Columns that requests may sort or filter users by. Anything else is
+-- rejected, as these names end up spliced straight into SQL.
+local sortable_columns = { created = true, username = true }
+-- Keep in sync with the filter dropdowns in views/admin/user_admin.etlua
+local filterable_columns = { verified = true, is_teacher = true, role = true }
 -- Local Snap!Cloud functions
 local utils = require('lib.util')
 local escape_html = utils.escape_html
@@ -66,20 +74,8 @@ UserController = {
         if not self.table then self.table = Users end
 
         -- Apply filters from params. They look like filter_verified=true or
-        -- filter_role=reviewer, so we strip them from the "filter_" part.
-        -- Column names can't be parameterized, so we only accept plain
-        -- identifiers; anything else is a crafted param name trying to
-        -- inject SQL into the WHERE clause and is dropped.
-        local filters = ''
-        for k, v in pairs(self.params) do
-            if k:find('filter_') == 1 then
-                local column = k:sub(8)
-                if column:match('^[%a_][%w_]*$') then
-                    filters = filters ..
-                        db.interpolate_query(' AND ' .. column .. ' = ?', v)
-                end
-            end
-        end
+        -- filter_role=reviewer, and only whitelisted fields are accepted.
+        local filters = filter_clause(self.params, filterable_columns)
 
         local paginator = self.table:paginated(
             query ..
@@ -88,11 +84,12 @@ UserController = {
                     '%' .. self.params.search_term .. '%',
                     '%' .. self.params.search_term .. '%')
                 ) or '') ..
-                (filters or '') ..
-                ' ORDER BY ' .. (self.params.order or 'created'),
+                filters ..
+                ' ORDER BY ' .. order_by_clause(
+                    self.params.order, sortable_columns, 'created'),
             {
                 per_page = self.items_per_page or 15,
-                fields = self.params.fields or '*'
+                fields = self.fields or '*'
             }
         )
 
@@ -139,6 +136,7 @@ UserController = {
         })
     end),
     login = capture_errors(function (self)
+        rate_limit(self)
         -- Do not reveal whether the user exists or not
         assert_user_exists(self, err.wrong_password)
         local password = self.params.password
@@ -722,7 +720,7 @@ UserController = {
         })
     end),
     learners = capture_errors(function (self)
-        self.params.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
+        self.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
         return UserController.run_query(
             self,
             db.interpolate_query(
@@ -895,7 +893,7 @@ UserController = {
         end
     end),
     followed_users = capture_errors(function (self)
-        self.params.fields = 'username'
+        self.fields = 'username'
         self.items_per_page = 45
         return UserController.run_query(
             self,
@@ -908,7 +906,7 @@ UserController = {
         )
     end),
     follower_users = capture_errors(function (self)
-        self.params.fields = 'username'
+        self.fields = 'username'
         self.items_per_page = 45
         return UserController.run_query(
             self,

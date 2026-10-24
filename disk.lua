@@ -24,10 +24,72 @@
 -- we store max 1000 projects per dir
 
 local xml = require("xml")
+local lfs = require("lfs")
 local config = package.loaded.config
 local yield_error = package.loaded.yield_error
 
 local disk = {}
+
+-- File system helpers
+-- -------------------
+-- All of these are pure Lua (via LuaFileSystem) so that no path is ever
+-- handed to a shell.
+
+-- Create path and any missing parent directories, like `mkdir -p`.
+local function mkdir_p (path)
+    local current = path:sub(1, 1) == '/' and '/' or ''
+    for component in path:gmatch('[^/]+') do
+        current = current .. component
+        if not lfs.attributes(current, 'mode') then
+            local ok, message = lfs.mkdir(current)
+            -- another request may have just created it, which is fine
+            if not ok and not lfs.attributes(current, 'mode') then
+                return false, message
+            end
+        end
+        current = current .. '/'
+    end
+    return true
+end
+
+-- Seconds since the epoch at which path was last modified, or nil if it
+-- doesn't exist.
+local function last_modified (path)
+    return lfs.attributes(path, 'modification')
+end
+
+-- Copy a single file, preserving its timestamps like `cp -p` would.
+-- backup_project relies on the modification time to tell versions apart.
+local function copy_file (source, destination)
+    local input = io.open(source, 'rb')
+    if not input then return false end
+    local output = io.open(destination, 'wb')
+    if not output then
+        input:close()
+        return false
+    end
+    output:write(input:read('*all'))
+    input:close()
+    output:close()
+    local attributes = lfs.attributes(source)
+    if attributes then
+        lfs.touch(destination, attributes.access, attributes.modification)
+    end
+    return true
+end
+
+-- Copy the project files (every *.xml plus the thumbnail) in dir into
+-- backup_dir, creating it if needed.
+local function copy_project_files (dir, backup_dir)
+    if lfs.attributes(dir, 'mode') ~= 'directory' then return false end
+    mkdir_p(backup_dir)
+    for entry in lfs.dir(dir) do
+        if entry:match('%.xml$') or entry == 'thumbnail' then
+            copy_file(dir .. '/' .. entry, backup_dir .. '/' .. entry)
+        end
+    end
+    return true
+end
 
 -- How many previous versions of each project we keep. They live in folders
 -- named d-1 to d-N inside the project's directory:
@@ -89,17 +151,13 @@ local function protected_load_xml(id, raw)
     return nil, result
 end
 
-function disk:timestamp_command(dir)
-    return 'stat ' .. config.stat_arguments .. ' ' .. dir .. '/project.xml'
-end
-
 function disk:directory_for_id (id)
     return config.store_path .. '/' .. math.floor(id / 1000) .. '/' .. id
 end
 
 function disk:save (id, filename, contents)
     local dir = self:directory_for_id(id)
-    os.execute('mkdir -p ' .. dir)
+    mkdir_p(dir)
     local file = io.open(dir .. '/' .. filename, 'w+')
     if (file) then
         file:write(contents)
@@ -230,16 +288,13 @@ end
 
 function disk:get_version_metadata(id, delta)
     local dir = self:version_directory(id, delta)
-    local project_file = io.open(dir .. '/project.xml', 'r')
-    if (project_file) then
-        local command = io.popen(self:timestamp_command(dir))
-        local last_modified = tonumber(command:read())
-        command:close()
+    local modified = last_modified(dir .. '/project.xml')
+    if modified then
         return {
             notes = self:parse_notes(id, delta),
             thumbnail = self:retrieve(id, 'thumbnail', delta),
             -- seconds since last modification
-            lastupdated = os.time() - last_modified,
+            lastupdated = os.time() - modified,
             delta = delta
         }
     else
@@ -252,20 +307,12 @@ function disk:backup_project(id)
     local dir = self:directory_for_id(id)
 
     -- We always save the current copy into the /d-1 folder
-    os.execute('mkdir -p ' .. dir .. '/d-1')
-    os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
-        dir .. '/d-1')
+    copy_project_files(dir, dir .. '/d-1')
     -- If the current project was modified more than 12 hours ago,
     -- we save it into the /d-2 folder
-    local command = io.popen(self:timestamp_command(dir))
-    local last_modified = tonumber(command:read())
-    command:close()
-    local current_time = tonumber(os.time())
-    if (last_modified and (current_time - last_modified > 43200)) then
-        os.execute('mkdir -p ' .. dir .. '/d-2')
-        os.execute(
-            'cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
-                dir .. '/d-2')
+    local modified = last_modified(dir .. '/project.xml')
+    if modified and (os.time() - modified > 43200) then
+        copy_project_files(dir, dir .. '/d-2')
     end
 end
 

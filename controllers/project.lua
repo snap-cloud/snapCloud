@@ -41,6 +41,17 @@ local Users = package.loaded.Users
 local validation = package.loaded.validation
 
 local is_likely_course_work = validation.is_likely_course_work
+local order_by_clause = validation.order_by_clause
+
+-- Columns that requests may sort projects by. Anything else is rejected, as
+-- these names end up spliced straight into SQL.
+-- Keep in sync with the "Sort by" dropdown in views/explore.etlua
+local sortable_columns = {
+    firstpublished = true,
+    lastupdated = true,
+    created = true,
+    flag_count = true
+}
 
 ProjectController = {
     run_query = function (self, query)
@@ -65,12 +76,14 @@ ProjectController = {
                         '%' .. self.params.search_term .. '%',
                         '%' .. self.params.search_term .. '%')
                     ) or '') ..
-                    (filters or '') ..
-                    ' ORDER BY ' ..
-                        (self.params.order or 'firstpublished DESC'),
+                    filters ..
+                    ' ORDER BY ' .. order_by_clause(
+                        self.params.order,
+                        sortable_columns,
+                        'firstpublished DESC'),
                 {
                     per_page = self.params.items_per_page or 18,
-                    fields = self.params.fields or '*'
+                    fields = self.fields or '*'
                 }
             )
         if self.req and (self.req.source == 'snap') then
@@ -180,7 +193,7 @@ ProjectController = {
     end),
     flagged_projects = capture_errors(function (self)
         self.params.order = 'flag_count DESC'
-        self.params.fields = [[active_projects.id AS id,
+        self.fields = [[active_projects.id AS id,
             active_projects.projectname AS projectname,
             active_projects.username AS username,
             count(*) AS flag_count]]
@@ -193,7 +206,7 @@ ProjectController = {
         self.ignore_page_count = true
         if (self.num_pages == nil) then
             local total_flag_count =
-                #(Projects:select(query, {fields = self.params.fields}))
+                #(Projects:select(query, {fields = self.fields}))
             self.num_pages =
                 math.ceil(total_flag_count /
                     (self.params.items_per_page or 18))
