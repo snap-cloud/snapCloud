@@ -89,11 +89,14 @@ config('production', {
     non_ssl_nginx_config = 'http-only.conf',
     ssl_nginx_server_config = 'include nginx.conf.d/ssl-production.conf;',
 
-    -- This is an additional security feature to prevent cookie tampering.
-    -- Currently disabled as changing the name will log out all users.
-    -- lapis needs to /not/ URL encode this name.
-    -- session_name = '__Host-snapsession',
-    session_name = 'snapsession',
+    -- __Host- cookies can only be set by this exact host, over HTTPS, with
+    -- Path=/ and no Domain attribute, so no subdomain (extensions.snap.
+    -- berkeley.edu is plain HTTP) can plant or overwrite a session.
+    -- lib/cookies.lua works around lapis percent-encoding the name, and
+    -- migrates sessions from legacy_session_name so nobody is logged out.
+    -- Drop legacy_session_name once the old cookies have aged out (35 days).
+    session_name = '__Host-snapsession',
+    legacy_session_name = 'snapsession',
 
     logging = {
         queries = false,
@@ -109,5 +112,8 @@ config('staging', {
     non_ssl_nginx_config = 'http-only.conf',
     ssl_nginx_server_config = 'include nginx.conf.d/ssl-staging.conf;',
 
+    -- Until lib/cookies.lua this reached browsers as
+    -- __Host%2dsnapsession%2dstaging, which lapis reads under the same key,
+    -- so there is no legacy name to migrate here. See lib/cookies.lua.
     session_name = '__Host-snapsession-staging',
 })
