@@ -279,7 +279,7 @@ UserController = {
         local update_success, update_message = user:update({ email = self.params.email })
         if not update_success then
             return errorResponse(self,
-                'Could not update email address to: "' .. self.params.email .. '"' ..
+                'Could not update email address to: "' .. tostring(self.params.email) .. '"' ..
                 '\nError: ' .. update_message or 'unknown error',
                 400
             )
@@ -288,7 +288,7 @@ UserController = {
         local update_success, update_message = user:ensure_unique_email()
         if not update_success then
             return errorResponse(self,
-                'Updated email to: "' .. self.params.email .. '"' ..
+                'Updated email to: "' .. tostring(self.params.email) .. '"' ..
                 'However, your forum email address was not updated. (' .. (update_message or 'unknown error') .. ')' ,
                 400
             )
@@ -332,7 +332,7 @@ UserController = {
 
         if existing_user or existing_zombie then
             return errorResponse(self,
-                'A user with username ' .. self.params.new_username .. ' already exists.',
+                'A user with username ' .. tostring(self.params.new_username) .. ' already exists.',
                 400
             )
         end
@@ -340,7 +340,7 @@ UserController = {
         local update_success, update_message = user:update({ username = self.params.new_username })
         if not update_success then
             return errorResponse(self,
-                'Could not update username address to: "' .. self.params.new_username .. '"' ..
+                'Could not update username address to: "' .. tostring(self.params.new_username) .. '"' ..
                 '\nError: ' .. update_message or 'unknown error',
                 400
             )
@@ -445,7 +445,7 @@ UserController = {
 
         return jsonResponse({
             title = 'Username list sent',
-            message = 'Email with username list sent to ' .. self.params.email,
+            message = 'Email with username list sent to ' .. tostring(self.params.email),
             redirect = self:build_url('login')
         })
     end),
@@ -592,7 +592,7 @@ UserController = {
         local deleted_user =
             DeletedUsers:find({ username = self.params.username })
         if self.queried_user or deleted_user then
-            yield_error('User ' .. self.params.username .. ' already exists');
+            yield_error('User ' .. tostring(self.params.username) .. ' already exists');
         end
 
         local user = Users:create({
@@ -674,7 +674,7 @@ UserController = {
                     db.query('ROLLBACK;')
                     return errorResponse(self,
                         'Could not create collection ' ..
-                        self.params.collection_name .. '.\n' ..
+                        tostring(self.params.collection_name) .. '.\n' ..
                         'Please make sure you do not already have a\n' ..
                         'collection with that name.'
                     )
