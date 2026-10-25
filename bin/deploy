@@ -5,6 +5,17 @@
 # Allow specifcying a branch or commit to deploy.
 branch=${1-'main'}
 
+# This script must run as the app user `cloud`, not root: bin/install-rocks
+# refuses to run as root (rocks go in ./lua_modules), and the paths below use
+# ~cloud. Running it as root fails confusingly partway through. If started as
+# root, warn and re-run as cloud (the final `sudo service snapcloud_daemon
+# restart` still works via cloud's sudoers rule).
+if [ "$(id -u)" = 0 ]; then
+    repo_dir=$(cd "$(dirname "$0")/.." && pwd)
+    echo "bin/deploy must run as 'cloud', not root -- re-running as cloud..." >&2
+    exec runuser -l cloud -c "cd '$repo_dir' && exec ./bin/deploy ${branch}"
+fi
+
 echo "Deploying branch: $branch"
 
 # Deploy a copy of snapCloud
