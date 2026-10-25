@@ -38,7 +38,7 @@ SiteController = {
         local paginator = BannedIPs:paginated(
             (self.params.search_term and (db.interpolate_query(
                 'WHERE ip ILIKE ? ',
-                '%' .. self.params.search_term .. '%'
+                '%' .. tostring(self.params.search_term) .. '%'
             )) or ' ') .. 'ORDER BY updated_at ASC',
             {
                 per_page = self.params.items_per_page or 256

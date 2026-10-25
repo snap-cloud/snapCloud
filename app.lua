@@ -347,7 +347,7 @@ app:before_filter(function (self)
     establish_session(self)
 
     if self.params.matchtext then
-        self.params.matchtext = '%' .. self.params.matchtext .. '%'
+        self.params.matchtext = '%' .. tostring(self.params.matchtext) .. '%'
     end
 
 end)
