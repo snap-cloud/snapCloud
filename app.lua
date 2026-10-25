@@ -390,7 +390,17 @@ function app:handle_error(err, trace)
 
     if config._name == 'development' then
         debug_print(err, trace)
-        -- html_error escapes its message and turns newlines into <br>.
+        local accept = self.req.headers.accept or ''
+        if type(accept) == 'table' then accept = table.concat(accept, ',') end
+        if accept:match('text/html') then
+            -- Keep the traceback readable: monospace, left-aligned, with its
+            -- indentation intact. Escaped first, since err can echo request
+            -- data; html_message_page prints contents as-is.
+            return html_message_page(self, '500 Error',
+                '<pre style="text-align: left; width: 80ch">' ..
+                utils.escape_html(err .. '\n' .. trace) .. '</pre>', 500)
+        end
+        -- API clients get the plain text in the JSON error body.
         return errorResponse(self, err .. '\n' .. trace, 500)
     end
 
