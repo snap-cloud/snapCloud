@@ -185,7 +185,7 @@ package.loaded.cached = function (func, options)
         for k, _ in pairs(params) do table.insert(param_keys, k) end
         table.sort(param_keys)
         for _, v in ipairs(param_keys) do
-            key = key .. '#' .. v .. '=' .. params[v]
+            key = key .. '#' .. v .. '=' .. tostring(params[v])
         end
         return key .. '@' .. (request.session.locale or 'en') ..
             '~' .. (request.session.username)
@@ -347,7 +347,7 @@ app:before_filter(function (self)
     establish_session(self)
 
     if self.params.matchtext then
-        self.params.matchtext = '%' .. self.params.matchtext .. '%'
+        self.params.matchtext = '%' .. tostring(self.params.matchtext) .. '%'
     end
 
 end)

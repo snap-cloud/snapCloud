@@ -81,8 +81,8 @@ UserController = {
             query ..
                 (self.params.search_term and (db.interpolate_query(
                     ' AND (username ILIKE ? OR email ILIKE ?)',
-                    '%' .. self.params.search_term .. '%',
-                    '%' .. self.params.search_term .. '%')
+                    '%' .. tostring(self.params.search_term) .. '%',
+                    '%' .. tostring(self.params.search_term) .. '%')
                 ) or '') ..
                 filters ..
                 ' ORDER BY ' .. order_by_clause(
