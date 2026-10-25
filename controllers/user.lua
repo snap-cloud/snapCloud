@@ -141,13 +141,19 @@ UserController = {
         assert_user_exists(self, err.wrong_password)
         local password = self.params.password
         if not password then yield_error(err.wrong_password) end
+        -- Read-only maintenance: let people sign in (to export their work) but
+        -- skip every DB write below, which would fail on the read-only DB.
+        local in_maintenance =
+            package.loaded.maintenance and package.loaded.maintenance.mode
         if verify_password(
                 password,
                 self.queried_user.password,
                 self.queried_user.salt) then
             -- JIT-upgrade: transparently migrate legacy/wrapped hashes to
             -- native bcrypt on successful login.
-            upgrade_password_to_bcrypt(self.queried_user, password)
+            if not in_maintenance then
+                upgrade_password_to_bcrypt(self.queried_user, password)
+            end
             -- Check whether user has a verification token
             local token = Tokens:find({
                 username = self.queried_user.username,
@@ -180,18 +186,24 @@ UserController = {
                 else
                     yield_error(message)
                 end
-            elseif token then
+            elseif token and not in_maintenance then
                 -- User is verified but the token is still there
                 token:delete()
             end
 
             self.session.username = self.queried_user.username
-            self.session.remember_token =
-                self.queried_user:ensure_remember_token()
+            -- Under maintenance, reuse any existing token (don't mint one -- a
+            -- write); a username-only session is accepted by resolve_current_user
+            -- when the user has no token yet.
+            self.session.remember_token = in_maintenance
+                and self.queried_user.remember_token
+                or self.queried_user:ensure_remember_token()
             self.session.persist_session = tostring(self.params.persist)
-            self.queried_user:update({
-                last_login_at = db.format_date()
-            })
+            if not in_maintenance then
+                self.queried_user:update({
+                    last_login_at = db.format_date()
+                })
+            end
 
             if student_first_login then
                 return jsonResponse({
@@ -225,8 +237,9 @@ UserController = {
             -- Admins can log in as other people
             assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
-            self.session.remember_token =
-                self.queried_user:ensure_remember_token()
+            self.session.remember_token = in_maintenance
+                and self.queried_user.remember_token
+                or self.queried_user:ensure_remember_token()
             return jsonResponse({ redirect = self:build_url('/') })
         end
     end),
@@ -240,7 +253,12 @@ UserController = {
             local user = self.current_user
                 or (self.session.remember_token and self.session.remember_token ~= ''
                     and Users:find({ remember_token = self.session.remember_token }))
-            if user then user:rotate_remember_token() end
+            -- Skip the token rotation (a write) under read-only maintenance;
+            -- the cookie is still cleared below so this session logs out.
+            if user and not (package.loaded.maintenance
+                    and package.loaded.maintenance.mode) then
+                user:rotate_remember_token()
+            end
         end
         self.session.username = ''
         self.session.user_id = nil
