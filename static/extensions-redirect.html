@@ -6,14 +6,18 @@
   <title>Snap! Extensions</title>
   <script>
   // The extensions domain is http-only (so the editor can load http:// media
-  // and APIs). This page is served over https ONLY to clear cached HSTS (the
-  // max-age=0 header is set by nginx) and then bounce to the http editor.
+  // and APIs). This page is served over https ONLY on the first https hit, to
+  // clear cached HSTS (nginx sends max-age=0) and set the cookie that makes
+  // later https hits a 301 back to http -- the redirect loop that HTTPS-first
+  // browsers (Safari, Chrome, Firefox) recognise and fall back to http from.
+  // See nginx.conf.d/extensions.conf. We then bounce to the same path over
+  // http so the browser performs that second hit.
   //
-  // One-shot guard: if we come straight back here over https (the browser is
-  // forcing https / re-upgrading the http target), don't loop invisibly --
-  // fall through to the visible message below.
+  // One-shot guard: if we come straight back here over https (cookies are
+  // blocked, or the browser is in a strict HTTPS-only mode), don't loop
+  // invisibly -- fall through to the visible message below.
   (function () {
-    var target = 'http://extensions.snap.berkeley.edu/snap/';
+    var target = 'http://' + location.host + location.pathname + location.search + location.hash;
     var now = Date.now();
     var last = 0;
     try { last = parseInt(sessionStorage.getItem('ext-http-redirect-ts') || '0', 10); } catch (e) {}
@@ -28,7 +32,7 @@
     <h1>Snap! Extensions</h1>
     <p>The Snap<em>!</em> <strong>extensions</strong> site is served over <strong>http</strong> so the editor can load <code>http://</code> resources. Your browser is forcing https, which this site can't use.</p>
     <p style="font-size: 1.1rem;"><a href="http://extensions.snap.berkeley.edu/snap/">Open the Snap! editor over http &rarr;</a></p>
-    <p style="color: #666; font-size: 0.9em;">If that link just reloads this page, your browser is set to always use HTTPS. Turn that off for this site, or use the editor at <a href="https://snap.berkeley.edu/snap/">snap.berkeley.edu</a> (https, but without http-resource loading).</p>
+    <p style="color: #666; font-size: 0.9em;">If that link just reloads this page, your browser is set to always use HTTPS or is blocking cookies for this site. Turn that off for this site, or use the editor at <a href="https://snap.berkeley.edu/snap/">snap.berkeley.edu</a> (https, but without http-resource loading).</p>
   </main>
 </body>
 </html>
