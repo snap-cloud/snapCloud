@@ -1,7 +1,6 @@
 <h1 localizable><%- title %></h1>
 
 <div class="row">
-  <%# contents is printed raw: html_error escapes it, html_message_page
-      callers pass literal markup. Never put unescaped request data here. %>
+  <% -- raw; callers must escape %>
   <%- contents %>
 </div>
