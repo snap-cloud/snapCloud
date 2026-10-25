@@ -280,7 +280,7 @@ UserController = {
         if not update_success then
             return errorResponse(self,
                 'Could not update email address to: "' .. tostring(self.params.email) .. '"' ..
-                '\nError: ' .. update_message or 'unknown error',
+                '\nError: ' .. (update_message or 'unknown error'),
                 400
             )
         end
@@ -341,7 +341,7 @@ UserController = {
         if not update_success then
             return errorResponse(self,
                 'Could not update username address to: "' .. tostring(self.params.new_username) .. '"' ..
-                '\nError: ' .. update_message or 'unknown error',
+                '\nError: ' .. (update_message or 'unknown error'),
                 400
             )
         end
