@@ -103,6 +103,6 @@ SiteController = {
                 type = 'totm'
             })
         end
-        return okResponse('totm set to ' .. self.params.id)
+        return okResponse('totm set to ' .. tostring(self.params.id))
     end)
 }
