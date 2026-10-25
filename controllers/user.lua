@@ -194,10 +194,15 @@ UserController = {
             self.session.username = self.queried_user.username
             -- Under maintenance, reuse any existing token (don't mint one -- a
             -- write); a username-only session is accepted by resolve_current_user
-            -- when the user has no token yet.
-            self.session.remember_token = in_maintenance
-                and self.queried_user.remember_token
-                or self.queried_user:ensure_remember_token()
+            -- when the user has no token yet. Explicit if/else, not an
+            -- `a and b or c` ternary, which would wrongly call
+            -- ensure_remember_token() when the token is nil.
+            if in_maintenance then
+                self.session.remember_token = self.queried_user.remember_token
+            else
+                self.session.remember_token =
+                    self.queried_user:ensure_remember_token()
+            end
             self.session.persist_session = tostring(self.params.persist)
             if not in_maintenance then
                 self.queried_user:update({
@@ -237,9 +242,12 @@ UserController = {
             -- Admins can log in as other people
             assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
-            self.session.remember_token = in_maintenance
-                and self.queried_user.remember_token
-                or self.queried_user:ensure_remember_token()
+            if in_maintenance then
+                self.session.remember_token = self.queried_user.remember_token
+            else
+                self.session.remember_token =
+                    self.queried_user:ensure_remember_token()
+            end
             return jsonResponse({ redirect = self:build_url('/') })
         end
     end),
