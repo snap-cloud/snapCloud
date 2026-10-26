@@ -26,13 +26,79 @@
     location.replace(target);
   })();
   </script>
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.5; }
+    main { max-width: 40rem; margin: 4rem auto; padding: 0 1rem; }
+    .url-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    #ide-url {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.95rem; padding: 0.35rem 0.5rem;
+      border: 1px solid #ccc; border-radius: 4px; background: #f6f6f6;
+      overflow-wrap: anywhere;
+    }
+    #copy-btn {
+      font: inherit; padding: 0.35rem 0.7rem; cursor: pointer;
+      border: 1px solid #888; border-radius: 4px; background: #fff;
+    }
+    .muted { color: #666; font-size: 0.9em; }
+  </style>
 </head>
 <body>
-  <main style="font-family: system-ui, -apple-system, sans-serif; max-width: 40rem; margin: 4rem auto; padding: 0 1rem; line-height: 1.5;">
+  <main>
     <h1>Snap! Extensions</h1>
     <p>The Snap<em>!</em> <strong>extensions</strong> site is served over <strong>http</strong> so the editor can load <code>http://</code> resources. Your browser is forcing https, which this site can't use.</p>
-    <p style="font-size: 1.1rem;"><a href="http://extensions.snap.berkeley.edu/snap/">Open the Snap! editor over http &rarr;</a></p>
-    <p style="color: #666; font-size: 0.9em;">If that link just reloads this page, your browser is set to always use HTTPS or is blocking cookies for this site. Turn that off for this site, or use the editor at <a href="https://snap.berkeley.edu/snap/">snap.berkeley.edu</a> (https, but without http-resource loading).</p>
+    <p style="font-size: 1.1rem;"><a id="ide-link" href="http://extensions.snap.berkeley.edu/snap/snap.html">Open the Snap! editor over http &rarr;</a></p>
+    <p>If that link just reloads this page, copy this URL and open it in a new browser tab (confirm "visit website" if your browser asks):</p>
+    <p class="url-row">
+      <code id="ide-url">http://extensions.snap.berkeley.edu/snap/snap.html</code>
+      <button id="copy-btn" type="button">Click to Copy</button>
+    </p>
+    <p class="muted">Or use the editor at <a href="https://snap.berkeley.edu/snap/snap.html">snap.berkeley.edu</a> (https, but without http-resource loading).</p>
   </main>
+  <script>
+  (function () {
+    var url = 'http://' + location.host + '/snap/snap.html';
+    var link = document.getElementById('ide-link');
+    var code = document.getElementById('ide-url');
+    var btn = document.getElementById('copy-btn');
+    if (link) { link.href = url; }
+    if (code) { code.textContent = url; }
+    if (!btn) { return; }
+    function flash(text) {
+      btn.textContent = text;
+      setTimeout(function () { btn.textContent = 'Click to Copy'; }, 1500);
+    }
+    function selectUrl() {
+      try {
+        var r = document.createRange();
+        r.selectNodeContents(code);
+        var s = window.getSelection();
+        s.removeAllRanges();
+        s.addRange(r);
+      } catch (e) {}
+    }
+    function legacyCopy() {
+      try {
+        var t = document.createElement('textarea');
+        t.value = url;
+        t.setAttribute('readonly', '');
+        t.style.position = 'absolute';
+        t.style.left = '-9999px';
+        document.body.appendChild(t);
+        t.select();
+        var ok = document.execCommand('copy');
+        document.body.removeChild(t);
+        if (ok) { flash('Copied!'); } else { selectUrl(); flash('Press Cmd/Ctrl+C'); }
+      } catch (e) { selectUrl(); flash('Press Cmd/Ctrl+C'); }
+    }
+    btn.addEventListener('click', function () {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () { flash('Copied!'); }, legacyCopy);
+      } else {
+        legacyCopy();
+      }
+    });
+  })();
+  </script>
 </body>
 </html>
