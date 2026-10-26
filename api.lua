@@ -305,11 +305,11 @@ app:match(api_route('project/:id/publish'), respond_to({
     DELETE = ProjectController.unpublish
 }))
 
-app:match(api_route('project/:id/title'), respond_to({
+app:match(api_route('project/:id[%d]/title'), respond_to({
     POST = ProjectController.set_title
 }))
 
-app:match(api_route('project/:id/notes'), respond_to({
+app:match(api_route('project/:id[%d]/notes'), respond_to({
     POST = ProjectController.set_notes
 }))
 
