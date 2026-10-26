@@ -1,0 +1,165 @@
+/* Standalone nginx error pages: no app styles, scripts, or web fonts required. */
+:root {
+  color-scheme: light;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #010133;
+  background: #fff;
+  line-height: 1.6;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: #004aae;
+  text-underline-offset: 0.2em;
+}
+
+a:focus-visible {
+  outline: 3px solid #fdb515;
+  outline-offset: 5px;
+}
+
+.container {
+  width: min(100% - 3rem, 1140px);
+  margin-inline: auto;
+}
+
+.header,
+.footer {
+  position: relative;
+  background: #010133;
+  color: #fff;
+}
+
+/* The same puzzle-piece connectors used by the community site's layout. */
+.header::after,
+.footer::before {
+  content: "";
+  position: absolute;
+  left: max(2rem, calc((100% - 1140px) / 2));
+  border-top: 14px solid #010133;
+  border-inline: 9px solid transparent;
+  width: 64px;
+}
+
+.header::after {
+  top: 100%;
+}
+
+.footer::before {
+  top: 0;
+  border-top-color: #fff;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  min-height: 64px;
+}
+
+.brand img {
+  display: block;
+}
+
+main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 4rem 1.5rem;
+  text-align: center;
+}
+
+.message {
+  width: 100%;
+  max-width: 36rem;
+}
+
+h1 {
+  margin: 0 0 1.5rem;
+  line-height: 1.2;
+}
+
+.error-code {
+  display: block;
+  font-size: clamp(6rem, 20vw, 12rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.error-title {
+  display: block;
+  margin-top: 1rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.message p {
+  margin: 1rem 0;
+  color: #333;
+}
+
+.message a {
+  overflow-wrap: anywhere;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.action-link {
+  display: inline-block;
+  padding: 0.65rem 1.25rem;
+  border: 1px solid #004aae;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ide-link,
+.action-link:hover {
+  background: #004aae;
+  color: #fff;
+}
+
+.ide-link:hover {
+  background: #002676;
+  border-color: #002676;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  padding-block: 2rem;
+  font-size: 0.875rem;
+}
+
+.footer p {
+  margin: 0;
+}
+
+.footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+}
+
+.footer a {
+  color: #fff;
+}

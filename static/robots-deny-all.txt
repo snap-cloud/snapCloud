@@ -1,0 +1,4 @@
+# This robots.txt file is served on secondary domains.
+# We do not want bots indexing any other hosts.
+User-agent: *
+Disallow: /

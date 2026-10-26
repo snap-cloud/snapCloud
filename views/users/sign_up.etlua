@@ -1,5 +1,5 @@
-<% content_for('title', locale.get('signup_title', '!')) %>
-<h1><%- locale.get('signup_title', '<em>!</em>') %></h1>
+<% content_for('title', locale.get('signup_title', '!', { escape = false })) %>
+<h1><%- locale.get('signup_title', '<em>!</em>', { escape = false }) %></h1>
 
 <form id="js-signup" class="col-12 col-md-6 col-lg-5" onsubmit="handleSignupSubmit(event)">
   <input type="hidden" name="csrf_token" id="csrf_token" value="<%- csrf_token %>">
@@ -95,7 +95,8 @@
               '<a target="_blank" href="tos">' ..
                   locale.get('tos'),
               '</a><a target="_blank" href="privacy">' ..
-                  locale.get('privacy_agreement') .. '</a>')
+                  locale.get('privacy_agreement') .. '</a>',
+              { escape = false })
       %></span>
       <span class="text-danger">*</span>
     </label>
@@ -161,14 +162,16 @@
 
       if (email !== emailRepeat) {
           genericError(
-              "<%- locale.get('err_email_mismatch', '<br>') %>",
-              "<%- locale.get('err_email_mismatch_title') %>"
+              "<%- locale.get('err_email_mismatch', '<br>', { escape = false }) %>",
+              "<%- locale.get('err_email_mismatch_title') %>",
+              true
           );
           return;
       } else if (password !== passwordRepeat) {
           genericError(
-              "<%- locale.get('err_password_mismatch', '<br>') %>",
+              "<%- locale.get('err_password_mismatch', '<br>', { escape = false }) %>",
               "<%- locale.get('err_password_mismatch_title') %>",
+              true
           );
           return;
       }
@@ -184,8 +187,8 @@
       successMessage => {
         if (successMessage) {
             alert(
-                localizer.localize(successMessage),
-                { title: localizer.localize('Account Created') },
+                serverMessageHtml(successMessage),
+                { title: escapeHtml(localizer.localize('Account Created')) },
                 () => location.href = '/login'
             );
         } else {
@@ -194,8 +197,8 @@
       },
       errorMessage => {
         alert(
-            localizer.localize(errorMessage),
-            { title: localizer.localize('Error') }
+            serverMessageHtml(errorMessage),
+            { title: escapeHtml(localizer.localize('Error')) }
         )
       }
     );

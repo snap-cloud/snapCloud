@@ -16,10 +16,10 @@
 local locale = {
     -- Meta data
     -- =========
-    lang_name = "Արևելահայերեն",
+    lang_name = "Հայերեն",
     lang_code = "hy",
-    authors = "Antrohoos Educational Foundation",
-    last_updated = "2025/03/05", -- YYYY/MM/DD
+    authors = "Անտրոհուս կրթական հիմնադրամ",
+    last_updated = "2026/07/13", -- YYYY/MM/DD
 
     -- Top navigation bar
     -- ==================

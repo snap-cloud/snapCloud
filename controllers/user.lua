@@ -45,6 +45,14 @@ require 'passwords'
 local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
 local validate_token = validations.validate_token
+local order_by_clause = validations.order_by_clause
+local filter_clause = validations.filter_clause
+
+-- Columns that requests may sort or filter users by. Anything else is
+-- rejected, as these names end up spliced straight into SQL.
+local sortable_columns = { created = true, username = true }
+-- Keep in sync with the filter dropdowns in views/admin/user_admin.etlua
+local filterable_columns = { verified = true, is_teacher = true, role = true }
 -- Local Snap!Cloud functions
 local utils = require('lib.util')
 local escape_html = utils.escape_html
@@ -66,27 +74,22 @@ UserController = {
         if not self.table then self.table = Users end
 
         -- Apply filters from params. They look like filter_verified=true or
-        -- filter_role=reviewer, so we strip them from the "filter_" part.
-        local filters = ''
-        for k, v in pairs(self.params) do
-            if k:find('filter_') == 1 then
-                filters = filters ..
-                    db.interpolate_query(' AND ' .. k:sub(8) .. ' = ?', v)
-            end
-        end
+        -- filter_role=reviewer, and only whitelisted fields are accepted.
+        local filters = filter_clause(self.params, filterable_columns)
 
         local paginator = self.table:paginated(
             query ..
                 (self.params.search_term and (db.interpolate_query(
-                    ' AND username ILIKE ? OR email ILIKE ?',
-                    '%' .. self.params.search_term .. '%',
-                    '%' .. self.params.search_term .. '%')
+                    ' AND (username ILIKE ? OR email ILIKE ?)',
+                    '%' .. tostring(self.params.search_term) .. '%',
+                    '%' .. tostring(self.params.search_term) .. '%')
                 ) or '') ..
-                (filters or '') ..
-                ' ORDER BY ' .. (self.params.order or 'created'),
+                filters ..
+                ' ORDER BY ' .. order_by_clause(
+                    self.params.order, sortable_columns, 'created'),
             {
                 per_page = self.items_per_page or 15,
-                fields = self.params.fields or '*'
+                fields = self.fields or '*'
             }
         )
 
@@ -133,6 +136,7 @@ UserController = {
         })
     end),
     login = capture_errors(function (self)
+        rate_limit(self)
         -- Do not reveal whether the user exists or not
         assert_user_exists(self, err.wrong_password)
         local password = self.params.password
@@ -150,24 +154,15 @@ UserController = {
                 purpose = 'verify_user'
             })
 
+            -- A student's first login is a null last_login_at, not the
+            -- verification flag: students are already verified.
+            local student_first_login =
+                self.queried_user:is_student()
+                    and self.queried_user.last_login_at == nil
+
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
-                if self.queried_user:is_student() then
-                    self.queried_user:update({
-                        verified = true,
-                        last_login_at = db.format_date()
-                    })
-                    return jsonResponse({
-                        title = 'Welcome to Snap!',
-                        message = package.loaded.locale.get(
-                            'learner_first_login_meesage',
-                            self.queried_user.username,
-                            self:build_url('/profile')
-                        ),
-                        redirect = self:build_url('/')
-                    })
-                end
                 local message =
                     self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
@@ -197,6 +192,21 @@ UserController = {
             self.queried_user:update({
                 last_login_at = db.format_date()
             })
+
+            if student_first_login then
+                return jsonResponse({
+                    title = 'Welcome to Snap!',
+                    message = package.loaded.locale.get(
+                        'learner_first_login_meesage',
+                        self.queried_user.username,
+                        self:build_url('/profile'),
+                        -- Plain text: the site escapes it for display
+                        { escape = false }
+                    ),
+                    redirect = self:build_url('/')
+                })
+            end
+
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
@@ -269,8 +279,8 @@ UserController = {
         local update_success, update_message = user:update({ email = self.params.email })
         if not update_success then
             return errorResponse(self,
-                'Could not update email address to: "' .. self.params.email .. '"' ..
-                '\nError: ' .. update_message or 'unknown error',
+                'Could not update email address to: "' .. tostring(self.params.email) .. '"' ..
+                '\nError: ' .. (update_message or 'unknown error'),
                 400
             )
         end
@@ -278,7 +288,7 @@ UserController = {
         local update_success, update_message = user:ensure_unique_email()
         if not update_success then
             return errorResponse(self,
-                'Updated email to: "' .. self.params.email .. '"' ..
+                'Updated email to: "' .. tostring(self.params.email) .. '"' ..
                 'However, your forum email address was not updated. (' .. (update_message or 'unknown error') .. ')' ,
                 400
             )
@@ -322,7 +332,7 @@ UserController = {
 
         if existing_user or existing_zombie then
             return errorResponse(self,
-                'A user with username ' .. self.params.new_username .. ' already exists.',
+                'A user with username ' .. tostring(self.params.new_username) .. ' already exists.',
                 400
             )
         end
@@ -330,8 +340,8 @@ UserController = {
         local update_success, update_message = user:update({ username = self.params.new_username })
         if not update_success then
             return errorResponse(self,
-                'Could not update username address to: "' .. self.params.new_username .. '"' ..
-                '\nError: ' .. update_message or 'unknown error',
+                'Could not update username address to: "' .. tostring(self.params.new_username) .. '"' ..
+                '\nError: ' .. (update_message or 'unknown error'),
                 400
             )
         end
@@ -423,7 +433,7 @@ UserController = {
         local body = '<ul>'
 
         for _, user in pairs(users) do
-            body = body .. '<li>' .. user.username .. '</li>'
+            body = body .. '<li>' .. escape_html(user.username) .. '</li>'
         end
 
         body = body .. '</ul>'
@@ -435,7 +445,7 @@ UserController = {
 
         return jsonResponse({
             title = 'Username list sent',
-            message = 'Email with username list sent to ' .. self.params.email,
+            message = 'Email with username list sent to ' .. tostring(self.params.email),
             redirect = self:build_url('login')
         })
     end),
@@ -571,6 +581,9 @@ UserController = {
 
         -- strip whitespace *only* on create users.
         self.params.username = util.trim(tostring(self.params.username))
+        -- app.lua looked up queried_user with the untrimmed name, so look
+        -- it up again or " foo" would slip past the check for "foo".
+        self.queried_user = Users:find({ username = self.params.username })
         validate.assert_valid(self.params, {
             { 'username', exists = true, min_length = 4,
                 max_length = 200 },
@@ -582,7 +595,7 @@ UserController = {
         local deleted_user =
             DeletedUsers:find({ username = self.params.username })
         if self.queried_user or deleted_user then
-            yield_error('User ' .. self.params.username .. ' already exists');
+            yield_error('User ' .. tostring(self.params.username) .. ' already exists');
         end
 
         local user = Users:create({
@@ -639,10 +652,10 @@ UserController = {
             usernames = {}
             local msg =
                 'No user accounts created! ' ..
-                #existing_users .. ' users already exist.<br>' ..
-                'Please provide new usernames for the following users:<br><br>'
+                #existing_users .. ' users already exist.\n' ..
+                'Please provide new usernames for the following users:\n\n'
             for _, user in pairs(existing_users) do
-                msg = msg .. user.username .. '<br>'
+                msg = msg .. user.username .. '\n'
             end
             return errorResponse(self, msg, 400)
         end
@@ -664,8 +677,8 @@ UserController = {
                     db.query('ROLLBACK;')
                     return errorResponse(self,
                         'Could not create collection ' ..
-                        self.params.collection_name .. '.<br>' ..
-                        'Please make sure you do not already have a<br>' ..
+                        tostring(self.params.collection_name) .. '.\n' ..
+                        'Please make sure you do not already have a\n' ..
                         'collection with that name.'
                     )
                 end
@@ -683,7 +696,8 @@ UserController = {
             user.salt = ''
             user.password = bcrypt_hash(prehash)
             user.email = (user.email or self.current_user.email)
-            user.verified = false
+            -- Students live under the teacher's verified email; verify at creation.
+            user.verified = true
             user.role = 'student'
             user.creator_id = self.current_user.id
             result = Users:create(user)
@@ -709,7 +723,7 @@ UserController = {
         })
     end),
     learners = capture_errors(function (self)
-        self.params.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
+        self.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
         return UserController.run_query(
             self,
             db.interpolate_query(
@@ -828,7 +842,8 @@ UserController = {
             send_mail(
                 self.queried_user.email,
                 self.params.subject or mail_subjects.generic,
-                self.params.contents
+                -- Typed into a plain textarea
+                utils.text_to_html(self.params.contents)
             )
         else
             yield_error(err.mail_body_empty)
@@ -881,7 +896,7 @@ UserController = {
         end
     end),
     followed_users = capture_errors(function (self)
-        self.params.fields = 'username'
+        self.fields = 'username'
         self.items_per_page = 45
         return UserController.run_query(
             self,
@@ -894,7 +909,7 @@ UserController = {
         )
     end),
     follower_users = capture_errors(function (self)
-        self.params.fields = 'username'
+        self.fields = 'username'
         self.items_per_page = 45
         return UserController.run_query(
             self,
@@ -997,7 +1012,7 @@ app:match(
                             'Password reset',
                             '<p>Your password has been successfully ' ..
                             'changed for account <strong>' ..
-                            user.username .. '</strong>.</p>' ..
+                            escape_html(user.username) .. '</strong>.</p>' ..
                             '<p>You may now log in with your ' ..
                             'new password.</p>'
                         )
@@ -1020,7 +1035,7 @@ app:match(
                 return html_message_page(
                     self,
                     'User verified | Welcome to Snap<em>!</em>',
-                    '<p>Your account <strong>' .. user.username ..
+                    '<p>Your account <strong>' .. escape_html(user.username) ..
                     '</strong> has been verified.</p>' ..
                     '<p>Thank you!</p>' ..
                     '<p><a href="https://snap.berkeley.edu/">' ..

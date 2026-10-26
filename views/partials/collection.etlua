@@ -21,7 +21,7 @@
         class="author"><%-
         locale.get('collection_by_thumb',
             '<a href="' .. item:url_for('author') .. '"><strong>' ..
-                item.username .. '</strong></a>')
+                util.escape_html(item.username) .. '</strong></a>', { escape = false })
     %></span>
 <% end %>
 

@@ -42,6 +42,17 @@ local validation = package.loaded.validation
 
 local is_likely_course_work = validation.is_likely_course_work
 local assert_current_user_logged_in = validation.assert_current_user_logged_in
+local order_by_clause = validation.order_by_clause
+
+-- Columns that requests may sort projects by. Anything else is rejected, as
+-- these names end up spliced straight into SQL.
+-- Keep in sync with the "Sort by" dropdown in views/explore.etlua
+local sortable_columns = {
+    firstpublished = true,
+    lastupdated = true,
+    created = true,
+    flag_count = true
+}
 
 ProjectController = {
     run_query = function (self, query)
@@ -63,15 +74,17 @@ ProjectController = {
                  query ..
                     (self.params.search_term and (db.interpolate_query(
                         ' AND (projectname ILIKE ? OR notes ILIKE ?)',
-                        '%' .. self.params.search_term .. '%',
-                        '%' .. self.params.search_term .. '%')
+                        '%' .. tostring(self.params.search_term) .. '%',
+                        '%' .. tostring(self.params.search_term) .. '%')
                     ) or '') ..
-                    (filters or '') ..
-                    ' ORDER BY ' ..
-                        (self.params.order or 'firstpublished DESC'),
+                    filters ..
+                    ' ORDER BY ' .. order_by_clause(
+                        self.params.order,
+                        sortable_columns,
+                        'firstpublished DESC'),
                 {
                     per_page = self.params.items_per_page or 18,
-                    fields = self.params.fields or '*'
+                    fields = self.fields or '*'
                 }
             )
         if self.req and (self.req.source == 'snap') then
@@ -252,7 +265,7 @@ ProjectController = {
     end),
     flagged_projects = capture_errors(function (self)
         self.params.order = 'flag_count DESC'
-        self.params.fields = [[active_projects.id AS id,
+        self.fields = [[active_projects.id AS id,
             active_projects.projectname AS projectname,
             active_projects.username AS username,
             count(*) AS flag_count]]
@@ -265,7 +278,7 @@ ProjectController = {
         self.ignore_page_count = true
         if (self.num_pages == nil) then
             local total_flag_count =
-                #(Projects:select(query, {fields = self.params.fields}))
+                #(Projects:select(query, {fields = self.fields}))
             self.num_pages =
                 math.ceil(total_flag_count /
                     (self.params.items_per_page or 18))
@@ -373,7 +386,8 @@ ProjectController = {
                 self.queried_user.email,
                 mail_subjects.project_deleted .. tostring(project.projectname),
                 mail_bodies.project_deleted .. self.current_user.role ..
-                    '.</p><p>' .. self.params.reason .. '</p>')
+                    '.</p><p>' ..
+                    require('lib.util').text_to_html(self.params.reason) .. '</p>')
         end
 
         -- Do not actually delete the project; flag it as deleted.
@@ -512,11 +526,13 @@ ProjectController = {
                 tostring(self.params.original_projectname)
             )
         if original_project then
-            Remixes:create({
+            -- remixes has a primary key on (original, remixed); marking the
+            -- same remix twice is a no-op rather than an error.
+            db.insert('remixes', {
                 original_project_id = original_project.id,
                 remixed_project_id = self.params.id,
                 created = self.params.created
-            })
+            }, { on_conflict = 'do_nothing' })
         end
 
         return okResponse()
@@ -532,20 +548,22 @@ ProjectController = {
                 )
 
         if not project then yield_error(err.nonexistent_project) end
+
+        -- Set self.params to ensure auth checks work when requested with an id instead of username/projectname
+        self.params.username = project.username
+        self.params.projectname = project.projectname
         if not (project.ispublic or users_match(self)) then
             assert_admin(self, err.nonexistent_project)
         end
 
-        -- self.params.delta is a version indicator
+        -- self.params.delta picks a version (see disk.BACKUP_VERSIONS):
         -- delta = null will fetch the current version
         -- delta = -1 will fetch the previous saved version
         -- delta = -2 will fetch the last version before today
+        -- Any other value is rejected by disk:version_directory.
 
         return xmlResponse(
-            -- if users don't match, this project is being remixed and we
-            -- need to attach its ID
-            '<snapdata' .. (users_match(self) and '>' or ' remixID="' ..
-                project.id .. '">') ..
+            '<snapdata remixID="' .. project.id .. '">' ..
                 (disk:retrieve(
                     project.id, 'project.xml', self.params.delta) or
                         '<project></project>') ..
@@ -596,17 +614,20 @@ ProjectController = {
             'extract(epoch from age(now(), ?::timestamp))',
             project.lastupdated)[1]
 
-        return jsonResponse({
+        local versions = {
             {
                 lastupdated = query.date_part,
                 thumbnail = disk:retrieve(project.id, 'thumbnail') or
                     disk:generate_thumbnail(project.id),
                 notes = disk:parse_notes(project.id),
                 delta = 0
-            },
-            disk:get_version_metadata(project.id, -1),
-            disk:get_version_metadata(project.id, -2)
-        })
+            }
+        }
+        for delta = -1, -disk.BACKUP_VERSIONS, -1 do
+            table.insert(versions, disk:get_version_metadata(project.id, delta))
+        end
+
+        return jsonResponse(versions)
     end),
     save = capture_errors(function (self)
         -- rate_limit(self)

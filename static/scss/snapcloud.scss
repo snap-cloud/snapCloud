@@ -282,7 +282,7 @@ ul.bullets a,
 ol a,
 .list-group a {
   &::after {
-   font-family: "Font Awesome 5 Free";
+   font-family: "Font Awesome 6 Free";
    content: "\f0c1"; // link icon
    display: inline-block;
    font-size: 0.65em;
@@ -293,7 +293,7 @@ ol a,
 
   // &[target="_blank"]::after {
   //   content: "\f08e"; // external link icon
-  //   font-family: "Font Awesome 5 Free";
+  //   font-family: "Font Awesome 6 Free";
   //   display: inline-block;
   //   padding-right: 3px;
   //   vertical-align: middle;
