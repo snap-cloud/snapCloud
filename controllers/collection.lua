@@ -52,8 +52,8 @@ CollectionController = {
             query ..
                 (self.params.search_term and (db.interpolate_query(
                     ' AND (name ILIKE ? OR description ILIKE ?)',
-                    '%' .. self.params.search_term .. '%',
-                    '%' .. self.params.search_term .. '%')
+                    '%' .. tostring(self.params.search_term) .. '%',
+                    '%' .. tostring(self.params.search_term) .. '%')
                 ) or '') ..
             ' ORDER BY ' .. order_by_clause(
                 self.params.order, sortable_columns, 'published_at DESC'),

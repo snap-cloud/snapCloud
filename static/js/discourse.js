@@ -80,8 +80,13 @@ DiscourseBlog.prototype.renderPost = function (post, postDiv) {
         commentsAnchor = document.createElement('a'),
         authorSpan = function (username) {
             var span = document.createElement('span');
-            span.innerHTML =
-                `<small><a href="/user?username=${username}">${username}</a> </small>`;
+            var small = document.createElement('small'),
+                anchor = document.createElement('a');
+            anchor.href = '/user?username=' + encodeURIComponent(username);
+            anchor.innerText = username;
+            small.appendChild(anchor);
+            span.appendChild(small);
+            span.append(' ');
             return span
         };
 
