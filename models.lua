@@ -23,6 +23,40 @@
 
 package.loaded.Model = require('lapis.db.model').Model
 
+-- Finding a row by a value that can't be of the column's type is "not
+-- found", not a Postgres type error. Column types come from Lapis'
+-- cached information_schema lookup (one query per model per worker).
+local Model = package.loaded.Model
+local lapis_find = Model.find
+
+local fits_type = {
+    integer = function (value)
+        return tostring(value):match('^%-?%d+$') ~= nil
+    end,
+    boolean = function (value)
+        return type(value) == 'boolean' or
+            tostring(value):match('^[tf]$') ~= nil or
+            tostring(value):match('^true$') ~= nil or
+            tostring(value):match('^false$') ~= nil
+    end
+}
+fits_type.bigint = fits_type.integer
+fits_type.smallint = fits_type.integer
+
+Model.find = function (self, conditions, ...)
+    if type(conditions) == 'table' then
+        for _, column in ipairs(self:columns()) do
+            local value = conditions[column.column_name]
+            local fits = fits_type[column.data_type]
+            if fits and (type(value) == 'string' or type(value) == 'number'
+                    or type(value) == 'boolean') and not fits(value) then
+                return nil
+            end
+        end
+    end
+    return lapis_find(self, conditions, ...)
+end
+
 -- TODO: This does not actually autoload the models
 -- In the meantime, we will require them manually
 -- return require("lapis.util").autoload("models")
