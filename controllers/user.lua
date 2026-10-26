@@ -581,6 +581,9 @@ UserController = {
 
         -- strip whitespace *only* on create users.
         self.params.username = util.trim(tostring(self.params.username))
+        -- app.lua looked up queried_user with the untrimmed name, so look
+        -- it up again or " foo" would slip past the check for "foo".
+        self.queried_user = Users:find({ username = self.params.username })
         validate.assert_valid(self.params, {
             { 'username', exists = true, min_length = 4,
                 max_length = 200 },
