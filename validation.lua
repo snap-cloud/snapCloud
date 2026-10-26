@@ -628,8 +628,7 @@ end
 -- ORDER BY clause. Only columns present in allowed_columns (a set, as in
 -- { column_name = true, ... }) are accepted. Returns default when no order was
 -- requested, and fails the request on anything that is not whitelisted.
--- allowed_columns maps a sort key to true (sort by that column) or to the SQL
--- expression to sort by instead, e.g. projectname = 'LOWER(projectname)'.
+-- allowed_columns[key] is true, or the SQL expression to sort by instead.
 local order_by_clause = function (order, allowed_columns, default)
     if order == nil or order == '' then return default end
     local column, direction =
@@ -644,8 +643,7 @@ local order_by_clause = function (order, allowed_columns, default)
     yield_error(err.invalid_order)
 end
 
--- Turns the sort_by and sort_dir request params (see partials/grid_sort)
--- into an order string for order_by_clause, which validates it.
+-- sort_by / sort_dir params (partials/grid_sort) -> order_by_clause input.
 local sort_param = function (params, default)
     if params.sort_by == nil or params.sort_by == '' then return default end
     return tostring(params.sort_by) .. ' ' .. tostring(params.sort_dir or '')
