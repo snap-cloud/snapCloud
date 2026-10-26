@@ -264,8 +264,7 @@ ProjectController = {
         assert_min_role(self, 'reviewer')
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
-        -- Walk the whole remix tree so remixes of remixes are marked too.
-        -- UNION (not UNION ALL) stops the walk if remixes form a cycle.
+        -- Walks the whole remix tree; UNION stops it on remix cycles.
         db.query([[
             WITH RECURSIVE descendants AS (
                 SELECT ?::integer AS id
