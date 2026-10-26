@@ -1,11 +1,8 @@
 -- Project XML metadata rewriting
 -- ==============================
 --
--- Project titles and notes can be edited on the site, which only updates
--- the database. This module patches the title and notes into a project.xml
--- string on its way out to the editor, so the stored file is never touched.
--- It works on the raw string (project files can be many megabytes) and
--- leaves the XML alone whenever it doesn't look the way Snap! writes it.
+-- Patches the DB title and notes into a project.xml string as it is served,
+-- without parsing it, so the stored file is never touched.
 --
 -- Copyright (C) 2026 by Bernat Romagosa and Michael Ball
 --
@@ -55,8 +52,7 @@ local function set_name_attribute(xml, tag_start, name)
         xml:sub(tag_end + 1)
 end
 
--- Replaces the contents of the <notes> element that directly follows the
--- tag starting at tag_start, which is where Snap! writes it.
+-- Replaces the <notes> element directly following the tag at tag_start.
 local function set_notes(xml, tag_start, notes)
     local tag_end = xml:find('>', tag_start, true)
     if not tag_end then return xml end
@@ -69,9 +65,7 @@ local function set_notes(xml, tag_start, notes)
     return xml:sub(1, open_end) .. contents .. xml:sub(close_start)
 end
 
--- Writes name (when not nil) and notes (when not nil) into the root
--- <project> element and into the first <scene>, which is the one the editor
--- treats as the project. Legacy single-scene files only have the former.
+-- Writes name and notes (each when not nil) into <project> and the first <scene>.
 function project_xml.rewrite_metadata(xml, name, notes)
     if type(xml) ~= 'string' then return xml end
     local project_start = xml:find('<project[%s>]')

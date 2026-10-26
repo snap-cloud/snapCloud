@@ -55,9 +55,7 @@ local sortable_columns = {
     flag_count = true
 }
 
--- A project flagged as "deleted" may still hold a (username, projectname)
--- pair. Before reusing that name we delete it for real, along with its
--- remix and collection membership rows.
+-- Frees a (username, projectname) still held by a soft-deleted project.
 local function purge_deleted_project (username, projectname)
     local deleted_project = DeletedProjects:find(username, projectname)
     if not deleted_project then return end
@@ -546,8 +544,7 @@ ProjectController = {
         -- delta = -2 will fetch the last version before today
         -- Any other value is rejected by disk:version_directory.
 
-        -- The title and notes may have been edited on the site since the
-        -- file was saved; the database copy wins.
+        -- Title and notes edited on the site live in the DB, not the file.
         local contents = project_xml.rewrite_metadata(
             disk:retrieve(project.id, 'project.xml', self.params.delta),
             project.projectname,
