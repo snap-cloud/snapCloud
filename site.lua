@@ -190,10 +190,7 @@ end))
 
 -- TODO: Consider making this an API/POST route as well
 app:get('/collection/:token/join', capture_errors(function (self)
-    local collection = Collections:find({ join_token = self.params.token })
-    if not collection then
-        return errorResponse(self, 'Collection not found', 404)
-    end
+    local collection = assert_exists(Collections:find({ join_token = self.params.token }))
 
     if not self.current_user then
         return errorResponse(self,
