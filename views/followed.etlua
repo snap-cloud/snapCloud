@@ -18,7 +18,7 @@ else
 <span><%-
     locale.get(
         'following_nobody',
-        '<strong>' .. locale.get('follow_user') .. '</strong>')
+        '<strong>' .. locale.get('follow_user') .. '</strong>', { escape = false })
 %></span>
 <% end %>
 

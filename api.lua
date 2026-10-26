@@ -27,7 +27,8 @@ local api_version = 'v1'
 local app = package.loaded.app
 local capture_errors = package.loaded.capture_errors
 local json_params = package.loaded.json_params
-local respond_to = package.loaded.respond_to
+local lapis_respond_to = package.loaded.respond_to
+local exceptions = require('lib.exceptions')
 
 require 'validation'
 
@@ -36,9 +37,42 @@ require 'controllers.project'
 require 'controllers.collection'
 require 'controllers.site'
 
--- All API routes are nested under /api/v1/,
--- which is currently an optional prefix.
+-- All API routes are nested under /api/v1/. The prefix is still optional
+-- in the route pattern so we don't break older clients overnight, but
+-- every unprefixed hit gets logged and tagged via `respond_to` below so
+-- we can audit traffic before flipping it to required.
+local api_prefix = '/api/' .. api_version .. '/'
 local function api_route(path) return '/(api/' .. api_version .. '/)' .. path end
+
+-- Wrapper around lapis' respond_to that records a deprecation signal
+-- whenever a route is hit without the /api/v1/ prefix:
+--   * one-line WARN to the nginx error log (grep DEPRECATED_API_PREFIX)
+--   * `X-Api-Deprecation` response header so external clients can detect it
+-- Once production logs show zero unprefixed hits we can change api_route
+-- to require the prefix and drop this wrapper.
+local function respond_to(handlers)
+    local wrapped = {}
+    for method, handler in pairs(handlers) do
+        if type(handler) == 'function' then
+            wrapped[method] = function(self)
+                local path = self.req.parsed_url.path or ''
+                if path:sub(1, #api_prefix) ~= api_prefix then
+                    local ua = self.req.headers['user-agent'] or '-'
+                    ngx.log(ngx.WARN,
+                        'DEPRECATED_API_PREFIX method=' .. method ..
+                        ' path=' .. path ..
+                        ' ua="' .. ua:gsub('"', "'") .. '"')
+                    self.res.headers['X-Api-Deprecation'] =
+                        'missing /api/v1 prefix; this route will require it in a future release'
+                end
+                return handler(self)
+            end
+        else
+            wrapped[method] = handler
+        end
+    end
+    return lapis_respond_to(wrapped)
+end
 
 -- API Endpoints
 -- =============
@@ -51,20 +85,37 @@ app:match(api_route('version'), respond_to({
     end)
 }))
 
--- TODO: After deprecating the optional 'api/v1/' prefix
--- Allow this endpoint to be accessed at /health_check as well, for easier monitoring.
+-- Reports database connection pool usage against the cap set in config.lua.
 app:match(api_route('health_check'), respond_to({
     GET = capture_errors(function (self)
-        local snapcloud = package.loaded.Users:find({ username = 'snapcloud' })
-        if not snapcloud then
-            return errorResponse(self,
-                'Snap!Cloud cannot find `snapcloud` user in the database.',
-                503)
+        local db = package.loaded.db
+        local config = package.loaded.config
+        local rows = db.query(
+            'SELECT COUNT(*) AS count FROM pg_stat_activity ' ..
+            'WHERE application_name = ?',
+            config.postgres.application_name)
+        local current = tonumber(rows[1].count)
+        local max = config.max_db_connections
+        local capacity = math.floor(current / max * 100) -- percent used
+        local status, message = 'ok', 'database connection pool ok'
+
+        if capacity > 90 then
+            status = 'warning'
+            message = 'Database connection pool at ' .. capacity .. '% (' ..
+                current .. '/' .. max .. ' connections)'
+            ngx.log(ngx.WARN, message)
+            if exceptions.rvn then
+                exceptions.rvn:captureMessage(message, { level = 'warning' })
+            end
         end
+
         return jsonResponse({
             name = 'Snap!Cloud',
-            status = 'ok',
-            message = 'snapcloud user found',
+            status = status,
+            message = message,
+            current_db_connections = current,
+            max_db_connections = max,
+            connection_capacity = capacity,
             time = os.date('%Y-%m-%d %H:%M:%S'),
         })
     end)

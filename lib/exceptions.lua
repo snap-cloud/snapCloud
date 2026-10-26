@@ -70,21 +70,79 @@ raven.get_release = function()
   return config.release_sha
 end
 
+-- Redaction for everything that leaves the server for Sentry.
+-- Headers: the session cookie and any credentials.
+-- Params: anything that looks like a secret. Values are matched by key name
+-- only, so a password typed into a field with another name would still leak;
+-- keep the list generous rather than clever.
+local FILTERED = '[Filtered]'
+local sensitive_headers = {
+  cookie = true, authorization = true, ['proxy-authorization'] = true,
+  ['x-csrf-token'] = true,
+}
+local sensitive_key_needles =
+  { 'password', 'passwd', 'token', 'secret', 'cookie', 'session', 'api_key' }
+
+local function is_sensitive_key(key)
+  key = tostring(key):lower()
+  for _, needle in ipairs(sensitive_key_needles) do
+    if key:find(needle, 1, true) then return true end
+  end
+  return false
+end
+
+-- Returns a copy of `value` with sensitive keys replaced, bounded in depth
+-- and width so a hostile body cannot turn error reporting into a CPU sink.
+local function scrub(value, depth)
+  depth = depth or 0
+  if type(value) ~= 'table' then return value end
+  if depth > 4 then return '[Truncated]' end
+  local out, count = {}, 0
+  for k, v in pairs(value) do
+    count = count + 1
+    if count > 100 then out['...'] = '[Truncated]' break end
+    if is_sensitive_key(k) then
+      out[k] = FILTERED
+    else
+      out[k] = scrub(v, depth + 1)
+    end
+  end
+  return out
+end
+
+local function scrub_headers(headers)
+  local out = {}
+  for name, value in pairs(headers or {}) do
+    if sensitive_headers[tostring(name):lower()] then
+      out[name] = FILTERED
+    else
+      out[name] = value
+    end
+  end
+  return out
+end
+
 -- Send data about each request to sentry.
--- This was adapted from rollbar.lua
+-- This was adapted from rollbar.lua. It used to ship the raw headers, the
+-- raw body and the whole config table (database and mail passwords, the
+-- session secret) with every exception. Now only redacted request data and
+-- a few non-secret environment facts go out.
 raven.get_request_data = function()
   local url = ngx.var.scheme..'://'..ngx.var.host..ngx.var.request_uri
   local method = ngx.req.get_method()
   local request = {
     url = url,
     method = method,
-    headers = ngx.req.get_headers(),
+    headers = scrub_headers(ngx.req.get_headers()),
     query_string = ngx.var.args,
-    env = config
+    env = {
+      LAPIS_ENVIRONMENT = config._name,
+      RELEASE_SHA = config.release_sha,
+      REMOTE_ADDR = ngx.var.remote_addr,
+    }
   }
-  request.env.REMOTE_ADDR = ngx.var.remote_addr or nil
   if method == 'GET' then
-    request.GET = ngx.req.get_uri_args()
+    request.GET = scrub(ngx.req.get_uri_args())
   elseif method == 'POST' then
     ngx.req.read_body()
     local args, err = ngx.req.get_post_args()
@@ -94,10 +152,13 @@ raven.get_request_data = function()
     else
       -- Parse post as JSON if possible.
       local success, result = pcall(function() return body_data and util.from_json(body_data) end)
-      if success then
-        request.data = result
+      if success and type(result) == 'table' then
+        request.data = scrub(result)
+      elseif success and result ~= nil then
+        -- a non-object body (the raw password sent to /login, for instance)
+        request.data = FILTERED
       else
-        request.data = args
+        request.data = scrub(args)
       end
     end
   end

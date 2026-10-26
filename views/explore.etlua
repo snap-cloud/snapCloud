@@ -1,8 +1,8 @@
 <% if params.username then %>
-<% content_for('title', locale.get('user_projects_title', params.username)) %>
+<% content_for('title', locale.get('user_projects_title', params.username, { escape = false })) %>
 <h1><%- locale.get('user_projects_title', params.username) %></h1>
 <% elseif params.search_term then %>
-<% content_for('title', locale.get('project_search_results', params.search_term)) %>
+<% content_for('title', locale.get('project_search_results', params.search_term, { escape = false })) %>
 <h1><%- locale.get('project_search_results', params.search_term) %></h1>
 <% else %>
 <% content_for('title', locale.get('explore')) %>

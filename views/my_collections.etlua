@@ -25,7 +25,7 @@ render(
                 "<%- locale.get('collection_name') %>",
                 name => {
                     cloud.post(
-                        '/collections/<%= session.username %>',
+                        '/collections/' + encodeURIComponent(<%- util.js_string(session.username) %>),
                         Cloud.redirect,
                         { name: name }
                     );

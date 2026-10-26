@@ -47,7 +47,20 @@ local escape = util.escape
 --    FROM public.users
 --   WHERE (users.deleted IS NULL);
 --
+
+-- API path for actions on a user, with the username URL-encoded, e.g.
+--   user:api_path('set_role') -> '/users/some%2Fname/set_role'
+-- Deleted users live under /zombies. Use this instead of building paths from
+-- usernames in templates:
+--   cloud.post(<%- util.js_string(item:api_path('verify')) %>)
+local function api_path (self, action)
+    local base = (self.deleted and '/zombies/' or '/users/') ..
+        escape(self.username)
+    return action and (base .. '/' .. action) or base
+end
+
 local ActiveUsers = Model:extend('active_users', {
+    api_path = api_path,
     type = 'user',
     constraints = {
         -- TODO: add conatrains for usernames, etc.
@@ -137,7 +150,9 @@ local ActiveUsers = Model:extend('active_users', {
     end,
     url_for = function (self, purpose)
         local urls = {
-            site = '/user?username=' .. escape(self.username)
+            site = '/user?username=' .. escape(self.username),
+            projects = '/user_projects/' .. escape(self.username),
+            collections = '/user_collections/' .. escape(self.username)
         }
         return urls[purpose]
     end,
@@ -209,7 +224,9 @@ ActiveUsers.roles = {
     banned = 0
 }
 
-package.loaded.DeletedUsers = Model:extend('deleted_users')
+package.loaded.DeletedUsers = Model:extend('deleted_users', {
+    api_path = api_path
+})
 
 -- Used for queries across the entire users table.
 package.loaded.AllUsers = Model:extend('users')

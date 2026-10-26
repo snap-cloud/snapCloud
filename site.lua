@@ -123,6 +123,12 @@ for route, view_path in pairs(user_forms) do
 end
 
 app:get('/learn', capture_errors(cached(function (self)
+    for _, item in pairs(materials) do
+        if item.title then
+            item.title = item.title:gsub('Snap!', 'Snap<em>!</em>')
+        end
+    end
+
     self.materials_by_type = util.group_by_type(materials)
     self.resources_order = {"documentation", "course", "book"}
     self.types = material_types
@@ -185,8 +191,7 @@ end))
 
 -- TODO: Consider making this an API/POST route as well
 app:get('/collection/:token/join', capture_errors(function (self)
-    local collection = Collections:find({ join_token = self.params.token })
-    assert(collection, 'Collection not found')
+    local collection = assert_exists(Collections:find({ join_token = self.params.token }))
 
     if not self.current_user then
         return errorResponse(self,
@@ -243,7 +248,22 @@ app:get('/collection', capture_errors(function (self)
     return { render = 'collection' }
 end))
 
-app:get('/user', capture_errors(function (self)
+app:get('user_show', '/user/:username', capture_errors(function (self)
+    assert_user_exists(self)
+    self.username = self.queried_user.username
+    self.user_id = self.queried_user.id
+    return { render = 'user' }
+end))
+
+app:get('user_profile', '/user', capture_errors(function (self)
+    -- Backwards compatibility with previous URL params
+    if self.params.user and self.params.user ~= '' and self.params.username == nil then
+        return {
+            redirect_to =
+                self:url_for('user_profile', nil, { username = self.params.user })
+        }
+    end
+
     assert_user_exists(self)
     self.username = self.queried_user.username
     self.user_id = self.queried_user.id

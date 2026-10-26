@@ -46,7 +46,8 @@ apt-get -y install openssl
 if [ $? -ne 0 ]; then error; fi
 
 print_ok "Installing lua packages..."
-luarocks install snapcloud-dev-0.rockspec
+# As the app user, into ./lua_modules (never as root): see bin/install-rocks.
+runuser -u cloud -- ./bin/install-rocks
 
 if [ $? -ne 0 ]; then error; fi
 

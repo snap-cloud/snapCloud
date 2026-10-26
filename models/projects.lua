@@ -133,6 +133,39 @@ local ActiveProjects = Model:extend('active_projects', {
         project_id = self.id
       }) ~= nil
     end,
+    -- Public remixes, newest first; nil limit = all. Returns items + total
+    -- count (a window column, so the total rides along with the capped rows).
+    public_remixes = function (self, limit)
+        local items = package.loaded.Projects:select(
+            [[JOIN remixes
+                ON active_projects.id = remixes.remixed_project_id
+            WHERE remixes.original_project_id = ?
+            AND ispublic
+            ORDER BY remixes.created DESC NULLS LAST]] ..
+            (limit and ('\nLIMIT ' .. tonumber(limit)) or ''),
+            self.id,
+            { fields = '*, count(*) OVER () AS total_count' }
+        )
+        disk:process_thumbnails(items)
+        return items, (items[1] and tonumber(items[1].total_count) or 0)
+    end,
+    -- Published collections containing this project, newest first; same contract.
+    public_collections = function (self, limit)
+        local items = package.loaded.Collections:select(
+            [[INNER JOIN collection_memberships
+                ON collection_memberships.collection_id = collections.id
+            INNER JOIN users
+                ON collections.creator_id = users.id
+            WHERE collection_memberships.project_id = ?
+            AND collections.published
+            ORDER BY collections.published_at DESC NULLS LAST]] ..
+            (limit and ('\nLIMIT ' .. tonumber(limit)) or ''),
+            self.id,
+            { fields = '*, count(*) OVER () AS total_count' }
+        )
+        disk:process_thumbnails(items, 'thumbnail_id')
+        return items, (items[1] and tonumber(items[1].total_count) or 0)
+    end,
     relations = {
         {'flags',
             fetch = function (self)
@@ -152,34 +185,6 @@ local ActiveProjects = Model:extend('active_projects', {
                     self.id,
                     { fields = 'count(*) as count' }
                 )[1].count
-            end
-        },
-        {'public_remixes',
-            fetch = function (self)
-                local items = package.loaded.Projects:select(
-                   [[JOIN remixes
-                        ON active_projects.id = remixes.remixed_project_id
-                    WHERE remixes.original_project_id = ?
-                    AND ispublic]],
-                    self.id
-                )
-                disk:process_thumbnails(items)
-                return items
-            end
-        },
-        {'public_collections',
-            fetch = function (self)
-                local items = package.loaded.Collections:select(
-                    [[INNER JOIN collection_memberships
-                        ON collection_memberships.collection_id = collections.id
-                    INNER JOIN users
-                        ON collections.creator_id = users.id
-                    WHERE collection_memberships.project_id = ?
-                    AND collections.published]],
-                    self.id
-                )
-                disk:process_thumbnails(items, 'thumbnail_id')
-                return items
             end
         },
     }

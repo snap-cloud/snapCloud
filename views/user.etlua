@@ -2,8 +2,8 @@
 <link rel="stylesheet" href="/static/style/admin.css">
 <% end %>
 
-<% content_for('title', locale.get('public_page', username)) %>
-<h1><%= locale.get('public_page', username) %></h1>
+<% content_for('title', locale.get('public_page', username, { escape = false })) %>
+<h1><%- locale.get('public_page', username) %></h1>
 
 <%
 -- PUBLIC PROJECTS
@@ -23,7 +23,7 @@ render(
         class = 'projects',
         items_per_row = 6,
         show_author = false,
-        href = build_url('/user_projects/' .. queried_user.username)
+        href = build_url(queried_user:url_for('projects'))
     }
 )
 
@@ -43,7 +43,7 @@ render(
         items_per_row = 6,
         class = 'collections',
         item_type = 'collection',
-        href = build_url('/user_collections/' .. queried_user.username)
+        href = build_url(queried_user:url_for('collections'))
     }
 )
 %>
@@ -51,11 +51,11 @@ render(
 <% if current_user then
     if current_user:follows(queried_user) then %>
     <a class="btn btn-outline-primary" onclick="
-        cloud.delete('/users/<%= queried_user.username %>/follow');
+        cloud.delete(<%- util.js_string(queried_user:api_path('follow')) %>);
     "><%= locale.get('unfollow_user') %></a>
 <% else %>
     <a class="btn btn-primary" onclick="
-        cloud.post('/users/<%= queried_user.username %>/follow');
+        cloud.post(<%- util.js_string(queried_user:api_path('follow')) %>);
     "><%= locale.get('follow_user') %></a>
 <%
     end
