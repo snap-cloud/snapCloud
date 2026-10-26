@@ -281,31 +281,31 @@ app:match(api_route('projects'), respond_to({
     GET = ProjectController.my_projects
 }))
 
-app:match(api_route('project/:id/flag'), respond_to({
+app:match(api_route('project/:id[%d]/flag'), respond_to({
     POST = ProjectController.flag,
     DELETE = ProjectController.remove_flag
 }))
 
-app:match(api_route('project/:id/bookmark/:user_id'), respond_to({
+app:match(api_route('project/:id[%d]/bookmark/:user_id[%d]'), respond_to({
     POST = ProjectController.bookmark,
     DELETE = ProjectController.unbookmark
 }))
 
-app:match(api_route('project/:id/mark_as_remix'), respond_to({
+app:match(api_route('project/:id[%d]/mark_as_remix'), respond_to({
     POST = ProjectController.mark_as_remix,
 }))
 
-app:match(api_route('project/:id/share'), respond_to({
+app:match(api_route('project/:id[%d]/share'), respond_to({
     POST = ProjectController.share,
     DELETE = ProjectController.unshare
 }))
 
-app:match(api_route('project/:id/publish'), respond_to({
+app:match(api_route('project/:id[%d]/publish'), respond_to({
     POST = ProjectController.publish,
     DELETE = ProjectController.unpublish
 }))
 
-app:match(api_route('project/:id'), respond_to({
+app:match(api_route('project/:id[%d]'), respond_to({
     GET = ProjectController.xml,
     DELETE = ProjectController.delete
 }))
@@ -344,72 +344,72 @@ app:match(api_route('collections/:username'), respond_to({
     POST = CollectionController.new
 }))
 
-app:match(api_route('collection/:id'),
+app:match(api_route('collection/:id[%d]'),
     respond_to({
         DELETE = CollectionController.delete
     })
 )
 
-app:match(api_route('collection/:id/name'),
+app:match(api_route('collection/:id[%d]/name'),
     respond_to({
         POST = CollectionController.rename
     })
 )
 
-app:match(api_route('collection/:id/description'),
+app:match(api_route('collection/:id[%d]/description'),
     respond_to({
         POST = CollectionController.set_description
     })
 )
 
-app:match(api_route('collection/:id/editor'),
+app:match(api_route('collection/:id[%d]/editor'),
     respond_to({
         POST = CollectionController.add_editor,
         DELETE = CollectionController.remove_editor
     })
 )
 
-app:match(api_route('collection/:id/enrollment'),
+app:match(api_route('collection/:id[%d]/enrollment'),
     respond_to({
         DELETE = CollectionController.unenroll
     })
 )
 
-app:match(api_route('collection/:id/ffa'),
+app:match(api_route('collection/:id[%d]/ffa'),
     respond_to({
         POST = CollectionController.make_ffa,
         DELETE = CollectionController.unmake_ffa
     })
 )
 
-app:match(api_route('collection/:id/sharing'),
+app:match(api_route('collection/:id[%d]/sharing'),
     respond_to({
         POST = CollectionController.share,
         DELETE = CollectionController.unshare
     })
 )
 
-app:match(api_route('collection/:id/publishing'),
+app:match(api_route('collection/:id[%d]/publishing'),
     respond_to({
         POST = CollectionController.publish,
         DELETE = CollectionController.unpublish
     })
 )
 
-app:match(api_route('collection/:id/thumbnail'),
+app:match(api_route('collection/:id[%d]/thumbnail'),
     respond_to({
         POST = CollectionController.set_thumbnail
     })
 )
 
-app:match(api_route('collection/:id/project/:project_id'),
+app:match(api_route('collection/:id[%d]/project/:project_id[%d]'),
     respond_to({
         POST = CollectionController.add_project,
         DELETE = CollectionController.remove_project
     })
 )
 
-app:match(api_route('collection/:id/join_token'), respond_to({
+app:match(api_route('collection/:id[%d]/join_token'), respond_to({
     GET = CollectionController.get_join_token,
     POST = CollectionController.get_join_token,
     DELETE = CollectionController.remove_join_token
