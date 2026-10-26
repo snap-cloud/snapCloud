@@ -43,6 +43,10 @@ package.loaded.respond_to = package.loaded.app_helpers.respond_to
 package.loaded.html = require('lapis.html')
 local date = require('date')
 
+-- Cookie names, attributes and the __Host- session cookie migration.
+-- Needs package.loaded.config; must load before the first request.
+local cookies = require('lib.cookies')
+
 package.loaded.disk = require('disk')
 package.loaded.locale = require('locale')
 package.loaded.validation = require("validation")
@@ -79,25 +83,91 @@ end
 
 require 'models'
 require 'responses'
+local maintenance = require('maintenance')
+package.loaded.maintenance = maintenance
 
-app.cookie_attributes = function (self)
-    -- Cookies are 'session cookies' unless they have an expiration date.
-    -- Cookies have a Max-Age of 35 days, because this is continually reset
-    -- using the Snap!Cloud will continue to extend the user's cookie. (See before_filter)
-    -- Any update to `self.session.x` will extend the cookie's life.
-    -- See https://httpwg.org/http-extensions/draft-ietf-httpbis-rfc6265bis.html
-    local attributes = "Domain=" .. ngx.var.host .. "; Path=/;"
-    if (config._name == 'development') then
-        attributes = attributes .. " HttpOnly; SameSite=Lax; "
+-- Resolve the user this request belongs to, based on the session cookie.
+--
+-- Priority:
+--   1. session.remember_token: the source of truth. Look up by token; if
+--      it doesn't match a user the cookie is stale (token rotated by a
+--      password change, "log out all sessions", etc.) and we treat the
+--      request as logged-out.
+--   2. JIT-migrate legacy cookies. A cookie minted before remember_token
+--      existed will only carry session.username. We accept it ONLY if the
+--      user's record has no remember_token yet — i.e. nobody has logged
+--      in for this account since the column was added. We then issue a
+--      token and pin it to the cookie.
+--   3. If the user record DOES already have a remember_token, refuse the
+--      tokenless cookie. Accepting it would defeat the whole point of
+--      server-side invalidation: the legitimate owner has logged in
+--      somewhere and rotated the token; the bare-username cookie is
+--      either ours-but-stale or stolen, and either way it must lose.
+local function resolve_current_user(self)
+    local Users = package.loaded.Users
+    local remember_token = self.session.remember_token
+
+    if remember_token and remember_token ~= '' then
+        return Users:find({ remember_token = remember_token })
+    end
+
+    local username = self.session.username
+    if not username or username == '' then return nil end
+
+    local user = Users:find({ username = username })
+    if not user then return nil end
+
+    if user.remember_token and user.remember_token ~= '' then
+        return nil
+    end
+
+    -- Read-only maintenance: keep the user logged in, but don't write a token.
+    if maintenance.mode then return user end
+
+    self.session.remember_token = user:rotate_remember_token()
+    return user
+end
+
+-- Track a "session" (a 4-hour window of activity) for the user. Called
+-- after a request has been authenticated and current_user is set.
+local function track_session_activity(self)
+    -- Session counts are paused during read-only maintenance.
+    if maintenance.mode then return end
+    local should_count_session = false
+    local last_session_at = self.current_user.last_session_at
+    if not last_session_at then
+        should_count_session = true
+    elseif (date(true) - date(last_session_at)):spanhours() >= 4 then
+        should_count_session = true
+    end
+    if should_count_session then
+        self.current_user:update({
+            last_session_at = package.loaded.db.format_date(),
+            session_count = self.current_user.session_count + 1
+        })
+    end
+end
+
+-- Single entry point for "who is the user on this request?"
+-- Mutates self.current_user and the session in place.
+local function establish_session(self)
+    self.current_user = resolve_current_user(self)
+    if self.current_user then
+        self.session.username = self.current_user.username
+        self.session.last_access_at = date(true):fmt('${http}')
+        track_session_activity(self)
     else
-        -- SameSite must be None on production to allow extensions (and CORS) to work right.
-        attributes = attributes .. " Secure; HttpOnly; SameSite=None;"
+        self.session.username = ''
+        self.session.remember_token = nil
+        self.session.user_id = nil
     end
-    if self.session.persist_session == 'true' then
-        local max_seconds = 35 * 24 * 60 * 60 -- 35 days, 24 hours, 60 minutes, 60 seconds
-        attributes = "Max-Age=" .. max_seconds .. "; " .. attributes
-    end
-    return attributes
+end
+
+-- Lapis calls this once per cookie it writes. The policy (Secure, HttpOnly,
+-- SameSite, Max-Age for "remember me", no Domain so __Host- works) and the
+-- expiry of the legacy session cookie live in lib/cookies.lua.
+app.cookie_attributes = function (self, name)
+    return cookies.attributes(self, name)
 end
 
 -- CACHING UTILITIES
@@ -115,7 +185,7 @@ package.loaded.cached = function (func, options)
         for k, _ in pairs(params) do table.insert(param_keys, k) end
         table.sort(param_keys)
         for _, v in ipairs(param_keys) do
-            key = key .. '#' .. v .. '=' .. params[v]
+            key = key .. '#' .. v .. '=' .. tostring(params[v])
         end
         return key .. '@' .. (request.session.locale or 'en') ..
             '~' .. (request.session.username)
@@ -180,9 +250,17 @@ app:before_filter(function (self)
     end
     ]]--
 
+    -- Must run before anything reads self.session: lapis decodes the session
+    -- cookie on first access and keeps the result, so a stale twin of the
+    -- cookie has to be dealt with first. See lib/cookies.lua.
+    cookies.drop_encoded_twins(self)
+
     -- Make locale available to all routes and templates
     self.locale = package.loaded.locale
     self.locale.language = self.session.locale or 'en'
+
+    -- Make our utilities (escape_html, js_string...) available to templates
+    self.util = utils
 
     self.req.source =
         (self.req.headers['content-type'] and
@@ -203,6 +281,20 @@ app:before_filter(function (self)
             'GET, POST, DELETE, OPTIONS'
         self:write(rawResponse('preflight processed'))
         return
+    end
+
+    -- Maintenance (see maintenance.lua). After the CORS headers, so the Snap!
+    -- editor can read the message. The DB is read-only in maintenance; refusing
+    -- writes here too gives a clear message and stops disk-only writes.
+    if maintenance.mode then
+        self.maintenance_mode = maintenance.mode
+        self.maintenance_message = maintenance.message
+        local method = ngx.req.get_method()
+        if maintenance.mode == 'down' or
+                (method ~= 'GET' and method ~= 'HEAD') then
+            self:write(maintenance.response(self))
+            return
+        end
     end
 
     if ngx.req.get_method() == 'POST' then
@@ -229,7 +321,9 @@ app:before_filter(function (self)
     elseif self.params.user_id and self.params.user_id ~= '' then
         self.queried_user =
             package.loaded.Users:find({ id = self.params.user_id })
-        self.params.username = self.queried_user.username
+        if self.queried_user then
+            self.params.username = self.queried_user.username
+        end
     end
 
     -- unescape all parameters and JSON-decode them
@@ -246,40 +340,14 @@ app:before_filter(function (self)
         end
     end
 
-    if self.session.username and self.session.username ~= '' then
-        self.current_user =
-            package.loaded.Users:find({ username = self.session.username })
-        self.session.last_access_at = date(true):fmt('${http}')
+    -- Users still carrying the pre-__Host- session cookie are moved over
+    -- (and the old cookie expired) before the session is used.
+    cookies.migrate_legacy_session(self)
 
-        -- Track distinct sessions: increment session_count and update
-        -- last_session_at at most once every 4 hours.
-        if self.current_user then
-            local should_count_session = false
-            if not self.current_user.last_session_at then
-                should_count_session = true
-            else
-                local hours_since = package.loaded.db.select(
-                    "extract(epoch from now() - ?::timestamptz) / 3600 as hours",
-                    self.current_user.last_session_at
-                )[1]
-                if hours_since.hours >= 4 then
-                    should_count_session = true
-                end
-            end
-            if should_count_session then
-                self.current_user:update({
-                    last_session_at = package.loaded.db.format_date(),
-                    session_count = self.current_user.session_count + 1
-                })
-            end
-        end
-    else
-        self.session.username = ''
-        self.current_user = nil
-    end
+    establish_session(self)
 
     if self.params.matchtext then
-        self.params.matchtext = '%' .. self.params.matchtext .. '%'
+        self.params.matchtext = '%' .. tostring(self.params.matchtext) .. '%'
     end
 
 end)
@@ -299,6 +367,16 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    -- Errors raised with a table (yield_error({...}) outside capture_errors)
+    -- would otherwise crash the string concatenations below.
+    err = tostring(err)
+    trace = tostring(trace)
+    -- The database is read-only during maintenance, so a route that tries to
+    -- write ends up here. Show the maintenance message, not a 500.
+    if maintenance.is_read_only_db_error(err) then
+        return maintenance.response(self)
+    end
+
     -- Lapis raises this error from `respond_to` when a request uses an HTTP
     -- method the route does not handle. Return a 405 instead of a 500.
     if type(err) == 'string' and err:match("don't know how to respond to") then
@@ -312,9 +390,18 @@ function app:handle_error(err, trace)
 
     if config._name == 'development' then
         debug_print(err, trace)
-        local msg = '<pre style="text-align: left; width: 80ch">'
-            .. err .. '<br>' .. trace .. '</pre>'
-        return errorResponse(self, msg, 500)
+        local accept = self.req.headers.accept or ''
+        if type(accept) == 'table' then accept = table.concat(accept, ',') end
+        if accept:match('text/html') then
+            -- Keep the traceback readable: monospace, left-aligned, with its
+            -- indentation intact. Escaped first, since err can echo request
+            -- data; html_message_page prints contents as-is.
+            return html_message_page(self, '500 Error',
+                '<pre style="text-align: left; width: 80ch">' ..
+                utils.escape_html(err .. '\n' .. trace) .. '</pre>', 500)
+        end
+        -- API clients get the plain text in the JSON error body.
+        return errorResponse(self, err .. '\n' .. trace, 500)
     end
 
 
@@ -334,16 +421,6 @@ function app:handle_error(err, trace)
         end
     end
     return errorResponse(self, "An unexpected error occurred: " .. err_msg, 500)
-end
-
--- Enable the ability to have a maintenance mode
--- No routes are served, and a generic error is returned.
-if config.maintenance_mode == 'true' then
-    local msg = 'The Snap!Cloud is currently down for maintenance.'
-    app:match('/*', function(self)
-        return errorResponse(self, msg, 500)
-    end)
-    return app
 end
 
 -- The API for the Snap! editor is implemented in the api.lua file

@@ -37,6 +37,7 @@ package.loaded.dialog = function (filename, params)
         file:close()
         local template = etlua.compile(contents)
         params.locale = package.loaded.locale
+        params.util = require('lib.util')
         return compact(template(params))
     else
         return '<h1>Dialog render error</h1><span>template ' ..

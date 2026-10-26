@@ -37,7 +37,7 @@ xmlResponse = function (xml)
         layout = false,
         status = 200,
         readyState = 4,
-        content_type = "text/xml",
+        content_type = "application/xml",
         xml
     }
 end
@@ -55,25 +55,35 @@ rawResponse = function (contents)
     }
 end
 
+-- Error messages are plain text. Many of them echo request data (usernames,
+-- project names, raw paths), so they are HTML-escaped here before reaching
+-- the `message` view, which prints `contents` raw. Pages that intentionally
+-- carry markup go through html_message_page with literal strings instead.
+local text_to_html = require('lib.util').text_to_html
+
 local html_error = function (self, error, status)
     status = status or 500
     self.locale = package.loaded.locale
     self.locale.language = self.session.locale or 'en'
     self.title = status .. ' Error'
-    self.contents = error
+    local message = tostring(error)
     if status > 404 then
-        self.contents = [[
-            An unexpected error occurred.
-            Reach out to contact@snap.berkeley.edu if you continue to experience trouble.
-            Please include the details of the following message:
-        ]] .. error
+        message = 'An unexpected error occurred. ' ..
+            'Reach out to contact@snap.berkeley.edu if you continue to ' ..
+            'experience trouble. ' ..
+            'Please include the details of the following message:\n' ..
+            message
     end
+    self.contents = text_to_html(message)
 
     return { render = 'message', status = status }
 end
 
 errorResponse = function (self, err, status)
-    local is_html_page = (self.req.headers['accept'] or ''):match('text/html')
+    local headers = self.req and self.req.headers
+    local accept = headers and headers['accept'] or ''
+    if type(accept) == 'table' then accept = table.concat(accept, ',') end
+    local is_html_page = accept:match('text/html')
     if is_html_page then
         return html_error(self, err, status)
     else

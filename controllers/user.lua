@@ -45,9 +45,28 @@ require 'passwords'
 local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
 local validate_token = validations.validate_token
+local order_by_clause = validations.order_by_clause
+local filter_clause = validations.filter_clause
+
+-- Columns that requests may sort or filter users by. Anything else is
+-- rejected, as these names end up spliced straight into SQL.
+local sortable_columns = { created = true, username = true }
+-- Keep in sync with the filter dropdowns in views/admin/user_admin.etlua
+local filterable_columns = { verified = true, is_teacher = true, role = true }
 -- Local Snap!Cloud functions
 local utils = require('lib.util')
 local escape_html = utils.escape_html
+
+-- Rotate the target user's remember_token (kicking every other session
+-- for that account) and, if the target IS the requestor, slide the new
+-- token into the current cookie so the requestor stays logged in.
+local function rotate_token_and_sync_session(self, user)
+    if not user then return end
+    local new_token = user:rotate_remember_token()
+    if self.current_user and user.id == self.current_user.id then
+        self.session.remember_token = new_token
+    end
+end
 
 UserController = {
     run_query = function (self, query)
@@ -55,27 +74,22 @@ UserController = {
         if not self.table then self.table = Users end
 
         -- Apply filters from params. They look like filter_verified=true or
-        -- filter_role=reviewer, so we strip them from the "filter_" part.
-        local filters = ''
-        for k, v in pairs(self.params) do
-            if k:find('filter_') == 1 then
-                filters = filters ..
-                    db.interpolate_query(' AND ' .. k:sub(8) .. ' = ?', v)
-            end
-        end
+        -- filter_role=reviewer, and only whitelisted fields are accepted.
+        local filters = filter_clause(self.params, filterable_columns)
 
         local paginator = self.table:paginated(
             query ..
                 (self.params.search_term and (db.interpolate_query(
-                    ' AND username ILIKE ? OR email ILIKE ?',
-                    '%' .. self.params.search_term .. '%',
-                    '%' .. self.params.search_term .. '%')
+                    ' AND (username ILIKE ? OR email ILIKE ?)',
+                    '%' .. tostring(self.params.search_term) .. '%',
+                    '%' .. tostring(self.params.search_term) .. '%')
                 ) or '') ..
-                (filters or '') ..
-                ' ORDER BY ' .. (self.params.order or 'created'),
+                filters ..
+                ' ORDER BY ' .. order_by_clause(
+                    self.params.order, sortable_columns, 'created'),
             {
                 per_page = self.items_per_page or 15,
-                fields = self.params.fields or '*'
+                fields = self.fields or '*'
             }
         )
 
@@ -122,36 +136,33 @@ UserController = {
         })
     end),
     login = capture_errors(function (self)
+        rate_limit(self)
         -- Do not reveal whether the user exists or not
         assert_user_exists(self, err.wrong_password)
         local password = self.params.password
-        -- TODO: self.queried_user:verify_password(self.params.password)
-        if (hash_password(password, self.queried_user.salt) ==
-                self.queried_user.password) then
+        if not password then yield_error(err.wrong_password) end
+        if verify_password(
+                password,
+                self.queried_user.password,
+                self.queried_user.salt) then
+            -- JIT-upgrade: transparently migrate legacy/wrapped hashes to
+            -- native bcrypt on successful login.
+            upgrade_password_to_bcrypt(self.queried_user, password)
             -- Check whether user has a verification token
             local token = Tokens:find({
                 username = self.queried_user.username,
                 purpose = 'verify_user'
             })
 
+            -- A student's first login is a null last_login_at, not the
+            -- verification flag: students are already verified.
+            local student_first_login =
+                self.queried_user:is_student()
+                    and self.queried_user.last_login_at == nil
+
             if not self.queried_user.verified then
                 -- Different message depending on where the login is coming
                 -- from (editor vs. site)
-                if self.queried_user:is_student() then
-                    self.queried_user:update({
-                        verified = true,
-                        last_login_at = db.format_date()
-                    })
-                    return jsonResponse({
-                        title = 'Welcome to Snap!',
-                        message = package.loaded.locale.get(
-                            'learner_first_login_meesage',
-                            self.queried_user.username,
-                            self:build_url('/profile')
-                        ),
-                        redirect = self:build_url('/')
-                    })
-                end
                 local message =
                     self.req and (self.req.source == 'snap')
                         and err.nonvalidated_user_plaintext
@@ -174,12 +185,28 @@ UserController = {
                 token:delete()
             end
 
-            -- TODO: Create and store a remember token
             self.session.username = self.queried_user.username
+            self.session.remember_token =
+                self.queried_user:ensure_remember_token()
             self.session.persist_session = tostring(self.params.persist)
             self.queried_user:update({
                 last_login_at = db.format_date()
             })
+
+            if student_first_login then
+                return jsonResponse({
+                    title = 'Welcome to Snap!',
+                    message = package.loaded.locale.get(
+                        'learner_first_login_meesage',
+                        self.queried_user.username,
+                        self:build_url('/profile'),
+                        -- Plain text: the site escapes it for display
+                        { escape = false }
+                    ),
+                    redirect = self:build_url('/')
+                })
+            end
+
             if self.queried_user.verified then
                 return okResponse('User ' .. self.queried_user.username
                         .. ' logged in')
@@ -198,12 +225,28 @@ UserController = {
             -- Admins can log in as other people
             assert_admin(self, err.wrong_password)
             self.session.username = self.queried_user.username
+            self.session.remember_token =
+                self.queried_user:ensure_remember_token()
             return jsonResponse({ redirect = self:build_url('/') })
         end
     end),
+    -- POST /logout
+    -- Optional param: all_sessions=true rotates the user's remember_token
+    -- before clearing the cookie, which invalidates every other session
+    -- that was authenticated with the previous token.
     logout = capture_errors(function (self)
+        if self.params.all_sessions == true
+                or tostring(self.params.all_sessions) == 'true' then
+            local user = self.current_user
+                or (self.session.remember_token and self.session.remember_token ~= ''
+                    and Users:find({ remember_token = self.session.remember_token }))
+            if user then user:rotate_remember_token() end
+        end
         self.session.username = ''
         self.session.user_id = nil
+        self.session.remember_token = nil
+        self.session.impersonator = nil
+        self.session.impersonator_token = nil
         self.session.persist_session = 'false'
         return jsonResponse({
             redirect = (self.params.redirect or self:build_url('/'))
@@ -224,8 +267,10 @@ UserController = {
             end
         elseif user:is_student() then
             yield_error(err.student_cannot_change_email)
-        elseif (user.password ~=
-                hash_password(self.params.password, user.salt)) then
+        elseif not verify_password(
+                self.params.password,
+                user.password,
+                user.salt) then
             yield_error(err.wrong_password)
         end
 
@@ -234,8 +279,8 @@ UserController = {
         local update_success, update_message = user:update({ email = self.params.email })
         if not update_success then
             return errorResponse(self,
-                'Could not update email address to: "' .. self.params.email .. '"' ..
-                '\nError: ' .. update_message or 'unknown error',
+                'Could not update email address to: "' .. tostring(self.params.email) .. '"' ..
+                '\nError: ' .. (update_message or 'unknown error'),
                 400
             )
         end
@@ -243,11 +288,15 @@ UserController = {
         local update_success, update_message = user:ensure_unique_email()
         if not update_success then
             return errorResponse(self,
-                'Updated email to: "' .. self.params.email .. '"' ..
+                'Updated email to: "' .. tostring(self.params.email) .. '"' ..
                 'However, your forum email address was not updated. (' .. (update_message or 'unknown error') .. ')' ,
                 400
             )
         end
+
+        -- Email is the recovery channel — if it changed under an attacker,
+        -- every existing session for this account must die.
+        rotate_token_and_sync_session(self, user)
 
         return jsonResponse({
             title = 'Email changed',
@@ -283,7 +332,7 @@ UserController = {
 
         if existing_user or existing_zombie then
             return errorResponse(self,
-                'A user with username ' .. self.params.new_username .. ' already exists.',
+                'A user with username ' .. tostring(self.params.new_username) .. ' already exists.',
                 400
             )
         end
@@ -291,11 +340,15 @@ UserController = {
         local update_success, update_message = user:update({ username = self.params.new_username })
         if not update_success then
             return errorResponse(self,
-                'Could not update username address to: "' .. self.params.new_username .. '"' ..
-                '\nError: ' .. update_message or 'unknown error',
+                'Could not update username address to: "' .. tostring(self.params.new_username) .. '"' ..
+                '\nError: ' .. (update_message or 'unknown error'),
                 400
             )
         end
+
+        -- A username change is a strong account-takeover signal; rotate
+        -- the token so any other live session for this account is dropped.
+        rotate_token_and_sync_session(self, user)
 
         return jsonResponse({
             title = 'Username changed',
@@ -309,15 +362,23 @@ UserController = {
 
     change_password = capture_errors(function (self)
         assert_current_user_logged_in(self)
-        if (self.current_user.password ~=
-            hash_password(self.params.old_password, self.current_user.salt))
-                then
+        if not verify_password(
+                self.params.old_password,
+                self.current_user.password,
+                self.current_user.salt) then
             yield_error(err.wrong_password)
         end
+        -- Always store the new password as native bcrypt (empty salt = v2).
         self.current_user:update({
-            password =
-                hash_password(self.params.new_password, self.current_user.salt)
+            password = bcrypt_hash(self.params.new_password),
+            salt = '',
+            password_changed_at = db.raw('now()'),
+            updated_at = db.raw('now()')
         })
+        -- Rotate the remember_token so every other device gets logged out.
+        -- Refresh the current session's token so the caller stays logged in.
+        self.session.remember_token =
+            self.current_user:rotate_remember_token()
         return jsonResponse({
             title = 'Password changed',
             message = 'Your password has been changed.',
@@ -372,7 +433,7 @@ UserController = {
         local body = '<ul>'
 
         for _, user in pairs(users) do
-            body = body .. '<li>' .. user.username .. '</li>'
+            body = body .. '<li>' .. escape_html(user.username) .. '</li>'
         end
 
         body = body .. '</ul>'
@@ -384,7 +445,7 @@ UserController = {
 
         return jsonResponse({
             title = 'Username list sent',
-            message = 'Email with username list sent to ' .. self.params.email,
+            message = 'Email with username list sent to ' .. tostring(self.params.email),
             redirect = self:build_url('login')
         })
     end),
@@ -395,9 +456,10 @@ UserController = {
         if self.queried_user then
             -- we're trying to delete someone else
             assert_admin(self)
-        elseif (self.current_user.password ~=
-            hash_password(self.params.password, self.current_user.salt))
-                then
+        elseif not verify_password(
+                self.params.password,
+                self.current_user.password,
+                self.current_user.salt) then
             yield_error(err.wrong_password)
         end
         -- Do not actually delete the user; flag it as deleted.
@@ -408,6 +470,7 @@ UserController = {
                 -- we've deleted ourselves, let's log out
                 self.session.username = ''
                 self.session.user_id = nil
+                self.session.remember_token = nil
                 self.session.persist_session = 'false'
             end
             return jsonResponse({
@@ -518,6 +581,9 @@ UserController = {
 
         -- strip whitespace *only* on create users.
         self.params.username = util.trim(tostring(self.params.username))
+        -- app.lua looked up queried_user with the untrimmed name, so look
+        -- it up again or " foo" would slip past the check for "foo".
+        self.queried_user = Users:find({ username = self.params.username })
         validate.assert_valid(self.params, {
             { 'username', exists = true, min_length = 4,
                 max_length = 200 },
@@ -529,16 +595,14 @@ UserController = {
         local deleted_user =
             DeletedUsers:find({ username = self.params.username })
         if self.queried_user or deleted_user then
-            yield_error('User ' .. self.params.username .. ' already exists');
+            yield_error('User ' .. tostring(self.params.username) .. ' already exists');
         end
 
-        local salt = secure_salt()
         local user = Users:create({
             created = db.format_date(),
             username = self.params.username,
-            salt = salt,
-            -- see validation.lua >> hash_password
-            password = hash_password(self.params.password, salt),
+            salt = '',
+            password = bcrypt_hash(self.params.password),
             email = self.params.email,
             verified = false,
             role = 'standard'
@@ -588,10 +652,10 @@ UserController = {
             usernames = {}
             local msg =
                 'No user accounts created! ' ..
-                #existing_users .. ' users already exist.<br>' ..
-                'Please provide new usernames for the following users:<br><br>'
+                #existing_users .. ' users already exist.\n' ..
+                'Please provide new usernames for the following users:\n\n'
             for _, user in pairs(existing_users) do
-                msg = msg .. user.username .. '<br>'
+                msg = msg .. user.username .. '\n'
             end
             return errorResponse(self, msg, 400)
         end
@@ -613,23 +677,27 @@ UserController = {
                     db.query('ROLLBACK;')
                     return errorResponse(self,
                         'Could not create collection ' ..
-                        self.params.collection_name .. '.<br>' ..
-                        'Please make sure you do not already have a<br>' ..
+                        tostring(self.params.collection_name) .. '.\n' ..
+                        'Please make sure you do not already have a\n' ..
                         'collection with that name.'
                     )
                 end
             end
         end
-        local salt, password, result
+        local password, prehash, result
         for _, user in pairs(users) do
-            salt = secure_salt()
             password = util.trim(tostring(user.password))
+            -- Learner passwords arrive as plaintext from the teacher's form.
+            -- SHA-512 pre-hash them to match what the Snap! client would send
+            -- at login time, then bcrypt that prehash.
+            prehash = hash_password(password, '')
             user.created = db.format_date()
             user.username = util.trim(tostring(user.username):lower())
-            user.salt = salt
-            user.password = hash_password(hash_password(password, ''), salt)
+            user.salt = ''
+            user.password = bcrypt_hash(prehash)
             user.email = (user.email or self.current_user.email)
-            user.verified = false
+            -- Students live under the teacher's verified email; verify at creation.
+            user.verified = true
             user.role = 'student'
             user.creator_id = self.current_user.id
             result = Users:create(user)
@@ -655,7 +723,7 @@ UserController = {
         })
     end),
     learners = capture_errors(function (self)
-        self.params.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
+        self.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
         return UserController.run_query(
             self,
             db.interpolate_query(
@@ -672,9 +740,17 @@ UserController = {
                     Users.roles[self.queried_user.role] then
                 yield_error(err.auth)
             else
+                -- Stash the admin's identity so unbecome can restore it.
+                -- We save both username and remember_token so the admin's
+                -- session keeps working even if we swap the cookie's token
+                -- to the target user's.
                 self.session.impersonator = self.current_user.username
+                self.session.impersonator_token =
+                    self.session.remember_token
                 self.current_user = self.queried_user
                 self.session.username = self.queried_user.username
+                self.session.remember_token =
+                    self.queried_user:ensure_remember_token()
             end
         end
         return jsonResponse({
@@ -686,9 +762,11 @@ UserController = {
     unbecome = capture_errors(function (self)
         if self.session.impersonator then
             self.session.username = self.session.impersonator
+            self.session.remember_token = self.session.impersonator_token
             self.current_user =
                 Users:find({ username = self.session.impersonator})
             self.session.impersonator = nil
+            self.session.impersonator_token = nil
             return jsonResponse({
                 message = 'You are now ' .. self.session.username .. ' again',
                 title = 'Unimpersonation',
@@ -714,12 +792,31 @@ UserController = {
         if self.queried_user then
             assert_can_set_role(self, self.params.role)
             self.queried_user:update({ role = self.params.role })
+            -- A banned user must lose every live session — otherwise an
+            -- attacker who keeps an existing cookie keeps their access.
+            if self.params.role == 'banned' then
+                rotate_token_and_sync_session(self, self.queried_user)
+            end
         end
         return jsonResponse({
             message =
                 'User ' .. self.queried_user.username ..
                 ' is now ' .. self.queried_user.role,
             title = 'Role set',
+            redirect = self.queried_user:url_for('site')
+        })
+    end),
+    -- Admin/moderator action: rotate a user's remember_token, which
+    -- invalidates every active session for that account on every device.
+    -- Use this for suspected account takeover or as a manual "kick" tool.
+    force_logout = capture_errors(function (self)
+        assert_min_role(self, 'moderator')
+        assert_user_exists(self)
+        rotate_token_and_sync_session(self, self.queried_user)
+        return jsonResponse({
+            title = 'Sessions terminated',
+            message = 'All sessions for ' ..
+                self.queried_user.username .. ' have been terminated.',
             redirect = self.queried_user:url_for('site')
         })
     end),
@@ -745,7 +842,8 @@ UserController = {
             send_mail(
                 self.queried_user.email,
                 self.params.subject or mail_subjects.generic,
-                self.params.contents
+                -- Typed into a plain textarea
+                utils.text_to_html(self.params.contents)
             )
         else
             yield_error(err.mail_body_empty)
@@ -798,7 +896,7 @@ UserController = {
         end
     end),
     followed_users = capture_errors(function (self)
-        self.params.fields = 'username'
+        self.fields = 'username'
         self.items_per_page = 45
         return UserController.run_query(
             self,
@@ -811,7 +909,7 @@ UserController = {
         )
     end),
     follower_users = capture_errors(function (self)
-        self.params.fields = 'username'
+        self.fields = 'username'
         self.items_per_page = 45
         return UserController.run_query(
             self,
@@ -843,6 +941,7 @@ app:match(
                 self.username = escape_html(token.username)
                 self.csrf_token = csrf.generate_token(self)
                 self.min_password_length = Users.MIN_PASSWORD_LENGTH
+                utils.set_no_frame_headers(self)
                 return { render = 'password_reset' }
             end
         ),
@@ -851,6 +950,7 @@ app:match(
                 -- Step 2: User submitted the new password form.
                 -- Validate CSRF token first, without consuming
                 -- the reset token.
+                utils.set_no_frame_headers(self)
                 local valid, csrf_err = csrf.validate_token(self)
                 if not valid then
                     return html_message_page(
@@ -887,12 +987,19 @@ app:match(
                     token,
                     'password_reset',
                     function (user)
+                        -- Store as native bcrypt on reset (empty salt = using bcrypt).
                         user:update({
-                            password =
-                                hash_password(prehash, user.salt),
+                            password = bcrypt_hash(prehash),
+                            salt = '',
                             password_changed_at = db.raw('now()'),
-                            updated_at = db.raw('now()')
+                            updated_at = db.raw('now()'),
+                            remember_token = secure_token()
                         })
+                        -- Drop any session this browser still has so the
+                        -- "log in" link below is not a no-op.
+                        self.session.username = ''
+                        self.session.remember_token = nil
+                        self.session.user_id = nil
                         send_mail(
                             user.email,
                             mail_subjects.password_changed ..
@@ -905,7 +1012,7 @@ app:match(
                             'Password reset',
                             '<p>Your password has been successfully ' ..
                             'changed for account <strong>' ..
-                            user.username .. '</strong>.</p>' ..
+                            escape_html(user.username) .. '</strong>.</p>' ..
                             '<p>You may now log in with your ' ..
                             'new password.</p>'
                         )
@@ -928,7 +1035,7 @@ app:match(
                 return html_message_page(
                     self,
                     'User verified | Welcome to Snap<em>!</em>',
-                    '<p>Your account <strong>' .. user.username ..
+                    '<p>Your account <strong>' .. escape_html(user.username) ..
                     '</strong> has been verified.</p>' ..
                     '<p>Thank you!</p>' ..
                     '<p><a href="https://snap.berkeley.edu/">' ..

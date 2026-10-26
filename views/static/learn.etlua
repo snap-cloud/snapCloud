@@ -1,6 +1,28 @@
-<% content_for('title', locale.get('learn_snap', 'Snap!')) %>
-<h1 ><%- locale.get('learn_snap', 'Snap<em>!</em>') %></h1>
+<% content_for('title', locale.get('learn_snap', 'Snap!', { escape = false })) %>
+<h1 ><%- locale.get('learn_snap', 'Snap<em>!</em>', { escape = false }) %></h1>
 
+<%
+-- Plain-text title for use in accessible labels.
+local function plain_title(item)
+    return (item.title:gsub('<[^>]*>', ''))
+end
+
+-- Book titles are not links. Instead the book URL goes first in the
+-- links list, labeled "PDF" for PDFs and "Website" otherwise.
+local function item_links(item)
+    local links = {}
+    if item.type == 'book' and item.url then
+        local label = item.url:lower():match('%.pdf$') and 'PDF' or 'Website'
+        table.insert(links, { label = label, url = item.url })
+    end
+    for _, link in ipairs(item.links or {}) do
+        if not (item.type == 'book' and link.url == item.url) then
+            table.insert(links, link)
+        end
+    end
+    return links
+end
+%>
 <% for _, typeKey in pairs(resources_order) do
      local typeInfo = types[typeKey]
      local items = materials_by_type[typeKey] %>
@@ -12,7 +34,11 @@
     <ul class="list-group my-2">
     <% for _, item in ipairs(items) do %>
         <li class="list-group-item">
-            <a href="<%= item.url %>"><%- item.title %></a>
+            <% if item.type == 'book' then %>
+            <strong><%- item.title %></strong>
+            <% else %>
+            <a href="<%= item.url %>" target="_blank"><strong><%- item.title %></strong></a>
+            <% end %>
             <% if item.author then %>
                 by <%- item.author %>
             <% end %>
@@ -24,9 +50,21 @@
                 <span class="badge text-bg-info"><%= item.level %></span>
                 <% end %>
             </span>
+            <% if item.description then %>
+            <p class="mt-2 mb-0"><%- item.description %></p>
+            <% end %>
+            <% local links = item_links(item) %>
+            <% if #links > 0 then %>
+            <div class="mt-2">
+                <% for _, link in ipairs(links) do %>
+                    <a href="<%= link.url %>" class="btn btn-sm btn-outline-secondary me-1"
+                        target="_blank"
+                        aria-label="<%= link.label %>: <%= plain_title(item) %>"><%= link.label %></a>
+                <% end %>
+            </div>
+            <% end %>
         </li>
     <% end %>
     </ul>
-    </div>
 </section>
 <% end %>

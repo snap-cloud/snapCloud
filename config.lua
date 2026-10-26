@@ -1,12 +1,45 @@
 local config = require('lapis.config')
 
+-- Postgres connection pool
+-- ========================
+-- pgmoon's `pool_size` and `backlog` make OpenResty cap the connections each
+-- nginx worker may open, so the app never holds more than
+-- `num_workers * pool_size`. See docs/INSTALL.md and docs/DEPLOYMENT.md.
+local function pool_config(num_workers)
+    -- Postgres defaults to 100; production is set to 200.
+    -- Verify on the server with `show max_connections;`
+    local max_connections =
+        tonumber(os.getenv('DATABASE_MAX_CONNECTIONS')) or 100
+    -- Left free for psql, pg_dump, migrations, and the superuser.
+    local reserved = 20
+    local pool_size = tonumber(os.getenv('DATABASE_POOL_SIZE')) or
+        math.max(1, math.floor((max_connections - reserved) / num_workers))
+    return {
+        num_workers = num_workers,
+        -- To disable pooling quickly, comment out the `postgres` line below
+        -- and restart; OpenResty reverts to its uncapped keepalive behaviour.
+        postgres = { pool_size = pool_size, backlog = pool_size * 4 },
+        -- The health check reports usage against this number.
+        max_db_connections = num_workers * pool_size,
+    }
+end
+
+-- nginx worker counts. The staging server is a low-cpu server.
+for env, workers in pairs({
+    development = 1, test = 1, staging = 2, production = 8
+}) do
+    config(env, pool_config(workers))
+end
+
 config({'development', 'staging', 'production', 'test'}, {
     postgres = {
         host = os.getenv('DATABASE_HOST') or '127.0.0.1',
         port = os.getenv('DATABASE_PORT') or '5432',
         user = os.getenv('DATABASE_USERNAME') or 'cloud',
         password = os.getenv('DATABASE_PASSWORD') or 'snap-cloud-password',
-        database = os.getenv('DATABASE_NAME') or 'snapcloud'
+        database = os.getenv('DATABASE_NAME') or 'snapcloud',
+        -- Shown in pg_stat_activity, so our connections can be told apart.
+        application_name = 'snapcloud'
     },
     session_name = 'snapsession',
 
@@ -32,8 +65,6 @@ config({'development', 'staging', 'production', 'test'}, {
     discourse_sso_secret = os.getenv('DISCOURSE_SSO_SECRET'),
     worker_connections = os.getenv('WORKER_CONNECTIONS') or 1024,
 
-    stat_arguments = os.getenv('STAT_ARGS') or '-c %Y',
-
     hostname = os.getenv('HOSTNAME') or 'localhost',
     secondary_hostname = os.getenv('SECONDARY_HOSTNAME') or 'localhost',
     maintenance_mode = os.getenv('MAINTENANCE_MODE') or 'false',
@@ -52,8 +83,9 @@ config({'development', 'test'}, {
     port = os.getenv('PORT') or 8080,
     mail_smtp_port = os.getenv('MAIL_SMTP_PORT') or 1025,
     dns_resolver = '8.8.8.8',
-    code_cache = 'off',
-    num_workers = 1,
+    -- The connection pool only survives between requests with the code
+    -- cache on. Use `CODE_CACHE=on` to test pooling locally.
+    code_cache = os.getenv('CODE_CACHE') or 'off',
     log_directive = 'stderr debug',
     secret = os.getenv('SESSION_SECRET_BASE') or 'this is a secret',
 
@@ -85,15 +117,17 @@ config({'production', 'staging'}, {
 
 config('production', {
     site_name = 'Snap Cloud',
-    num_workers = 8,
     non_ssl_nginx_config = 'http-only.conf',
     ssl_nginx_server_config = 'include nginx.conf.d/ssl-production.conf;',
 
-    -- This is an additional security feature to prevent cookie tampering.
-    -- Currently disabled as changing the name will log out all users.
-    -- lapis needs to /not/ URL encode this name.
-    -- session_name = '__Host-snapsession',
-    session_name = 'snapsession',
+    -- __Host- cookies can only be set by this exact host, over HTTPS, with
+    -- Path=/ and no Domain attribute, so no subdomain (extensions.snap.
+    -- berkeley.edu is plain HTTP) can plant or overwrite a session.
+    -- lib/cookies.lua works around lapis percent-encoding the name, and
+    -- migrates sessions from legacy_session_name so nobody is logged out.
+    -- Drop legacy_session_name once the old cookies have aged out (35 days).
+    session_name = '__Host-snapsession',
+    legacy_session_name = 'snapsession',
 
     logging = {
         queries = false,
@@ -104,10 +138,11 @@ config('production', {
 
 config('staging', {
     site_name = 'staging | Snap Cloud',
-    -- the staging server is a low-cpu server.
-    num_workers = 2,
     non_ssl_nginx_config = 'http-only.conf',
     ssl_nginx_server_config = 'include nginx.conf.d/ssl-staging.conf;',
 
+    -- Until lib/cookies.lua this reached browsers as
+    -- __Host%2dsnapsession%2dstaging, which lapis reads under the same key,
+    -- so there is no legacy name to migrate here. See lib/cookies.lua.
     session_name = '__Host-snapsession-staging',
 })

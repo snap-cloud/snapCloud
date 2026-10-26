@@ -441,10 +441,10 @@ Cloud.prototype.saveProject = function (projectName, body, onSuccess, onError) {
 };
 
 Cloud.prototype.getProjectList = function (onSuccess, onError, withThumbnail) {
-    var path = '/projects/%username?updatingnotes=true';
+    var path = '/projects/%username';
 
     if (withThumbnail) {
-        path += '&withthumbnail=true';
+        path += '?withthumbnail=true';
     }
 
     this.withCredentialsRequest(

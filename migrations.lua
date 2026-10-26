@@ -33,6 +33,34 @@ local db = require("lapis.db")
 local schema = require("lapis.db.schema")
 local types = schema.types
 
+-- The snapanalytics role (Metabase) gets column-level SELECT on users and its
+-- views, minus credential columns. New columns aren't visible to it until
+-- granted, and dropping a view loses its grants, so re-grant after any change.
+-- Skipped when the role doesn't exist (e.g. development).
+local grant_analytics_user_columns = function ()
+    db.query([[
+        DO $$
+        DECLARE
+            rel  text;
+            cols text;
+        BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'snapanalytics') THEN
+                RETURN;
+            END IF;
+            FOREACH rel IN ARRAY ARRAY['users', 'active_users', 'deleted_users'] LOOP
+                SELECT string_agg(quote_ident(column_name), ', ')
+                  INTO cols
+                  FROM information_schema.columns
+                 WHERE table_schema = 'public'
+                   AND table_name = rel
+                   AND column_name NOT IN ('password', 'salt', 'remember_token');
+                EXECUTE format('GRANT SELECT (%s) ON public.%I TO snapanalytics', cols, rel);
+            END LOOP;
+        END
+        $$
+    ]])
+end
+
 -- You MUST recreate the views modifying the users table.
 local update_user_views = function ()
     db.query([[
@@ -45,6 +73,7 @@ local update_user_views = function ()
             SELECT * FROM users WHERE deleted is not null
         )
     ]])
+    grant_analytics_user_columns()
 end
 
 local update_project_views = function ()
@@ -358,7 +387,7 @@ return {
         )
     end,
 
-  -- Add password_changed_at and updated_at columns to users
+    -- Add password_changed_at and updated_at columns to users
     ['2026-04-06:0'] = function ()
         schema.add_column(
             'users',
@@ -385,4 +414,144 @@ return {
         update_user_views()
     end,
 
+    -- Add password_version column to users for bcrypt migration.
+    -- 0 = legacy SHA-512 (salt+hash stored separately)
+    -- 1 = bcrypt-wrapped SHA-512 (bcrypt(old_sha512_hash), legacy salt kept)
+    -- 2 = native bcrypt (password field is bcrypt hash, salt column unused)
+    ['2026-04-14:0'] = function ()
+        schema.add_column(
+            'users',
+            'password_version',
+            types.integer({ default = 0, null = false })
+        )
+        update_user_views()
+    end,
+
+    -- Add an index on password_version to speed up bcrypt migration.
+    ['2026-04-14:1'] = function ()
+        schema.create_index('users', 'password_version')
+        update_user_views()
+    end,
+
+    -- Add a remember_token used to identify the user in the session cookie.
+    -- Rotating this token server-side invalidates every existing session,
+    -- which is what powers password change/reset and "log out all sessions".
+    ['2026-05-04:0'] = function ()
+        schema.add_column(
+            'users',
+            'remember_token',
+            types.text({ null = true, unique = true })
+        )
+        update_user_views()
+    end,
+
+    -- Retire the password_version column. After the v0->v1 bulk migration and
+    -- the JIT v1->v2 upgrade on login, every row is on v1 or v2. We now use
+    -- salt presence as the version indicator: empty/NULL salt = v2 (native
+    -- bcrypt), non-empty = v1 (bcrypt-wrapped legacy SHA-512).
+    --
+    -- A v2 row that was JIT-upgraded from v1 may still carry its old salt
+    -- because the previous upgrade path left it intact. Normalise those to
+    -- the empty string before dropping the column.
+    ['2026-05-11:0'] = function ()
+        db.query("UPDATE users SET salt = '' WHERE password_version = 2")
+        -- The active_users / deleted_users views are SELECT * over users, so
+        -- they pin the column list and block DROP COLUMN. Tear them down,
+        -- drop the column + index, then rebuild them to pick up the new shape.
+        db.query("DROP VIEW IF EXISTS active_users")
+        db.query("DROP VIEW IF EXISTS deleted_users")
+        schema.drop_index('users', 'password_version')
+        schema.drop_column('users', 'password_version')
+        update_user_views()
+    end,
+
+    -- The index migrations below use CONCURRENTLY so the tables stay
+    -- writable while they build. That only works because bin/lapis-migrate
+    -- does not wrap migrations in a transaction. If a concurrent build fails
+    -- it leaves an INVALID index behind, which IF NOT EXISTS would then skip:
+    -- drop it and re-run.
+
+    -- users' primary key is username, so lookups by id (Users:find(id),
+    -- model:update(), collection creators) were full table scans.
+    ['2026-10-22:0'] = function ()
+        schema.create_index('users', 'id', {
+            unique = true, concurrently = true, if_not_exists = true
+        })
+    end,
+
+    -- The "latest published projects" list (Explore page, API) sorted all
+    -- ~10M projects on every request. The WHERE clause must match the
+    -- filters in ProjectController.fetch for the planner to use it.
+    ['2026-10-22:1'] = function ()
+        schema.create_index('projects', 'firstpublished', {
+            index_name = 'projects_latest_published_idx',
+            where = 'ispublished AND deleted IS NULL AND NOT likely_class_work',
+            concurrently = true,
+            if_not_exists = true
+        })
+    end,
+
+    -- Lookups by the second column of a composite primary key can't use it.
+    ['2026-10-22:2'] = function ()
+        schema.create_index('bookmarks', 'project_id', {
+            concurrently = true, if_not_exists = true
+        })
+        schema.create_index('followers', 'followed_id', {
+            concurrently = true, if_not_exists = true
+        })
+    end,
+
+    -- remixes never had a primary key and picked up duplicate rows.
+    -- Keep the oldest row of each (original, remixed) pair, then add the key.
+    -- Safe to re-run: the deletes find nothing and the key is only added once.
+    ['2026-10-22:3'] = function ()
+        db.query('BEGIN')
+        db.query([[
+            DELETE FROM remixes WHERE original_project_id IS NULL
+        ]])
+        db.query([[
+            DELETE FROM remixes WHERE ctid IN (
+                SELECT ctid FROM (
+                    SELECT ctid, row_number() OVER (
+                        PARTITION BY original_project_id, remixed_project_id
+                        ORDER BY created NULLS LAST, ctid
+                    ) AS n
+                    FROM remixes
+                ) ranked
+                WHERE n > 1
+            )
+        ]])
+        if not schema.entity_exists('remixes_pkey') then
+            db.query([[
+                ALTER TABLE remixes ADD CONSTRAINT remixes_pkey
+                    PRIMARY KEY (original_project_id, remixed_project_id)
+            ]])
+        end
+        db.query('COMMIT')
+    end,
+
+    -- Most project lists filter out deleted users' projects with
+    -- NOT EXISTS (SELECT 1 FROM deleted_users WHERE username = ...).
+    -- Without this, every such query scans all ~1M users to find the ~4.5k
+    -- deleted ones (Explore page count: 2.2 s -> 0.8 s on staging, 2026-10-24).
+    ['2026-10-24:0'] = function ()
+        schema.create_index('users', 'username', {
+            index_name = 'users_deleted_username_idx',
+            where = 'deleted IS NOT NULL',
+            concurrently = true,
+            if_not_exists = true
+        })
+    end,
+
+    -- projects has ~10M rows, so the default thresholds (20% dead rows to
+    -- vacuum, 10% changed to analyze) mean autovacuum almost never runs on
+    -- it: prod had 445k dead rows and no autovacuum on record (2026-10-24).
+    ['2026-10-24:1'] = function ()
+        db.query([[
+            ALTER TABLE projects SET (
+                autovacuum_vacuum_scale_factor = 0.02,
+                autovacuum_analyze_scale_factor = 0.01
+            )
+        ]])
+    end
 }

@@ -18,48 +18,86 @@ if [[ -z `which brew` ]]; then
     exit 1;
 fi
 
+# TODO: move to postgresql@18
+POSTGRES_FORMULA='postgresql@16'
+# Don't upgrade things that are already installed.
+export HOMEBREW_NO_INSTALL_UPGRADE=1
+BREW_PREFIX=$(brew --prefix)
+
+# Lua 5.1 is no longer in homebrew, so mise installs lua (and node).
+# Versions are pinned in .tool-versions.
+# gcc is needed to build some lua rocks, see bin/luarocks-macos
+print_ok 'Installing mise, postgres, and build tools'
+brew install mise $POSTGRES_FORMULA gcc
+
+print_ok 'Using mise to install lua 5.1 and node (from .tool-versions)'
+mise trust
+mise install
+# Load mise's tools and the lua paths from mise.toml for the rest of this script.
+eval "$(mise env -s bash)"
+
 if [[ -z `which npm` ]]; then
-    echo 'Skipping installing sass (css) maildev (an email catcher).'
-    echo 'To install, first install node (npm), then do:'
-    echo '"npm install -g sass maildev"'
-else
-    print_ok 'Installing dependecies from package.json ...'
-    npm install
+    echo 'npm was not found. It is needed for sass (css) and maildev (an email catcher).'
+    echo 'Please install node (npm), then re-run this script.'
+    exit 1;
 fi
 
-# As of 2025 lua 5.1 is no longer in homebrew
-# We will use the package manager mise to install lua.
-print_ok 'Installing lua and postgres'
-brew install mise luarocks postgres pcre gcc@12
-
-print_ok 'Using mise to install lua 5.1'
-mise install lua@5.1
-# Set lua 5.1 as the default version
-mise default -g lua@5.1
-
 print_ok 'Installing OpenResty'
-print_warning 'NOTE: The dependency "libmaxminddb" may not install properly. We do not need it'
-print_warning "If you run into an issue, use `brew edit openresty` to file the install script"
-print_warning 'and remove the line that installs libmaxminddb, as well as --with-http-geoip-module'
-brew install openresty/brew/openresty
-
+# The geoip module needs a library that is no longer in homebrew. We do not use it.
+brew install openresty/brew/openresty --without-geoip
 
 print_ok "Setting Git to use https:// instead of unsecured git:// for GitHub"
 git config --global url."https://github".insteadOf git://github
 
-print_ok "Installing Lapis & Lua Dependencies"
+print_ok "Installing Lapis, Lua & npm Dependencies"
 make install
 
-# NOTE: As of 2025 - when lua 5.1 is not in brew, this needs to be revisited.
-print_ok 'Adding luarocks path info to bashrc'
-echo "" >> ~/.bashrc
-echo "# Luarocks 3 and Lua 5.1 tools (added by snapCloud)." >> ~/.bashrc
-echo $(luarocks path --lua-version 5.1) >> ~/.bashrc
+# Postgres is keg-only, so its tools (psql, createdb, pg_dump) are not on the PATH.
+export PATH="$BREW_PREFIX/opt/$POSTGRES_FORMULA/bin:$PATH"
+
+case "$SHELL" in
+    */zsh) SHELL_RC="$HOME/.zshrc" ;;
+    *) SHELL_RC="$HOME/.bashrc" ;;
+esac
+# mise sets LUA_PATH and LUA_CPATH from mise.toml when you are in the project.
+add_to_shell_rc() {
+    # $1: text to look for, $2: line to add if it is missing
+    if grep -qF "$1" "$SHELL_RC" 2>/dev/null; then
+        print_ok "$SHELL_RC already has $1"
+    else
+        print_ok "Adding $1 to $SHELL_RC"
+        printf '\n# Added by snapCloud bin/setup-macos\n%s\n' "$2" >> "$SHELL_RC"
+    fi
+}
+add_to_shell_rc 'mise activate' "eval \"\$(mise activate ${SHELL##*/})\""
+add_to_shell_rc "opt/$POSTGRES_FORMULA/bin" "export PATH=\"$BREW_PREFIX/opt/$POSTGRES_FORMULA/bin:\$PATH\""
 
 print_ok "Prerequisites installed."
-print_ok "Setting up postgres database."
+
+if [[ ! -f .env ]]; then
+    print_ok "Creating a development .env file"
+    cat > .env <<'EOF'
+export LAPIS_ENVIRONMENT=development
+export DATABASE_HOST=localhost
+export DATABASE_USERNAME=$USER
+export DATABASE_NAME=snapcloud_development
+export PORT=8080
+export HOSTNAME=localhost
+EOF
+fi
+
+if pg_isready -q; then
+    print_ok "Postgres is already running."
+else
+    print_ok "Starting postgres."
+    brew services start $POSTGRES_FORMULA
+    # Give postgres a moment to accept connections.
+    sleep 3
+fi
+
+print_ok "Setting up the database."
 
 export LAPIS_ENVIRONMENT=development
 bin/lapis-migrate
 
-# print_ok "Please follow all instructions after 'Setting up the database' in INSTALL.md"
+print_ok "Done! Open a new terminal (or run: source $SHELL_RC) to pick up the new paths."

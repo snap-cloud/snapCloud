@@ -54,6 +54,27 @@ local function escape_html(text)
   end))
 end
 
+-- Turns plain text, such as a message typed into a textarea, into HTML:
+-- escaped, with newlines as <br>.
+local function text_to_html(text)
+  if text == nil then return '' end
+  return (escape_html(text):gsub('\r?\n', '<br>'))
+end
+
+-- Turns a value into a JavaScript string literal, quotes included, for use
+-- in templates. Quotes, backslashes, <, >, & and control characters are
+-- written as \u escapes, so the result can't end the string, a <script> tag
+-- or an HTML attribute. That makes it safe both in <script> blocks and in
+-- attributes like onclick="...". Always output it raw:
+--   cloud.post('/users/' + <%- util.js_string(item.username) %> + '/verify')
+local function js_string(value)
+  if value == nil then return "''" end
+  local escaped = tostring(value):gsub('[%c\\\'"<>&]', function (char)
+    return string.format('\\u%04x', char:byte())
+  end)
+  return "'" .. escaped .. "'"
+end
+
 local function visualize_whitespace_html(str)
     if not str then
         return "<code>[nil]</code>"
@@ -86,6 +107,16 @@ local function group_by_type(items)
   return result
 end
 
+-- Lock a page out of any cross-origin frame. Use on auth-bearing pages
+-- (login, password change, reset, etc.) so they cannot be clickjacked.
+-- Sets both the legacy X-Frame-Options header and the modern
+-- frame-ancestors CSP directive — frame-ancestors is what current
+-- browsers honour, X-Frame-Options is the belt-and-suspenders fallback.
+local function set_no_frame_headers(self)
+    self.res.headers['X-Frame-Options'] = 'DENY'
+    self.res.headers['Content-Security-Policy'] = "frame-ancestors 'none'"
+end
+
 local function cache_buster ()
     if config._name == "development" then
       return os.time()
@@ -107,7 +138,10 @@ return {
   capitalize = capitalize,
   domain_name = domain_name,
   escape_html = escape_html,
+  text_to_html = text_to_html,
+  js_string = js_string,
   visualize_whitespace_html = visualize_whitespace_html,
   group_by_type = group_by_type,
   cache_buster = cache_buster,
+  set_no_frame_headers = set_no_frame_headers,
 }

@@ -15,9 +15,17 @@ source /home/$user/snapCloud/.env
 cd /home/$user;
 # /usr/bin/perl -e 'sleep int(rand(3600))' && # DISABLED SLEEP FOR NOW.
 certbot renew --config-dir lets-encrypt --logs-dir lets-encrypt --work-dir lets-encrypt --deploy-hook /home/$user/snapCloud/bin/deploy-certs
+status=$?
+
+if [ $status -eq 0 ]; then
+    message="Cert renewal check OK for $LAPIS_ENVIRONMENT"
+else
+    message="Cert renewal FAILED for $LAPIS_ENVIRONMENT (certbot exit $status). See ~/lets-encrypt/letsencrypt.log"
+fi
 
 curl -XPOST https://hooks.slack.com/workflows/T02BLN36L/A01PUMAEUPR/344588914394149899/$SLACK_KEY \
  -H 'Content-Type: application/json' \
- -d "{\"message\":\"Renewed Snap! Certs $LAPIS_ENVIRONMENT\"}"
+ -d "{\"message\":\"$message\"}"
 
 cd $cwd;
+exit $status

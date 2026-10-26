@@ -7,6 +7,11 @@
     <% render('views.js.dialog') %>
     <script>new customAlert();</script>
     <% render('views.layout.navigation_bar') %>
+    <% if maintenance_mode then %>
+      <div class="alert alert-warning text-center rounded-0 mb-0" role="status">
+        <%= maintenance_message %>
+      </div>
+    <% end %>
     <main class="container-lg container-fluid mx-8 py-2">
       <% content_for('inner') %>
     </main>
