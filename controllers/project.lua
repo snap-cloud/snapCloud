@@ -341,6 +341,7 @@ ProjectController = {
         )
     end),
     flag = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         if self.current_user:isbanned() then yield_error(err.banned) end
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
@@ -365,6 +366,7 @@ ProjectController = {
         return okResponse()
     end),
     remove_flag = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         -- Check whether we're removing someone else's flag
         if self.params.flagger then assert_min_role(self, 'reviewer') end
 
