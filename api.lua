@@ -305,7 +305,7 @@ app:match(api_route('project/:id/publish'), respond_to({
     DELETE = ProjectController.unpublish
 }))
 
-app:match(api_route('project/:id[%d]/class_project'), respond_to({
+app:match(api_route('project/:id/class_project'), respond_to({
     POST = ProjectController.mark_class_project,
     DELETE = ProjectController.unmark_class_project
 }))
