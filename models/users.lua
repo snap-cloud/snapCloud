@@ -150,7 +150,9 @@ local ActiveUsers = Model:extend('active_users', {
     end,
     url_for = function (self, purpose)
         local urls = {
-            site = '/user?username=' .. escape(self.username)
+            site = '/user?username=' .. escape(self.username),
+            projects = '/user_projects/' .. escape(self.username),
+            collections = '/user_collections/' .. escape(self.username)
         }
         return urls[purpose]
     end,
