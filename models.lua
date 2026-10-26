@@ -23,6 +23,22 @@
 
 package.loaded.Model = require('lapis.db.model').Model
 
+-- Every id and *_id column is an integer. Looking one up by a value that
+-- can't be an integer is "not found", not a Postgres type error.
+local Model = package.loaded.Model
+local lapis_find = Model.find
+Model.find = function (self, conditions, ...)
+    if type(conditions) == 'table' then
+        for column, value in pairs(conditions) do
+            if (column == 'id' or tostring(column):match('_id$')) and
+                    not tostring(value):match('^%d+$') then
+                return nil
+            end
+        end
+    end
+    return lapis_find(self, conditions, ...)
+end
+
 -- TODO: This does not actually autoload the models
 -- In the meantime, we will require them manually
 -- return require("lapis.util").autoload("models")
