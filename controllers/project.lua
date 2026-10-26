@@ -42,6 +42,7 @@ local validation = package.loaded.validation
 
 local is_likely_course_work = validation.is_likely_course_work
 local order_by_clause = validation.order_by_clause
+local sort_param = validation.sort_param
 
 -- Columns that requests may sort projects by. Anything else is rejected, as
 -- these names end up spliced straight into SQL.
@@ -50,7 +51,8 @@ local sortable_columns = {
     firstpublished = true,
     lastupdated = true,
     created = true,
-    flag_count = true
+    flag_count = true,
+    projectname = 'LOWER(projectname)'
 }
 
 ProjectController = {
@@ -139,7 +141,7 @@ ProjectController = {
         )
     end),
     my_projects = capture_errors(function (self)
-        self.params.order = 'lastupdated DESC'
+        self.params.order = sort_param(self.params, 'lastupdated DESC')
         return ProjectController.run_query(
             self,
             db.interpolate_query('WHERE username = ?', self.session.username)
