@@ -1,5 +1,5 @@
 <!-- <script src="/static/js/inplace.js"></script> -->
-<% content_for('title', project.projectname .. " " .. locale.get('project_by', project.username)) %>
+<% content_for('title', project.projectname .. " " .. locale.get('project_by', project.username, { escape = false })) %>
 
 <!-- TODO-BS: Replace .project.big with a single CSS class. Extract to partial? -->
 <div class="project big mt-3">
@@ -13,7 +13,9 @@
                 locale.get(
                     'project_by',
                     '<a href="' .. project:url_for('author') ..
-                        '"target=""><strong>' .. project.username .. '</strong></a>'
+                        '"target=""><strong>' .. util.escape_html(project.username) ..
+                        '</strong></a>',
+                    { escape = false }
                 )
             %></div>
             <% if remixed_from then %>
@@ -22,11 +24,12 @@
                     'remixed_from',
                     '<span class="project-link"><a href="' ..
                         remixed_from:url_for('site') ..
-                        '" >' .. remixed_from.projectname ..
+                        '" >' .. util.escape_html(remixed_from.projectname) ..
                         '</a></span>',
                     '<a href="' .. remixed_from:url_for('author') ..
-                        '"><strong>' .. remixed_from.username ..
-                        '</strong></a>')
+                        '"><strong>' .. util.escape_html(remixed_from.username) ..
+                        '</strong></a>',
+                    { escape = false })
             %></div>
             <% end %>
         </div>
@@ -100,23 +103,35 @@
 </div>
 
 <%
-    -- Carousel of remixes
+    local CAROUSEL_LIMIT = 24
+
+    -- Carousel of remixes. Show the total only when it exceeds what we display.
+    local remixes, remixes_total = project:public_remixes(CAROUSEL_LIMIT)
+    local remixes_title = locale.get('project_remixes_title')
+    if remixes_total > CAROUSEL_LIMIT then
+        remixes_title = remixes_title .. ' (' .. remixes_total .. ')'
+    end
     render(
         'views.carousel',
         {
-            title = locale.get('project_remixes_title'),
-            items = project:get_public_remixes(),
+            title = remixes_title,
+            items = remixes,
             class = 'remixes',
             item_type = 'project'
         }
     )
 
     -- Carousel of collections
+    local collections, collections_total = project:public_collections(CAROUSEL_LIMIT)
+    local collections_title = locale.get('project_collections_title')
+    if collections_total > CAROUSEL_LIMIT then
+        collections_title = collections_title .. ' (' .. collections_total .. ')'
+    end
     render(
         'views.carousel',
         {
-            title = locale.get('project_collections_title'),
-            items = project:get_public_collections(),
+            title = collections_title,
+            items = collections,
             class = 'collections',
             item_type = 'collection'
         }

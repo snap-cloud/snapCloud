@@ -29,25 +29,27 @@ local bcrypt = require('bcrypt')
 -- iterations). Tune this up over time as hardware improves.
 local BCRYPT_LOG_ROUNDS = 12
 
--- Password version constants:
---   0 = legacy SHA-512:  sha512(client_prehash .. salt)
---   1 = bcrypt-wrapped:  bcrypt(legacy_sha512_hash)  (bulk migration output)
---   2 = native bcrypt:   bcrypt(client_prehash)       (new accounts + JIT upgrades)
-PASSWORD_VERSION_LEGACY   = 0
-PASSWORD_VERSION_WRAPPED  = 1
-PASSWORD_VERSION_BCRYPT   = 2
+-- Password schemes:
+--   v1 (bcrypt-wrapped):  bcrypt(sha512(client_prehash .. salt))
+--                         output of the one-time bulk migration from the
+--                         original SHA-512 scheme. Detected by salt being
+--                         a non-empty string.
+--   v2 (native bcrypt):   bcrypt(client_prehash)
+--                         new accounts and JIT upgrades on successful login.
+--                         Detected by salt being NULL or empty.
 
--- Legacy SHA-512 hash used by the old scheme.
--- The client always sends a single-round SHA-512 of the plaintext password.
--- The server then hashes that again with a per-user salt.
--- Kept for verifying version-0 passwords and for the bulk-wrap migration.
+-- SHA-512 of (input .. salt). Used by v1 verification (to recompute the
+-- inner hash before bcrypt-verifying it) and as a generic SHA-512 helper
+-- for secure_token and for server-side prehashing of teacher-created learner
+-- passwords (which arrive as plaintext rather than client-prehashed).
 hash_password = function (password, salt)
     local sha512 = resty_sha512:new()
     sha512:update(password .. salt)
     return resty_string.to_hex(sha512:final())
 end
 
--- Generate a cryptographically strong 16-byte hex salt (for legacy compat).
+-- Generate a cryptographically strong 16-byte hex salt. Still used as random
+-- entropy for secure_token; v2 bcrypt manages its own salt internally.
 secure_salt = function ()
     local strong_random = resty_random.bytes(16, true)
     while strong_random == nil do
@@ -73,28 +75,17 @@ bcrypt_hash = function (prehash)
     return bcrypt.digest(prehash, BCRYPT_LOG_ROUNDS)
 end
 
---- Verify a password against a stored hash, supporting all three versions.
+--- Verify a password against a stored hash.
 --
--- Version 0 (legacy):
---   The stored hash is sha512(client_prehash .. user.salt).
---   We recompute that and compare with a constant-time check.
+-- The stored scheme is inferred from the salt:
+--   * non-empty salt  ->  v1: bcrypt(sha512(prehash .. salt))
+--   * empty/NULL salt ->  v2: bcrypt(prehash)
 --
--- Version 1 (bcrypt-wrapped legacy):
---   After the bulk migration script runs, the stored hash is
---   bcrypt(old_sha512_hash). We first compute the legacy SHA-512 hash from
---   the supplied prehash + salt, then verify that intermediate value against
---   the stored bcrypt hash.
---
--- Version 2 (native bcrypt):
---   The stored hash is bcrypt(client_prehash). We verify directly.
---
--- @param prehash          string  The SHA-512 hex digest the client sent.
--- @param stored_hash      string  The hash from the database (users.password).
--- @param salt             string  The per-user salt (users.salt). Only needed
---                                 for versions 0 and 1; ignored for version 2.
--- @param password_version number  The users.password_version value (0, 1, 2).
+-- @param prehash      string  The SHA-512 hex digest the client sent.
+-- @param stored_hash  string  The hash from the database (users.password).
+-- @param salt         string  The per-user salt (users.salt). Empty/NULL for v2.
 -- @return boolean  true if the password matches.
-verify_password = function (prehash, stored_hash, salt, password_version)
+verify_password = function (prehash, stored_hash, salt)
     -- A missing prehash (e.g. a login POST with no password field) must be
     -- treated as a failed authentication, not a 500. Bailing here prevents
     -- the nil from reaching hash_password's string concat or bcrypt.verify.
@@ -102,45 +93,29 @@ verify_password = function (prehash, stored_hash, salt, password_version)
         return false
     end
 
-    local version = password_version or PASSWORD_VERSION_LEGACY
-
-    if version == PASSWORD_VERSION_LEGACY then
-        -- Constant-time comparison would be ideal, but the legacy code used ==.
-        -- SHA-512(prehash .. salt) must equal the stored value.
-        return hash_password(prehash, salt) == stored_hash
-
-    elseif version == PASSWORD_VERSION_WRAPPED then
-        -- The stored hash is bcrypt(sha512(prehash .. salt)).
-        -- Recompute the legacy intermediate hash, then bcrypt-verify it.
+    if salt and salt ~= '' then
         local legacy_hash = hash_password(prehash, salt)
         return bcrypt.verify(legacy_hash, stored_hash)
-
-    elseif version == PASSWORD_VERSION_BCRYPT then
-        -- The stored hash is bcrypt(prehash). Verify directly.
-        return bcrypt.verify(prehash, stored_hash)
-
     else
-        -- Unknown version — refuse to authenticate.
-        return false
+        return bcrypt.verify(prehash, stored_hash)
     end
 end
 
---- Upgrade a user's password to native bcrypt (version 2) after a successful
--- login.  Call this only AFTER verify_password returns true.
+--- Upgrade a user's password to native bcrypt (v2) after a successful login.
+-- Call this only AFTER verify_password returns true. Clearing the salt is
+-- what marks the row as v2 — once empty, future logins skip the inner
+-- SHA-512 step.
 --
 -- @param user     The Lapis model row (must support :update()).
 -- @param prehash  string  The SHA-512 hex digest the client sent.
 -- @return boolean  true if the upgrade happened, false if already on v2.
 upgrade_password_to_bcrypt = function (user, prehash)
-    if (user.password_version or 0) >= PASSWORD_VERSION_BCRYPT then
+    if not user.salt or user.salt == '' then
         return false
     end
-    local new_hash = bcrypt_hash(prehash)
     user:update({
-        password = new_hash,
-        password_version = PASSWORD_VERSION_BCRYPT,
-        -- The salt column is unused for v2 but we leave it as-is rather than
-        -- clearing it — password_version is the authoritative scheme indicator.
+        password = bcrypt_hash(prehash),
+        salt = '',
     })
     return true
 end

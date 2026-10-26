@@ -1,6 +1,6 @@
 <script src="/static/js/inplace.js"></script>
 <% content_for('title',
-    collection.name .. " " .. locale.get('collection_by', collection.creator.username)) %>
+    collection.name .. " " .. locale.get('collection_by', collection.creator.username, { escape = false })) %>
 
 <div class="collection row py-1">
     <div class="title">
@@ -21,7 +21,8 @@
             locale.get(
                 'collection_by',
                 '<a href="' .. collection:url_for('author') .. '"><strong>' ..
-                    collection.creator.username .. '</strong></a>'
+                    util.escape_html(collection.creator.username) .. '</strong></a>',
+                { escape = false }
                 )
         %></span>
     </div>
@@ -52,7 +53,7 @@
         <script>
         function confirmRemove (project_id) {
             confirm(
-                "<%- locale.get('confirm_uncollect', '<br>') %>",
+                "<%- locale.get('confirm_uncollect', '<br>', { escape = false }) %>",
                 () => {
                     cloud.delete(
                         '/collection/<%= collection.id %>/project/' +

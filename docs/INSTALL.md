@@ -1,0 +1,459 @@
+# Snap!Cloud Installation Guide
+
+## Cloning the repository
+
+First, clone the Snap!Cloud, and Snap! repository into a local folder:
+
+```bash
+git clone --recursive git@github.com:snap-cloud/snapCloud.git
+git clone git@github.com:jmoenig/snap.git
+```
+
+**Note:** The `--recursive` flag is important, as it will clone the submodules that Snap!Cloud depends on. If you forget to use it, you can run `git submodule update --init --recursive` after cloning.
+
+You do not need a local Snap! IDE to run the Snap!Cloud, but you may want to have one for testing purposes. If you do not want a local Snap<em>!</em> copy, you can use the [Snap! site](https://snap.berkeley.edu/snap) online, but you will need to change the API URL to a localhost.
+
+### Symlinking Snap! to Snap!Cloud
+
+To make development easier, you can symlink the Snap! repository into the Snap!Cloud directory. This way, any changes you make to the Snap! code will be reflected in the Snap!Cloud environment.
+
+```bash
+cd snapCloud
+ln -s ../snap snap
+```
+
+(We don't want to use submodules, as we want to be able to update the Snap! repo independently of the Snap!Cloud repo.)
+
+## Development
+
+### Steps to look into
+
+When developing on Snap!Cloud on your local machine, the following sections are important:
+1. Prereqs
+2. Setting up the database
+    * The following subsections should be skimmed or read only, no action needed on these:
+        * Lapis database configuration
+        * Getting Emails (Follow these instructions for a mail server)
+        * A Procfile Runner (You will run the commands here at Step 3, when appropriate)
+3. Running the Snap!Cloud
+
+The other sections not listed are not needed for development, but may be needed for certain features or deployment.
+
+## Prereqs
+
+For Ubuntu, you can skip this whole section by running the `bin/prereqs.sh` script, that will try to automatically install all dependencies.
+
+**macOS Users**
+macOS users can run `bin/setup-macos`, which installs everything in this section and then sets up the database. It is safe to re-run.
+
+It uses [Homebrew](https://brew.sh) for OpenResty, PostgreSQL 16, and `gcc`, and [mise](https://mise.jdx.dev) for Lua 5.1, `luarocks`, and node.
+Versions are pinned in `.tool-versions`. You'll need mise activated in your shell (`eval "$(mise activate zsh)"`, or `bash`); the script adds this to your shell config if it's missing.
+
+**Warning for Ubuntu users**
+`bin/prereqs.sh` adds the OpenResty package repository for **Debian**, using the codename from `/etc/os-release`:
+
+```
+echo "deb http://openresty.org/package/debian $codename openresty" \
+```
+
+On Ubuntu, change `debian` to `ubuntu` and make sure `$codename` is a release OpenResty publishes packages for. If you are not running an LTS (long term support) release, use the latest LTS codename that's still compatible with your distro. For example, if you're running Ubuntu 20.10 groovy, you'll need to use `focal`, which is the latest LTS release before groovy.
+
+### Lua 5.1
+
+Lua is the language that powers the whole Snap!Cloud. Under Debian/Ubuntu, you can install it by means of APT:
+
+```
+# apt-get install lua5.1
+```
+
+Please note that you need version 5.1 specifically.
+
+On macOS, Lua 5.1 is no longer in Homebrew. We use mise instead: `mise install` in the repo installs the version in `.tool-versions`.
+
+### OpenResty
+
+The Snap!Cloud system is built on top of [Lapis](http://leafo.net/lapis/), a server-side Lua (or MoonScript) web framework that runs on [OpenResty](http://openresty.org), a modified version of Nginx. First of all, you need to [download](http://openresty.org/#Download) and install OpenResty by following its [official install guide](http://openresty.org/#Installation).
+
+On macOS, install it from the OpenResty Homebrew tap **without the GeoIP module**.
+
+```
+$ brew install openresty/brew/openresty --without-geoip
+```
+
+If `lapis server` says "Unable to find an OpenResty installation", run `openresty -v`. If it crashes with `Library not loaded: .../libGeoIP.1.dylib`, uninstall OpenResty and reinstall it with the command above.
+
+### Lapis and extra Lua modules
+
+Once OpenResty is ready, installing Lapis is just a matter of asking the LuaRocks module manager to do that for you. In a Debian/Ubuntu system, you can install them via APT:
+
+```
+# apt-get install luarocks
+```
+
+All the Lua packages the Snap!Cloud needs (Lapis, bcrypt, luaossl, etc.) are listed in `snapcloud-dev-0.rockspec` and pinned in `luarocks.lock`.
+
+On a server, install them **as the `cloud` user, not root**, into the project's `lua_modules/` folder (`bin/deploy` does this):
+
+```
+$ bin/install-rocks
+```
+
+`nginx.conf`, `start.sh`, `bin/lapis-migrate` and `bin/snapcloud_daemon` look in `lua_modules/` first. Building the C rocks needs `build-essential`, `liblua5.1-dev` and `libssl-dev`. For development, install them as below (`bin/luarocks-macos` on macOS).
+
+### Note About `git` protocols
+
+Some rocks still use the `git://` protocol, which GitHub no longer accepts.
+The 'easy' way to get around this is to use a global git configuration:
+
+```
+$ git config --global url."https://github".insteadOf git://github
+```
+
+### Lua Dependencies and `luarocks` macOS
+
+On macOS, `luarocks` comes from mise, so it already uses Lua 5.1. `bin/luarocks-macos` "wraps" it with the flags some rocks (luasec, luaossl, bcrypt) need to compile on recent macOS versions:
+
+* It uses the newest Homebrew `gcc` (ARM Macs need gcc 12 or newer) and Homebrew's `openssl@3`.
+* It sets `SDKROOT`, because Homebrew's `gcc` can fail to link (`ld: library 'System' not found`) after a macOS update.
+* It installs with `--local`, into `~/.luarocks`.
+
+You can pass all the same commands to luarocks, e.g.
+
+```
+$ bin/luarocks-macos install --only-deps snapcloud-dev-0.rockspec
+```
+
+Using `--only-deps` avoids an unnecessary need to clone the repo from GitHub.
+
+OpenResty does not read the Lua paths mise sets up (`LUA_INIT`), only `LUA_PATH` and `LUA_CPATH`. The repo's `mise.toml` sets these, and adds `~/.luarocks/bin` to your `PATH`, whenever you are in the project folder. You should not need any Lua settings in your shell config. If you see `module 'lapis' not found`, check that mise is activated and run `mise trust` in the repo.
+
+### Authbind
+
+In order to serve the cloud over HTTPS, we need the cloud user to have permissions over port 443, for which we're going to be using the `authbind` utility.
+
+```
+# apt-get install authbind -y
+```
+
+### PostgreSQL
+
+The Snap!Cloud backend uses PostgreSQL for storage, so you'll need to install it too. Again, under Debian/Ubuntu this is trivial:
+
+```
+# apt-get install postgresql postgresql-client
+```
+
+#### Getting a self-signed certificate
+You should not need to run locally with SSL enabled. However, you may want to do so, if you were testing either the production or staging configurations. In those cases you might want to generate a self-signed certificate so that you can verify SSL works locally.
+
+Heroku has a good guide on [generating self-signed certs][heroku-guide].
+(The default configuration is for files named host.cert, and host.key. You can adjust the Heroku commands or rename your files afterwards.)
+
+[heroku-guide]: https://devcenter.heroku.com/articles/ssl-certificate-self
+
+## Setting up the database
+
+### Starting up a local PostgreSql server
+
+Follow instructions [here](https://tableplus.com/blog/2018/10/how-to-start-stop-restart-postgresql-server.html), depending on your operating system.
+
+On macOS with Homebrew:
+
+```sh
+$ brew services start postgresql@16
+```
+
+Homebrew doesn't put `postgresql@16` on your `PATH`, so add `$(brew --prefix)/opt/postgresql@16/bin` to it (`bin/setup-macos` does this for you).
+
+### The `.env` file
+
+`bin/lapis-migrate`, `db/init.sh` and `start.sh` read settings from a `.env` file in the repo root. It is not checked in. `bin/setup-macos` creates one for development if it's missing; otherwise create it yourself:
+
+```sh
+export LAPIS_ENVIRONMENT=development
+export DATABASE_HOST=localhost
+export DATABASE_USERNAME=$USER
+export DATABASE_NAME=snapcloud_development
+export PORT=8080
+export HOSTNAME=localhost
+```
+
+See "Setting Environment Variables" below for the production version.
+
+### Creating a user and a database
+
+First, try running:
+
+```sh
+$ bin/lapis-migrate
+```
+
+If all goes well, this will create a local database, and run the initial schema load and seeds.
+
+If you are developing locally, you should be able to authenticate if your postgres user matches your user you are using to run the app. Otherwise, you will first need to add a user named `cloud` to both your system and PostgreSQL and create a database named `snapcloud_development`, owned by that user:
+
+```sh
+$ psql postgres
+
+# Enter these in the PSQL command line
+> CREATE USER cloud WITH PASSWORD 'snap-cloud-password';
+> ALTER ROLE cloud WITH LOGIN;
+> CREATE DATABASE snapcloud_development OWNER cloud;
+```
+
+Alternatively, if you are on Linux, you can have postgres become the superuser, but that is not required
+
+```sh
+$ sudo -i
+# adduser cloud   # } These are inside the Root of Linux, these are not comments
+# su - postgres   # } (Note the Root uses the # instead of the $)
+
+# # Then "ctrl D" here (at the same time)
+
+$ psql
+
+# Note: Enter these in the PSQL command line
+> CREATE USER cloud WITH PASSWORD 'snap-cloud-password';
+> ALTER ROLE cloud WITH LOGIN;
+> CREATE DATABASE snapcloud_development OWNER cloud;
+```
+
+### Building the database schema
+
+Continue by logging in as `cloud` and running the provided SQL file in the main Terminal:
+
+```sh
+$ psql -U cloud -d snapcloud_development -a -f db/schema.sql
+```
+
+Linux users can run the following to set the "cloud" to create a substitute user (after running `sudo -i`) before running the above:
+
+```sh
+# su - cloud
+```
+
+You then have to apply the Migration file (called `migrations.lua`) by running the following command, applying changes to your PSQL snapcloud tables:
+
+```sh
+$ bin/lapis-migrate
+```
+
+If it all goes well, you should now have all tables properly set up. You can make sure it all worked by firing up the PostgreSQL shell and running the `\dt` command, which should print a list of all tables (`projects` and `users`).
+
+### Lapis database configuration
+
+The above username and password are the default values, defined in `config.lua`. You can override those values by defining environment variables, that lapis will read when the app is booted up.
+
+In development, it's completely fine to stick with these provided values. However, on a production server you must create a much stronger password, which should be stored in an environment variable.
+
+## Development Tools
+The Snap!Cloud uses the SASS compiler to compile (some) CSS.
+
+All you need to do is run `npm ci` (installs exactly what `package-lock.json` lists) or `npm install -g sass`
+
+This compiles `static/scss` to `static/style/compiled/`.
+
+### Getting Emails
+The Snap<em>!</em>Cloud sends emails for certain actions, like new user signups and password resets. In order to test those actions, you need an SMTP server.
+
+We've included a configuration to run a local server called [maildev][maildev].
+
+To install maildev, you need node/npm.
+
+Run: (The macOS install script includes this already.)
+```sh
+$ npm ci
+```
+
+Start maildev by just typing `maildev`:
+```sh
+$ maildev
+```
+
+When you start maildev, all emails sent by the Snap!Cloud will be available at:
+http://localhost:1080
+
+### A Procfile Runner
+We've included a Procfile, which declares all the resources needed to run the app: the Lapis server, the sass watcher, and maildev. Postgres is not included; start it separately (see "Starting up a local PostgreSql server").
+
+You can use any tool you'd like to run a procfile, but common ones are [foreman][foreman] or [node-foreman][nf], and [overmind][overmind]. These make it really easy to run all the resources:
+
+```sh
+$ foreman s[tart] -p 8080 # OR
+$ nf start -x 8080 # OR
+$ overmind s[tart]
+```
+
+You can now point your browser to `http://localhost:8080`. The app listens on the `PORT` set in `.env`. (Note: `foreman` and `node-foreman (nf)` by default go to 5000 without the `-p` or `-x` port flag.)
+
+[foreman]: https://github.com/ddollar/foreman
+[nf]: https://github.com/strongloop/node-foreman
+[overmind]: https://github.com/DarthSim/overmind
+
+### Updating Dependencies / Lockfile
+
+To regenerate `luarocks.lock`, use the following command:
+
+```
+$ bin/luarocks-macos build --only-deps --pin snapcloud-dev-0.rockspec
+```
+
+or on Linux:
+
+```
+$ luarocks install --only-deps --pin snapcloud-dev-0.rockspec
+```
+
+### Database connection pool
+
+Lapis opens one [pgmoon](https://github.com/leafo/pgmoon) connection per
+request and returns it to OpenResty's cosocket keepalive pool when the request
+finishes. On its own that pool has no upper bound, so `config.lua` sets two
+pgmoon options that OpenResty enforces per nginx worker:
+
+- `pool_size` caps the connections (busy + idle) one worker may hold open.
+- `backlog` is how many requests may wait for a free connection before new
+  ones are rejected.
+
+The whole app therefore never holds more than `num_workers * pool_size`
+connections. `pool_size` is derived from the database's capacity; see the
+"Database connections" section of [DEPLOYMENT.md](./DEPLOYMENT.md) for the
+formula, the environment variables, and monitoring.
+
+Where the options are documented:
+
+- Lapis passes the whole `postgres` config table straight to pgmoon's
+  constructor ([`lapis/db/postgres.moon`](https://github.com/leafo/lapis/blob/master/lapis/db/postgres.moon)),
+  so any pgmoon option can be set there. Lapis' own
+  [database docs](https://leafo.net/lapis/reference/database.html) only
+  mention `timeout`.
+- pgmoon lists `pool_name`, `pool_size` and `backlog` as OpenResty-only options
+  under [`new(options)`](https://github.com/leafo/pgmoon#newoptions) and
+  forwards them untouched to the cosocket connect call.
+- The semantics (per-worker cap, queueing, timeouts, error strings) are defined
+  by lua-nginx-module's
+  [`tcpsock:connect`](https://github.com/openresty/lua-nginx-module#tcpsockconnect)
+  options table. The keepalive side is
+  [`tcpsock:setkeepalive`](https://github.com/openresty/lua-nginx-module#tcpsocksetkeepalive),
+  [`lua_socket_pool_size`](https://github.com/openresty/lua-nginx-module#lua_socket_pool_size)
+  and
+  [`lua_socket_keepalive_timeout`](https://github.com/openresty/lua-nginx-module#lua_socket_keepalive_timeout).
+
+#### Testing the pool locally
+
+The pool lives inside the Lua VM, and development turns
+[`lua_code_cache`](https://github.com/openresty/lua-nginx-module#lua_code_cache)
+off, which rebuilds the VM (and drops the pool) on every request. To exercise
+the pool, turn the cache on and make the pool small:
+
+```sh
+$ CODE_CACHE=on DATABASE_POOL_SIZE=2 lapis server
+```
+
+Then send more concurrent requests than the pool size, for example:
+
+```sh
+$ seq 1 40 | xargs -P 40 -I{} curl -s -o /dev/null -w "%{http_code}\n" "http://localhost:8080/api/v1/projects?page={}"
+```
+
+`pg_stat_activity` should never show more than two `snapcloud` connections,
+and `/api/v1/health_check` reports the current usage. Requests beyond the
+pool's backlog fail with `too many waiting connect operations`.
+
+## Production Configuration
+
+### SSL
+The production instance needs SSL to run. See [certs/README.md](../certs/README.md) for details on configuring SSL certificates.
+
+### Setting Environment Variables
+
+SnapCloud will read variables from a file `.env` which contains data specific to that system. It should look something like this:
+
+```sh
+export LAPIS_ENVIRONMENT=production
+export DATABASE_HOST=127.0.0.1
+export DATABASE_PORT=5432
+export DATABASE_USERNAME=cloud
+export DATABASE_PASSWORD=snap-cloud-password
+export DATABASE_NAME=snapcloud
+export HOSTNAME=snap.berkeley.edu
+```
+There are a lot of options defined in `config.lua`. Setting the environment is helpful because you may want to have a "staging" server with a slightly different configuration.
+
+Optional database pool settings (`DATABASE_MAX_CONNECTIONS`,
+`DATABASE_POOL_SIZE`) are documented in [DEPLOYMENT.md](./DEPLOYMENT.md). Any variable read by
+`config.lua` must also appear as an `env` line at the top of `nginx.conf`,
+otherwise nginx strips it before the Lua workers start.
+
+### Giving permissions to use HTTP(S) ports
+(This section applies only to Linux machines.)
+Authbind allows a user to bind to ports 0-1023. In development, you will likely not need to use authbind as the server defaults to using port 8080 and doesn't need https. However, on the production server, authbind is necessary.
+
+We now need to configure `authbind` so that user `cloud` can start a service over the HTTP and HTTPS ports. To do so, we simply need to create a file and assign its ownership to `cloud`:
+
+```
+# touch /etc/authbind/byport/443
+# chown cloud:cloud /etc/authbind/byport/443
+# chmod +x /etc/authbind/byport/443
+# touch /etc/authbind/byport/80
+# chown cloud:cloud /etc/authbind/byport/80
+# chmod +x /etc/authbind/byport/80
+```
+
+## Running the Snap!Cloud
+
+If it all went well, you're now ready to fire up Lapis. While in development, just run this command under your Snap!Cloud local folder.
+
+If you use authbind:
+```
+$ ./start.sh
+```
+
+Otherwise, run Snap!Cloud using the instructions in: "A Procfile Runner"
+
+You will also need to start your Postgres database separately.
+When running locally, follow the instructions listed in "Starting up a local PostgreSql server"
+
+## Setting up the Snap!Cloud as a system daemon
+
+We provide a very simple init script that you can use to run the Snap!Cloud as a daemon in your server. You need to edit the `bin/snapcloud_daemon` script so that it starts the cloud under your user first. Find the following line and replace `cloud` by your actual user. If you have followed this guide, this is not necessary.
+
+
+`runuser -l cloud`
+
+Then use `update-rc.d` to create the necessary symbolic links:
+
+```
+$ update-rc.d snapcloud_daemon defaults
+```
+
+You can now start and stop the Snap!Cloud by running:
+
+```
+$ service snapcloud_daemon [start|stop]
+```
+### Add sudo access for the `cloud` user
+
+This is done to make it so the cloud user can easily run maintenance scripts.
+
+Add the following line to `/etc/sudoers`
+
+```
+cloud        ALL=NOPASSWD: /usr/sbin/service snapcloud_daemon *
+```
+
+The `cloud` user may now run `sudo service snapcloud_daemon restart`
+
+Don't let `cloud` run `luarocks` as root: it would run untrusted code as root.
+
+### Production Log Rotation
+
+The Snap!Cloud includes a simple logrotation setup that uses the default `logrotate` program. We run this as the `cloud` user, since that is the process that "owns" the log files. The file `bin/logrotate.conf` is a good starting point.
+
+To run it automatically, add the following to the `cloud` user crontab, by running `crontab -e`.
+
+```
+0 2 * * * /usr/sbin/logrotate /home/cloud/logrotate.conf --state /home/cloud/logrotate-state
+```
+
+This will run the logrotation script at 2AM each night. (You'll want to create the logrotate-state file, and update the paths as necessary.)

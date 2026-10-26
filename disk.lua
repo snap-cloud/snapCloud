@@ -24,13 +24,131 @@
 -- we store max 1000 projects per dir
 
 local xml = require("xml")
+local lfs = require("lfs")
 local config = package.loaded.config
 local yield_error = package.loaded.yield_error
 
 local disk = {}
 
-function disk:timestamp_command(dir)
-    return 'stat ' .. config.stat_arguments .. ' ' .. dir .. '/project.xml'
+-- File system helpers
+-- -------------------
+-- All of these are pure Lua (via LuaFileSystem) so that no path is ever
+-- handed to a shell.
+
+-- Create path and any missing parent directories, like `mkdir -p`.
+local function mkdir_p (path)
+    local current = path:sub(1, 1) == '/' and '/' or ''
+    for component in path:gmatch('[^/]+') do
+        current = current .. component
+        if not lfs.attributes(current, 'mode') then
+            local ok, message = lfs.mkdir(current)
+            -- another request may have just created it, which is fine
+            if not ok and not lfs.attributes(current, 'mode') then
+                return false, message
+            end
+        end
+        current = current .. '/'
+    end
+    return true
+end
+
+-- Seconds since the epoch at which path was last modified, or nil if it
+-- doesn't exist.
+local function last_modified (path)
+    return lfs.attributes(path, 'modification')
+end
+
+-- Copy a single file, preserving its timestamps like `cp -p` would.
+-- backup_project relies on the modification time to tell versions apart.
+local function copy_file (source, destination)
+    local input = io.open(source, 'rb')
+    if not input then return false end
+    local output = io.open(destination, 'wb')
+    if not output then
+        input:close()
+        return false
+    end
+    output:write(input:read('*all'))
+    input:close()
+    output:close()
+    local attributes = lfs.attributes(source)
+    if attributes then
+        lfs.touch(destination, attributes.access, attributes.modification)
+    end
+    return true
+end
+
+-- Copy the project files (every *.xml plus the thumbnail) in dir into
+-- backup_dir, creating it if needed.
+local function copy_project_files (dir, backup_dir)
+    if lfs.attributes(dir, 'mode') ~= 'directory' then return false end
+    mkdir_p(backup_dir)
+    for entry in lfs.dir(dir) do
+        if entry:match('%.xml$') or entry == 'thumbnail' then
+            copy_file(dir .. '/' .. entry, backup_dir .. '/' .. entry)
+        end
+    end
+    return true
+end
+
+-- How many previous versions of each project we keep. They live in folders
+-- named d-1 to d-N inside the project's directory:
+--   d-1: the version from right before the latest save
+--   d-2: the last version that was more than 12 hours old
+-- A "delta" is the number that picks one: nil or 0 for the current version,
+-- -1 to -BACKUP_VERSIONS for a backup.
+disk.BACKUP_VERSIONS = 2
+
+-- Returns the directory holding the given version of a project.
+-- delta often comes straight from a request param and ends up in a file path,
+-- so anything that isn't a known version is rejected.
+function disk:version_directory (id, delta)
+    local dir = self:directory_for_id(id)
+    if delta == nil or delta == '' then return dir end
+    local version = tonumber(delta)
+    if version == 0 then return dir end
+    if version == nil or version ~= math.floor(version) or
+            version > 0 or version < -disk.BACKUP_VERSIONS then
+        yield_error(err.invalid_project_version)
+    end
+    return dir .. string.format('/d%d', version)
+end
+
+-- Rendered in place of a real thumbnail when project.xml can't be parsed.
+disk.missing_thumbnail = '/static/img/missing-thumbnail.svg'
+
+local function report_thumbnail_failure(id, reason)
+    -- Lazy-require: disk.lua loads before lib.exceptions in app.lua.
+    local ok, exceptions = pcall(require, 'lib.exceptions')
+    if not ok or not exceptions.rvn then return end
+    exceptions.rvn:captureMessage(
+        'Thumbnail generation failed for project id=' .. tostring(id),
+        {
+            level = 'warning',
+            tags = { component = 'disk.generate_thumbnail' },
+            extra = { project_id = id, reason = tostring(reason) },
+        }
+    )
+end
+
+-- Safely parse a project.xml buffer. Returns (doc, err): the parsed table on
+-- success, nil on a parse failure (with the lubyk error in `err`), or
+-- nil/nil if the file is empty or whitespace-only. Strips embedded NULs
+-- first because lubyk's Lua->C bridge truncates the buffer at the first \0
+-- and masks otherwise-valid XML behind "unexpected end of data" -- any NULs
+-- found are reported to Sentry against `id` since they signal corruption.
+local function protected_load_xml(id, raw)
+    local contents, nuls = (raw or ''):gsub('%z', '')
+    if nuls > 0 then
+        report_thumbnail_failure(id,
+            'stripped ' .. nuls .. ' NUL byte(s) from project.xml')
+    end
+    -- Empty / whitespace-only input would segfault or error in lubyk; treat
+    -- it as "nothing to parse" rather than a load failure.
+    if not contents:find('%S') then return nil end
+    local ok, result = pcall(xml.load, contents)
+    if ok then return result end
+    return nil, result
 end
 
 function disk:directory_for_id (id)
@@ -39,7 +157,7 @@ end
 
 function disk:save (id, filename, contents)
     local dir = self:directory_for_id(id)
-    os.execute('mkdir -p ' .. dir)
+    mkdir_p(dir)
     local file = io.open(dir .. '/' .. filename, 'w+')
     if (file) then
         file:write(contents)
@@ -48,10 +166,7 @@ function disk:save (id, filename, contents)
 end
 
 function disk:retrieve (id, filename, delta)
-    local dir = self:directory_for_id(id)
-    -- if delta exists, we look for a previous version of the file
-    -- under dir/d[delta]
-    if (delta) then dir = dir .. '/d' .. delta end
+    local dir = self:version_directory(id, delta)
     local file = io.open(dir .. '/' .. filename, 'r')
     if (file) then
         local contents = file:read("*all")
@@ -68,22 +183,30 @@ end
 
 function disk:generate_thumbnail (id)
     local project_file = io.open(self:directory_for_id(id) .. '/project.xml')
-    if (project_file) then
-        local project = xml.load(project_file:read('*all'))
-        local thumbnail = xml.find(project, 'thumbnail')[1]
-        project_file:close()
-        self:save(id, 'thumbnail', thumbnail)
-        return thumbnail
-    else
-        return false
+    if not project_file then return end
+    local raw = project_file:read('*all')
+    project_file:close()
+
+    local project, err = protected_load_xml(id, raw)
+    if err then
+        report_thumbnail_failure(id, err)
+        return
     end
+    if not project then return end
+
+    local found = xml.find(project, 'thumbnail')
+    local thumbnail = found and found[1]
+    if not thumbnail then
+        report_thumbnail_failure(id, 'no <thumbnail> in project.xml')
+        return
+    end
+
+    self:save(id, 'thumbnail', thumbnail)
+    return thumbnail
 end
 
 function disk:parse_notes (id, delta)
-    local dir = self:directory_for_id(id)
-    -- if delta exists, we look for a previous version of the file
-    -- under dir/d[delta]
-    if (delta) then dir = dir .. '/d' .. delta end
+    local dir = self:version_directory(id, delta)
     local project_file = io.open(dir .. '/project.xml', 'r')
     local notes
     if (project_file) then
@@ -164,17 +287,14 @@ function disk:update_xml(id, update_function)
 end
 
 function disk:get_version_metadata(id, delta)
-    local dir = self:directory_for_id(id) .. '/d' .. delta
-    local project_file = io.open(dir .. '/project.xml', 'r')
-    if (project_file) then
-        local command = io.popen(self:timestamp_command(dir))
-        local last_modified = tonumber(command:read())
-        command:close()
+    local dir = self:version_directory(id, delta)
+    local modified = last_modified(dir .. '/project.xml')
+    if modified then
         return {
             notes = self:parse_notes(id, delta),
             thumbnail = self:retrieve(id, 'thumbnail', delta),
             -- seconds since last modification
-            lastupdated = os.time() - last_modified,
+            lastupdated = os.time() - modified,
             delta = delta
         }
     else
@@ -187,19 +307,12 @@ function disk:backup_project(id)
     local dir = self:directory_for_id(id)
 
     -- We always save the current copy into the /d-1 folder
-    os.execute('mkdir -p ' .. dir .. '/d-1')
-    os.execute('cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
-        dir .. '/d-1')
+    copy_project_files(dir, dir .. '/d-1')
     -- If the current project was modified more than 12 hours ago,
     -- we save it into the /d-2 folder
-    local command = io.popen(self:timestamp_command(dir))
-    local last_modified = tonumber(command:read())
-    command:close()
-    if (os.time() - last_modified > 43200) then
-        os.execute('mkdir -p ' .. dir .. '/d-2')
-        os.execute(
-            'cp -p ' .. dir .. '/*.xml ' .. dir .. '/thumbnail ' ..
-                dir .. '/d-2')
+    local modified = last_modified(dir .. '/project.xml')
+    if modified and (os.time() - modified > 43200) then
+        copy_project_files(dir, dir .. '/d-2')
     end
 end
 
@@ -222,7 +335,8 @@ function disk:process_thumbnails (items, id_selector)
         if (item[id_selector or 'id']) then
             item.thumbnail =
                 self:retrieve_thumbnail(item[id_selector or 'id']) or
-                self:generate_thumbnail(item[id_selector or 'id'])
+                self:generate_thumbnail(item[id_selector or 'id']) or
+                self.missing_thumbnail
         end
     end
 end

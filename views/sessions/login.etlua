@@ -1,5 +1,5 @@
-<% content_for('title', locale.get('log_into_snap', '!')) %>
-<h1><%- locale.get('log_into_snap', '<em>!</em>' ) %></h1>
+<% content_for('title', locale.get('log_into_snap', '!', { escape = false })) %>
+<h1><%- locale.get('log_into_snap', '<em>!</em>', { escape = false }) %></h1>
 
 <form id="login" class="form-horizontal my-4" onsubmit="handleLoginSubmit(event)">
   <input type="hidden" name="csrf_token" id="csrf_token" value="<%- csrf_token %>">
@@ -68,8 +68,8 @@
       (user, role, response) => {
         if (response.title) {
           alert(
-            localizer.localize(response.message),
-            { title: localizer.localize(response.title) },
+            serverMessageHtml(response.message, response.html),
+            { title: escapeHtml(localizer.localize(response.title)) },
             () => { location.href = response.redirect }
           );
         } else {
@@ -77,9 +77,11 @@
         }
       }, // onSuccess
       response => {
+        // Login errors are fixed strings, one of them with a link and image
         genericError(
           response,
-          '<%= locale.get('err_login_failed') %>'
+          '<%= locale.get('err_login_failed') %>',
+          true
         );
       }
     );

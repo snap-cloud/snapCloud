@@ -8,6 +8,9 @@ logs
 tmp/*
 nginx.conf.compiled
 
+# Project-local Lua rocks (bin/install-rocks)
+lua_modules/
+
 .htpasswd
 
 # Certificates and keys
@@ -63,3 +66,10 @@ luacov.*.out
 *.sql.gz
 # Keep the specific schema and init files in db/
 !db/*.sql
+
+# Pre-compressed static assets produced by bin/compress (run on the server
+# at deploy time). The .sql.gz rule above already covers backups.
+static/**/*.gz
+
+# Claude Code local settings
+.claude/

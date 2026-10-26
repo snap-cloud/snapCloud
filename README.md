@@ -19,7 +19,8 @@ The Snap<em>!</em>Cloud is a backend for Snap<i>!</i> that stores only metadata 
 * Bootstrap 5, npm
 
 ## Installation
-See the [INSTALL.md](INSTALL.md) file for installation instructions.
+See the [INSTALL.md](docs/INSTALL.md) file for installation instructions,
+and [DEPLOYMENT.md](docs/DEPLOYMENT.md) for production deploy notes.
 
 ### Live instance
 The Snap!Cloud is currently live at [https://snap.berkeley.edu](https://snap.berkeley.edu). See the API description page at [https://snap.berkeley.edu/static/API](https://cloud.snap.berkeley.edu/static/API).

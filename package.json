@@ -6,7 +6,11 @@
     "test": "playwright test",
     "test:e2e": "playwright test --grep-invert \"@axe\"",
     "test:a11y": "playwright test --grep \"@axe\"",
-    "test:ui": "playwright test --ui"
+    "test:ui": "playwright test --ui",
+    "vendor": "make vendor",
+    "vendor-bootstrap": "make vendor-bootstrap",
+    "vendor-fontawesome": "make vendor-fontawesome",
+    "vendor-filesaver": "make vendor-filesaver"
   },
   "repository": {
     "type": "git",
@@ -21,13 +25,14 @@
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.6.0",
     "@popperjs/core": "^2.11.8",
-    "bootstrap": "^5.3.3"
+    "bootstrap": "^5.3.8",
+    "file-saver": "^2.0.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.0",
     "@playwright/test": "^1.48.0",
-    "maildev": "^2.2.1",
+    "maildev": "^3.0.0",
     "pg": "^8.13.0",
-    "sass": "1.77.2"
+    "sass": "^1.77.2"
   }
 }

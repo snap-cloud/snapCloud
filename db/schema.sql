@@ -2,8 +2,7 @@
 -- PostgreSQL database dump
 --
 
-
--- Dumped from database version 16.10 (Homebrew)
+-- Dumped from database version 16.7 (Homebrew)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -86,7 +85,8 @@ CREATE TABLE public.projects (
     firstpublished timestamp with time zone,
     deleted timestamp with time zone,
     likely_class_work boolean DEFAULT false NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.02', autovacuum_analyze_scale_factor='0.01');
 
 
 --
@@ -135,7 +135,7 @@ CREATE TABLE public.users (
     password_changed_at timestamp with time zone,
     updated_at timestamp with time zone,
     last_session_at timestamp with time zone,
-    password_version integer DEFAULT 0 NOT NULL
+    remember_token text
 );
 
 
@@ -164,7 +164,7 @@ CREATE VIEW public.active_users AS
     password_changed_at,
     updated_at,
     last_session_at,
-    password_version
+    remember_token
    FROM public.users
   WHERE (deleted IS NULL);
 
@@ -325,7 +325,7 @@ CREATE VIEW public.deleted_users AS
     password_changed_at,
     updated_at,
     last_session_at,
-    password_version
+    remember_token
    FROM public.users
   WHERE (deleted IS NOT NULL);
 
@@ -434,7 +434,7 @@ CREATE VIEW public.recent_projects_2_days AS
 --
 
 CREATE TABLE public.remixes (
-    original_project_id integer,
+    original_project_id integer NOT NULL,
     remixed_project_id integer NOT NULL,
     created timestamp with time zone
 );
@@ -587,6 +587,14 @@ ALTER TABLE ONLY public.projects
 
 
 --
+-- Name: remixes remixes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.remixes
+    ADD CONSTRAINT remixes_pkey PRIMARY KEY (original_project_id, remixed_project_id);
+
+
+--
 -- Name: projects unique_id; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -603,6 +611,14 @@ ALTER TABLE ONLY public.users
 
 
 --
+-- Name: users users_remember_token_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.users
+    ADD CONSTRAINT users_remember_token_key UNIQUE (remember_token);
+
+
+--
 -- Name: users users_unique_email_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -616,6 +632,13 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.tokens
     ADD CONSTRAINT value_pkey PRIMARY KEY (value);
+
+
+--
+-- Name: bookmarks_project_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX bookmarks_project_id_idx ON public.bookmarks USING btree (project_id);
 
 
 --
@@ -654,10 +677,24 @@ CREATE UNIQUE INDEX flagged_projects_flagger_id_project_id_idx ON public.flagged
 
 
 --
+-- Name: followers_followed_id_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX followers_followed_id_idx ON public.followers USING btree (followed_id);
+
+
+--
 -- Name: original_project_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX original_project_id_index ON public.remixes USING btree (original_project_id);
+
+
+--
+-- Name: projects_latest_published_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX projects_latest_published_idx ON public.projects USING btree (firstpublished) WHERE (ispublished AND (deleted IS NULL) AND (NOT likely_class_work));
 
 
 --
@@ -682,10 +719,17 @@ CREATE INDEX users_email_idx ON public.users USING btree (email);
 
 
 --
--- Name: users_password_version_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: users_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX users_password_version_idx ON public.users USING btree (password_version);
+CREATE UNIQUE INDEX users_id_idx ON public.users USING btree (id);
+
+
+--
+-- Name: users_deleted_username_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_deleted_username_idx ON public.users USING btree (username) WHERE (deleted IS NOT NULL);
 
 
 --
@@ -735,8 +779,6 @@ ALTER TABLE ONLY public.tokens
 
 
 
-
-
 COPY public.lapis_migrations (name) FROM stdin;
 20190140
 201901291
@@ -761,11 +803,18 @@ COPY public.lapis_migrations (name) FROM stdin;
 2025-06-18:0
 2025-09-04:0
 2026-04-06:0
-2026-04-06:2
 2026-04-14:0
+2026-04-06:2
 2026-04-14:1
+2026-05-04:0
+2026-05-11:0
+2026-10-22:0
+2026-10-22:1
+2026-10-22:2
+2026-10-22:3
+2026-10-24:0
+2026-10-24:1
 \.
-
 
 
 

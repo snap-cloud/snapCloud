@@ -1,6 +1,6 @@
 <% if params.search_term ~= '' then %>
-<% content_for('title', locale.get('user_search_results', params.search_term)) %>
-<h1><%= locale.get('user_search_results', params.search_term) %></h1>
+<% content_for('title', locale.get('user_search_results', params.search_term, { escape = false })) %>
+<h1><%- locale.get('user_search_results', params.search_term) %></h1>
 <% else %>
 <% content_for('title', locale.get('last_users')) %>
 <h1><%= locale.get('last_users') %></h1>
