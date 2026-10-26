@@ -149,6 +149,10 @@ app:get('/embed', capture_errors(function (self)
 end))
 
 app:get('/explore', capture_errors(cached(function (self)
+    -- The page cache above is keyed per user (and expires in 30 s), so most
+    -- requests miss it. Also cache the project page and the page count in the
+    -- shared query_cache; the count alone is ~0.4 s on prod.
+    self.cached = true
     self.items = ProjectController.fetch(self)
     return { render = 'explore' }
 end)))

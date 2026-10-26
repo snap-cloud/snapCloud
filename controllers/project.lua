@@ -100,7 +100,8 @@ ProjectController = {
                             paginator:get_page(self.params.page_number)
                         disk:process_thumbnails(entries)
                         return entries
-                    end
+                    end,
+                    60 -- seconds
                 )
             else
                 items = paginator:get_page(self.params.page_number)
@@ -114,7 +115,8 @@ ProjectController = {
                         nil,
                         function ()
                             return paginator:num_pages()
-                        end
+                        end,
+                        600 -- seconds; an exact page count is not worth 0.4 s
                     )
                 else
                     self.num_pages = paginator:num_pages()

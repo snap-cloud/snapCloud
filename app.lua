@@ -203,7 +203,10 @@ package.loaded.cached = function (func, options)
 end
 
 -- cache for SQL queries so we're not constantly bombarding the DB
-package.loaded.cached_query = function (key_table, category, model, on_miss)
+-- exptime (seconds) is optional; without it an entry lives until
+-- uncache_category() deletes it or the dict evicts it.
+package.loaded.cached_query = function (key_table, category, model, on_miss,
+                                        exptime)
     local cache = ngx.shared.query_cache
 
     local sorted_keys = {}
@@ -217,7 +220,7 @@ package.loaded.cached_query = function (key_table, category, model, on_miss)
     if contents == nil then
         -- run the function that was passed for when there's a cache miss
         contents = on_miss()
-        cache:set(key, package.loaded.util.to_json(contents))
+        cache:set(key, package.loaded.util.to_json(contents), exptime or 0)
         if category then
             ngx.shared.query_cache_categories:set(category, key)
         end
