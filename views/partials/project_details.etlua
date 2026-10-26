@@ -73,6 +73,27 @@
         ><%= locale.get('publish_button') %></button>
         <% end %>
     <% end %>
+    <% if current_user and current_user:has_min_role('reviewer') then %>
+        <p class="class-project">
+            <strong><%= locale.get('class_project_label') %></strong>
+            <%= project.likely_class_work
+                and locale.get('is_class_project')
+                or locale.get('not_class_project') %>
+        </p>
+        <% if project.likely_class_work then %>
+        <button class="btn btn-secondary unmark-class-project" type="button"
+            data-confirmation-message="<%= locale.get('confirm_unmark_class_project') %>"
+            data-confirmation-method="delete"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/class_project"
+        ><%= locale.get('unmark_class_project_button') %></button>
+        <% else %>
+        <button class="btn btn-secondary mark-class-project" type="button"
+            data-confirmation-message="<%= locale.get('confirm_mark_class_project') %>"
+            data-confirmation-method="post"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/class_project"
+        ><%= locale.get('mark_class_project_button') %></button>
+        <% end %>
+    <% end %>
     </div>
     <%
         if current_user and current_user:has_min_role('reviewer') then

@@ -260,6 +260,38 @@ ProjectController = {
         uncache_category('latest#count')
         return okResponse()
     end),
+    mark_class_project = capture_errors(function (self)
+        assert_min_role(self, 'reviewer')
+        local project = Projects:find({ id = self.params.id })
+        assert_project_exists(self, project)
+        -- Walk the whole remix tree so remixes of remixes are marked too.
+        -- UNION (not UNION ALL) stops the walk if remixes form a cycle.
+        db.query([[
+            WITH RECURSIVE descendants AS (
+                SELECT ?::integer AS id
+                UNION
+                SELECT remixes.remixed_project_id
+                FROM remixes
+                INNER JOIN descendants
+                    ON descendants.id = remixes.original_project_id
+            )
+            UPDATE projects SET likely_class_work = true
+            WHERE id IN (SELECT id FROM descendants)
+                AND likely_class_work IS NOT TRUE
+        ]], project.id)
+        uncache_category('latest')
+        uncache_category('latest#count')
+        return okResponse()
+    end),
+    unmark_class_project = capture_errors(function (self)
+        assert_min_role(self, 'reviewer')
+        local project = Projects:find({ id = self.params.id })
+        assert_project_exists(self, project)
+        project:update({ likely_class_work = false })
+        uncache_category('latest')
+        uncache_category('latest#count')
+        return okResponse()
+    end),
     metadata = capture_errors(function (self)
         assert_users_match(self)
 
