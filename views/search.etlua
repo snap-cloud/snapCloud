@@ -17,7 +17,7 @@ render(
             },
             session = session
         }),
-        href = build_url('/explore?search_term=' .. (params.query or ''))
+        href = build_url('/explore?search_term=' .. package.loaded.util.escape(params.query))
     }
 )
 
@@ -35,7 +35,7 @@ render(
             },
             session = session
         }),
-        href = build_url('/collections?search_term=' .. (params.query or ''))
+        href = build_url('/collections?search_term=' .. package.loaded.util.escape(params.query))
     }
 )
 
@@ -55,7 +55,7 @@ render(
             session = session
         }),
         items_per_page = 51, -- for carousel
-        href = build_url('/users?search_term=' .. (params.query or ''))
+        href = build_url('/users?search_term=' .. package.loaded.util.escape(params.query))
     }
 )
 %>
