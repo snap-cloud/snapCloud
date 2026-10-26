@@ -41,6 +41,7 @@ local Users = package.loaded.Users
 local validation = package.loaded.validation
 
 local is_likely_course_work = validation.is_likely_course_work
+local assert_current_user_logged_in = validation.assert_current_user_logged_in
 local order_by_clause = validation.order_by_clause
 
 -- Columns that requests may sort projects by. Anything else is rejected, as
