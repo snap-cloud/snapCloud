@@ -305,6 +305,14 @@ app:match(api_route('project/:id/publish'), respond_to({
     DELETE = ProjectController.unpublish
 }))
 
+app:match(api_route('project/:id/title'), respond_to({
+    POST = ProjectController.set_title
+}))
+
+app:match(api_route('project/:id/notes'), respond_to({
+    POST = ProjectController.set_notes
+}))
+
 app:match(api_route('project/:id'), respond_to({
     GET = ProjectController.xml,
     DELETE = ProjectController.delete

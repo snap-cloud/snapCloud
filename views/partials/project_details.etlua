@@ -1,18 +1,40 @@
+<% local can_edit = current_user and
+    ((project.username == current_user.username) or
+        current_user:has_min_role('moderator')) %>
 <div class="details">
-    <!-- Notes
-        Element is focusable so it can be scrolled with screen readers
-        We need to add some edit icon you can click/focus on to enter edit mode
-        Re-add to pre when editing notes is ready:
-        title="<%= locale.get('shift_enter_note') %>"
-     -->
+    <!-- Notes: the element is focusable so it can be scrolled with screen readers -->
     <div class="visually-hidden">
         <p>Project Description</p>
     </div>
+    <div class="js-notes-display">
     <% if project.notes and project.notes ~= '' then %>
     <pre class="notes"
         tabindex="0"><code><%= project.notes %></code></pre>
     <% else %>
     <div class="notes" tabindex="0"><small><%= locale.get('no_notes') %></small></div>
+    <% end %>
+    <% if can_edit then %>
+    <button class="btn btn-link btn-sm edit-notes" type="button"
+        onclick="editNotes()">
+        <i class="fas fa-pencil" aria-hidden="true"></i>
+        <%= locale.get('edit_notes') %>
+    </button>
+    <% end %>
+    </div>
+    <% if can_edit then %>
+    <form class="js-notes-editor" hidden
+        onsubmit="event.preventDefault(); saveNotes(this);">
+        <textarea class="form-control notes-input" name="notes" rows="8"
+            aria-label="<%= locale.get('project_notes') %>"
+            ><%= project.notes or '' %></textarea>
+        <div class="my-2">
+            <button class="btn btn-primary" type="submit"
+                ><%= locale.get('save') %></button>
+            <button class="btn btn-outline-secondary" type="button"
+                onclick="cancelNotes()"
+                ><%= locale.get('cancel') %></button>
+        </div>
+    </form>
     <% end %>
     <!-- Dates and project meta -->
     <div class="dates">
@@ -93,5 +115,27 @@
     }
 
     setupConfirmationButtons();
+
+    <% if can_edit then %>
+    function editNotes () {
+        document.querySelector('.js-notes-display').hidden = true;
+        var form = document.querySelector('.js-notes-editor');
+        form.hidden = false;
+        form.querySelector('textarea').focus();
+    };
+    function cancelNotes () {
+        var form = document.querySelector('.js-notes-editor');
+        form.reset();
+        form.hidden = true;
+        document.querySelector('.js-notes-display').hidden = false;
+    };
+    function saveNotes (form) {
+        cloud.post(
+            '/api/v1/project/<%= project.id %>/notes',
+            null,
+            { notes: form.querySelector('textarea').value }
+        );
+    };
+    <% end %>
     </script>
 </div>
