@@ -35,8 +35,11 @@ case "$1" in
   reload)
     # Rebuild nginx.conf and send nginx a HUP: new workers pick up config,
     # certs and Lua code, and open connections are not dropped.
+    # Run under authbind (like start.sh) so lapis/nginx may touch the
+    # privileged :80/:443 listeners during the rebuild; without it the reload
+    # fails with "bind() ... Permission denied" (cloud can't bind <1024).
     log_daemon_msg "Reloading $DESC" "$NAME"
-    runuser -l cloud -c "cd $APP_DIR && . ./.env && $LAPIS_PATH lapis build \$LAPIS_ENVIRONMENT"
+    runuser -l cloud -c "cd $APP_DIR && . ./.env && $LAPIS_PATH authbind --deep lapis build \$LAPIS_ENVIRONMENT"
     ;;
   stop)
     log_daemon_msg "Stopping $DESC" "$NAME"

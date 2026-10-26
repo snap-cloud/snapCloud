@@ -11,7 +11,7 @@
   if false then
   %>
   <div class="carousel-item">
-    <a href="/collection?username=snapcloud&collection=<%= totms[1].name %>">
+    <a href="/collection?username=snapcloud&collection=<%= package.loaded.util.escape(totms[1].name) %>">
       <img src="/static/img/totm.png"
         alt="View Topic of the Month '<%= totms[1].name %>'" />
     </a>

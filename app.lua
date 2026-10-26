@@ -185,7 +185,7 @@ package.loaded.cached = function (func, options)
         for k, _ in pairs(params) do table.insert(param_keys, k) end
         table.sort(param_keys)
         for _, v in ipairs(param_keys) do
-            key = key .. '#' .. v .. '=' .. params[v]
+            key = key .. '#' .. v .. '=' .. tostring(params[v])
         end
         return key .. '@' .. (request.session.locale or 'en') ..
             '~' .. (request.session.username)
@@ -338,7 +338,7 @@ app:before_filter(function (self)
     establish_session(self)
 
     if self.params.matchtext then
-        self.params.matchtext = '%' .. self.params.matchtext .. '%'
+        self.params.matchtext = '%' .. tostring(self.params.matchtext) .. '%'
     end
 
 end)
@@ -358,6 +358,10 @@ function app:handle_404()
 end
 
 function app:handle_error(err, trace)
+    -- Errors raised with a table (yield_error({...}) outside capture_errors)
+    -- would otherwise crash the string concatenations below.
+    err = tostring(err)
+    trace = tostring(trace)
     -- The database is read-only during maintenance, so a route that tries to
     -- write ends up here. Show the maintenance message, not a 500.
     if maintenance.is_read_only_db_error(err) then
@@ -377,9 +381,18 @@ function app:handle_error(err, trace)
 
     if config._name == 'development' then
         debug_print(err, trace)
-        local msg = '<pre style="text-align: left; width: 80ch">'
-            .. err .. '<br>' .. trace .. '</pre>'
-        return errorResponse(self, msg, 500)
+        local accept = self.req.headers.accept or ''
+        if type(accept) == 'table' then accept = table.concat(accept, ',') end
+        if accept:match('text/html') then
+            -- Keep the traceback readable: monospace, left-aligned, with its
+            -- indentation intact. Escaped first, since err can echo request
+            -- data; html_message_page prints contents as-is.
+            return html_message_page(self, '500 Error',
+                '<pre style="text-align: left; width: 80ch">' ..
+                utils.escape_html(err .. '\n' .. trace) .. '</pre>', 500)
+        end
+        -- API clients get the plain text in the JSON error body.
+        return errorResponse(self, err .. '\n' .. trace, 500)
     end
 
 
