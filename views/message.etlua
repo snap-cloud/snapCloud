@@ -1,5 +1,6 @@
 <h1 localizable><%- title %></h1>
 
 <div class="row">
+  <% -- raw; callers must escape %>
   <%- contents %>
 </div>

@@ -29,7 +29,7 @@
         <% end %>
         <span>Flagged</span>
         <span class="author"> by <a
-            href="user?username=<%= flag.username %>"
+            href="/user?username=<%= package.loaded.util.escape(flag.username) %>"
             target="_blank"
             ><strong><%= flag.username %></strong></a>
         </span>

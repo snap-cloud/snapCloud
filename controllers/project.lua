@@ -91,8 +91,8 @@ ProjectController = {
                  query ..
                     (self.params.search_term and (db.interpolate_query(
                         ' AND (projectname ILIKE ? OR notes ILIKE ?)',
-                        '%' .. self.params.search_term .. '%',
-                        '%' .. self.params.search_term .. '%')
+                        '%' .. tostring(self.params.search_term) .. '%',
+                        '%' .. tostring(self.params.search_term) .. '%')
                     ) or '') ..
                     filters ..
                     ' ORDER BY ' .. order_by_clause(
