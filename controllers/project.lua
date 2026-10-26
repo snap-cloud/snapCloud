@@ -660,10 +660,14 @@ ProjectController = {
                     tostring(self.params.projectname)
                 )
 
-            if (body.remixID and body.remixID ~= cjson.null) then
-                -- user is remixing a project
+            -- The original may have been deleted for good since it was
+            -- opened; then there is nothing to link to.
+            local original_id = body.remixID ~= cjson.null and
+                tonumber(body.remixID) or nil
+            if original_id and db.select(
+                    '1 FROM projects WHERE id = ? LIMIT 1', original_id)[1] then
                 Remixes:create({
-                    original_project_id = body.remixID,
+                    original_project_id = original_id,
                     remixed_project_id = project.id,
                     created = db.format_date()
                 })
