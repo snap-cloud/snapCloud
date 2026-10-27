@@ -42,6 +42,9 @@ local fits_type = {
 }
 fits_type.bigint = fits_type.integer
 fits_type.smallint = fits_type.integer
+-- A query arg with no value (?collection) arrives as boolean true.
+fits_type.text = function (value) return type(value) ~= 'boolean' end
+fits_type['character varying'] = fits_type.text
 
 Model.find = function (self, conditions, ...)
     if type(conditions) == 'table' then
