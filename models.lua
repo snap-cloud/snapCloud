@@ -46,7 +46,15 @@ fits_type.smallint = fits_type.integer
 fits_type.text = function (value) return type(value) ~= 'boolean' end
 fits_type['character varying'] = fits_type.text
 
-Model.find = function (self, conditions, ...)
+Model.find = function (self, ...)
+    local conditions = ...
+    if type(conditions) ~= 'table' and select('#', ...) > 0 then
+        -- positional form: values for the primary keys, in order
+        conditions = {}
+        for i, key in ipairs({ self:primary_keys() }) do
+            conditions[key] = (select(i, ...))
+        end
+    end
     if type(conditions) == 'table' then
         for _, column in ipairs(self:columns()) do
             local value = conditions[column.column_name]
@@ -57,7 +65,7 @@ Model.find = function (self, conditions, ...)
             end
         end
     end
-    return lapis_find(self, conditions, ...)
+    return lapis_find(self, ...)
 end
 
 -- TODO: This does not actually autoload the models
