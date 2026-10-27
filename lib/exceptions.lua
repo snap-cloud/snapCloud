@@ -176,17 +176,8 @@ local function is_app_frame(_, raw_path)
   return raw_path:find('^%./') ~= nil and raw_path:find('^%./lua_modules/') == nil
 end
 
--- Errors that are capacity problems, not bugs: one Sentry issue and a 503.
-local DB_UNAVAILABLE = {
-  'postgres %(.-%) failed to connect', 'remaining connection slots are reserved',
-  'sorry, too many clients already', 'too many waiting connect operations',
-  'receive_message: failed to get type: timeout',
-  'failed to receive packet header',
-}
-
--- Returns a table with the Sentry exception, the innermost application frame
--- as culprit, extra data (failed query, Postgres detail, raw traceback) and,
--- for errors that map to a status other than 500, `status` and `message`.
+-- Returns the Sentry exception (type, value, stacktrace), the innermost
+-- application frame as culprit, and the full message and traceback as extra.
 exceptions.describe_error = function(err, trace)
   err = tostring(err)
   local message, traceback = err:match('^(.-)\n(stack traceback:.*)$')
@@ -196,54 +187,28 @@ exceptions.describe_error = function(err, trace)
     message = message:gsub(prefix, '', 1)
   end
 
-  local exception, extra = {}, { traceback = traceback or trace }
-  local report = { exception = exception, extra = extra }
-  local pg_error = message:match('\n(ERROR:.*)$')
-  for _, pattern in ipairs(DB_UNAVAILABLE) do
-    local line = message:match('[^\n]*' .. pattern .. '[^\n]*')
-    if line then
-      exception.type = 'DatabaseUnavailable'
-      exception.value = line
-      extra.query = message:match('^(.-)\n') ~= line and message:match('^(.-)\n') or nil
-      report.fingerprint = { 'database-unavailable' }
-      report.status = 503
-      report.message = 'The database is busy. Please try again in a moment.'
-      pg_error = nil
-      break
-    end
-  end
-  if exception.type then
-    -- classified above
-  elseif message:find('http v2 not supported yet', 1, true) then
-    -- lua-resty-upload cannot read multipart bodies over HTTP/2; these are
-    -- scanner posts to random URLs, not something to report.
-    exception.type = 'UnsupportedUpload'
-    exception.value = 'multipart body over HTTP/2'
-    report.status = 415
-    report.silent = true
-    report.message = 'Multipart uploads are not supported over HTTP/2.'
-  elseif pg_error then
-    exception.type = 'PostgresError'
-    local value = pg_error:match('^ERROR:%s*([^\n]*)')
-    extra.position = value:match('%((%d+)%)$')
-    exception.value = (value:gsub('%s*%(%d+%)$', ''))
-    extra.detail = pg_error:match('\n(.*)$')
-    extra.query = message:sub(1, #message - #pg_error - 1)
-  else
-    exception.type = 'LuaError'
-    exception.value =
-      (message:match('^[^\n]*'):gsub('%f[%w]%d+%f[%W]', '[NUMBER]'))
-  end
-
-  exception.stacktrace = raven.parse_traceback(
-    traceback or trace, { strip = STRIP_PREFIXES, in_app = is_app_frame })
+  -- Lapis raises Postgres failures as "<query>\n<error>"; the query may span
+  -- lines, so take the ERROR: line, or the last line for socket errors.
+  local pg_message = message:match('\nERROR:%s*([^\n]*)') or message:match('\n([^\n]+)$')
+  if pg_message then pg_message = pg_message:gsub('%s*%(%d+%)$', '') end
+  local exception = {
+    type = pg_message and 'PostgresError' or 'LuaError',
+    value = pg_message or message,
+    stacktrace = raven.parse_traceback(
+      traceback or trace, { strip = STRIP_PREFIXES, in_app = is_app_frame }),
+  }
+  local culprit
   for _, frame in ipairs(exception.stacktrace.frames) do
     if frame.in_app then
-      report.culprit = frame.filename .. ':' .. frame.lineno ..
+      culprit = frame.filename .. ':' .. frame.lineno ..
         ' in ' .. tostring(frame['function'])
     end
   end
-  return report
+  return {
+    exception = exception,
+    culprit = culprit,
+    extra = { message = message, traceback = traceback or trace },
+  }
 end
 
 -- The Lapis pattern that matched, e.g. "POST /(api/v1/)projects/:username/:projectname".
