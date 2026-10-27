@@ -874,7 +874,7 @@ UserController = {
         Followers:create({
             follower_id = self.current_user.id,
             followed_id = self.queried_user.id
-        })
+        }, { on_conflict = 'do_nothing' })
         return jsonResponse({
             message = 'Now following user ' .. self.queried_user.username,
             title = 'Follow user'

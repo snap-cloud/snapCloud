@@ -57,7 +57,7 @@ local sortable_columns = {
 ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
-        if not self.params.page_number then self.params.page_number = 1 end
+        self.params.page_number = tonumber(self.params.page_number) or 1
         local filters = ''
         if self.current_user and self.current_user:isadmin() then
           if self.params.filter_bookmarked == 'true' then
@@ -573,7 +573,10 @@ ProjectController = {
         -- Read request body and parse it into JSON
         ngx.req.read_body()
         local body_data = ngx.req.get_body_data()
-        local body = body_data and util.from_json(body_data) or nil
+        local parsed, body = pcall(util.from_json, body_data)
+        if not parsed or type(body) ~= 'table' then
+            yield_error(err.invalid_project_data)
+        end
 
         validate.assert_valid(body, {
             { 'xml', exists = true },
@@ -656,7 +659,7 @@ ProjectController = {
                 ispublic = self.params.ispublic or false,
                 ispublished = self.params.ispublished or false,
                 likely_class_work = likely_class_work,
-            })
+            }, { on_conflict = 'do_nothing' })
             project =
                 Projects:find(
                     tostring(self.params.username),
@@ -673,7 +676,7 @@ ProjectController = {
                     original_project_id = original_id,
                     remixed_project_id = project.id,
                     created = db.format_date()
-                })
+                }, { on_conflict = 'do_nothing' })
             end
         end
 
