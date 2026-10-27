@@ -169,7 +169,7 @@ end
 -- `file:line:` prefix added on the way up plus the traceback of the coroutine
 -- that failed, and `trace`, the stack of the dispatcher itself.
 local STRIP_PREFIXES = {
-  '^%./', '^lua_modules/share/lua/[%d%.]+/', '^/.-/share/lua/[%d%.]+/'
+  '^%./', '^lua_modules/share/lua/[%d%.]+/', '^.-/share/lua/[%d%.]+/'
 }
 
 local function is_app_frame(_, raw_path)
@@ -191,7 +191,9 @@ exceptions.describe_error = function(err, trace)
   local pg_error = message:match('\n(ERROR:.*)$')
   if pg_error then
     exception.type = 'PostgresError'
-    exception.value = pg_error:match('^ERROR:%s*([^\n]*)')
+    local value = pg_error:match('^ERROR:%s*([^\n]*)')
+    extra.position = value:match('%((%d+)%)$')
+    exception.value = (value:gsub('%s*%(%d+%)$', ''))
     extra.detail = pg_error:match('\n(.*)$')
     extra.query = message:sub(1, #message - #pg_error - 1)
   else
@@ -212,11 +214,11 @@ exceptions.describe_error = function(err, trace)
   return exception, culprit, extra
 end
 
--- "POST /api/v1/projects/:username/:projectname" for the request that failed.
+-- The Lapis pattern that matched, e.g. "POST /(api/v1/)projects/:username/:projectname".
 exceptions.transaction_name = function(request)
   local pattern = request and request.route_pattern
   if type(pattern) ~= 'string' then return nil end
-  return request.req.method .. ' ' .. pattern:gsub('[()]', '')
+  return request.req.method .. ' ' .. pattern
 end
 
 return exceptions
