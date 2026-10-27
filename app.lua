@@ -388,6 +388,31 @@ function app:handle_error(err, trace)
         )
     end
 
+    local ok, report = pcall(exceptions.describe_error, err, trace)
+    if not ok then
+        report = { exception = { type = 'LuaError', value = err } }
+    end
+    local function report_to_sentry()
+        if not config.sentry_dsn or report.silent then return end
+        local _, send_err = exceptions.rvn:captureException(
+            { report.exception }, {
+                user = exceptions.get_user_info(self.session),
+                culprit = report.culprit,
+                extra = report.extra,
+                fingerprint = report.fingerprint,
+                transaction = exceptions.transaction_name(self.original_request),
+            })
+        if send_err then
+            ngx.log(ngx.ERR, send_err)
+        end
+    end
+
+    -- Capacity problems and unsupported requests get their own status.
+    if report.status then
+        report_to_sentry()
+        return errorResponse(self, report.message, report.status)
+    end
+
     if config._name == 'development' then
         debug_print(err, trace)
         local accept = self.req.headers.accept or ''
@@ -405,24 +430,9 @@ function app:handle_error(err, trace)
     end
 
 
-    local ok, exception, culprit, extra =
-        pcall(exceptions.describe_error, err, trace)
-    if not ok then
-        exception = { type = 'LuaError', value = err }
-    end
-    if config.sentry_dsn then
-        local _, send_err = exceptions.rvn:captureException({ exception }, {
-            user = exceptions.get_user_info(self.session),
-            culprit = culprit,
-            extra = extra,
-            transaction = exceptions.transaction_name(self.original_request),
-        })
-        if send_err then
-            ngx.log(ngx.ERR, send_err)
-        end
-    end
-    return errorResponse(
-        self, "An unexpected error occurred: " .. exception.value, 500)
+    report_to_sentry()
+    return errorResponse(self,
+        'An unexpected error occurred: ' .. report.exception.value, 500)
 end
 
 -- The API for the Snap! editor is implemented in the api.lua file
