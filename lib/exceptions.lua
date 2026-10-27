@@ -165,45 +165,58 @@ raven.get_request_data = function()
   return request
 end
 
--- This function is extracted from lapis-exceptions by @leafo
--- https://github.com/leafo/lapis-exceptions/blob/master/lapis/exceptions/models/exception_types.lua#L6
-local grammar = nil
-local make_grammar
-make_grammar = function()
-local P, R, Cs
-do
-  local _obj_0 = require("lpeg")
-  P, R, Cs = _obj_0.P, _obj_0.R, _obj_0.Cs
-end
-local make_str
-make_str = function(delim)
-  local d = P(delim)
-  return d * (P([[\]]) * d + (P(1) - d)) ^ 0 * d
-end
-local rep
-rep = function(name)
-  return function()
-    return "[" .. tostring(name) .. "]"
-  end
-end
-local num = R("09") ^ 1 * (P(".") * R("09") ^ 1) ^ -1
-local str = make_str([[']]) + make_str([["]])
-local line_no = P(":") * num * P(":")
-local string = P("'") * (P(1) - P("'")) * P("'")
-grammar = Cs((line_no + (num / rep("NUMBER")) + (str / rep("STRING")) + P(1)) ^ 0)
+-- Lapis hands `handle_error` two strings: `err`, which carries every
+-- `file:line:` prefix added on the way up plus the traceback of the coroutine
+-- that failed, and `trace`, the stack of the dispatcher itself.
+local STRIP_PREFIXES = {
+  '^%./', '^lua_modules/share/lua/[%d%.]+/', '^/.-/share/lua/[%d%.]+/'
+}
+
+local function is_app_frame(_, raw_path)
+  return raw_path:find('^%./') ~= nil and raw_path:find('^%./lua_modules/') == nil
 end
 
--- Clean up exceptions to not include user-specific strings.
--- Adapted from lapis-exceptions to also trim the path to the calling file.
-exceptions.normalize_error = function(str)
-    if not (grammar) then
-        make_grammar()
+-- Returns an exception table for Sentry, the innermost application frame as
+-- culprit, and extra data (the failed query, Postgres detail, raw traceback).
+exceptions.describe_error = function(err, trace)
+  err = tostring(err)
+  local message, traceback = err:match('^(.-)\n(stack traceback:.*)$')
+  message = message or err
+  local prefix = '^%S-%.lua:%d+:%s*'
+  while message:match(prefix) do
+    message = message:gsub(prefix, '', 1)
+  end
+
+  local exception, extra = {}, { traceback = traceback or trace }
+  local pg_error = message:match('\n(ERROR:.*)$')
+  if pg_error then
+    exception.type = 'PostgresError'
+    exception.value = pg_error:match('^ERROR:%s*([^\n]*)')
+    extra.detail = pg_error:match('\n(.*)$')
+    extra.query = message:sub(1, #message - #pg_error - 1)
+  else
+    exception.type = 'LuaError'
+    exception.value =
+      (message:match('^[^\n]*'):gsub('%f[%w]%d+%f[%W]', '[NUMBER]'))
+  end
+
+  exception.stacktrace = raven.parse_traceback(
+    traceback or trace, { strip = STRIP_PREFIXES, in_app = is_app_frame })
+  local culprit
+  for _, frame in ipairs(exception.stacktrace.frames) do
+    if frame.in_app then
+      culprit = frame.filename .. ':' .. frame.lineno ..
+        ' in ' .. tostring(frame['function'])
     end
-    local first = str:match("^[^\n]+")
-    local result = grammar:match(first) or first
-    -- Additionally, trim the fat of standard paths, everything before *.lua:lineno
-    local _, last = string.find(result, '[%w]+.lua:%d+:%s*')
-    return string.sub(result, last, -1)
+  end
+  return exception, culprit, extra
+end
+
+-- "POST /api/v1/projects/:username/:projectname" for the request that failed.
+exceptions.transaction_name = function(request)
+  local pattern = request and request.route_pattern
+  if type(pattern) ~= 'string' then return nil end
+  return request.req.method .. ' ' .. pattern:gsub('[()]', '')
 end
 
 return exceptions
