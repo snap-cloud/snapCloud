@@ -41,6 +41,7 @@ local Users = package.loaded.Users
 local validation = package.loaded.validation
 
 local is_likely_course_work = validation.is_likely_course_work
+local assert_current_user_logged_in = validation.assert_current_user_logged_in
 local order_by_clause = validation.order_by_clause
 
 -- Columns that requests may sort projects by. Anything else is rejected, as
@@ -56,7 +57,7 @@ local sortable_columns = {
 ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
-        if not self.params.page_number then self.params.page_number = 1 end
+        self.params.page_number = tonumber(self.params.page_number) or 1
         local filters = ''
         if self.current_user and self.current_user:isadmin() then
           if self.params.filter_bookmarked == 'true' then
@@ -135,7 +136,8 @@ ProjectController = {
             self,
             [[WHERE ispublished ]] ..exclude_class_projects .. [[ AND NOT EXISTS(
                 SELECT 1 FROM deleted_users WHERE
-                username = active_projects.username LIMIT 1)]]
+                username = active_projects.username LIMIT 1)]] ..
+                Projects:public_visibility_clause(self.current_user)
         )
     end),
     my_projects = capture_errors(function (self)
@@ -372,6 +374,7 @@ ProjectController = {
         )
     end),
     flag = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         if self.current_user:isbanned() then yield_error(err.banned) end
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
@@ -396,6 +399,7 @@ ProjectController = {
         return okResponse()
     end),
     remove_flag = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         -- Check whether we're removing someone else's flag
         if self.params.flagger then assert_min_role(self, 'reviewer') end
 
@@ -601,7 +605,10 @@ ProjectController = {
         -- Read request body and parse it into JSON
         ngx.req.read_body()
         local body_data = ngx.req.get_body_data()
-        local body = body_data and util.from_json(body_data) or nil
+        local parsed, body = pcall(util.from_json, body_data)
+        if not parsed or type(body) ~= 'table' then
+            yield_error(err.invalid_project_data)
+        end
 
         validate.assert_valid(body, {
             { 'xml', exists = true },
@@ -684,20 +691,24 @@ ProjectController = {
                 ispublic = self.params.ispublic or false,
                 ispublished = self.params.ispublished or false,
                 likely_class_work = likely_class_work,
-            })
+            }, { on_conflict = 'do_nothing' })
             project =
                 Projects:find(
                     tostring(self.params.username),
                     tostring(self.params.projectname)
                 )
 
-            if (body.remixID and body.remixID ~= cjson.null) then
-                -- user is remixing a project
+            -- The original may have been deleted for good since it was
+            -- opened; then there is nothing to link to.
+            local original_id = body.remixID ~= cjson.null and
+                tonumber(body.remixID) or nil
+            if original_id and db.select(
+                    '1 FROM projects WHERE id = ? LIMIT 1', original_id)[1] then
                 Remixes:create({
-                    original_project_id = body.remixID,
+                    original_project_id = original_id,
                     remixed_project_id = project.id,
                     created = db.format_date()
-                })
+                }, { on_conflict = 'do_nothing' })
             end
         end
 

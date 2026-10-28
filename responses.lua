@@ -97,6 +97,11 @@ errorResponse = function (self, err, status)
 end
 
 html_message_page = function (self, title, contents, status)
+    -- Error requests skip the before filters, so the layout needs a locale.
+    if not self.locale then
+        self.locale = package.loaded.locale
+        self.locale.language = self.session.locale or 'en'
+    end
     self.title = title
     self.contents = contents
     return { render = 'message', status = status or 200 }

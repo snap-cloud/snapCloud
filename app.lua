@@ -56,7 +56,7 @@ local config = package.loaded.config
 
 -- Snap!Cloud Utilities
 local utils = require('lib.util')
--- Track exceptions, exposes raven, rollbar, and normalize_error
+-- Track exceptions, exposes raven and describe_error
 local exceptions = require('lib.exceptions')
 local domain_allowed = require('cors')
 
@@ -143,7 +143,7 @@ local function track_session_activity(self)
     if should_count_session then
         self.current_user:update({
             last_session_at = package.loaded.db.format_date(),
-            session_count = self.current_user.session_count + 1
+            session_count = (self.current_user.session_count or 0) + 1
         })
     end
 end
@@ -262,9 +262,9 @@ app:before_filter(function (self)
     -- Make our utilities (escape_html, js_string...) available to templates
     self.util = utils
 
-    self.req.source =
-        (self.req.headers['content-type'] and
-            self.req.headers['content-type']:find('json')) and 'snap' or 'site'
+    local content_type = self.req.headers['content-type']
+    self.req.source = (type(content_type) == 'string' and
+        content_type:find('json')) and 'snap' or 'site'
 
     -- Set Access Control header
     local domain = utils.domain_name(self.req.headers.origin)
@@ -302,8 +302,9 @@ app:before_filter(function (self)
         ngx.req.read_body()
         local body = ngx.req.get_body_data()
         -- try to decode it, if it fails it's not proper JSON
-        if pcall(function () package.loaded.util.from_json(body) end) then
-            local post_params = package.loaded.util.from_json(body)
+        local is_json, post_params =
+            pcall(package.loaded.util.from_json, body)
+        if is_json and type(post_params) == 'table' then
             for k, v in pairs(post_params) do
                 self.params[k] = v
             end
@@ -388,6 +389,11 @@ function app:handle_error(err, trace)
         )
     end
 
+    local ok, report = pcall(exceptions.describe_error, err, trace)
+    if not ok then
+        report = { exception = { type = 'LuaError', value = err } }
+    end
+
     if config._name == 'development' then
         debug_print(err, trace)
         local accept = self.req.headers.accept or ''
@@ -404,23 +410,20 @@ function app:handle_error(err, trace)
         return errorResponse(self, err .. '\n' .. trace, 500)
     end
 
-
-    local ok, err_msg = pcall(exceptions.normalize_error, err)
-    if not ok then
-        err_msg = err or 'Unknown error'
-    end
-    local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then
-        local _, send_err = exceptions.rvn:captureException({{
-            type = err_msg,
-            value = err .. "\n\n" .. trace,
-            trace_level = 2, -- skip `handle_error`
-        }}, { user = user_info })
+        local _, send_err = exceptions.rvn:captureException(
+            { report.exception }, {
+                user = exceptions.get_user_info(self.session),
+                culprit = report.culprit,
+                extra = report.extra,
+                transaction = exceptions.transaction_name(self.original_request),
+            })
         if send_err then
             ngx.log(ngx.ERR, send_err)
         end
     end
-    return errorResponse(self, "An unexpected error occurred: " .. err_msg, 500)
+    return errorResponse(self,
+        'An unexpected error occurred: ' .. report.exception.value, 500)
 end
 
 -- The API for the Snap! editor is implemented in the api.lua file

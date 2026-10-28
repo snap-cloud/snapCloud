@@ -12,14 +12,14 @@
                 aria-label="<%= locale.get('unbookmark') %>"
                 title="<%= locale.get('unbookmark') %>"
                 onclick="cloud.delete(
-                '/api/v1/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
+                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
             ><i class="fas fa-heart"></i></button>
         <% else %>
             <button class="btn btn-outline-dark bookmark" type="button"
                 aria-label="<%= locale.get('bookmark') %>"
                 title="<%= locale.get('bookmark') %>"
                 onclick="cloud.post(
-                '/api/v1/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
+                '/project/<%= project.id %>/bookmark/<%= current_user.id %>')"
             ><i class="far fa-heart"></i></button>
         <% end %>
     <% end %>
@@ -124,7 +124,7 @@ function confirmFlag () {
                     var form =
                         document.querySelector('form.reasons');
                     cloud.post(
-                        '/api/v1/project/<%= project.id %>/flag',
+                        '/project/<%= project.id %>/flag',
                         null,
                         {
                             reason: form.querySelector(
@@ -142,7 +142,7 @@ function confirmFlag () {
 }
 
 function unflagProject() {
-    cloud.delete('/api/v1/project/<%= project.id %>/flag')
+    cloud.delete('/project/<%= project.id %>/flag')
 }
 
 </script>
