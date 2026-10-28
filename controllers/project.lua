@@ -136,7 +136,8 @@ ProjectController = {
             self,
             [[WHERE ispublished ]] ..exclude_class_projects .. [[ AND NOT EXISTS(
                 SELECT 1 FROM deleted_users WHERE
-                username = active_projects.username LIMIT 1)]]
+                username = active_projects.username LIMIT 1)]] ..
+                Projects:public_visibility_clause(self.current_user)
         )
     end),
     my_projects = capture_errors(function (self)
