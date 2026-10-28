@@ -125,16 +125,34 @@ ProjectController = {
             return items
         end
     end,
+    -- SQL fragment that keeps likely class work out of public listings.
+    -- Explore always hides it (the homepage and explore queries are shared
+    -- across users, so the clause must not depend on who is asking). A
+    -- search is different: reviewers and above search everything, and any
+    -- logged-in user can always find their own published projects.
+    class_work_clause = function (self)
+        if self.params.exclude_class_projects == 'false' then
+            return ''
+        end
+        local searching = self.params.search_term
+            and self.params.search_term ~= ''
+        if searching and self.current_user then
+            if self.current_user:has_min_role('reviewer') then
+                return ''
+            end
+            return db.interpolate_query(
+                ' AND (NOT likely_class_work OR username = ?)',
+                self.current_user.username
+            )
+        end
+        return ' AND NOT likely_class_work'
+    end,
     fetch = capture_errors(function (self)
         self.cache_category = 'latest'
-        local exclude_class_projects = 'AND NOT likely_class_work'
-        if self.params.exclude_class_projects == 'false' then
-            exclude_class_projects = ''
-        end
-
         return ProjectController.run_query(
             self,
-            [[WHERE ispublished ]] ..exclude_class_projects .. [[ AND NOT EXISTS(
+            [[WHERE ispublished]] ..
+                ProjectController.class_work_clause(self) .. [[ AND NOT EXISTS(
                 SELECT 1 FROM deleted_users WHERE
                 username = active_projects.username LIMIT 1)]] ..
                 Projects:public_visibility_clause(self.current_user)
@@ -262,11 +280,13 @@ ProjectController = {
         uncache_category('latest#count')
         return okResponse()
     end),
-    mark_class_project = capture_errors(function (self)
+    -- Sets likely_class_work on a project and its whole remix tree (remixes
+    -- of remixes included; UNION stops the walk on remix cycles), so that
+    -- marking and unmarking are exact inverses of each other.
+    set_class_work_on_tree = function (self, flag)
         assert_min_role(self, 'reviewer')
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
-        -- Walks the whole remix tree; UNION stops it on remix cycles.
         db.query([[
             WITH RECURSIVE descendants AS (
                 SELECT ?::integer AS id
@@ -276,22 +296,19 @@ ProjectController = {
                 INNER JOIN descendants
                     ON descendants.id = remixes.original_project_id
             )
-            UPDATE projects SET likely_class_work = true
+            UPDATE projects SET likely_class_work = ?
             WHERE id IN (SELECT id FROM descendants)
-                AND likely_class_work IS NOT TRUE
-        ]], project.id)
+                AND likely_class_work IS DISTINCT FROM ?
+        ]], project.id, flag, flag)
         uncache_category('latest')
         uncache_category('latest#count')
         return okResponse()
+    end,
+    mark_class_project = capture_errors(function (self)
+        return ProjectController.set_class_work_on_tree(self, true)
     end),
     unmark_class_project = capture_errors(function (self)
-        assert_min_role(self, 'reviewer')
-        local project = Projects:find({ id = self.params.id })
-        assert_project_exists(self, project)
-        project:update({ likely_class_work = false })
-        uncache_category('latest')
-        uncache_category('latest#count')
-        return okResponse()
+        return ProjectController.set_class_work_on_tree(self, false)
     end),
     metadata = capture_errors(function (self)
         assert_users_match(self)
