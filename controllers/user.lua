@@ -102,7 +102,11 @@ UserController = {
     fetch = capture_errors(function (self)
         -- just to be able to reuse the existing run_query structure:
         if not self.params.order then self.params.order = 'username' end
-        return UserController.run_query(self, 'WHERE true')
+        -- Moderators pass the reviewer check, so /user_admin stays unfiltered.
+        return UserController.run_query(
+            self,
+            'WHERE true' .. Users:public_visibility_clause(self.current_user)
+        )
     end),
     zombies = capture_errors(function (self)
         self.table = DeletedUsers
