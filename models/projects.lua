@@ -55,6 +55,18 @@ local ActiveProjects = Model:extend('active_projects', {
             end
         end
     },
+    -- SQL fragment for public project listings (explore, search). Projects
+    -- by student and banned users are hidden from everyone below reviewer;
+    -- reviewers and above see all of them.
+    public_visibility_clause = function (_self, viewer)
+        if viewer and viewer:has_min_role('reviewer') then
+            return ''
+        end
+        return [[ AND NOT EXISTS(
+                SELECT 1 FROM users WHERE
+                username = active_projects.username
+                AND role IN ('student', 'banned') LIMIT 1)]]
+    end,
     recently_bookmarked = function ()
         -- This query was gerneted by Claude, insprite by the Hacker News
         -- algorithm for ranking projects based on recent bookmarks.

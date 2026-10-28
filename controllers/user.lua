@@ -102,7 +102,11 @@ UserController = {
     fetch = capture_errors(function (self)
         -- just to be able to reuse the existing run_query structure:
         if not self.params.order then self.params.order = 'username' end
-        return UserController.run_query(self, 'WHERE true')
+        -- Moderators pass the reviewer check, so /user_admin stays unfiltered.
+        return UserController.run_query(
+            self,
+            'WHERE true' .. Users:public_visibility_clause(self.current_user)
+        )
     end),
     zombies = capture_errors(function (self)
         self.table = DeletedUsers
@@ -874,7 +878,7 @@ UserController = {
         Followers:create({
             follower_id = self.current_user.id,
             followed_id = self.queried_user.id
-        })
+        }, { on_conflict = 'do_nothing' })
         return jsonResponse({
             message = 'Now following user ' .. self.queried_user.username,
             title = 'Follow user'
