@@ -54,6 +54,9 @@ err = {
     passwords_do_not_match = {
         msg = 'Passwords do not match',
         status = 400 },
+    invalid_project_data = {
+        msg = 'The project data could not be read',
+        status = 400 },
     nonexistent_user =
         { msg = 'No user with this username exists', status = 404 },
     nonexistent_email =
