@@ -57,7 +57,7 @@ local sortable_columns = {
 ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
-        if not self.params.page_number then self.params.page_number = 1 end
+        self.params.page_number = tonumber(self.params.page_number) or 1
         local filters = ''
         if self.current_user and self.current_user:isadmin() then
           if self.params.filter_bookmarked == 'true' then
