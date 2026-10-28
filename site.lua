@@ -456,6 +456,7 @@ app:get('/user_admin', capture_errors(function (self)
     self.items_per_page = 150
     if self.current_user then
         assert_min_role(self, 'moderator')
+        self.params.order = 'created DESC'
         self.items = UserController.fetch(self)
         return { render = 'admin/user_admin' }
     else

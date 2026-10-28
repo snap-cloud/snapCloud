@@ -50,7 +50,11 @@ local filter_clause = validations.filter_clause
 
 -- Columns that requests may sort or filter users by. Anything else is
 -- rejected, as these names end up spliced straight into SQL.
-local sortable_columns = { created = true, username = true }
+-- Keep in sync with the sort dropdown in views/admin/user_admin.etlua
+local sortable_columns = {
+    created = true, username = true, email = true,
+    session_count = true, last_login_at = true
+}
 -- Keep in sync with the filter dropdowns in views/admin/user_admin.etlua
 local filterable_columns = { verified = true, is_teacher = true, role = true }
 -- Local Snap!Cloud functions
@@ -76,6 +80,9 @@ UserController = {
         -- Apply filters from params. They look like filter_verified=true or
         -- filter_role=reviewer, and only whitelisted fields are accepted.
         local filters = filter_clause(self.params, filterable_columns)
+        if self.params.filter_order_by and self.params.filter_order_by ~= '' then
+            self.params.order = self.params.filter_order_by
+        end
 
         local paginator = self.table:paginated(
             query ..
@@ -86,7 +93,8 @@ UserController = {
                 ) or '') ..
                 filters ..
                 ' ORDER BY ' .. order_by_clause(
-                    self.params.order, sortable_columns, 'created'),
+                    self.params.order, sortable_columns, 'created') ..
+                ' NULLS LAST',
             {
                 per_page = self.items_per_page or 15,
                 fields = self.fields or '*'
