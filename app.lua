@@ -143,7 +143,7 @@ local function track_session_activity(self)
     if should_count_session then
         self.current_user:update({
             last_session_at = package.loaded.db.format_date(),
-            session_count = self.current_user.session_count + 1
+            session_count = (self.current_user.session_count or 0) + 1
         })
     end
 end
@@ -262,9 +262,9 @@ app:before_filter(function (self)
     -- Make our utilities (escape_html, js_string...) available to templates
     self.util = utils
 
-    self.req.source =
-        (self.req.headers['content-type'] and
-            self.req.headers['content-type']:find('json')) and 'snap' or 'site'
+    local content_type = self.req.headers['content-type']
+    self.req.source = (type(content_type) == 'string' and
+        content_type:find('json')) and 'snap' or 'site'
 
     -- Set Access Control header
     local domain = utils.domain_name(self.req.headers.origin)
@@ -302,8 +302,9 @@ app:before_filter(function (self)
         ngx.req.read_body()
         local body = ngx.req.get_body_data()
         -- try to decode it, if it fails it's not proper JSON
-        if pcall(function () package.loaded.util.from_json(body) end) then
-            local post_params = package.loaded.util.from_json(body)
+        local is_json, post_params =
+            pcall(package.loaded.util.from_json, body)
+        if is_json and type(post_params) == 'table' then
             for k, v in pairs(post_params) do
                 self.params[k] = v
             end

@@ -64,10 +64,10 @@
         // alert('Join URL copied to clipboard!');
     }
     function removeJoinToken() {
-        cloud.apiRequest('DELETE', '/api/v1/collection/<%= collection.id %>/join_token', (resp) => { location.reload(); });
+        cloud.apiRequest('DELETE', '/collection/<%= collection.id %>/join_token', (resp) => { location.reload(); });
     }
     function generateJoinToken() {
-        cloud.apiRequest('GET', '/api/v1/collection/<%= collection.id %>/join_token', (resp) => { location.reload(); });
+        cloud.apiRequest('GET', '/collection/<%= collection.id %>/join_token', (resp) => { location.reload(); });
     }
     </script>
 <% end %>
