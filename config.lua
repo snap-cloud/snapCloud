@@ -67,6 +67,10 @@ config({'development', 'staging', 'production', 'test'}, {
 
     hostname = os.getenv('HOSTNAME') or 'localhost',
     secondary_hostname = os.getenv('SECONDARY_HOSTNAME') or 'localhost',
+    -- Public base URL used for links that leave the site (emails). It must
+    -- not be derived from the request's Host header, which any client can
+    -- set. nginx already exports CLOUD_URL for the editor's meta tag.
+    cloud_url = os.getenv('CLOUD_URL'),
     maintenance_mode = os.getenv('MAINTENANCE_MODE') or 'false',
 
     measure_performance = true,

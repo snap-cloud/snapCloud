@@ -496,6 +496,14 @@ ProjectController = {
                 remixed_project_id = self.params.id,
                 created = self.params.created
             }, { on_conflict = 'do_nothing' })
+            if original_project.likely_class_work then
+                local remixed_project =
+                    Projects:find({ id = self.params.id })
+                if remixed_project
+                        and not remixed_project.likely_class_work then
+                    remixed_project:update({ likely_class_work = true })
+                end
+            end
         end
 
         return okResponse()
@@ -678,6 +686,13 @@ ProjectController = {
 
             local likely_class_work = self.current_user:is_student() or
                 is_likely_course_work(self.params.projectname)
+            if (body.remixID and body.remixID ~= cjson.null) then
+                local original_project =
+                    Projects:find({ id = body.remixID })
+                if original_project and original_project.likely_class_work then
+                    likely_class_work = true
+                end
+            end
             Projects:create({
                 projectname = tostring(self.params.projectname),
                 username = tostring(self.params.username),
