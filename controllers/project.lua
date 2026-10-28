@@ -656,7 +656,7 @@ ProjectController = {
                 ispublic = self.params.ispublic or false,
                 ispublished = self.params.ispublished or false,
                 likely_class_work = likely_class_work,
-            })
+            }, { on_conflict = 'do_nothing' })
             project =
                 Projects:find(
                     tostring(self.params.username),
@@ -673,7 +673,7 @@ ProjectController = {
                     original_project_id = original_id,
                     remixed_project_id = project.id,
                     created = db.format_date()
-                })
+                }, { on_conflict = 'do_nothing' })
             end
         end
 
