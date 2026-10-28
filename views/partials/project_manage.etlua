@@ -1,0 +1,163 @@
+<% -- Owner, moderator and admin actions for a project, plus the reviewers'
+   -- flag list. Rendered as the third item of the project page's viewer grid
+   -- (views.project), so the row of buttons under the Snap! player only holds
+   -- actions any visitor can take. Renders nothing for everybody else.
+   local is_users_project = (current_user and current_user.username == project.username)
+   local is_reviewer = current_user and current_user:has_min_role('reviewer')
+   local is_moderator = current_user and current_user:has_min_role('moderator')
+   local is_admin = current_user and current_user:isadmin() %>
+<% if is_users_project or is_reviewer then %>
+<div class="manage-section">
+<div class="manage">
+    <h2 class="h6"><%= locale.get('manage_project') %></h2>
+    <div class="manage-buttons">
+    <% -- SHARING & PUBLISHING. Icons match the shared / published state
+       -- markers on project thumbnails (views.partials.project). -- %>
+    <% if project.ispublished then %>
+        <button class="btn btn-secondary unpublish" type="button"
+            data-bs-toggle="tooltip" title="<%= locale.get('unpublish_tooltip') %>"
+            data-confirmation-message="<%= locale.get('confirm_unpublish_project') %>"
+            data-confirmation-method="delete"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/publish"
+        ><i class="fas fa-eye-slash" aria-hidden="true"></i>
+        <%= locale.get('unpublish_button') %></button>
+        <button class="btn btn-secondary unshare" type="button"
+            data-bs-toggle="tooltip" title="<%= locale.get('unshare_tooltip') %>"
+            data-confirmation-message="<%= locale.get('confirm_unshare_project') %>"
+            data-confirmation-method="delete"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/share"
+        ><i class="fas fa-unlink" aria-hidden="true"></i>
+        <%= locale.get('unshare_button') %></button>
+    <% elseif project.ispublic then %>
+        <button class="btn btn-secondary publish" type="button"
+            data-bs-toggle="tooltip" title="<%= locale.get('publish_tooltip') %>"
+            data-confirmation-message="<%= locale.get('confirm_publish_project') %>"
+            data-confirmation-method="post"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/publish"
+        ><i class="fas fa-eye" aria-hidden="true"></i>
+        <%= locale.get('publish_button') %></button>
+        <button class="btn btn-secondary unshare" type="button"
+            data-bs-toggle="tooltip" title="<%= locale.get('unshare_tooltip') %>"
+            data-confirmation-message="<%= locale.get('confirm_unshare_project') %>"
+            data-confirmation-method="delete"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/share"
+        ><i class="fas fa-unlink" aria-hidden="true"></i>
+        <%= locale.get('unshare_button') %></button>
+    <% else %>
+        <button class="btn btn-secondary share" type="button"
+            data-bs-toggle="tooltip" title="<%= locale.get('share_tooltip') %>"
+            data-confirmation-message="<%= locale.get('confirm_share_project') %>"
+            data-confirmation-method="post"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/share"
+        ><i class="fas fa-link" aria-hidden="true"></i>
+        <%= locale.get('share_button') %></button>
+        <button class="btn btn-secondary publish" type="button"
+            data-bs-toggle="tooltip" title="<%= locale.get('publish_tooltip') %>"
+            data-confirmation-message="<%= locale.get('confirm_publish_project') %>"
+            data-confirmation-method="post"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/publish"
+        ><i class="fas fa-eye" aria-hidden="true"></i>
+        <%= locale.get('publish_button') %></button>
+    <% end %>
+    </div>
+    <% -- REMIX ATTRIBUTION & DELETE, on their own line -- %>
+    <% if is_users_project or is_moderator or is_admin then %>
+    <div class="manage-buttons owner-buttons">
+    <% end %>
+    <% if is_users_project or is_moderator then %>
+        <button class="btn btn-sm btn-outline-secondary mark-as-remix" type="button"
+            title="<%= locale.get('mark_as_remix_title') %>"
+            onclick="markAsRemix()">
+            <i class="fas fa-fingerprint" aria-hidden="true"></i>
+            <%= locale.get('mark_as_remix_button') %>
+        </button>
+    <% end %>
+    <% -- DELETE (owner and admins) -- %>
+    <% if is_users_project or is_admin then %>
+        <button class="btn btn-sm btn-outline-danger delete" type="button"
+            onclick="confirmDelete()"
+        ><i class="fas fa-trash-alt" aria-hidden="true"></i>
+        <%= locale.get('delete_button') %></button>
+    <% end %>
+    <% if is_users_project or is_moderator or is_admin then %>
+    </div>
+    <% end %>
+    <% -- CLASS PROJECTS (reviewers and up), under their own heading -- %>
+    <% if is_reviewer then %>
+    <h3 class="h6"><%= locale.get('reviewer_actions') %></h3>
+    <div class="class-project">
+        <p>
+            <strong><%= locale.get('class_project_label') %></strong>
+            <%= project.likely_class_work
+                and locale.get('is_class_project')
+                or locale.get('not_class_project') %>
+        </p>
+        <% if project.likely_class_work then %>
+        <button class="btn btn-xs btn-outline-secondary unmark-class-project" type="button"
+            data-confirmation-message="<%= locale.get('confirm_unmark_class_project') %>"
+            data-confirmation-method="delete"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/class_project"
+        ><%= locale.get('unmark_class_project_button') %></button>
+        <% else %>
+        <button class="btn btn-xs btn-outline-secondary mark-class-project" type="button"
+            data-confirmation-message="<%= locale.get('confirm_mark_class_project') %>"
+            data-confirmation-method="post"
+            data-confirmation-url="/api/v1/project/<%= project.id %>/class_project"
+        ><%= locale.get('mark_class_project_button') %></button>
+        <% end %>
+    </div>
+    <% end %>
+</div>
+<% if is_reviewer then render('views.partials.flag_list', { project = project }) end %>
+</div>
+
+<script>
+function setupConfirmationButtons() {
+    let buttons = Array.from(document.querySelectorAll('button[data-confirmation-message]'));
+    buttons.forEach(el => {
+        el.onclick = (_event) => {
+            // Don't leave a tooltip floating over the confirmation dialog.
+            bootstrap.Tooltip.getInstance(el)?.hide();
+            let message = el.getAttribute('data-confirmation-message');
+            let method = el.getAttribute('data-confirmation-method');
+            let url = el.getAttribute('data-confirmation-url')
+            confirm(message, () => { cloud[method](url) });
+        }
+    });
+}
+
+setupConfirmationButtons();
+
+<% if is_users_project or is_moderator then %>
+function markAsRemix () {
+    prompt(
+        '<%= locale.get('mark_as_remix_prompt') %>',
+        input => {
+            var url = new URL(input);
+            cloud.post(
+                '/api/v1/project/<%= project.id %>/mark_as_remix',
+                null,
+                {
+                    username: <%- util.js_string(project.username) %>,
+                    created: '<%= project.created %>',
+                    original_username: url.searchParams.get('username'),
+                    original_projectname: url.searchParams.get('projectname')
+                }
+            );
+        }
+    );
+}
+<% end %>
+
+<% if is_users_project or is_admin then %>
+function confirmDelete () {
+    confirm(
+        '<%- package.loaded.dialog(
+            'confirm_delete',
+            { item_name = 'project'}) %>',
+        () => { cloud.delete('/api/v1/project/<%= project.id %>'); }
+    );
+}
+<% end %>
+</script>
+<% end %>
