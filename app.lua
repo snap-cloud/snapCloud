@@ -56,7 +56,7 @@ local config = package.loaded.config
 
 -- Snap!Cloud Utilities
 local utils = require('lib.util')
--- Track exceptions, exposes raven, rollbar, and normalize_error
+-- Track exceptions, exposes raven and describe_error
 local exceptions = require('lib.exceptions')
 local domain_allowed = require('cors')
 
@@ -389,6 +389,11 @@ function app:handle_error(err, trace)
         )
     end
 
+    local ok, report = pcall(exceptions.describe_error, err, trace)
+    if not ok then
+        report = { exception = { type = 'LuaError', value = err } }
+    end
+
     if config._name == 'development' then
         debug_print(err, trace)
         local accept = self.req.headers.accept or ''
@@ -405,23 +410,20 @@ function app:handle_error(err, trace)
         return errorResponse(self, err .. '\n' .. trace, 500)
     end
 
-
-    local ok, err_msg = pcall(exceptions.normalize_error, err)
-    if not ok then
-        err_msg = err or 'Unknown error'
-    end
-    local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then
-        local _, send_err = exceptions.rvn:captureException({{
-            type = err_msg,
-            value = err .. "\n\n" .. trace,
-            trace_level = 2, -- skip `handle_error`
-        }}, { user = user_info })
+        local _, send_err = exceptions.rvn:captureException(
+            { report.exception }, {
+                user = exceptions.get_user_info(self.session),
+                culprit = report.culprit,
+                extra = report.extra,
+                transaction = exceptions.transaction_name(self.original_request),
+            })
         if send_err then
             ngx.log(ngx.ERR, send_err)
         end
     end
-    return errorResponse(self, "An unexpected error occurred: " .. err_msg, 500)
+    return errorResponse(self,
+        'An unexpected error occurred: ' .. report.exception.value, 500)
 end
 
 -- The API for the Snap! editor is implemented in the api.lua file
