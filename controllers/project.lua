@@ -573,7 +573,10 @@ ProjectController = {
         -- Read request body and parse it into JSON
         ngx.req.read_body()
         local body_data = ngx.req.get_body_data()
-        local body = body_data and util.from_json(body_data) or nil
+        local parsed, body = pcall(util.from_json, body_data)
+        if not parsed or type(body) ~= 'table' then
+            yield_error(err.invalid_project_data)
+        end
 
         validate.assert_valid(body, {
             { 'xml', exists = true },
