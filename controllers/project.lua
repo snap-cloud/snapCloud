@@ -45,6 +45,19 @@ local assert_current_user_logged_in = validation.assert_current_user_logged_in
 local order_by_clause = validation.order_by_clause
 local page_past_end = validation.page_past_end
 local cap_pages = validation.cap_pages
+local MAX_PAGES = validation.MAX_PAGES
+
+-- The page count only feeds cap_pages and page_past_end, so counting beyond
+-- MAX_PAGES pages is wasted work: Explore's exact COUNT(*) walks all ~405k
+-- published projects (0.4 s idle, 0.8 s under load on prod) where this stops
+-- at MAX_PAGES * per_page rows.
+local function bounded_num_pages(where_clause, per_page)
+    local result = db.query(
+        'SELECT COUNT(*) AS c FROM (SELECT 1 FROM active_projects ' ..
+            where_clause .. ' LIMIT ' .. (MAX_PAGES * per_page) .. ') AS capped'
+    )
+    return math.ceil(result[1].c / per_page)
+end
 
 -- Columns that requests may sort projects by. Anything else is rejected, as
 -- these names end up spliced straight into SQL.
@@ -72,20 +85,22 @@ ProjectController = {
           end
         end
 
+        local where_clause = query ..
+            (self.params.search_term and (db.interpolate_query(
+                ' AND (projectname ILIKE ? OR notes ILIKE ?)',
+                '%' .. tostring(self.params.search_term) .. '%',
+                '%' .. tostring(self.params.search_term) .. '%')
+            ) or '') ..
+            filters
+        local per_page = tonumber(self.params.items_per_page) or 18
         local paginator = Projects:paginated(
-                 query ..
-                    (self.params.search_term and (db.interpolate_query(
-                        ' AND (projectname ILIKE ? OR notes ILIKE ?)',
-                        '%' .. tostring(self.params.search_term) .. '%',
-                        '%' .. tostring(self.params.search_term) .. '%')
-                    ) or '') ..
-                    filters ..
+                where_clause ..
                     ' ORDER BY ' .. order_by_clause(
                         self.params.order,
                         sortable_columns,
                         'firstpublished DESC'),
                 {
-                    per_page = self.params.items_per_page or 18,
+                    per_page = per_page,
                     fields = self.fields or '*'
                 }
             )
@@ -101,11 +116,12 @@ ProjectController = {
                         self.cache_category .. '#count',
                         nil,
                         function ()
-                            return paginator:num_pages()
+                            return bounded_num_pages(where_clause, per_page)
                         end
                     ))
                 else
-                    self.num_pages = cap_pages(paginator:num_pages())
+                    self.num_pages =
+                        cap_pages(bounded_num_pages(where_clause, per_page))
                 end
                 if page_past_end(self, self.num_pages) then return {} end
             end
