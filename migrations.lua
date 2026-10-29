@@ -565,5 +565,46 @@ return {
         db.query(
             'DROP INDEX CONCURRENTLY IF EXISTS projects_likely_class_work_idx'
         )
+    end,
+
+    -- Site search runs `username ILIKE '%term%' OR email ILIKE '%term%'`
+    -- over ~1M users and `projectname ILIKE … OR notes ILIKE …` over the
+    -- published projects. A btree can't serve a leading wildcard, so each was
+    -- a sequential scan: 0.9 s and 0.7 s per call on prod, twice per search
+    -- (list + count), 7-8 s each when a classroom searched at once
+    -- (2026-10-28). Trigram GIN indexes turn them into index scans.
+    -- pg_trgm is a trusted extension, but creating it still needs CREATE on
+    -- the database, which the app role lacks on staging and prod: run
+    -- `CREATE EXTENSION IF NOT EXISTS pg_trgm;` there as postgres first.
+    ['2026-10-30:2'] = function ()
+        local ok, err = pcall(db.query, 'CREATE EXTENSION IF NOT EXISTS pg_trgm')
+        if not ok then
+            error('pg_trgm is not installed and this role cannot create it. ' ..
+                'Run `CREATE EXTENSION IF NOT EXISTS pg_trgm;` as postgres, ' ..
+                'then re-run bin/lapis-migrate. (' .. tostring(err) .. ')')
+        end
+        -- CONCURRENTLY: no write lock on users/projects while each builds
+        -- (a minute or two each on prod).
+        db.query([[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS users_username_trgm_idx
+                ON users USING gin (username gin_trgm_ops)
+        ]])
+        db.query([[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS users_email_trgm_idx
+                ON users USING gin (email gin_trgm_ops)
+        ]])
+        -- Only live, published projects are searched. The partial predicate
+        -- must be implied by the query: active_projects adds `deleted IS
+        -- NULL`, ProjectController.fetch adds `ispublished`.
+        db.query([[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS projects_projectname_trgm_idx
+                ON projects USING gin (projectname gin_trgm_ops)
+                WHERE ispublished AND deleted IS NULL
+        ]])
+        db.query([[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS projects_notes_trgm_idx
+                ON projects USING gin (notes gin_trgm_ops)
+                WHERE ispublished AND deleted IS NULL
+        ]])
     end
 }
