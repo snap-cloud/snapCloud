@@ -598,6 +598,22 @@ prevent_tor_access = function (self)
     end
 end
 
+-- Pages past the end of a listing. A page number beyond the last page still
+-- makes Postgres walk (and, for deep offsets, sort) every matching row to
+-- reach an empty OFFSET: on prod, /explore?page_number=22990 of 22,651 pages
+-- cost 1.2 s per request (2026-10-28). Callers skip the page query and answer
+-- 404 with an empty page instead. Returns true when the page does not exist.
+local function page_past_end(self, num_pages)
+    local page_number = tonumber(self.params.page_number) or 1
+    if num_pages and num_pages > 0 and page_number > num_pages then
+        -- Only a real request has a response to write to; the search page
+        -- calls the controllers with a bare table.
+        if self.write then self:write({ status = 404 }) end
+        return true
+    end
+    return false
+end
+
 local function is_likely_course_work(project_name)
     -- Matches project names that are typical in courses like BJC or Teals.
     -- likely course work is excluded from some views.
@@ -667,6 +683,7 @@ local filter_clause = function (params, allowed_fields)
 end
 
 return {
+    page_past_end = page_past_end,
     assert_exists = assert_exists,
     assert_current_user_logged_in = assert_current_user_logged_in,
     is_likely_course_work = is_likely_course_work,

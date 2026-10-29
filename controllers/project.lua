@@ -43,6 +43,7 @@ local validation = package.loaded.validation
 local is_likely_course_work = validation.is_likely_course_work
 local assert_current_user_logged_in = validation.assert_current_user_logged_in
 local order_by_clause = validation.order_by_clause
+local page_past_end = validation.page_past_end
 
 -- Columns that requests may sort projects by. Anything else is rejected, as
 -- these names end up spliced straight into SQL.
@@ -90,6 +91,24 @@ ProjectController = {
         if self.req and (self.req.source == 'snap') then
             return jsonResponse({ projects = paginator:get_all() })
         else
+            -- Count first: a page past the last one is answered without
+            -- running the (deep-OFFSET) page query at all.
+            if not self.ignore_page_count then
+                if self.cached then
+                    self.num_pages = cached_query(
+                        { paginator._clause, 'count' },
+                        self.cache_category .. '#count',
+                        nil,
+                        function ()
+                            return paginator:num_pages()
+                        end
+                    )
+                else
+                    self.num_pages = paginator:num_pages()
+                end
+                if page_past_end(self, self.num_pages) then return {} end
+            end
+
             local items = {}
             if self.cached then
                 items = cached_query(
@@ -106,20 +125,6 @@ ProjectController = {
             else
                 items = paginator:get_page(self.params.page_number)
                 disk:process_thumbnails(items)
-            end
-            if not self.ignore_page_count then
-                if self.cached then
-                    self.num_pages = cached_query(
-                        { paginator._clause, 'count' },
-                        self.cache_category .. '#count',
-                        nil,
-                        function ()
-                            return paginator:num_pages()
-                        end
-                    )
-                else
-                    self.num_pages = paginator:num_pages()
-                end
             end
 
             return items

@@ -46,6 +46,7 @@ local validations = require('validation')
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
 local validate_token = validations.validate_token
 local order_by_clause = validations.order_by_clause
+local page_past_end = validations.page_past_end
 local filter_clause = validations.filter_clause
 
 -- Columns that requests may sort or filter users by. Anything else is
@@ -95,6 +96,7 @@ UserController = {
 
         if not self.ignore_page_count then
             self.num_pages = paginator:num_pages()
+            if page_past_end(self, self.num_pages) then return {} end
         end
 
         return paginator:get_page(self.params.page_number)
