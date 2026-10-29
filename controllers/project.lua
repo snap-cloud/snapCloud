@@ -132,11 +132,12 @@ ProjectController = {
             exclude_class_projects = ''
         end
 
+        -- Deleted users' projects are deleted too (see UserController.delete
+        -- and migration 2026-10-29:0), so active_projects already excludes
+        -- them and no anti-join against deleted_users is needed here.
         return ProjectController.run_query(
             self,
-            [[WHERE ispublished ]] ..exclude_class_projects .. [[ AND NOT EXISTS(
-                SELECT 1 FROM deleted_users WHERE
-                username = active_projects.username LIMIT 1)]] ..
+            [[WHERE ispublished ]] .. exclude_class_projects ..
                 Projects:public_visibility_clause(self.current_user)
         )
     end),

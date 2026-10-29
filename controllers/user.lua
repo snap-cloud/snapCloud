@@ -35,6 +35,7 @@ local resty_string = package.loaded.resty_string
 
 local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
+local uncache_category = package.loaded.uncache_category
 local AllUsers = package.loaded.AllUsers
 local Collections = package.loaded.Collections
 local Tokens = package.loaded.Tokens
@@ -467,9 +468,22 @@ UserController = {
             yield_error(err.wrong_password)
         end
         -- Do not actually delete the user; flag it as deleted.
-        if not (user:update({ deleted = db.format_date() })) then
+        local deleted_at = db.format_date()
+        if not (user:update({ deleted = deleted_at })) then
             yield_error('Could not delete user ' .. user.username)
         else
+            -- Their projects are trashed with them, stamped with the same
+            -- time so `revive` can restore exactly this set. Every listing
+            -- then excludes them through active_projects (deleted IS NULL)
+            -- instead of an anti-join against deleted_users per query.
+            db.query(
+                'UPDATE projects SET deleted = ? ' ..
+                    'WHERE username = ? AND deleted IS NULL',
+                deleted_at,
+                user.username
+            )
+            uncache_category('latest')
+            uncache_category('latest#count')
             if not self.queried_user then
                 -- we've deleted ourselves, let's log out
                 self.session.username = ''
@@ -562,7 +576,17 @@ UserController = {
         local zombie =
             DeletedUsers:find({ username = tostring(self.params.username) })
         if zombie then
+            -- Bring back the projects trashed together with the account
+            -- (same timestamp); anything trashed earlier stays trashed.
+            db.query(
+                'UPDATE projects SET deleted = NULL ' ..
+                    'WHERE username = ? AND deleted = ?',
+                zombie.username,
+                zombie.deleted
+            )
             zombie:update({ deleted = db.NULL })
+            uncache_category('latest')
+            uncache_category('latest#count')
             local user =
                 Users:find({ username = tostring(self.params.username) })
             if user then
