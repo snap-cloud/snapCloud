@@ -401,11 +401,17 @@ app:get('/events', capture_errors(cached(function (self)
     return { render = 'events' }
 end)))
 
-app:get('/search', capture_errors(function (self)
+-- Cached like /explore: 30 s per distinct path + params (so every query
+-- string, page and filter is its own entry) + locale + username. One
+-- search runs six queries, two of them seq scans of the users table, and
+-- on 2026-10-29 one device re-sent the same search 48 times in four
+-- minutes (three school networks together ~60/min) and exhausted the DB
+-- pool. Repeats within 30 s now cost nothing.
+app:get('/search', capture_errors(cached(function (self)
     self.reviewer_controls =
         self.current_user and self.current_user:has_min_role('reviewer')
     return { render = 'search' }
-end))
+end)))
 
 
 app:get('/profile', capture_errors(function (self)
