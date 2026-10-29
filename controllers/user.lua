@@ -843,9 +843,9 @@ UserController = {
     send_email = capture_errors(function (self)
         assert_admin(self)
         if (#self.params.contents > 0) then
-            send_mail(
+            send_admin_mail(
                 self.queried_user.email,
-                self.params.subject or mail_subjects.generic,
+                self.params.subject,
                 -- Typed into a plain textarea
                 utils.text_to_html(self.params.contents)
             )
