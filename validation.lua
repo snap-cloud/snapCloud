@@ -603,9 +603,23 @@ end
 -- reach an empty OFFSET: on prod, /explore?page_number=22990 of 22,651 pages
 -- cost 1.2 s per request (2026-10-28). Callers skip the page query and answer
 -- 404 with an empty page instead. Returns true when the page does not exist.
+-- Listings never go deeper than this many pages. OFFSET cost grows linearly
+-- with the page number (page 500 is ~60 ms, page 22,000 over 1 s on prod),
+-- and the only clients that ask for page 20,000 are scrapers walking the
+-- whole listing (2026-10-29: 811 Explore pages 20,000-30,000 from one IP).
+-- Callers clamp num_pages with cap_pages() so the paginator's "last page"
+-- button lands on the cap, and page_past_end() 404s anything beyond it.
+local MAX_PAGES = 500
+
+local function cap_pages(num_pages)
+    if num_pages and num_pages > MAX_PAGES then return MAX_PAGES end
+    return num_pages
+end
+
 local function page_past_end(self, num_pages)
     local page_number = tonumber(self.params.page_number) or 1
-    if num_pages and num_pages > 0 and page_number > num_pages then
+    if page_number > MAX_PAGES or
+            (num_pages and num_pages > 0 and page_number > num_pages) then
         -- Only a real request has a response to write to; the search page
         -- calls the controllers with a bare table.
         if self.write then self:write({ status = 404 }) end
@@ -684,6 +698,8 @@ end
 
 return {
     page_past_end = page_past_end,
+    cap_pages = cap_pages,
+    MAX_PAGES = MAX_PAGES,
     assert_exists = assert_exists,
     assert_current_user_logged_in = assert_current_user_logged_in,
     is_likely_course_work = is_likely_course_work,

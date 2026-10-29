@@ -44,6 +44,7 @@ local is_likely_course_work = validation.is_likely_course_work
 local assert_current_user_logged_in = validation.assert_current_user_logged_in
 local order_by_clause = validation.order_by_clause
 local page_past_end = validation.page_past_end
+local cap_pages = validation.cap_pages
 
 -- Columns that requests may sort projects by. Anything else is rejected, as
 -- these names end up spliced straight into SQL.
@@ -95,16 +96,16 @@ ProjectController = {
             -- running the (deep-OFFSET) page query at all.
             if not self.ignore_page_count then
                 if self.cached then
-                    self.num_pages = cached_query(
+                    self.num_pages = cap_pages(cached_query(
                         { paginator._clause, 'count' },
                         self.cache_category .. '#count',
                         nil,
                         function ()
                             return paginator:num_pages()
                         end
-                    )
+                    ))
                 else
-                    self.num_pages = paginator:num_pages()
+                    self.num_pages = cap_pages(paginator:num_pages())
                 end
                 if page_past_end(self, self.num_pages) then return {} end
             end

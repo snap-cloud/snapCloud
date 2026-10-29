@@ -37,6 +37,7 @@ local escape_html = require('lib.util').escape_html
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
 local order_by_clause = validations.order_by_clause
 local page_past_end = validations.page_past_end
+local cap_pages = validations.cap_pages
 
 -- Columns that requests may sort collections by. Anything else is rejected, as
 -- these names end up spliced straight into SQL.
@@ -69,7 +70,7 @@ CollectionController = {
         )
 
         if not self.params.ignore_page_count then
-            self.num_pages = paginator:num_pages()
+            self.num_pages = cap_pages(paginator:num_pages())
             if page_past_end(self, self.num_pages) then return {} end
         end
 
