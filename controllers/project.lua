@@ -54,6 +54,9 @@ local sortable_columns = {
     flag_count = true
 }
 
+-- Rows per UPDATE statement when marking a remix tree as class work.
+local class_work_chunk_size = 500
+
 ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
@@ -267,7 +270,13 @@ ProjectController = {
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
         -- Walks the whole remix tree; UNION stops it on remix cycles.
-        db.query([[
+        -- The walk is cheap (~50 ms for 2,000 projects on prod); the cost
+        -- is the UPDATE, since likely_class_work is indexed and every
+        -- changed row writes a new entry into each index on projects.
+        -- Updating in chunks keeps each statement, and the row locks it
+        -- holds, short. A click that fails half way is completed by the
+        -- next one: rows already flagged are skipped.
+        local rows = db.query([[
             WITH RECURSIVE descendants AS (
                 SELECT ?::integer AS id
                 UNION
@@ -276,10 +285,25 @@ ProjectController = {
                 INNER JOIN descendants
                     ON descendants.id = remixes.original_project_id
             )
-            UPDATE projects SET likely_class_work = true
+            SELECT id FROM projects
             WHERE id IN (SELECT id FROM descendants)
                 AND likely_class_work IS NOT TRUE
         ]], project.id)
+        local chunk = {}
+        local function flush()
+            if #chunk == 0 then return end
+            -- ids come from the integer column above, not from the request
+            db.query(
+                'UPDATE projects SET likely_class_work = true ' ..
+                    'WHERE id IN (' .. table.concat(chunk, ',') .. ')'
+            )
+            chunk = {}
+        end
+        for _, row in ipairs(rows) do
+            chunk[#chunk + 1] = assert(tonumber(row.id))
+            if #chunk >= class_work_chunk_size then flush() end
+        end
+        flush()
         uncache_category('latest')
         uncache_category('latest#count')
         return okResponse()
