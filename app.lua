@@ -202,25 +202,31 @@ package.loaded.cached = function (func, options)
     })
 end
 
--- cache for SQL queries so we're not constantly bombarding the DB
+-- Cache for SQL queries so we're not constantly bombarding the DB.
+-- Entries expire after QUERY_CACHE_TTL seconds. Each category also carries a
+-- version number; `uncache_category` bumps it, which orphans every entry
+-- cached under the old version at once. (The previous version remembered only
+-- the last key stored per category, so invalidating 'latest' on publish left
+-- every other cached Explore page stale, and nothing ever expired.)
+local QUERY_CACHE_TTL = 300
+
 package.loaded.cached_query = function (key_table, category, model, on_miss)
     local cache = ngx.shared.query_cache
+    local versions = ngx.shared.query_cache_categories
 
     local sorted_keys = {}
     for _, v in pairs(key_table) do table.insert(sorted_keys, tostring(v)) end
     table.sort(sorted_keys)
 
-    local key = ''
+    local key = (category or '') .. ':' ..
+        (category and (versions:get(category) or 0) or 0)
     for _, v in ipairs(sorted_keys) do key = key .. '#' .. v end
 
     local contents = cache:get(key)
     if contents == nil then
         -- run the function that was passed for when there's a cache miss
         contents = on_miss()
-        cache:set(key, package.loaded.util.to_json(contents))
-        if category then
-            ngx.shared.query_cache_categories:set(category, key)
-        end
+        cache:set(key, package.loaded.util.to_json(contents), QUERY_CACHE_TTL)
     else
         contents = package.loaded.util.from_json(contents)
         if model then
@@ -233,8 +239,8 @@ package.loaded.cached_query = function (key_table, category, model, on_miss)
 end
 
 package.loaded.uncache_category = function (category)
-    local query = ngx.shared.query_cache_categories:get(category)
-    if query then ngx.shared.query_cache:delete(query) end
+    -- incr(key, value, init) creates the counter if it does not exist yet.
+    ngx.shared.query_cache_categories:incr(category, 1, 0)
 end
 
 -- Before filter
