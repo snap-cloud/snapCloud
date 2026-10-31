@@ -1123,8 +1123,6 @@ Cloud.prototype.removeEditorFromCollection = function (
 */
 
 Cloud.prototype.showProjectPath = function (username, projectname) {
-    return '/project?' + this.encodeDict({
-        user: username,
-        project: projectname
-    });
+    return '/users/' + encodeURIComponent(username) +
+        '/projects/' + encodeURIComponent(projectname);
 };
