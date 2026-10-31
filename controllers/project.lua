@@ -169,12 +169,13 @@ ProjectController = {
         -- entries; publishing or unpublishing a project invalidates 'latest'.
         self.cache_category = 'latest'
         self.cached = true
+        -- Deleted users' projects are deleted too (see UserController.delete
+        -- and migration 2026-10-30:1), so active_projects already excludes
+        -- them and no anti-join against deleted_users is needed here.
         return ProjectController.run_query(
             self,
             [[WHERE ispublished]] ..
-                ProjectController.class_work_clause(self) .. [[ AND NOT EXISTS(
-                SELECT 1 FROM deleted_users WHERE
-                username = active_projects.username LIMIT 1)]] ..
+                ProjectController.class_work_clause(self) ..
                 Projects:public_visibility_clause(self.current_user)
         )
     end),
