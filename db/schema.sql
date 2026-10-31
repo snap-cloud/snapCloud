@@ -698,13 +698,6 @@ CREATE INDEX projects_latest_published_idx ON public.projects USING btree (first
 
 
 --
--- Name: projects_likely_class_work_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX projects_likely_class_work_idx ON public.projects USING btree (likely_class_work);
-
-
---
 -- Name: remixed_project_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -814,6 +807,7 @@ COPY public.lapis_migrations (name) FROM stdin;
 2026-10-22:3
 2026-10-24:0
 2026-10-24:1
+2026-10-30:0
 \.
 
 

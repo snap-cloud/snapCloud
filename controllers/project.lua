@@ -41,6 +41,7 @@ local Users = package.loaded.Users
 local validation = package.loaded.validation
 
 local is_likely_course_work = validation.is_likely_course_work
+local assert_current_user_logged_in = validation.assert_current_user_logged_in
 local order_by_clause = validation.order_by_clause
 
 -- Columns that requests may sort projects by. Anything else is rejected, as
@@ -56,7 +57,7 @@ local sortable_columns = {
 ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
-        if not self.params.page_number then self.params.page_number = 1 end
+        self.params.page_number = tonumber(self.params.page_number) or 1
         local filters = ''
         if self.current_user and self.current_user:isadmin() then
           if self.params.filter_bookmarked == 'true' then
@@ -125,17 +126,27 @@ ProjectController = {
         end
     end,
     fetch = capture_errors(function (self)
+        -- Explore, the project search and the API latest-projects list all go
+        -- through here. The page and its count come from the query cache
+        -- (see cached_query in app.lua): the count alone scans ~400k rows
+        -- (0.4 s on prod) and ran on every page view, and pages far down the
+        -- listing cost up to 1.2 s each. The cache key includes the full
+        -- WHERE clause, so reviewers, searches and admin filters never share
+        -- entries; publishing or unpublishing a project invalidates 'latest'.
         self.cache_category = 'latest'
+        self.cached = true
         local exclude_class_projects = 'AND NOT likely_class_work'
         if self.params.exclude_class_projects == 'false' then
             exclude_class_projects = ''
         end
 
+        -- Deleted users' projects are deleted too (see UserController.delete
+        -- and migration 2026-10-29:0), so active_projects already excludes
+        -- them and no anti-join against deleted_users is needed here.
         return ProjectController.run_query(
             self,
-            [[WHERE ispublished ]] ..exclude_class_projects .. [[ AND NOT EXISTS(
-                SELECT 1 FROM deleted_users WHERE
-                username = active_projects.username LIMIT 1)]]
+            [[WHERE ispublished ]] .. exclude_class_projects ..
+                Projects:public_visibility_clause(self.current_user)
         )
     end),
     my_projects = capture_errors(function (self)
@@ -260,6 +271,37 @@ ProjectController = {
         uncache_category('latest#count')
         return okResponse()
     end),
+    mark_class_project = capture_errors(function (self)
+        assert_min_role(self, 'reviewer')
+        local project = Projects:find({ id = self.params.id })
+        assert_project_exists(self, project)
+        -- Walks the whole remix tree; UNION stops it on remix cycles.
+        db.query([[
+            WITH RECURSIVE descendants AS (
+                SELECT ?::integer AS id
+                UNION
+                SELECT remixes.remixed_project_id
+                FROM remixes
+                INNER JOIN descendants
+                    ON descendants.id = remixes.original_project_id
+            )
+            UPDATE projects SET likely_class_work = true
+            WHERE id IN (SELECT id FROM descendants)
+                AND likely_class_work IS NOT TRUE
+        ]], project.id)
+        uncache_category('latest')
+        uncache_category('latest#count')
+        return okResponse()
+    end),
+    unmark_class_project = capture_errors(function (self)
+        assert_min_role(self, 'reviewer')
+        local project = Projects:find({ id = self.params.id })
+        assert_project_exists(self, project)
+        project:update({ likely_class_work = false })
+        uncache_category('latest')
+        uncache_category('latest#count')
+        return okResponse()
+    end),
     metadata = capture_errors(function (self)
         assert_users_match(self)
 
@@ -341,6 +383,7 @@ ProjectController = {
         )
     end),
     flag = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         if self.current_user:isbanned() then yield_error(err.banned) end
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
@@ -365,6 +408,7 @@ ProjectController = {
         return okResponse()
     end),
     remove_flag = capture_errors(function (self)
+        assert_current_user_logged_in(self)
         -- Check whether we're removing someone else's flag
         if self.params.flagger then assert_min_role(self, 'reviewer') end
 
@@ -461,6 +505,14 @@ ProjectController = {
                 remixed_project_id = self.params.id,
                 created = self.params.created
             }, { on_conflict = 'do_nothing' })
+            if original_project.likely_class_work then
+                local remixed_project =
+                    Projects:find({ id = self.params.id })
+                if remixed_project
+                        and not remixed_project.likely_class_work then
+                    remixed_project:update({ likely_class_work = true })
+                end
+            end
         end
 
         return okResponse()
@@ -570,7 +622,10 @@ ProjectController = {
         -- Read request body and parse it into JSON
         ngx.req.read_body()
         local body_data = ngx.req.get_body_data()
-        local body = body_data and util.from_json(body_data) or nil
+        local parsed, body = pcall(util.from_json, body_data)
+        if not parsed or type(body) ~= 'table' then
+            yield_error(err.invalid_project_data)
+        end
 
         validate.assert_valid(body, {
             { 'xml', exists = true },
@@ -640,6 +695,13 @@ ProjectController = {
 
             local likely_class_work = self.current_user:is_student() or
                 is_likely_course_work(self.params.projectname)
+            if (body.remixID and body.remixID ~= cjson.null) then
+                local original_project =
+                    Projects:find({ id = body.remixID })
+                if original_project and original_project.likely_class_work then
+                    likely_class_work = true
+                end
+            end
             Projects:create({
                 projectname = tostring(self.params.projectname),
                 username = tostring(self.params.username),
@@ -653,20 +715,24 @@ ProjectController = {
                 ispublic = self.params.ispublic or false,
                 ispublished = self.params.ispublished or false,
                 likely_class_work = likely_class_work,
-            })
+            }, { on_conflict = 'do_nothing' })
             project =
                 Projects:find(
                     tostring(self.params.username),
                     tostring(self.params.projectname)
                 )
 
-            if (body.remixID and body.remixID ~= cjson.null) then
-                -- user is remixing a project
+            -- The original may have been deleted for good since it was
+            -- opened; then there is nothing to link to.
+            local original_id = body.remixID ~= cjson.null and
+                tonumber(body.remixID) or nil
+            if original_id and db.select(
+                    '1 FROM projects WHERE id = ? LIMIT 1', original_id)[1] then
                 Remixes:create({
-                    original_project_id = body.remixID,
+                    original_project_id = original_id,
                     remixed_project_id = project.id,
                     created = db.format_date()
-                })
+                }, { on_conflict = 'do_nothing' })
             end
         end
 
