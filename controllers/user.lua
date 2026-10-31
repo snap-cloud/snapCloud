@@ -37,6 +37,7 @@ local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
 local AllUsers = package.loaded.AllUsers
 local Collections = package.loaded.Collections
+local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 local Followers = package.loaded.Followers
 
@@ -467,9 +468,13 @@ UserController = {
             yield_error(err.wrong_password)
         end
         -- Do not actually delete the user; flag it as deleted.
-        if not (user:update({ deleted = db.format_date() })) then
+        local deleted_at = db.format_date()
+        if not (user:update({ deleted = deleted_at })) then
             yield_error('Could not delete user ' .. user.username)
         else
+            -- Their projects go with them, stamped with the same time so
+            -- `revive` can restore exactly this set.
+            Projects:trash_for_user(user.username, deleted_at)
             if not self.queried_user then
                 -- we've deleted ourselves, let's log out
                 self.session.username = ''
@@ -562,6 +567,9 @@ UserController = {
         local zombie =
             DeletedUsers:find({ username = tostring(self.params.username) })
         if zombie then
+            -- Bring back the projects trashed together with the account;
+            -- anything trashed earlier stays trashed.
+            Projects:restore_for_user(zombie.username, zombie.deleted)
             zombie:update({ deleted = db.NULL })
             local user =
                 Users:find({ username = tostring(self.params.username) })
