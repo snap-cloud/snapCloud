@@ -356,7 +356,7 @@ Want to know more? Visit @2]],
     reviewer_actions = "Reviewer actions",
     -- Class projects (reviewers and up)
     class_project_label = "Class project:",
-    is_class_project = "Yes (hidden from Explore; found by search only for its owner and reviewers)",
+    is_class_project = "Yes (hidden from Explore)",
     not_class_project = "No",
     mark_class_project_button = "Mark as Class Project",
     unmark_class_project_button = "Unmark as Class Project",
