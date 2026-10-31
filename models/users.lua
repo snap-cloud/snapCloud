@@ -133,6 +133,15 @@ local ActiveUsers = Model:extend('active_users', {
     isbanned = function (self)
         return self.role == 'banned'
     end,
+    -- SQL fragment for public user listings (/users, search). Students,
+    -- banned, and never-verified accounts are hidden from everyone below
+    -- reviewer; reviewers and above see all accounts.
+    public_visibility_clause = function (_self, viewer)
+        if viewer and viewer:has_min_role('reviewer') then
+            return ''
+        end
+        return " AND role NOT IN ('student', 'banned') AND verified = true"
+    end,
     is_student = function (self)
         return self.role == 'student'
     end,
