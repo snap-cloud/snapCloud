@@ -56,7 +56,7 @@ local config = package.loaded.config
 
 -- Snap!Cloud Utilities
 local utils = require('lib.util')
--- Track exceptions, exposes raven, rollbar, and normalize_error
+-- Track exceptions, exposes raven and describe_error
 local exceptions = require('lib.exceptions')
 local domain_allowed = require('cors')
 
@@ -143,7 +143,7 @@ local function track_session_activity(self)
     if should_count_session then
         self.current_user:update({
             last_session_at = package.loaded.db.format_date(),
-            session_count = self.current_user.session_count + 1
+            session_count = (self.current_user.session_count or 0) + 1
         })
     end
 end
@@ -202,25 +202,31 @@ package.loaded.cached = function (func, options)
     })
 end
 
--- cache for SQL queries so we're not constantly bombarding the DB
+-- Cache for SQL queries so we're not constantly bombarding the DB.
+-- Entries expire after QUERY_CACHE_TTL seconds. Each category also carries a
+-- version number; `uncache_category` bumps it, which orphans every entry
+-- cached under the old version at once. (The previous version remembered only
+-- the last key stored per category, so invalidating 'latest' on publish left
+-- every other cached Explore page stale, and nothing ever expired.)
+local QUERY_CACHE_TTL = 300
+
 package.loaded.cached_query = function (key_table, category, model, on_miss)
     local cache = ngx.shared.query_cache
+    local versions = ngx.shared.query_cache_categories
 
     local sorted_keys = {}
     for _, v in pairs(key_table) do table.insert(sorted_keys, tostring(v)) end
     table.sort(sorted_keys)
 
-    local key = ''
+    local key = (category or '') .. ':' ..
+        (category and (versions:get(category) or 0) or 0)
     for _, v in ipairs(sorted_keys) do key = key .. '#' .. v end
 
     local contents = cache:get(key)
     if contents == nil then
         -- run the function that was passed for when there's a cache miss
         contents = on_miss()
-        cache:set(key, package.loaded.util.to_json(contents))
-        if category then
-            ngx.shared.query_cache_categories:set(category, key)
-        end
+        cache:set(key, package.loaded.util.to_json(contents), QUERY_CACHE_TTL)
     else
         contents = package.loaded.util.from_json(contents)
         if model then
@@ -233,8 +239,8 @@ package.loaded.cached_query = function (key_table, category, model, on_miss)
 end
 
 package.loaded.uncache_category = function (category)
-    local query = ngx.shared.query_cache_categories:get(category)
-    if query then ngx.shared.query_cache:delete(query) end
+    -- incr(key, value, init) creates the counter if it does not exist yet.
+    ngx.shared.query_cache_categories:incr(category, 1, 0)
 end
 
 -- Before filter
@@ -262,9 +268,9 @@ app:before_filter(function (self)
     -- Make our utilities (escape_html, js_string...) available to templates
     self.util = utils
 
-    self.req.source =
-        (self.req.headers['content-type'] and
-            self.req.headers['content-type']:find('json')) and 'snap' or 'site'
+    local content_type = self.req.headers['content-type']
+    self.req.source = (type(content_type) == 'string' and
+        content_type:find('json')) and 'snap' or 'site'
 
     -- Set Access Control header
     local domain = utils.domain_name(self.req.headers.origin)
@@ -302,8 +308,9 @@ app:before_filter(function (self)
         ngx.req.read_body()
         local body = ngx.req.get_body_data()
         -- try to decode it, if it fails it's not proper JSON
-        if pcall(function () package.loaded.util.from_json(body) end) then
-            local post_params = package.loaded.util.from_json(body)
+        local is_json, post_params =
+            pcall(package.loaded.util.from_json, body)
+        if is_json and type(post_params) == 'table' then
             for k, v in pairs(post_params) do
                 self.params[k] = v
             end
@@ -388,6 +395,11 @@ function app:handle_error(err, trace)
         )
     end
 
+    local ok, report = pcall(exceptions.describe_error, err, trace)
+    if not ok then
+        report = { exception = { type = 'LuaError', value = err } }
+    end
+
     if config._name == 'development' then
         debug_print(err, trace)
         local accept = self.req.headers.accept or ''
@@ -404,23 +416,20 @@ function app:handle_error(err, trace)
         return errorResponse(self, err .. '\n' .. trace, 500)
     end
 
-
-    local ok, err_msg = pcall(exceptions.normalize_error, err)
-    if not ok then
-        err_msg = err or 'Unknown error'
-    end
-    local user_info = exceptions.get_user_info(self.session)
     if config.sentry_dsn then
-        local _, send_err = exceptions.rvn:captureException({{
-            type = err_msg,
-            value = err .. "\n\n" .. trace,
-            trace_level = 2, -- skip `handle_error`
-        }}, { user = user_info })
+        local _, send_err = exceptions.rvn:captureException(
+            { report.exception }, {
+                user = exceptions.get_user_info(self.session),
+                culprit = report.culprit,
+                extra = report.extra,
+                transaction = exceptions.transaction_name(self.original_request),
+            })
         if send_err then
             ngx.log(ngx.ERR, send_err)
         end
     end
-    return errorResponse(self, "An unexpected error occurred: " .. err_msg, 500)
+    return errorResponse(self,
+        'An unexpected error occurred: ' .. report.exception.value, 500)
 end
 
 -- The API for the Snap! editor is implemented in the api.lua file

@@ -313,6 +313,11 @@ app:match(api_route('project/:id/notes'), respond_to({
     POST = ProjectController.set_notes
 }))
 
+app:match(api_route('project/:id/class_project'), respond_to({
+    POST = ProjectController.mark_class_project,
+    DELETE = ProjectController.unmark_class_project
+}))
+
 app:match(api_route('project/:id'), respond_to({
     GET = ProjectController.xml,
     DELETE = ProjectController.delete
