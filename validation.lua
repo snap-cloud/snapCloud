@@ -130,6 +130,11 @@ err = {
         { msg = 'Please use the Snap! site, not scripts.', status = 409 },
     invalid_order =
         { msg = 'Invalid sort order.', status = 400 },
+    empty_project_title =
+        { msg = 'Project titles must have at least one character.',
+            status = 400 },
+    project_title_taken =
+        { msg = 'You already have a project with this title.', status = 409 },
     invalid_filter =
         { msg = 'Invalid filter.', status = 400 },
     tor_not_allowed =
@@ -321,6 +326,15 @@ assert_can_delete = function (self, item)
         if (item.creator_id ~= self.current_user.id) then
             assert_min_role(self, 'moderator')
         end
+    end
+end
+
+-- Editing a project's title or notes: its owner, or a moderator.
+assert_can_edit_project = function (self, project)
+    assert_current_user_logged_in(self)
+    assert_project_exists(self, project)
+    if project.username ~= self.current_user.username then
+        assert_min_role(self, 'moderator')
     end
 end
 
