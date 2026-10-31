@@ -100,10 +100,9 @@ end)
 
 app:match('doc', '/doc/:doc_name', respond_to({
     GET = capture_errors(function (self)
-        return {
-            redirect_to = self:build_url(
-                '/static/doc/' .. self.params.doc_name)
-        }
+        local doc_name = assert_exists(
+            tostring(self.params.doc_name):match('^[%w%._%-]+$'))
+        return { redirect_to = self:build_url('/static/doc/' .. doc_name) }
     end)
 }))
 
@@ -402,11 +401,14 @@ app:get('/events', capture_errors(cached(function (self)
     return { render = 'events' }
 end)))
 
-app:get('/search', capture_errors(function (self)
+-- Cached 30 s per distinct (path, params, locale, username).
+-- Students seem to scrape and repeatedly hit searching even for the same query
+-- See infra/ repo for logs on 2026-10-29
+app:get('/search', capture_errors(cached(function (self)
     self.reviewer_controls =
         self.current_user and self.current_user:has_min_role('reviewer')
     return { render = 'search' }
-end))
+end)))
 
 
 app:get('/profile', capture_errors(function (self)
