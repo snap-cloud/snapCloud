@@ -1,0 +1,21 @@
+name: Load schema + seeds into snapcloud_test
+description: >
+  Runs db/schema.sql and db/seeds.sql against the postgres service
+  container. Assumes the usual CI env (DATABASE_HOST=127.0.0.1, user=cloud,
+  db=snapcloud_test) and a POSTGRES_PASSWORD input.
+
+inputs:
+  password:
+    description: Postgres password for the `cloud` user.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: psql < db/schema.sql + db/seeds.sql
+      shell: bash
+      env:
+        PGPASSWORD: ${{ inputs.password }}
+      run: |
+        psql -h 127.0.0.1 -U cloud -d snapcloud_test -f db/schema.sql
+        psql -h 127.0.0.1 -U cloud -d snapcloud_test -f db/seeds.sql

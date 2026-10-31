@@ -1,5 +1,6 @@
 .PHONY: annotate install-annotate install migrate deploy \
-	vendor vendor-bootstrap vendor-fontawesome vendor-filesaver
+	vendor vendor-bootstrap vendor-fontawesome vendor-filesaver \
+	test test-lua test-e2e test-a11y lint
 
 UNAME := $(shell uname)
 
@@ -22,7 +23,7 @@ install-annotate:
 	$(luarocks_command) install --lua-version=5.1 https://raw.githubusercontent.com/snap-cloud/lapis-annotate/support-native-lua/lapis-annotate-dev-1.rockspec
 
 install:
-	$(luarocks_command) install --only-deps snapcloud-dev-0.rockspec
+	LUAROCKS=$(luarocks_command) bin/install-lua-deps.sh
 	npm ci
 	$(MAKE) install-annotate
 
@@ -74,3 +75,26 @@ vendor-fontawesome:
 vendor-filesaver:
 	cp $(NM)/file-saver/dist/FileSaver.min.js* $(VENDOR)/js/
 	$(call bust,/static/vendor/js/FileSaver.min.js,$(SCRIPTS),file-saver)
+
+# -----------------------------------------------------------------------------
+# Test suite
+#
+# `make test`      - run everything (lint + busted + playwright + a11y)
+# `make lint`      - luacheck only
+# `make test-lua`  - busted specs only
+# `make test-e2e`  - Playwright end-to-end specs only
+# `make test-a11y` - axe-core accessibility specs only
+# -----------------------------------------------------------------------------
+lint:
+	luacheck .
+
+test-lua:
+	LAPIS_ENVIRONMENT=test DATABASE_NAME=snapcloud_test busted --config-file=.busted
+
+test-e2e:
+	LAPIS_ENVIRONMENT=test DATABASE_NAME=snapcloud_test npx playwright test --grep-invert "@axe"
+
+test-a11y:
+	LAPIS_ENVIRONMENT=test DATABASE_NAME=snapcloud_test npx playwright test --grep "@axe"
+
+test: lint test-lua test-e2e test-a11y
