@@ -126,7 +126,15 @@ ProjectController = {
         end
     end,
     fetch = capture_errors(function (self)
+        -- Explore, the project search and the API latest-projects list all go
+        -- through here. The page and its count come from the query cache
+        -- (see cached_query in app.lua): the count alone scans ~400k rows
+        -- (0.4 s on prod) and ran on every page view, and pages far down the
+        -- listing cost up to 1.2 s each. The cache key includes the full
+        -- WHERE clause, so reviewers, searches and admin filters never share
+        -- entries; publishing or unpublishing a project invalidates 'latest'.
         self.cache_category = 'latest'
+        self.cached = true
         local exclude_class_projects = 'AND NOT likely_class_work'
         if self.params.exclude_class_projects == 'false' then
             exclude_class_projects = ''

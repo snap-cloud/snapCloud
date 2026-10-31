@@ -555,6 +555,18 @@ return {
         ]])
     end,
 
+    -- projects_likely_class_work_idx is a plain btree on a boolean column
+    -- over ~10M rows. The planner never uses it (1 scan on prod since the
+    -- stats reset; Explore reads the partial projects_latest_published_idx
+    -- instead), but every UPDATE of likely_class_work has to write to it,
+    -- which is a good part of why mark_class_project takes seconds on a
+    -- large remix tree. CONCURRENTLY: no lock on projects while it goes.
+    ['2026-10-30:0'] = function ()
+        db.query(
+            'DROP INDEX CONCURRENTLY IF EXISTS projects_likely_class_work_idx'
+        )
+    end,
+
     -- Deleting a user never touched their projects, so Explore had to
     -- anti-join deleted_users on every query, and search, collections and
     -- project pages did not filter them at all (prod 2026-10-29: 8,525
@@ -562,7 +574,7 @@ return {
     -- published). UserController.delete / revive now trash and restore them;
     -- this backfills the existing ones with the owner's deletion time, which
     -- is what revive matches on.
-    ['2026-10-29:0'] = function ()
+    ['2026-10-30:1'] = function ()
         db.query([[
             UPDATE projects SET deleted = users.deleted
             FROM users
