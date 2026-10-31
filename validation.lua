@@ -633,16 +633,25 @@ end
 -- ORDER BY clause. Only columns present in allowed_columns (a set, as in
 -- { column_name = true, ... }) are accepted. Returns default when no order was
 -- requested, and fails the request on anything that is not whitelisted.
+-- allowed_columns[key] is true, or the SQL expression to sort by instead.
 local order_by_clause = function (order, allowed_columns, default)
     if order == nil or order == '' then return default end
     local column, direction =
         tostring(order):match('^%s*([%w_%.]+)%s*(%a*)%s*$')
     direction = direction and direction:upper() or ''
-    if column and allowed_columns[column] and
+    local expression = column and allowed_columns[column]
+    if expression and
             (direction == '' or direction == 'ASC' or direction == 'DESC') then
-        return column .. (direction ~= '' and (' ' .. direction) or '')
+        if expression == true then expression = column end
+        return expression .. (direction ~= '' and (' ' .. direction) or '')
     end
     yield_error(err.invalid_order)
+end
+
+-- sort_by / sort_dir params (partials/grid_sort) -> order_by_clause input.
+local sort_param = function (params, default)
+    if params.sort_by == nil or params.sort_by == '' then return default end
+    return tostring(params.sort_by) .. ' ' .. tostring(params.sort_dir or '')
 end
 
 -- Builds the " AND field = value" part of a WHERE clause out of params that
@@ -672,5 +681,6 @@ return {
     is_likely_course_work = is_likely_course_work,
     validate_token = validate_token,
     order_by_clause = order_by_clause,
+    sort_param = sort_param,
     filter_clause = filter_clause,
 }

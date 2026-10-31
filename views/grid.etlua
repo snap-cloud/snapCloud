@@ -24,6 +24,10 @@
       .options          (tbl) Dropdown options.
         .label          (str) Option label.
         .value          (any) Option value.
+    sort_descriptor     (tbl) Sort menu (sort_by / sort_dir url params):
+      .options          (tbl) Sort options, as above.
+      .default          (str) Sort key when none is selected.
+      .default_dir      (str) 'asc' or 'desc'. Default: 'desc'.
 ]]--
 
 -- set defaults
@@ -61,6 +65,12 @@ num_pages = num_pages or math.ceil(#items / items_per_page)
                 render(
                     'views.partials.grid_filters',
                     { filter_descriptors = filter_descriptors }
+                )
+            end %>
+            <% if sort_descriptor then
+                render(
+                    'views.partials.grid_sort',
+                    { sort_descriptor = sort_descriptor }
                 )
             end %>
         </div>

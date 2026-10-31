@@ -12,7 +12,16 @@ render(
         with_search = true,
         show_if_empty = true,
         show_author = false,
-        show_icons = true
+        show_icons = true,
+        sort_descriptor = {
+            default = 'lastupdated',
+            default_dir = 'desc',
+            options = {
+                { label = locale.get('sort_title'), value = 'projectname' },
+                { label = locale.get('sort_created'), value = 'created' },
+                { label = locale.get('sort_last_updated'), value = 'lastupdated' }
+            }
+        }
     }
 )
 %>

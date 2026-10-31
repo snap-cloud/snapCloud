@@ -36,13 +36,16 @@ local validations = require('validation')
 local escape_html = require('lib.util').escape_html
 local assert_current_user_logged_in = validations.assert_current_user_logged_in
 local order_by_clause = validations.order_by_clause
+local sort_param = validations.sort_param
 
 -- Columns that requests may sort collections by. Anything else is rejected, as
 -- these names end up spliced straight into SQL.
 local sortable_columns = {
     published_at = true,
     updated_at = true,
-    ['collections.created_at'] = true
+    ['collections.created_at'] = true,
+    created_at = 'collections.created_at',
+    name = 'LOWER(name)'
 }
 
 CollectionController = {
@@ -95,7 +98,7 @@ CollectionController = {
         )
     end),
     my_collections = capture_errors(function (self)
-        self.params.order = 'updated_at DESC'
+        self.params.order = sort_param(self.params, 'updated_at DESC')
         self.params.per_page = self.params.per_page or 18
         return CollectionController.run_query(
             self,
