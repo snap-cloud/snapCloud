@@ -27,6 +27,7 @@ package.loaded.Model = require('lapis.db.model').Model
 -- found", not a Postgres type error. Column types come from Lapis'
 -- cached information_schema lookup (one query per model per worker).
 local Model = package.loaded.Model
+local db = package.loaded.db
 local lapis_find = Model.find
 
 local fits_type = {
@@ -66,6 +67,19 @@ Model.find = function (self, ...)
         end
     end
     return lapis_find(self, ...)
+end
+
+-- COUNT(*) of the rows matching an already-interpolated WHERE clause,
+-- stopping at `limit` rows. For a listing that is never shown past page N,
+-- counting beyond N * per_page rows is wasted work: Explore's exact count
+-- walks ~405k published projects (0.4 s idle, 0.8 s under load on prod).
+Model.count_capped = function (self, clause, limit)
+    local result = db.query(
+        'SELECT COUNT(*) AS c FROM (SELECT 1 FROM ' ..
+            db.escape_identifier(self:table_name()) .. ' ' .. clause ..
+            ' LIMIT ' .. assert(tonumber(limit)) .. ') AS capped'
+    )
+    return tonumber(result[1].c)
 end
 
 -- TODO: This does not actually autoload the models

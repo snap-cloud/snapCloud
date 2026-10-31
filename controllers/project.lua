@@ -47,16 +47,12 @@ local page_past_end = validation.page_past_end
 local cap_pages = validation.cap_pages
 local MAX_PAGES = validation.MAX_PAGES
 
--- The page count only feeds cap_pages and page_past_end, so counting beyond
--- MAX_PAGES pages is wasted work: Explore's exact COUNT(*) walks all ~405k
--- published projects (0.4 s idle, 0.8 s under load on prod) where this stops
--- at MAX_PAGES * per_page rows.
+-- The page count only feeds cap_pages and page_past_end, so it stops
+-- counting at MAX_PAGES pages (Projects:count_capped).
 local function bounded_num_pages(where_clause, per_page)
-    local result = db.query(
-        'SELECT COUNT(*) AS c FROM (SELECT 1 FROM active_projects ' ..
-            where_clause .. ' LIMIT ' .. (MAX_PAGES * per_page) .. ') AS capped'
+    return math.ceil(
+        Projects:count_capped(where_clause, MAX_PAGES * per_page) / per_page
     )
-    return math.ceil(result[1].c / per_page)
 end
 
 -- Columns that requests may sort projects by. Anything else is rejected, as
