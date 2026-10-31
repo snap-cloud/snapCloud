@@ -93,6 +93,39 @@ local ActiveProjects = Model:extend('active_projects', {
         package.loaded.uncache_category('latest')
         package.loaded.uncache_category('latest#count')
     end,
+    -- Class work (likely_class_work) hides a project from Explore. It is
+    -- set from heuristics (student accounts, course-like names), inherited
+    -- by remixes, and set by reviewers; once set it is only ever cleared by
+    -- a reviewer, never by a plain save.
+
+    -- True when the project with that id exists and is flagged as class
+    -- work; false for nil (no remix original) or an unknown id.
+    is_class_work = function (_self, project_id)
+        if not project_id then return false end
+        local project = package.loaded.Projects:find({ id = project_id })
+        return (project and project.likely_class_work) and true or false
+    end,
+    -- Sets the class-work flag on a project and every (transitive) remix
+    -- of it, so that marking and unmarking are exact inverses. Walks the
+    -- whole remix tree; UNION stops it on remix cycles. Rows that already
+    -- carry the wanted value are left alone, so repeating a mark is cheap.
+    set_class_work_tree = function (_self, project_id, flag)
+        db.query([[
+            WITH RECURSIVE descendants AS (
+                SELECT ?::integer AS id
+                UNION
+                SELECT remixes.remixed_project_id
+                FROM remixes
+                INNER JOIN descendants
+                    ON descendants.id = remixes.original_project_id
+            )
+            UPDATE projects SET likely_class_work = ?
+            WHERE id IN (SELECT id FROM descendants)
+                AND likely_class_work IS DISTINCT FROM ?
+        ]], project_id, flag, flag)
+        package.loaded.uncache_category('latest')
+        package.loaded.uncache_category('latest#count')
+    end,
     recently_bookmarked = function ()
         -- This query was gerneted by Claude, insprite by the Hacker News
         -- algorithm for ranking projects based on recent bookmarks.
