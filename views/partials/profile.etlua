@@ -57,6 +57,13 @@
                 <strong><%- locale.get('join_date') %> </strong>:
                 <%= string.from_sql_date(item.created) %>
             </li>
+            <li class="list-group-item">
+                <strong><%- locale.get('session_count') %></strong>:
+                <%= item.session_count or 0 %>
+                &middot;
+                <strong><%- locale.get('last_login') %></strong>:
+                <%= string.from_sql_date(item.last_login_at) %>
+            </li>
         <% if zombie then %>
         <li class="list-group-item">
             <strong><%- locale.get('delete_date') %> </strong>:
