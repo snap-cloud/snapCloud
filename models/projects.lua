@@ -67,6 +67,32 @@ local ActiveProjects = Model:extend('active_projects', {
                 username = active_projects.username
                 AND role IN ('student', 'banned') LIMIT 1)]]
     end,
+    -- Trash every live project of a user, stamped with the given time so
+    -- restore_for_user can bring back exactly this set later (projects the
+    -- user had trashed before keep their own timestamp). Used when an
+    -- account is deleted: every listing then excludes the projects through
+    -- active_projects (deleted IS NULL) instead of an anti-join against
+    -- deleted_users per query.
+    trash_for_user = function (_self, username, deleted_at)
+        db.query(
+            'UPDATE projects SET deleted = ? ' ..
+                'WHERE username = ? AND deleted IS NULL',
+            deleted_at, username
+        )
+        package.loaded.uncache_category('latest')
+        package.loaded.uncache_category('latest#count')
+    end,
+    -- The inverse of trash_for_user: only projects trashed at that exact
+    -- time come back.
+    restore_for_user = function (_self, username, deleted_at)
+        db.query(
+            'UPDATE projects SET deleted = NULL ' ..
+                'WHERE username = ? AND deleted = ?',
+            username, deleted_at
+        )
+        package.loaded.uncache_category('latest')
+        package.loaded.uncache_category('latest#count')
+    end,
     recently_bookmarked = function ()
         -- This query was gerneted by Claude, insprite by the Hacker News
         -- algorithm for ranking projects based on recent bookmarks.
