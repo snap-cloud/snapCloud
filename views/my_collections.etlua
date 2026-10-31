@@ -11,7 +11,16 @@ render(
         show_if_empty = true,
         show_author = false,
         show_icons = true,
-        show_author = true
+        show_author = true,
+        sort_descriptor = {
+            default = 'updated_at',
+            default_dir = 'desc',
+            options = {
+                { label = locale.get('sort_name'), value = 'name' },
+                { label = locale.get('sort_created'), value = 'created_at' },
+                { label = locale.get('sort_last_updated'), value = 'updated_at' }
+            }
+        }
     }
 )
 %>

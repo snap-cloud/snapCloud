@@ -1,0 +1,47 @@
+<%
+local current_by = sort_descriptor.default
+for _, option in ipairs(sort_descriptor.options) do
+    if option.value == params.sort_by then current_by = params.sort_by end
+end
+local current_dir = params.sort_dir
+if current_dir == nil or current_dir == '' then
+    current_dir = sort_descriptor.default_dir or 'desc'
+end
+current_dir = string.lower(current_dir)
+%>
+<div class="input-group grid-sort">
+    <label class="input-group-text" for="sort_by"><%= locale.get('sort_by') %></label>
+    <select class="form-select" name="sort_by" id="sort_by"
+        onchange="setSort(this.value, null)">
+        <% for _, option in ipairs(sort_descriptor.options) do %>
+        <option value="<%= option.value %>"
+            <%- (option.value == current_by) and 'selected' or '' %>
+            ><%= option.label %></option>
+        <% end %>
+    </select>
+    <button type="button"
+        class="btn btn-outline-secondary <%= current_dir == 'asc' and 'active' or '' %>"
+        aria-pressed="<%= current_dir == 'asc' and 'true' or 'false' %>"
+        title="<%= locale.get('sort_ascending') %>"
+        onclick="setSort(null, 'asc')">
+        <i class="fas fa-arrow-up-short-wide" aria-hidden="true"></i>
+        <span class="visually-hidden"><%= locale.get('sort_ascending') %></span>
+    </button>
+    <button type="button"
+        class="btn btn-outline-secondary <%= current_dir == 'desc' and 'active' or '' %>"
+        aria-pressed="<%= current_dir == 'desc' and 'true' or 'false' %>"
+        title="<%= locale.get('sort_descending') %>"
+        onclick="setSort(null, 'desc')">
+        <i class="fas fa-arrow-down-wide-short" aria-hidden="true"></i>
+        <span class="visually-hidden"><%= locale.get('sort_descending') %></span>
+    </button>
+</div>
+<script>
+    function setSort (by, dir) {
+        var url = new URL(location.href);
+        url.searchParams.set('sort_by', by || <%- util.js_string(current_by) %>);
+        url.searchParams.set('sort_dir', dir || <%- util.js_string(current_dir) %>);
+        url.searchParams.set('page_number', 1);
+        location.href = url.href;
+    };
+</script>
