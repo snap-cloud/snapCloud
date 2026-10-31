@@ -54,7 +54,7 @@ local sortable_columns = {
     flag_count = true
 }
 
--- Class work: Projects:is_class_work and Projects:mark_class_work_tree
+-- Class work: Projects:is_class_work and Projects:set_class_work_tree
 -- hold the flag logic; the controller only parses the request.
 
 -- The id of the project a save request was remixed from, or nil. Snap! sends
@@ -286,7 +286,7 @@ ProjectController = {
         assert_min_role(self, 'reviewer')
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
-        Projects:mark_class_work_tree(project.id)
+        Projects:set_class_work_tree(project.id, true)
         return okResponse()
     end),
     unmark_class_project = capture_errors(function (self)
@@ -504,7 +504,7 @@ ProjectController = {
             -- The remix may itself have been remixed before it was linked
             -- to its original, so flag its whole subtree, not just itself.
             if original_project.likely_class_work then
-                Projects:mark_class_work_tree(self.params.id)
+                Projects:set_class_work_tree(self.params.id, true)
             end
         end
 

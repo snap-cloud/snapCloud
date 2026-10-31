@@ -79,10 +79,11 @@ local ActiveProjects = Model:extend('active_projects', {
         local project = package.loaded.Projects:find({ id = project_id })
         return (project and project.likely_class_work) and true or false
     end,
-    -- Flags a project and every (transitive) remix of it as class work.
-    -- Walks the whole remix tree; UNION stops it on remix cycles. Rows
-    -- already flagged are left alone, so re-marking is cheap.
-    mark_class_work_tree = function (_self, project_id)
+    -- Sets the class-work flag on a project and every (transitive) remix
+    -- of it, so that marking and unmarking are exact inverses. Walks the
+    -- whole remix tree; UNION stops it on remix cycles. Rows that already
+    -- carry the wanted value are left alone, so repeating a mark is cheap.
+    set_class_work_tree = function (_self, project_id, flag)
         db.query([[
             WITH RECURSIVE descendants AS (
                 SELECT ?::integer AS id
@@ -92,10 +93,10 @@ local ActiveProjects = Model:extend('active_projects', {
                 INNER JOIN descendants
                     ON descendants.id = remixes.original_project_id
             )
-            UPDATE projects SET likely_class_work = true
+            UPDATE projects SET likely_class_work = ?
             WHERE id IN (SELECT id FROM descendants)
-                AND likely_class_work IS NOT TRUE
-        ]], project_id)
+                AND likely_class_work IS DISTINCT FROM ?
+        ]], project_id, flag, flag)
         package.loaded.uncache_category('latest')
         package.loaded.uncache_category('latest#count')
     end,
