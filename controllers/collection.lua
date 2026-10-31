@@ -50,7 +50,7 @@ local sortable_columns = {
 
 CollectionController = {
     run_query = function (self, query)
-        if not self.params.page_number then self.params.page_number = 1 end
+        self.params.page_number = tonumber(self.params.page_number) or 1
         local paginator = Collections:paginated(
             query ..
                 (self.params.search_term and (db.interpolate_query(
@@ -125,7 +125,7 @@ CollectionController = {
         )
     end),
     projects = capture_errors(function (self)
-        if not self.params.page_number then self.params.page_number = 1 end
+        self.params.page_number = tonumber(self.params.page_number) or 1
         local paginator = self.collection:get_projects()
         paginator.per_page = self.items_per_page
         local items = {}
