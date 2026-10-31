@@ -296,8 +296,15 @@ app:before_filter(function (self)
         self.maintenance_mode = maintenance.mode
         self.maintenance_message = maintenance.message
         local method = ngx.req.get_method()
-        if maintenance.mode == 'down' or
-                (method ~= 'GET' and method ~= 'HEAD') then
+        local is_write = method ~= 'GET' and method ~= 'HEAD'
+        -- read_only still allows authentication (login/logout): verifying a
+        -- password only reads, and those handlers skip their DB writes under
+        -- maintenance (see controllers/user.lua), so a user can still sign in
+        -- to export their work. `down` blocks everything.
+        local uri = ngx.var.uri or ''
+        local auth_exempt = maintenance.mode == 'read_only' and
+            (uri:find('/login$') or uri:find('/logout$'))
+        if maintenance.mode == 'down' or (is_write and not auth_exempt) then
             self:write(maintenance.response(self))
             return
         end
