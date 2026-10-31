@@ -712,7 +712,6 @@ CREATE INDEX projects_latest_published_idx ON public.projects USING btree (first
 
 
 --
---
 -- Name: projects_notes_trgm_idx; Type: INDEX; Schema: public; Owner: -
 --
 
