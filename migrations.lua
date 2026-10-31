@@ -553,5 +553,17 @@ return {
                 autovacuum_analyze_scale_factor = 0.01
             )
         ]])
+    end,
+
+    -- projects_likely_class_work_idx is a plain btree on a boolean column
+    -- over ~10M rows. The planner never uses it (1 scan on prod since the
+    -- stats reset; Explore reads the partial projects_latest_published_idx
+    -- instead), but every UPDATE of likely_class_work has to write to it,
+    -- which is a good part of why mark_class_project takes seconds on a
+    -- large remix tree. CONCURRENTLY: no lock on projects while it goes.
+    ['2026-10-30:0'] = function ()
+        db.query(
+            'DROP INDEX CONCURRENTLY IF EXISTS projects_likely_class_work_idx'
+        )
     end
 }
