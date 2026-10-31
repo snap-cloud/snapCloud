@@ -164,8 +164,8 @@ local function establish_session(self)
 end
 
 -- Lapis calls this once per cookie it writes. The policy (Secure, HttpOnly,
--- SameSite, Max-Age for "remember me", no Domain so __Host- works) and the
--- expiry of the legacy session cookie live in lib/cookies.lua.
+-- SameSite, Max-Age for "remember me", no Domain so __Host- works) lives in
+-- lib/cookies.lua.
 app.cookie_attributes = function (self, name)
     return cookies.attributes(self, name)
 end
@@ -256,11 +256,6 @@ app:before_filter(function (self)
     end
     ]]--
 
-    -- Must run before anything reads self.session: lapis decodes the session
-    -- cookie on first access and keeps the result, so a stale twin of the
-    -- cookie has to be dealt with first. See lib/cookies.lua.
-    cookies.drop_encoded_twins(self)
-
     -- Make locale available to all routes and templates
     self.locale = package.loaded.locale
     self.locale.language = self.session.locale or 'en'
@@ -346,10 +341,6 @@ app:before_filter(function (self)
                 )
         end
     end
-
-    -- Users still carrying the pre-__Host- session cookie are moved over
-    -- (and the old cookie expired) before the session is used.
-    cookies.migrate_legacy_session(self)
 
     establish_session(self)
 
