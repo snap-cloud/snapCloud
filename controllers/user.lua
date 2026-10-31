@@ -37,6 +37,7 @@ local Users = package.loaded.Users
 local DeletedUsers = package.loaded.DeletedUsers
 local AllUsers = package.loaded.AllUsers
 local Collections = package.loaded.Collections
+local Projects = package.loaded.Projects
 local Tokens = package.loaded.Tokens
 local Followers = package.loaded.Followers
 
@@ -102,7 +103,11 @@ UserController = {
     fetch = capture_errors(function (self)
         -- just to be able to reuse the existing run_query structure:
         if not self.params.order then self.params.order = 'username' end
-        return UserController.run_query(self, 'WHERE true')
+        -- Moderators pass the reviewer check, so /user_admin stays unfiltered.
+        return UserController.run_query(
+            self,
+            'WHERE true' .. Users:public_visibility_clause(self.current_user)
+        )
     end),
     zombies = capture_errors(function (self)
         self.table = DeletedUsers
@@ -463,9 +468,13 @@ UserController = {
             yield_error(err.wrong_password)
         end
         -- Do not actually delete the user; flag it as deleted.
-        if not (user:update({ deleted = db.format_date() })) then
+        local deleted_at = db.format_date()
+        if not (user:update({ deleted = deleted_at })) then
             yield_error('Could not delete user ' .. user.username)
         else
+            -- Their projects go with them, stamped with the same time so
+            -- `revive` can restore exactly this set.
+            Projects:trash_for_user(user.username, deleted_at)
             if not self.queried_user then
                 -- we've deleted ourselves, let's log out
                 self.session.username = ''
@@ -558,6 +567,9 @@ UserController = {
         local zombie =
             DeletedUsers:find({ username = tostring(self.params.username) })
         if zombie then
+            -- Bring back the projects trashed together with the account;
+            -- anything trashed earlier stays trashed.
+            Projects:restore_for_user(zombie.username, zombie.deleted)
             zombie:update({ deleted = db.NULL })
             local user =
                 Users:find({ username = tostring(self.params.username) })
@@ -839,9 +851,9 @@ UserController = {
     send_email = capture_errors(function (self)
         assert_admin(self)
         if (#self.params.contents > 0) then
-            send_mail(
+            send_admin_mail(
                 self.queried_user.email,
-                self.params.subject or mail_subjects.generic,
+                self.params.subject,
                 -- Typed into a plain textarea
                 utils.text_to_html(self.params.contents)
             )
@@ -874,7 +886,7 @@ UserController = {
         Followers:create({
             follower_id = self.current_user.id,
             followed_id = self.queried_user.id
-        })
+        }, { on_conflict = 'do_nothing' })
         return jsonResponse({
             message = 'Now following user ' .. self.queried_user.username,
             title = 'Follow user'

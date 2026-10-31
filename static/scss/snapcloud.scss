@@ -481,8 +481,9 @@ hr {
 
   // Normal project action buttons
   & .details,
+  & .manage-section,
   & .buttons,
-  & .flag-container{
+  & .secondary-actions {
     display: none;
   }
 
@@ -491,6 +492,12 @@ hr {
     height: calc(100dvh - 2.6em);
     max-height: 100%;
   }
+}
+
+// Bootstrap tooltips (initialised in views/layout/delayed_scripts).
+// A little wider than Bootstrap's 200px so sentence-long hints wrap less.
+.tooltip-inner {
+  max-width: 280px;
 }
 
 // Admin Tools (to Move)

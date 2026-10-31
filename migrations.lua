@@ -553,5 +553,75 @@ return {
                 autovacuum_analyze_scale_factor = 0.01
             )
         ]])
+    end,
+
+    -- projects_likely_class_work_idx is a plain btree on a boolean column
+    -- over ~10M rows. The planner never uses it (1 scan on prod since the
+    -- stats reset; Explore reads the partial projects_latest_published_idx
+    -- instead), but every UPDATE of likely_class_work has to write to it,
+    -- which is a good part of why mark_class_project takes seconds on a
+    -- large remix tree. CONCURRENTLY: no lock on projects while it goes.
+    ['2026-10-30:0'] = function ()
+        db.query(
+            'DROP INDEX CONCURRENTLY IF EXISTS projects_likely_class_work_idx'
+        )
+    end,
+
+    -- Deleting a user never touched their projects, so Explore had to
+    -- anti-join deleted_users on every query, and search, collections and
+    -- project pages did not filter them at all (prod 2026-10-29: 8,525
+    -- undeleted projects of deleted users, 1,443 of them live and
+    -- published). UserController.delete / revive now trash and restore them;
+    -- this backfills the existing ones with the owner's deletion time, which
+    -- is what revive matches on.
+    ['2026-10-30:1'] = function ()
+        db.query([[
+            UPDATE projects SET deleted = users.deleted
+            FROM users
+            WHERE users.username = projects.username
+                AND users.deleted IS NOT NULL
+                AND projects.deleted IS NULL
+        ]])
+    end,
+
+    -- Site search runs `username ILIKE '%term%' OR email ILIKE '%term%'`
+    -- over ~1M users and `projectname ILIKE … OR notes ILIKE …` over the
+    -- published projects. A btree can't serve a leading wildcard, so each was
+    -- a sequential scan: 0.9 s and 0.7 s per call on prod, twice per search
+    -- (list + count), 7-8 s each when a classroom searched at once
+    -- (2026-10-28). Trigram GIN indexes turn them into index scans.
+    -- pg_trgm is a trusted extension, but creating it still needs CREATE on
+    -- the database, which the app role lacks on staging and prod: run
+    -- `CREATE EXTENSION IF NOT EXISTS pg_trgm;` there as postgres first.
+    ['2026-10-30:2'] = function ()
+        local ok, err = pcall(db.query, 'CREATE EXTENSION IF NOT EXISTS pg_trgm')
+        if not ok then
+            error('pg_trgm is not installed and this role cannot create it. ' ..
+                'Run `CREATE EXTENSION IF NOT EXISTS pg_trgm;` as postgres, ' ..
+                'then re-run bin/lapis-migrate. (' .. tostring(err) .. ')')
+        end
+        -- CONCURRENTLY: no write lock on users/projects while each builds
+        -- (a minute or two each on prod).
+        db.query([[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS users_username_trgm_idx
+                ON users USING gin (username gin_trgm_ops)
+        ]])
+        db.query([[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS users_email_trgm_idx
+                ON users USING gin (email gin_trgm_ops)
+        ]])
+        -- Only live, published projects are searched. The partial predicate
+        -- must be implied by the query: active_projects adds `deleted IS
+        -- NULL`, ProjectController.fetch adds `ispublished`.
+        db.query([[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS projects_projectname_trgm_idx
+                ON projects USING gin (projectname gin_trgm_ops)
+                WHERE ispublished AND deleted IS NULL
+        ]])
+        db.query([[
+            CREATE INDEX CONCURRENTLY IF NOT EXISTS projects_notes_trgm_idx
+                ON projects USING gin (notes gin_trgm_ops)
+                WHERE ispublished AND deleted IS NULL
+        ]])
     end
 }
