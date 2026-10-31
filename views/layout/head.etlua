@@ -30,7 +30,7 @@
 <script type="text/javascript">modules = [];</script>
 <script type="text/javascript" src="/snap/src/cloud.js?<%= cache_buster %>"></script>
 <script type="text/javascript" src="/static/js/base.js?<%= cache_buster %>"></script>
-<script>cloud = new Cloud(); cloud.url = location.origin;</script>
+<script>cloud = new Cloud();</script>
 
 <!-- TODO: This is included commonly enough if should probably be in the base set. -->
 <script src="/static/js/project.js?<%= cache_buster %>"></script>
