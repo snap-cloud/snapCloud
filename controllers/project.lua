@@ -54,6 +54,18 @@ local sortable_columns = {
     flag_count = true
 }
 
+-- Class work: Projects:is_class_work and Projects:set_class_work_tree
+-- hold the flag logic; the controller only parses the request.
+
+-- The id of the project a save request was remixed from, or nil. Snap! sends
+-- the remixID attribute of the snapdata it last opened (see ProjectController
+-- .xml) on every save, so it is also present when the owner re-saves their
+-- own project, pointing back at that same project.
+local function remix_original_id(body)
+    if body.remixID == nil or body.remixID == cjson.null then return nil end
+    return tonumber(body.remixID)
+end
+
 ProjectController = {
     run_query = function (self, query)
         -- query can hold a paginator or an SQL query
@@ -125,18 +137,46 @@ ProjectController = {
             return items
         end
     end,
-    fetch = capture_errors(function (self)
-        self.cache_category = 'latest'
-        local exclude_class_projects = 'AND NOT likely_class_work'
+    -- SQL fragment that keeps likely class work out of public listings.
+    -- Explore always hides it (the homepage and explore queries are shared
+    -- across users, so the clause must not depend on who is asking). A
+    -- search is different: reviewers and above search everything, and any
+    -- logged-in user can always find their own published projects.
+    class_work_clause = function (self)
         if self.params.exclude_class_projects == 'false' then
-            exclude_class_projects = ''
+            return ''
         end
-
+        local searching = self.params.search_term
+            and self.params.search_term ~= ''
+        if searching and self.current_user then
+            if self.current_user:has_min_role('reviewer') then
+                return ''
+            end
+            return db.interpolate_query(
+                ' AND (NOT likely_class_work OR username = ?)',
+                self.current_user.username
+            )
+        end
+        return ' AND NOT likely_class_work'
+    end,
+    fetch = capture_errors(function (self)
+        -- Explore, the project search and the API latest-projects list all go
+        -- through here. The page and its count come from the query cache
+        -- (see cached_query in app.lua): the count alone scans ~400k rows
+        -- (0.4 s on prod) and ran on every page view, and pages far down the
+        -- listing cost up to 1.2 s each. The cache key includes the full
+        -- WHERE clause, so reviewers, searches and admin filters never share
+        -- entries; publishing or unpublishing a project invalidates 'latest'.
+        self.cache_category = 'latest'
+        self.cached = true
+        -- Deleted users' projects are deleted too (see UserController.delete
+        -- and migration 2026-10-30:1), so active_projects already excludes
+        -- them and no anti-join against deleted_users is needed here.
         return ProjectController.run_query(
             self,
-            [[WHERE ispublished ]] ..exclude_class_projects .. [[ AND NOT EXISTS(
-                SELECT 1 FROM deleted_users WHERE
-                username = active_projects.username LIMIT 1)]]
+            [[WHERE ispublished]] ..
+                ProjectController.class_work_clause(self) ..
+                Projects:public_visibility_clause(self.current_user)
         )
     end),
     my_projects = capture_errors(function (self)
@@ -260,6 +300,22 @@ ProjectController = {
         uncache_category('latest')
         uncache_category('latest#count')
         return okResponse()
+    end),
+    -- Reviewer action: (un)flag a project and its whole remix tree
+    -- (Projects:set_class_work_tree), so that mark and unmark are exact
+    -- inverses of each other.
+    set_class_work_on_tree = function (self, flag)
+        assert_min_role(self, 'reviewer')
+        local project = Projects:find({ id = self.params.id })
+        assert_project_exists(self, project)
+        Projects:set_class_work_tree(project.id, flag)
+        return okResponse()
+    end,
+    mark_class_project = capture_errors(function (self)
+        return ProjectController.set_class_work_on_tree(self, true)
+    end),
+    unmark_class_project = capture_errors(function (self)
+        return ProjectController.set_class_work_on_tree(self, false)
     end),
     metadata = capture_errors(function (self)
         assert_users_match(self)
@@ -464,6 +520,11 @@ ProjectController = {
                 remixed_project_id = self.params.id,
                 created = self.params.created
             }, { on_conflict = 'do_nothing' })
+            -- The remix may itself have been remixed before it was linked
+            -- to its original, so flag its whole subtree, not just itself.
+            if original_project.likely_class_work then
+                Projects:set_class_work_tree(self.params.id, true)
+            end
         end
 
         return okResponse()
@@ -599,8 +660,14 @@ ProjectController = {
 
             disk:backup_project(project.id)
 
-            local likely_class_work = self.current_user:is_student() or
-                is_likely_course_work(project.projectname)
+            -- Never clear the flag on save: it may have been inherited from
+            -- a remix or set by a reviewer. Snap! sends remixID on every
+            -- save, so a remix saved over an existing project of the user's
+            -- (which takes this branch) inherits the flag too.
+            local likely_class_work = project.likely_class_work
+                or self.current_user:is_student()
+                or is_likely_course_work(project.projectname)
+                or Projects:is_class_work(remix_original_id(body))
             project:update({
                 lastupdated = db.format_date(),
                 lastshared =
@@ -644,8 +711,10 @@ ProjectController = {
                 deleted_project:delete()
             end
 
-            local likely_class_work = self.current_user:is_student() or
-                is_likely_course_work(self.params.projectname)
+            local original_id = remix_original_id(body)
+            local likely_class_work = self.current_user:is_student()
+                or is_likely_course_work(self.params.projectname)
+                or Projects:is_class_work(original_id)
             Projects:create({
                 projectname = tostring(self.params.projectname),
                 username = tostring(self.params.username),
@@ -659,7 +728,7 @@ ProjectController = {
                 ispublic = self.params.ispublic or false,
                 ispublished = self.params.ispublished or false,
                 likely_class_work = likely_class_work,
-            })
+            }, { on_conflict = 'do_nothing' })
             project =
                 Projects:find(
                     tostring(self.params.username),
@@ -668,15 +737,13 @@ ProjectController = {
 
             -- The original may have been deleted for good since it was
             -- opened; then there is nothing to link to.
-            local original_id = body.remixID ~= cjson.null and
-                tonumber(body.remixID) or nil
             if original_id and db.select(
                     '1 FROM projects WHERE id = ? LIMIT 1', original_id)[1] then
                 Remixes:create({
                     original_project_id = original_id,
                     remixed_project_id = project.id,
                     created = db.format_date()
-                })
+                }, { on_conflict = 'do_nothing' })
             end
         end
 

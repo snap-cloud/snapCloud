@@ -426,7 +426,9 @@ create_token = function (self, purpose, user, do_not_email)
             purpose = purpose
         })
     end
-    local token_url = self:build_url(self:url_for(
+    -- Not self:build_url(): that would take the host from the request's
+    -- Host header (see lib.util.canonical_url).
+    local token_url = require('lib.util').canonical_url(self:url_for(
         purpose,
         {
             username = url.build_path({ user.username }),

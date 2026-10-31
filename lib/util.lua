@@ -29,6 +29,22 @@ local function capitalize(str)
     return str:gsub("^%l", string.upper)
 end
 
+-- Absolute URL for links that leave the site, such as password reset and
+-- email verification links. self:build_url() takes its host from the
+-- request's Host header, which an attacker can set to their own domain and
+-- have the victim emailed a link pointing there. This uses configuration only.
+local function canonical_url(path)
+    local base = config.cloud_url
+    if not base or base == '' then
+        if config._name == 'production' or config._name == 'staging' then
+            base = 'https://' .. config.hostname
+        else
+            base = 'http://localhost:' .. tostring(config.port)
+        end
+    end
+    return (base:gsub('/+$', '')) .. path
+end
+
 -- Remove the protocol and port from a URL
 local function domain_name(url)
   if not url then
@@ -136,6 +152,7 @@ end
 
 return {
   capitalize = capitalize,
+  canonical_url = canonical_url,
   domain_name = domain_name,
   escape_html = escape_html,
   text_to_html = text_to_html,

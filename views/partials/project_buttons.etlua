@@ -1,6 +1,8 @@
-<% local is_users_project = (current_user and current_user.username == project.username)
-   local can_manage = current_user and current_user:has_min_role('moderator')
-   local is_admin = current_user and current_user:isadmin() %>
+<% -- Actions any visitor can take on a project. They sit directly under the
+   -- Snap! player. Owner, moderator and admin actions (share, publish, delete,
+   -- mark as remix, class project) live in views.partials.project_manage,
+   -- under the project notes.
+   local is_users_project = (current_user and current_user.username == project.username) %>
 
 <div class="buttons">
     <% -- BOOKMARKING -- %>
@@ -37,18 +39,12 @@
     <button class="btn btn-outline-primary collect" type="button"
         onclick="collectDialog()"><%= locale.get('collect') %></button>
     <% end %>
-    <% if is_users_project or is_admin then %>
-    <button class="btn btn-danger delete"
-        onclick="confirmDelete()"
-        type="button"
-        ><%= locale.get('delete_button') %></button>
-    <% end %>
 </div>
 
 <% if current_user then %>
-<div class="flag-container">
+<div class="secondary-actions">
     <% if project.flagged then %>
-    <button class="btn btn-outline-danger btn-xs" type="button"
+    <button class="btn btn-link text-danger" type="button"
         onclick="unflagProject()"
         title="<%= locale.get('you_flagged') %>"
     >
@@ -56,17 +52,10 @@
         <%= locale.get('unflag_project') %>
     </button>
     <% else %>
-    <button class="btn btn-outline-danger btn-xs" type="button"
+    <button class="btn btn-link text-danger" type="button"
         onclick="confirmFlag()">
         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
         <%= locale.get('flag_project') %>
-    </button>
-    <% end %>
-    <% if is_users_project or can_manage then %>
-    <button class="btn btn-outline-secondary btn-xs" type="button"
-        onclick="markAsRemix()">
-        <i class="fas fa-fingerprint" aria-hidden=true></i>
-        Mark as a Remix of another project
     </button>
     <% end %>
 </div>
@@ -124,15 +113,6 @@ function collectDialog () {
 };
 <% end %>
 
-function confirmDelete () {
-    confirm(
-        '<%- package.loaded.dialog(
-            'confirm_delete',
-            { item_name = 'project'}) %>',
-        () => { cloud.delete('/project/<%= project.id %>'); }
-    );
-}
-
 function confirmFlag () {
     confirm(
         "<p class='text-start'><%- locale.get('flag_prewarning', '<br>', { escape = false }) %></p>",
@@ -165,22 +145,4 @@ function unflagProject() {
     cloud.delete('/project/<%= project.id %>/flag')
 }
 
-function markAsRemix () {
-    prompt(
-        'Original project URL?',
-        input => {
-            var url = new URL(input);
-            cloud.post(
-                '/project/<%= project.id %>/mark_as_remix',
-                null,
-                {
-                    username: <%- util.js_string(project.username) %>,
-                    created: '<%= project.created %>',
-                    original_username: url.searchParams.get('username'),
-                    original_projectname: url.searchParams.get('projectname')
-                }
-            );
-        }
-    );
-}
 </script>
