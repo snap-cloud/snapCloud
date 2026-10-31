@@ -52,6 +52,21 @@ package.loaded.locale = require('locale')
 package.loaded.validation = require("validation")
 
 local app = package.loaded.app
+
+-- Lapis builds the POST params with lua-resty-upload for multipart bodies,
+-- which needs the raw socket and fails over HTTP/2. Hand it the buffered
+-- body's fields instead, before it looks.
+local lapis_dispatch = app.dispatch
+function app:dispatch(req, res)
+    local content_type = req.headers['content-type']
+    if type(content_type) == 'string' and
+            content_type:lower():find('multipart/form-data', 1, true) then
+        ngx.req.read_body()
+        req.params_post =
+            require('lib.multipart').parse(ngx.req.get_body_data(), content_type)
+    end
+    return lapis_dispatch(self, req, res)
+end
 local config = package.loaded.config
 
 -- Snap!Cloud Utilities
