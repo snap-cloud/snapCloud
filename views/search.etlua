@@ -15,7 +15,8 @@ render(
                 items_per_row = 6,
                 exclude_class_projects = params.exclude_class_projects
             },
-            session = session
+            session = session,
+            current_user = current_user
         }),
         href = build_url('/explore?search_term=' .. package.loaded.util.escape(params.query))
     }
@@ -52,7 +53,8 @@ render(
                 order = 'username'
             },
             items_per_page = 1000, -- for query
-            session = session
+            session = session,
+            current_user = current_user
         }),
         items_per_page = 51, -- for carousel
         href = build_url('/users?search_term=' .. package.loaded.util.escape(params.query))
