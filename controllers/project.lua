@@ -137,6 +137,28 @@ ProjectController = {
             return items
         end
     end,
+    -- SQL fragment that keeps likely class work out of public listings.
+    -- Explore always hides it (the homepage and explore queries are shared
+    -- across users, so the clause must not depend on who is asking). A
+    -- search is different: reviewers and above search everything, and any
+    -- logged-in user can always find their own published projects.
+    class_work_clause = function (self)
+        if self.params.exclude_class_projects == 'false' then
+            return ''
+        end
+        local searching = self.params.search_term
+            and self.params.search_term ~= ''
+        if searching and self.current_user then
+            if self.current_user:has_min_role('reviewer') then
+                return ''
+            end
+            return db.interpolate_query(
+                ' AND (NOT likely_class_work OR username = ?)',
+                self.current_user.username
+            )
+        end
+        return ' AND NOT likely_class_work'
+    end,
     fetch = capture_errors(function (self)
         -- Explore, the project search and the API latest-projects list all go
         -- through here. The page and its count come from the query cache
@@ -147,17 +169,13 @@ ProjectController = {
         -- entries; publishing or unpublishing a project invalidates 'latest'.
         self.cache_category = 'latest'
         self.cached = true
-        local exclude_class_projects = 'AND NOT likely_class_work'
-        if self.params.exclude_class_projects == 'false' then
-            exclude_class_projects = ''
-        end
-
         -- Deleted users' projects are deleted too (see UserController.delete
-        -- and migration 2026-10-29:0), so active_projects already excludes
+        -- and migration 2026-10-30:1), so active_projects already excludes
         -- them and no anti-join against deleted_users is needed here.
         return ProjectController.run_query(
             self,
-            [[WHERE ispublished ]] .. exclude_class_projects ..
+            [[WHERE ispublished]] ..
+                ProjectController.class_work_clause(self) ..
                 Projects:public_visibility_clause(self.current_user)
         )
     end),
@@ -283,21 +301,21 @@ ProjectController = {
         uncache_category('latest#count')
         return okResponse()
     end),
-    mark_class_project = capture_errors(function (self)
+    -- Reviewer action: (un)flag a project and its whole remix tree
+    -- (Projects:set_class_work_tree), so that mark and unmark are exact
+    -- inverses of each other.
+    set_class_work_on_tree = function (self, flag)
         assert_min_role(self, 'reviewer')
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
-        Projects:set_class_work_tree(project.id, true)
+        Projects:set_class_work_tree(project.id, flag)
         return okResponse()
+    end,
+    mark_class_project = capture_errors(function (self)
+        return ProjectController.set_class_work_on_tree(self, true)
     end),
     unmark_class_project = capture_errors(function (self)
-        assert_min_role(self, 'reviewer')
-        local project = Projects:find({ id = self.params.id })
-        assert_project_exists(self, project)
-        project:update({ likely_class_work = false })
-        uncache_category('latest')
-        uncache_category('latest#count')
-        return okResponse()
+        return ProjectController.set_class_work_on_tree(self, false)
     end),
     metadata = capture_errors(function (self)
         assert_users_match(self)
