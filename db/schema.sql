@@ -30,6 +30,20 @@ COMMENT ON EXTENSION pg_stat_statements IS 'track execution statistics of all SQ
 
 
 --
+-- Name: pg_trgm; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION pg_trgm; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
+
+
+--
 -- Name: dom_username; Type: DOMAIN; Schema: public; Owner: -
 --
 
@@ -698,10 +712,17 @@ CREATE INDEX projects_latest_published_idx ON public.projects USING btree (first
 
 
 --
--- Name: projects_likely_class_work_idx; Type: INDEX; Schema: public; Owner: -
+-- Name: projects_notes_trgm_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX projects_likely_class_work_idx ON public.projects USING btree (likely_class_work);
+CREATE INDEX projects_notes_trgm_idx ON public.projects USING gin (notes public.gin_trgm_ops) WHERE (ispublished AND (deleted IS NULL));
+
+
+--
+-- Name: projects_projectname_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX projects_projectname_trgm_idx ON public.projects USING gin (projectname public.gin_trgm_ops) WHERE (ispublished AND (deleted IS NULL));
 
 
 --
@@ -719,6 +740,13 @@ CREATE INDEX users_email_idx ON public.users USING btree (email);
 
 
 --
+-- Name: users_email_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_email_trgm_idx ON public.users USING gin (email public.gin_trgm_ops);
+
+
+--
 -- Name: users_id_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -730,6 +758,13 @@ CREATE UNIQUE INDEX users_id_idx ON public.users USING btree (id);
 --
 
 CREATE INDEX users_deleted_username_idx ON public.users USING btree (username) WHERE (deleted IS NOT NULL);
+
+
+--
+-- Name: users_username_trgm_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX users_username_trgm_idx ON public.users USING gin (username public.gin_trgm_ops);
 
 
 --
@@ -814,6 +849,8 @@ COPY public.lapis_migrations (name) FROM stdin;
 2026-10-22:3
 2026-10-24:0
 2026-10-24:1
+2026-10-30:0
+2026-10-30:2
 \.
 
 
