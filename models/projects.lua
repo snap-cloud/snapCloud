@@ -67,6 +67,38 @@ local ActiveProjects = Model:extend('active_projects', {
                 username = active_projects.username
                 AND role IN ('student', 'banned') LIMIT 1)]]
     end,
+    -- Class work (likely_class_work) hides a project from Explore. It is
+    -- set from heuristics (student accounts, course-like names), inherited
+    -- by remixes, and set by reviewers; once set it is only ever cleared by
+    -- a reviewer, never by a plain save.
+
+    -- True when the project with that id exists and is flagged as class
+    -- work; false for nil (no remix original) or an unknown id.
+    is_class_work = function (_self, project_id)
+        if not project_id then return false end
+        local project = package.loaded.Projects:find({ id = project_id })
+        return (project and project.likely_class_work) and true or false
+    end,
+    -- Flags a project and every (transitive) remix of it as class work.
+    -- Walks the whole remix tree; UNION stops it on remix cycles. Rows
+    -- already flagged are left alone, so re-marking is cheap.
+    mark_class_work_tree = function (_self, project_id)
+        db.query([[
+            WITH RECURSIVE descendants AS (
+                SELECT ?::integer AS id
+                UNION
+                SELECT remixes.remixed_project_id
+                FROM remixes
+                INNER JOIN descendants
+                    ON descendants.id = remixes.original_project_id
+            )
+            UPDATE projects SET likely_class_work = true
+            WHERE id IN (SELECT id FROM descendants)
+                AND likely_class_work IS NOT TRUE
+        ]], project_id)
+        package.loaded.uncache_category('latest')
+        package.loaded.uncache_category('latest#count')
+    end,
     recently_bookmarked = function ()
         -- This query was gerneted by Claude, insprite by the Hacker News
         -- algorithm for ranking projects based on recent bookmarks.

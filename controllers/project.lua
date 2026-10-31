@@ -54,32 +54,8 @@ local sortable_columns = {
     flag_count = true
 }
 
--- Class work flag helpers
--- -----------------------
--- likely_class_work hides a project from Explore. It is set from heuristics
--- (student accounts, course-like names), inherited by remixes, and set by
--- reviewers. Once set it is only ever cleared by a reviewer (unmark), never
--- by a plain save.
-
--- Sets likely_class_work on a project and on every (transitive) remix of it.
--- Walks the whole remix tree; UNION stops it on remix cycles.
-local function mark_class_work_tree(project_id)
-    db.query([[
-        WITH RECURSIVE descendants AS (
-            SELECT ?::integer AS id
-            UNION
-            SELECT remixes.remixed_project_id
-            FROM remixes
-            INNER JOIN descendants
-                ON descendants.id = remixes.original_project_id
-        )
-        UPDATE projects SET likely_class_work = true
-        WHERE id IN (SELECT id FROM descendants)
-            AND likely_class_work IS NOT TRUE
-    ]], project_id)
-    uncache_category('latest')
-    uncache_category('latest#count')
-end
+-- Class work: Projects:is_class_work and Projects:mark_class_work_tree
+-- hold the flag logic; the controller only parses the request.
 
 -- The id of the project a save request was remixed from, or nil. Snap! sends
 -- the remixID attribute of the snapdata it last opened (see ProjectController
@@ -88,13 +64,6 @@ end
 local function remix_original_id(body)
     if body.remixID == nil or body.remixID == cjson.null then return nil end
     return tonumber(body.remixID)
-end
-
--- True when the project with original_id exists and is flagged as class work.
-local function is_remix_of_class_work(original_id)
-    if not original_id then return false end
-    local original = Projects:find({ id = original_id })
-    return (original and original.likely_class_work) and true or false
 end
 
 ProjectController = {
@@ -317,7 +286,7 @@ ProjectController = {
         assert_min_role(self, 'reviewer')
         local project = Projects:find({ id = self.params.id })
         assert_project_exists(self, project)
-        mark_class_work_tree(project.id)
+        Projects:mark_class_work_tree(project.id)
         return okResponse()
     end),
     unmark_class_project = capture_errors(function (self)
@@ -535,7 +504,7 @@ ProjectController = {
             -- The remix may itself have been remixed before it was linked
             -- to its original, so flag its whole subtree, not just itself.
             if original_project.likely_class_work then
-                mark_class_work_tree(self.params.id)
+                Projects:mark_class_work_tree(self.params.id)
             end
         end
 
@@ -679,7 +648,7 @@ ProjectController = {
             local likely_class_work = project.likely_class_work
                 or self.current_user:is_student()
                 or is_likely_course_work(project.projectname)
-                or is_remix_of_class_work(remix_original_id(body))
+                or Projects:is_class_work(remix_original_id(body))
             project:update({
                 lastupdated = db.format_date(),
                 lastshared =
@@ -726,7 +695,7 @@ ProjectController = {
             local original_id = remix_original_id(body)
             local likely_class_work = self.current_user:is_student()
                 or is_likely_course_work(self.params.projectname)
-                or is_remix_of_class_work(original_id)
+                or Projects:is_class_work(original_id)
             Projects:create({
                 projectname = tostring(self.params.projectname),
                 username = tostring(self.params.username),
