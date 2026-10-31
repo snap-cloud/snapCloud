@@ -54,6 +54,9 @@ err = {
     passwords_do_not_match = {
         msg = 'Passwords do not match',
         status = 400 },
+    invalid_project_data = {
+        msg = 'The project data could not be read',
+        status = 400 },
     nonexistent_user =
         { msg = 'No user with this username exists', status = 404 },
     nonexistent_email =
@@ -423,7 +426,9 @@ create_token = function (self, purpose, user, do_not_email)
             purpose = purpose
         })
     end
-    local token_url = self:build_url(self:url_for(
+    -- Not self:build_url(): that would take the host from the request's
+    -- Host header (see lib.util.canonical_url).
+    local token_url = require('lib.util').canonical_url(self:url_for(
         purpose,
         {
             username = url.build_path({ user.username }),

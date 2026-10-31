@@ -35,9 +35,12 @@
         </div>
     </div>
 
-    <div class="viewer row js-embed-container">
+    <!-- A CSS grid (see project.css): player + details side by side, with
+         the owner / moderator "manage" block under the details on wide
+         screens and spanning both columns on tablets. -->
+    <div class="viewer js-embed-container">
         <!-- Project viewer -->
-        <div class="embed col-lg-6 col-md-8 col-12">
+        <div class="embed">
             <!-- Spinner shown while embed hasn't been loaded -->
             <!-- <i class="project-loader fas fa-spinner fa-spin fa-3x"
                 aria-hidden="true"></i> -->
@@ -96,9 +99,11 @@
             <!-- Project Action Buttons -->
             <% render('views.partials.project_buttons', { project = project }) %>
         </div>
-        <div class="details col-sm-12 col-md-4 col-lg-6">
+        <div class="details">
             <% render('views.partials.project_details', { project = project }) %>
         </div>
+        <!-- Owner, moderator and admin actions; empty for everybody else. -->
+        <% render('views.partials.project_manage', { project = project }) %>
     </div>
 </div>
 
