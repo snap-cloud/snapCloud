@@ -68,8 +68,15 @@ Projects
 ========
 
 Route:       GET /projects
-Description: Get a list of published projects.
-Parameters:  page, pagesize, matchtext, withthumbnail
+Description: Get a list of the current user's projects. When
+             `group_by_collection` is set, returns an object of the form
+             `{ collections: [{ ..., projects: [...] }], projects: [...] }`
+             where each collection contains the user's projects in it
+             (a project that lives in multiple of the user's collections is
+             listed once per collection) and the top-level `projects` array
+             holds projects not in any of the user's collections. Only
+             collections the user is a creator or editor of are included.
+Parameters:  page, pagesize, matchtext, withthumbnail, group_by_collection
 
 Route:       GET /projects/:username
 Description: Get metadata for a project list by a user.
