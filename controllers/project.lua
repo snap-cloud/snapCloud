@@ -43,6 +43,7 @@ local validation = package.loaded.validation
 local is_likely_course_work = validation.is_likely_course_work
 local assert_current_user_logged_in = validation.assert_current_user_logged_in
 local order_by_clause = validation.order_by_clause
+local search = require('lib.search')
 
 -- Columns that requests may sort projects by. Anything else is rejected, as
 -- these names end up spliced straight into SQL.
@@ -82,15 +83,26 @@ ProjectController = {
           end
         end
 
+        -- An exact search that finds nothing is retried once fuzzily.
+        local term = search.normalize(self.params.search_term)
+        local search_clause, rank_clause = '', ''
+        if term ~= '' then
+            if self.fuzzy_search then
+                search_clause = search.fuzzy_clause(term, 'projectname')
+            else
+                search_clause =
+                    search.match_clause(term, { 'projectname', 'notes' })
+            end
+            if #term >= search.MIN_LENGTH then
+                rank_clause = search.rank_clause(term, 'projectname')
+            end
+        end
+
         local paginator = Projects:paginated(
                  query ..
-                    (self.params.search_term and (db.interpolate_query(
-                        ' AND (projectname ILIKE ? OR notes ILIKE ?)',
-                        '%' .. tostring(self.params.search_term) .. '%',
-                        '%' .. tostring(self.params.search_term) .. '%')
-                    ) or '') ..
+                    search_clause ..
                     filters ..
-                    ' ORDER BY ' .. order_by_clause(
+                    ' ORDER BY ' .. rank_clause .. order_by_clause(
                         self.params.order,
                         sortable_columns,
                         'firstpublished DESC'),
@@ -100,7 +112,12 @@ ProjectController = {
                 }
             )
         if self.req and (self.req.source == 'snap') then
-            return jsonResponse({ projects = paginator:get_all() })
+            local projects = paginator:get_all()
+            if #projects == 0 and search.can_retry_fuzzy(self, term) then
+                self.fuzzy_search = true
+                return ProjectController.run_query(self, query)
+            end
+            return jsonResponse({ projects = projects })
         else
             local items = {}
             if self.cached then
@@ -118,6 +135,10 @@ ProjectController = {
             else
                 items = paginator:get_page(self.params.page_number)
                 disk:process_thumbnails(items)
+            end
+            if #items == 0 and search.can_retry_fuzzy(self, term) then
+                self.fuzzy_search = true
+                return ProjectController.run_query(self, query)
             end
             if not self.ignore_page_count then
                 if self.cached then
