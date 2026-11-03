@@ -78,13 +78,24 @@ UserController = {
         -- filter_role=reviewer, and only whitelisted fields are accepted.
         local filters = filter_clause(self.params, filterable_columns)
 
+        -- Only staff (and teachers, over their own learners) search emails.
+        local search_clause = ''
+        if self.params.search_term then
+            local pattern = '%' .. tostring(self.params.search_term) .. '%'
+            if self.search_email or (self.current_user and
+                    self.current_user:has_min_role('reviewer')) then
+                search_clause = db.interpolate_query(
+                    ' AND (username ILIKE ? OR email ILIKE ?)',
+                    pattern, pattern)
+            else
+                search_clause =
+                    db.interpolate_query(' AND username ILIKE ?', pattern)
+            end
+        end
+
         local paginator = self.table:paginated(
             query ..
-                (self.params.search_term and (db.interpolate_query(
-                    ' AND (username ILIKE ? OR email ILIKE ?)',
-                    '%' .. tostring(self.params.search_term) .. '%',
-                    '%' .. tostring(self.params.search_term) .. '%')
-                ) or '') ..
+                search_clause ..
                 filters ..
                 ' ORDER BY ' .. order_by_clause(
                     self.params.order, sortable_columns, 'created'),
@@ -736,6 +747,7 @@ UserController = {
     end),
     learners = capture_errors(function (self)
         self.fields = 'username, created, email, creator_id, id, role, is_teacher, verified'
+        self.search_email = true
         return UserController.run_query(
             self,
             db.interpolate_query(
