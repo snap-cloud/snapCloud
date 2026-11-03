@@ -40,6 +40,8 @@ local Collections = package.loaded.Collections
 local Users = package.loaded.Users
 local validation = package.loaded.validation
 
+local project_xml = require('lib.project_xml')
+
 local is_likely_course_work = validation.is_likely_course_work
 local assert_current_user_logged_in = validation.assert_current_user_logged_in
 local order_by_clause = validation.order_by_clause
@@ -71,6 +73,27 @@ local function not_modified (self, project, delta, tag, max_age)
         and ('public, max-age=' .. max_age)
         or 'private, max-age=0, must-revalidate'
     return self.req.headers['if-none-match'] == etag
+end
+
+-- Frees a (username, projectname) still held by a soft-deleted project.
+local function purge_deleted_project (username, projectname)
+    local deleted_project = DeletedProjects:find(username, projectname)
+    if not deleted_project then return end
+    db.query(
+        'DELETE FROM Remixes WHERE '..
+            'original_project_id = ? OR remixed_project_id = ?',
+        deleted_project.id,
+        deleted_project.id)
+    db.query(
+        'DELETE FROM Collection_Memberships WHERE ' ..
+            'project_id = ?',
+        deleted_project.id)
+    deleted_project:delete()
+end
+
+local function uncache_explore ()
+    uncache_category('latest')
+    uncache_category('latest#count')
 end
 
 -- Class work: Projects:is_class_work and Projects:set_class_work_tree
@@ -338,6 +361,37 @@ ProjectController = {
         })
         uncache_category('latest')
         uncache_category('latest#count')
+        return okResponse()
+    end),
+    set_title = capture_errors(function (self)
+        local project = Projects:find({ id = self.params.id })
+        assert_can_edit_project(self, project)
+        local title = util.trim(tostring(self.params.title or ''))
+        if title == '' then yield_error(err.empty_project_title) end
+        if title ~= project.projectname then
+            if Projects:find(project.username, title) then
+                yield_error(err.project_title_taken)
+            end
+            purge_deleted_project(project.username, title)
+            project:update({
+                projectname = title,
+                lastupdated = db.format_date()
+            })
+            if project.ispublished then uncache_explore() end
+        end
+        return jsonResponse({ redirect = project:url_for('site') })
+    end),
+    set_notes = capture_errors(function (self)
+        local project = Projects:find({ id = self.params.id })
+        assert_can_edit_project(self, project)
+        local notes = tostring(self.params.notes or ''):gsub('\r\n', '\n')
+        if notes ~= project.notes then
+            project:update({
+                notes = notes,
+                lastupdated = db.format_date()
+            })
+            if project.ispublished then uncache_explore() end
+        end
         return okResponse()
     end),
     -- Reviewer action: (un)flag a project and its whole remix tree
@@ -612,10 +666,13 @@ ProjectController = {
         end
         ngx.header['Content-Type'] = 'application/xml'
         ngx.print('<snapdata remixID="' .. project.id .. '">')
-        if not disk:stream(
-                project.id, 'project.xml', self.params.delta, ngx.print) then
-            ngx.print('<project></project>')
-        end
+        -- Title and notes edited on the site live in the DB, not the file,
+        -- so project.xml is rewritten in memory on the way out (it is the
+        -- small part of a project; media.xml, the bulk, is streamed below).
+        ngx.print(project_xml.rewrite_metadata(
+            disk:retrieve(project.id, 'project.xml', self.params.delta),
+            project.projectname,
+            project.notes) or '<project></project>')
         if not disk:stream(
                 project.id, 'media.xml', self.params.delta, ngx.print) then
             ngx.print('<media></media>')
@@ -761,26 +818,9 @@ ProjectController = {
                 message = message .. '\n\nYour account is now validated.'
             end
 
-            -- A project flagged as "deleted" with the same name may exist
-            -- in the DB.
-            -- We need to check for that and delete it for real this time
-            local deleted_project = DeletedProjects:find(
+            purge_deleted_project(
                 tostring(self.params.username),
                 tostring(self.params.projectname))
-            -- Deleted project may have remixes or be included in a
-            -- collection. Let's take care of this.
-            if deleted_project then
-                db.query(
-                    'DELETE FROM Remixes WHERE '..
-                        'original_project_id = ? OR remixed_project_id = ?',
-                    deleted_project.id,
-                    deleted_project.id)
-                db.query(
-                    'DELETE FROM Collection_Memberships WHERE ' ..
-                        'project_id = ?',
-                    deleted_project.id)
-                deleted_project:delete()
-            end
 
             local original_id = remix_original_id(body)
             local likely_class_work = self.current_user:is_student()
