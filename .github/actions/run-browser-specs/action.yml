@@ -1,0 +1,73 @@
+name: Run Playwright browser specs
+description: >
+  Sets up Node + Playwright browsers, builds stylesheets, boots a Lapis
+  server, and runs a subset of the Playwright suite controlled by a grep
+  pattern. Used by both the `playwright` (grep-invert @axe) and `axe`
+  (grep @axe) jobs.
+
+inputs:
+  grep:
+    description: Playwright --grep pattern. Empty means no filter.
+    required: false
+    default: ""
+  grep-invert:
+    description: Playwright --grep-invert pattern. Empty means no filter.
+    required: false
+    default: ""
+  report-name:
+    description: Name used when uploading the Playwright HTML report artifact.
+    required: false
+    default: "playwright-report"
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+        cache: npm
+
+    - name: Install Node deps + Playwright browsers
+      shell: bash
+      run: |
+        npm ci
+        npx playwright install --with-deps chromium
+
+    - name: Build stylesheets
+      shell: bash
+      run: npx sass static/scss/:static/style/compiled/ --style compressed --no-source-map
+
+    - name: Start Lapis server
+      shell: bash
+      run: |
+        mkdir -p logs tmp store/test
+        lapis server test &
+        echo "Waiting for server to come up..."
+        for i in $(seq 1 30); do
+          if curl -fsS http://localhost:8080/ > /dev/null; then
+            echo "Server is up."
+            break
+          fi
+          sleep 1
+        done
+
+    - name: Run Playwright
+      shell: bash
+      run: |
+        args=""
+        if [ -n "${{ inputs.grep }}" ]; then
+          args="$args --grep \"${{ inputs.grep }}\""
+        fi
+        if [ -n "${{ inputs.grep-invert }}" ]; then
+          args="$args --grep-invert \"${{ inputs.grep-invert }}\""
+        fi
+        eval "npx playwright test $args"
+
+    - name: Upload Playwright report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.report-name }}
+        path: playwright-report
+        retention-days: 7

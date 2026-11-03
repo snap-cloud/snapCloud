@@ -1,0 +1,45 @@
+<project name="hello_world" app="Snap! 9.0, https://snap.berkeley.edu" version="2">
+    <!--
+        Minimal Snap! project fixture used by specs.
+        A single stage with one sprite (Sprite) whose only script
+        says "Hello, world!" when the green flag is pressed.
+
+        Regenerate with: File > Export project... in Snap!
+    -->
+    <notes>Test fixture - hello world.</notes>
+    <thumbnail>data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=</thumbnail>
+    <stage name="Stage" width="480" height="360" costume="0" color="255,255,255,1" tempo="60" threadsafe="false" lines="round" ternary="false" hyperops="true" codify="false" inheritance="true" sublistIDs="false" scheduled="true" id="1">
+        <pentrails>data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAeAAAAFoCAYAAAC3QnVxAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAAj1JREFUeF7t1bENAAAIxDD6/9P0C5QJeSFZnpm9g4AAAQIFlgVcYVdAgAABAj8BgRUCAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECgRUBAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECgRUBAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECgRUBAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECgRUBAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECgRUBAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECgRUBAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECgRUBAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECgRUBAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECgRUBAQIECEQCAhuxGSJAgAABAoEVAQECBAhEAgIbsRkiQIAAAQKBFQEBAgQIRAICG7EZIkCAAAECA+n3AAGuZUUXAAAAAElFTkSuQmCC</pentrails>
+        <costumes>
+            <list struct="atomic" id="2"></list>
+        </costumes>
+        <sounds>
+            <list struct="atomic" id="3"></list>
+        </sounds>
+        <variables></variables>
+        <blocks></blocks>
+        <scripts></scripts>
+        <sprites>
+            <sprite name="Sprite" idx="1" x="0" y="0" heading="90" scale="1" rotation="1" draggable="true" costume="0" color="80,80,80,1" pen="tip" id="8">
+                <costumes><list id="9"></list></costumes>
+                <sounds><list id="10"></list></sounds>
+                <variables></variables>
+                <blocks></blocks>
+                <scripts>
+                    <script x="20" y="20">
+                        <block s="receiveGo"></block>
+                        <block s="doSayFor">
+                            <l>Hello, world!</l>
+                            <l>2</l>
+                        </block>
+                    </script>
+                </scripts>
+            </sprite>
+        </sprites>
+    </stage>
+    <hidden></hidden>
+    <headers></headers>
+    <code></code>
+    <blocks></blocks>
+    <variables></variables>
+</project>
