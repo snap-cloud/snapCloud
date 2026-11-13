@@ -2,10 +2,39 @@
 <% content_for('title', project.projectname .. " " .. locale.get('project_by', project.username, { escape = false })) %>
 
 <!-- TODO-BS: Replace .project.big with a single CSS class. Extract to partial? -->
+<% local can_edit = current_user and
+    ((project.username == current_user.username) or
+        current_user:has_min_role('moderator')) %>
 <div class="project big mt-3">
     <div class="title row">
         <div class="col-md-8 col-12">
-            <h1><%= project.projectname %></h1>
+            <div class="d-flex align-items-center gap-2 js-title-display">
+                <h1 class="mb-0"><%= project.projectname %></h1>
+                <% if can_edit then %>
+                <button class="btn btn-link edit-title" type="button"
+                    aria-label="<%= locale.get('edit_title') %>"
+                    title="<%= locale.get('edit_title') %>"
+                    onclick="editTitle()">
+                    <i class="fas fa-pencil" aria-hidden="true"></i>
+                </button>
+                <% end %>
+            </div>
+            <% if can_edit then %>
+            <form class="js-title-editor" hidden
+                onsubmit="event.preventDefault(); saveTitle(this);">
+                <div class="input-group input-group-lg">
+                    <input class="form-control" type="text" name="title"
+                        required maxlength="1000"
+                        aria-label="<%= locale.get('project_title') %>"
+                        value="<%= project.projectname %>">
+                    <button class="btn btn-primary" type="submit"
+                        ><%= locale.get('save') %></button>
+                    <button class="btn btn-outline-secondary" type="button"
+                        onclick="cancelTitle()"
+                        ><%= locale.get('cancel') %></button>
+                </div>
+            </form>
+            <% end %>
         </div>
 
         <div class="col-md-4 col-12 text-end">
@@ -137,6 +166,31 @@
         }
     )
 %>
+
+<% if can_edit then %>
+<script>
+    function editTitle () {
+        document.querySelector('.js-title-display').hidden = true;
+        var form = document.querySelector('.js-title-editor');
+        form.hidden = false;
+        form.querySelector('input').focus();
+        form.querySelector('input').select();
+    };
+    function cancelTitle () {
+        var form = document.querySelector('.js-title-editor');
+        form.reset();
+        form.hidden = true;
+        document.querySelector('.js-title-display').hidden = false;
+    };
+    function saveTitle (form) {
+        cloud.post(
+            '/api/v1/project/<%= project.id %>/title',
+            Cloud.redirect,
+            { title: form.querySelector('input').value }
+        );
+    };
+</script>
+<% end %>
 
 <script>
     // Prevent scrolling when the iframe is in full-screen mode
