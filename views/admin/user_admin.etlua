@@ -14,6 +14,20 @@ render(
         show_if_empty = true,
         filter_descriptors = {
             {
+                selector = 'order_by',
+                label = 'Sort by',
+                options = {
+                    { label = 'Newest', value = 'created DESC' },
+                    { label = 'Oldest', value = 'created ASC' },
+                    { label = 'Username A-Z', value = 'username ASC' },
+                    { label = 'Username Z-A', value = 'username DESC' },
+                    { label = 'Email A-Z', value = 'email ASC' },
+                    { label = 'Email Z-A', value = 'email DESC' },
+                    { label = 'Most sessions', value = 'session_count DESC' },
+                    { label = 'Last login', value = 'last_login_at DESC' },
+                }
+            },
+            {
                 selector = 'verified',
                 label = 'Verified',
                 options = {
