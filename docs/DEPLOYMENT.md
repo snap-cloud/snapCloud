@@ -302,7 +302,20 @@ running. If the config test fails it stops before restarting, so the old
 version keeps serving. Afterwards, check the version:
 
 ```bash
-curl -sI https://snap.berkeley.edu/ | grep -i ^server   # server: openresty/1.31.8.1
+curl -sI https://snap.berkeley.edu/ | grep -i ^server   # server: openresty/1.31.9.1
+```
+
+### HTTP/2 is off (NGINX2Shell)
+
+HTTP/2 is turned off in `nginx.conf` (`http2 off;`, the only `http2` setting)
+because of the "NGINX2Shell" bugs, CVE-2026-123007 and CVE-2026-123633. Both
+are fixed in nginx 1.31.9 / 1.30.7, but OpenResty 1.31.8.1 and older are still
+affected. Once every server runs OpenResty 1.31.9.1 or later, change it back
+to `http2 on;` and deploy. Don't add `http2` to a `listen` line or a server
+block: it turns HTTP/2 on for every host on port 443. To check:
+
+```bash
+curl -s -o /dev/null -w '%{http_version}\n' --http2 https://snap.berkeley.edu/   # 1.1 while off
 ```
 
 ### New release alerts
