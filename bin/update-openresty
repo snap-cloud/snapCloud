@@ -1,0 +1,58 @@
+#! /usr/bin/env bash
+
+# sudo bin/update-openresty
+#
+# Upgrade OpenResty from its apt repository (see bin/prereqs.sh), check the
+# app's nginx config against the new binary, and restart snapcloud_daemon.
+# A reload (HUP) is not enough: it keeps the old binary running.
+# The restart drops connections for a few seconds.
+
+set -uo pipefail
+
+APP_DIR=${APP_DIR:-/home/cloud/snapCloud}
+
+if [ "$(id -u)" != 0 ]; then
+    echo "bin/update-openresty must run as root (it uses apt-get)." >&2
+    exit 1
+fi
+
+running_version() {
+    openresty -v 2>&1 | sed -n 's#.*openresty/##p'
+}
+
+apt-get update || { echo "apt-get update failed"; exit 1; }
+
+installed=$(dpkg-query -W -f='${Version}' openresty 2>/dev/null)
+candidate=$(apt-cache policy openresty | sed -n 's/^ *Candidate: *//p')
+echo "Installed: ${installed:-none}  Available: ${candidate:-none}"
+if [ -z "$candidate" ] || [ "$installed" = "$candidate" ]; then
+    echo "OpenResty is up to date ($(running_version))."
+    exit 0
+fi
+
+old=$(running_version)
+# --only-upgrade also upgrades openresty-openssl3, -pcre2 and -zlib as needed.
+apt-get install -y --only-upgrade openresty || { echo "apt-get install failed"; exit 1; }
+echo "Upgraded OpenResty: $old -> $(running_version)"
+
+# The apt package ships its own openresty.service. We run nginx through lapis
+# instead, so make sure the package's service isn't holding ports 80/443.
+if systemctl is-active --quiet openresty 2>/dev/null; then
+    echo "Stopping the packaged openresty.service (snapcloud_daemon runs nginx)."
+    systemctl stop openresty
+fi
+
+# Test the config lapis last compiled with the new binary. init_by_lua runs
+# here too, so this also catches Lua modules that fail to load.
+echo "Testing nginx config with the new binary:"
+if ! runuser -l cloud -c "cd $APP_DIR && set -a && . ./.env && set +a && openresty -p $APP_DIR/ -c nginx.conf.compiled -t"; then
+    echo "Config test failed. snapcloud_daemon was NOT restarted, so the old" >&2
+    echo "binary keeps serving until the next restart. Fix the config, or" >&2
+    echo "downgrade: apt-get install openresty=$installed" >&2
+    exit 1
+fi
+
+echo 'Restarting snapcloud daemon'
+service snapcloud_daemon restart
+
+echo 'Done! Check the Server header: curl -sI https://snap.berkeley.edu/ | grep -i ^server'

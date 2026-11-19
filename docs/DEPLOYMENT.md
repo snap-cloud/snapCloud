@@ -285,3 +285,52 @@ restarts the app. The app reads the mode once, at start (see `maintenance.lua`).
   shows the same message instead of a 500. Site pages show a banner.
 - **Down**: every app request gets a 503. Static files (including the editor at `/snap/`) still load.
 - `off` unlocks the database before restarting, so the app never runs writable against a locked DB.
+
+## Updating OpenResty
+
+OpenResty comes from its apt repository (added by `bin/prereqs.sh`), so it is
+not pinned in this repo. To update a server, staging first:
+
+```bash
+sudo bin/update-openresty
+```
+
+It runs `apt-get install --only-upgrade openresty`, tests the last compiled
+`nginx.conf.compiled` with the new binary (`openresty -t`), and restarts
+`snapcloud_daemon`. A restart is needed: a reload keeps the old binary
+running. If the config test fails it stops before restarting, so the old
+version keeps serving. Afterwards, check the version:
+
+```bash
+curl -sI https://snap.berkeley.edu/ | grep -i ^server   # server: openresty/1.31.9.1
+```
+
+### HTTP/2 is off (NGINX2Shell)
+
+HTTP/2 is turned off in `nginx.conf` (`http2 off;`, the only `http2` setting)
+because of the "NGINX2Shell" bugs, CVE-2026-123007 and CVE-2026-123633. Both
+are fixed in nginx 1.31.9 / 1.30.7, but OpenResty 1.31.8.1 and older are still
+affected. Once every server runs OpenResty 1.31.9.1 or later, change it back
+to `http2 on;` and deploy. Don't add `http2` to a `listen` line or a server
+block: it turns HTTP/2 on for every host on port 443. To check:
+
+```bash
+curl -s -o /dev/null -w '%{http_version}\n' --http2 https://snap.berkeley.edu/   # 1.1 while off
+```
+
+### New release alerts
+
+[`.github/workflows/openresty-version.yml`](../.github/workflows/openresty-version.yml)
+runs every Monday. It compares the `Server: openresty/…` header from
+production and staging with the newest stable tag of
+[openresty/openresty](https://github.com/openresty/openresty/tags), and opens
+an issue "Update OpenResty to x.y.z.w" with links to the release notes if a
+server is behind. Run it from the Actions tab to check now. It fails if the
+header stops including a version (e.g. `server_tokens off`).
+
+Watching **Releases** on the openresty/openresty GitHub repo does not work:
+OpenResty pushes tags but often doesn't publish GitHub Releases. For a
+personal alert, subscribe to the tags feed
+(`https://github.com/openresty/openresty/tags.atom`) in a feed reader, or to
+the announcements on [openresty.org](https://openresty.org/en/) /
+the [forum](https://forum.openresty.us/).
