@@ -1,0 +1,67 @@
+# Opens an issue when a newer OpenResty release is out than the one the
+# servers run. OpenResty doesn't publish GitHub Releases reliably (only tags),
+# so "Watch > Releases" on openresty/openresty won't alert you.
+#
+# The running version comes from the `Server: openresty/x.y.z.w` header. If we
+# ever turn `server_tokens` off, this job fails rather than staying quiet.
+# Run it by hand from the Actions tab to check now.
+name: OpenResty version check
+
+on:
+  schedule:
+    - cron: '17 15 * * 1' # Mondays
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      SERVERS: snap.berkeley.edu staging.snap.berkeley.edu
+    steps:
+      - name: Compare running and latest OpenResty versions
+        run: |
+          set -euo pipefail
+
+          # Latest stable release: tags look like v1.31.8.1; skip rc tags.
+          latest=$(git ls-remote --tags --refs https://github.com/openresty/openresty \
+            | sed 's#.*refs/tags/v##' | grep -E '^[0-9]+(\.[0-9]+)+$' | sort -V | tail -1)
+          [ -n "$latest" ] || { echo "::error::Could not find the latest OpenResty tag"; exit 1; }
+          echo "Latest OpenResty: $latest"
+
+          outdated=''
+          for host in $SERVERS; do
+            running=$(curl -sSI --max-time 30 "https://$host/" \
+              | tr -d '\r' | sed -n 's#^[Ss]erver: *openresty/##p' | head -1)
+            [ -n "$running" ] || { echo "::error::No OpenResty version in $host's Server header"; exit 1; }
+            echo "$host: $running"
+            if [ "$running" != "$latest" ] && \
+               [ "$(printf '%s\n%s\n' "$running" "$latest" | sort -V | tail -1)" = "$latest" ]; then
+              outdated="$outdated- \`$host\` runs $running"$'\n'
+            fi
+          done
+
+          if [ -z "$outdated" ]; then
+            echo "All servers are on $latest."
+            exit 0
+          fi
+
+          title="Update OpenResty to $latest"
+          if [ -n "$(gh issue list --state open --search "\"$title\" in:title" --json number --jq '.[].number')" ]; then
+            echo "Issue \"$title\" is already open."
+            exit 0
+          fi
+
+          ann="https://openresty.org/en/ann-$(echo "$latest" | awk -F. '{printf "%d%03d%03d%03d", $1, $2, $3, $4}').html"
+          gh issue create --title "$title" --body "OpenResty $latest is out.
+
+          $outdated
+          - Announcement: $ann
+          - Changes: https://openresty.org/en/changelog-$(echo "$latest" | awk -F. '{printf "%d%03d%03d", $1, $2, $3}').html
+
+          Update staging first, then production, with \`sudo bin/update-openresty\`.
+          See [docs/DEPLOYMENT.md]($GITHUB_SERVER_URL/$GH_REPO/blob/main/docs/DEPLOYMENT.md#updating-openresty)."
