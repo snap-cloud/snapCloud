@@ -299,7 +299,8 @@ It runs `apt-get install --only-upgrade openresty`, tests the last compiled
 `nginx.conf.compiled` with the new binary (`openresty -t`), and restarts
 `snapcloud_daemon`. A restart is needed: a reload keeps the old binary
 running. If the config test fails it stops before restarting, so the old
-version keeps serving. Afterwards, check the version:
+version keeps serving; fix the config and run the script again, and it picks
+up at the test. Afterwards, check the version:
 
 ```bash
 curl -sI https://snap.berkeley.edu/ | grep -i ^server   # server: openresty/1.31.9.1
