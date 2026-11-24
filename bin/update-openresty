@@ -2,9 +2,10 @@
 
 # sudo bin/update-openresty
 #
-# Upgrade OpenResty from its apt repository (see bin/prereqs.sh), check the
-# app's nginx config against the new binary, and restart snapcloud_daemon.
-# A reload (HUP) is not enough: it keeps the old binary running.
+# Upgrade OpenResty and its bundled libraries (OpenSSL, PCRE2, zlib) from its
+# apt repository (see bin/prereqs.sh), check the app's nginx config against
+# the new binary, and restart snapcloud_daemon.
+# A reload (HUP) is not enough: it keeps the old binary and libraries loaded.
 # The restart drops connections for a few seconds.
 
 set -uo pipefail
@@ -20,29 +21,47 @@ running_version() {
     openresty -v 2>&1 | sed -n 's#.*openresty/##p'
 }
 
-# True when the nginx master still runs a binary that apt has since replaced,
-# e.g. after an earlier run upgraded the package but stopped before the restart.
+# The openresty package only sets minimum versions for these (e.g.
+# openresty-openssl3 >= 3.5.5), so upgrading openresty alone leaves an older
+# but still allowed library in place. Name them so apt upgrades them too.
+PACKAGES=(openresty openresty-openssl3 openresty-pcre2 openresty-zlib)
+
+# True when the nginx master still runs a binary or a library that apt has
+# since replaced: an earlier run stopped before the restart, or only a
+# library was upgraded.
 running_old_binary() {
     local pid
     pid=$(pgrep -o -x nginx) || return 1
-    [[ "$(readlink "/proc/$pid/exe")" == *' (deleted)' ]]
+    [[ "$(readlink "/proc/$pid/exe")" == *' (deleted)' ]] ||
+        grep -q '/usr/local/openresty/.* (deleted)$' "/proc/$pid/maps"
+}
+
+# Packages from PACKAGES that have a newer version available.
+outdated_packages() {
+    local p installed candidate
+    for p in "${PACKAGES[@]}"; do
+        installed=$(dpkg-query -W -f='${Version}' "$p" 2>/dev/null)
+        candidate=$(apt-cache policy "$p" | sed -n 's/^ *Candidate: *//p')
+        if [ -n "$candidate" ] && [ "$candidate" != "(none)" ] && [ "$installed" != "$candidate" ]; then
+            echo "$p"
+            echo "  $p: ${installed:-none} -> $candidate" >&2
+        fi
+    done
 }
 
 apt-get update || { echo "apt-get update failed"; exit 1; }
 
-installed=$(dpkg-query -W -f='${Version}' openresty 2>/dev/null)
-candidate=$(apt-cache policy openresty | sed -n 's/^ *Candidate: *//p')
-echo "Installed: ${installed:-none}  Available: ${candidate:-none}"
-if [ -z "$candidate" ] || [ "$installed" = "$candidate" ]; then
+outdated=$(outdated_packages)
+if [ -z "$outdated" ]; then
     if ! running_old_binary; then
-        echo "OpenResty is up to date ($(running_version))."
+        echo "OpenResty and its libraries are up to date ($(running_version))."
         exit 0
     fi
-    echo "OpenResty $(running_version) is installed, but nginx still runs the old binary."
+    echo "OpenResty $(running_version) is installed, but nginx still runs an old binary or library."
 else
     old=$(running_version)
-    # --only-upgrade also upgrades openresty-openssl3, -pcre2 and -zlib as needed.
-    apt-get install -y --only-upgrade openresty || { echo "apt-get install failed"; exit 1; }
+    # shellcheck disable=SC2086 # one package name per word
+    apt-get install -y --only-upgrade $outdated || { echo "apt-get install failed"; exit 1; }
     echo "Upgraded OpenResty: $old -> $(running_version)"
 fi
 
