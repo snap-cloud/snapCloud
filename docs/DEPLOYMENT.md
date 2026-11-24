@@ -295,11 +295,15 @@ not pinned in this repo. To update a server, staging first:
 sudo bin/update-openresty
 ```
 
-It runs `apt-get install --only-upgrade openresty`, tests the last compiled
+It upgrades `openresty` and its bundled libraries (`openresty-openssl3`,
+`-pcre2`, `-zlib`; the package only requires minimum versions of these, so
+apt would otherwise leave them old), tests the last compiled
 `nginx.conf.compiled` with the new binary (`openresty -t`), and restarts
-`snapcloud_daemon`. A restart is needed: a reload keeps the old binary
-running. If the config test fails it stops before restarting, so the old
-version keeps serving. Afterwards, check the version:
+`snapcloud_daemon`. A restart is needed: a reload keeps the old binary and
+libraries loaded. It also restarts when nothing is left to upgrade but nginx
+still has a replaced binary or library loaded. If the config test fails it stops before restarting, so the old
+version keeps serving; fix the config and run the script again, and it picks
+up at the test. Afterwards, check the version:
 
 ```bash
 curl -sI https://snap.berkeley.edu/ | grep -i ^server   # server: openresty/1.31.9.1

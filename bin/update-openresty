@@ -2,9 +2,10 @@
 
 # sudo bin/update-openresty
 #
-# Upgrade OpenResty from its apt repository (see bin/prereqs.sh), check the
-# app's nginx config against the new binary, and restart snapcloud_daemon.
-# A reload (HUP) is not enough: it keeps the old binary running.
+# Upgrade OpenResty and its bundled libraries (OpenSSL, PCRE2, zlib) from its
+# apt repository (see bin/prereqs.sh), check the app's nginx config against
+# the new binary, and restart snapcloud_daemon.
+# A reload (HUP) is not enough: it keeps the old binary and libraries loaded.
 # The restart drops connections for a few seconds.
 
 set -uo pipefail
@@ -20,20 +21,49 @@ running_version() {
     openresty -v 2>&1 | sed -n 's#.*openresty/##p'
 }
 
+# The openresty package only sets minimum versions for these (e.g.
+# openresty-openssl3 >= 3.5.5), so upgrading openresty alone leaves an older
+# but still allowed library in place. Name them so apt upgrades them too.
+PACKAGES=(openresty openresty-openssl3 openresty-pcre2 openresty-zlib)
+
+# True when the nginx master still runs a binary or a library that apt has
+# since replaced: an earlier run stopped before the restart, or only a
+# library was upgraded.
+running_old_binary() {
+    local pid
+    pid=$(pgrep -o -x nginx) || return 1
+    [[ "$(readlink "/proc/$pid/exe")" == *' (deleted)' ]] ||
+        grep -q '/usr/local/openresty/.* (deleted)$' "/proc/$pid/maps"
+}
+
+# Packages from PACKAGES that have a newer version available.
+outdated_packages() {
+    local p installed candidate
+    for p in "${PACKAGES[@]}"; do
+        installed=$(dpkg-query -W -f='${Version}' "$p" 2>/dev/null)
+        candidate=$(apt-cache policy "$p" | sed -n 's/^ *Candidate: *//p')
+        if [ -n "$candidate" ] && [ "$candidate" != "(none)" ] && [ "$installed" != "$candidate" ]; then
+            echo "$p"
+            echo "  $p: ${installed:-none} -> $candidate" >&2
+        fi
+    done
+}
+
 apt-get update || { echo "apt-get update failed"; exit 1; }
 
-installed=$(dpkg-query -W -f='${Version}' openresty 2>/dev/null)
-candidate=$(apt-cache policy openresty | sed -n 's/^ *Candidate: *//p')
-echo "Installed: ${installed:-none}  Available: ${candidate:-none}"
-if [ -z "$candidate" ] || [ "$installed" = "$candidate" ]; then
-    echo "OpenResty is up to date ($(running_version))."
-    exit 0
+outdated=$(outdated_packages)
+if [ -z "$outdated" ]; then
+    if ! running_old_binary; then
+        echo "OpenResty and its libraries are up to date ($(running_version))."
+        exit 0
+    fi
+    echo "OpenResty $(running_version) is installed, but nginx still runs an old binary or library."
+else
+    old=$(running_version)
+    # shellcheck disable=SC2086 # one package name per word
+    apt-get install -y --only-upgrade $outdated || { echo "apt-get install failed"; exit 1; }
+    echo "Upgraded OpenResty: $old -> $(running_version)"
 fi
-
-old=$(running_version)
-# --only-upgrade also upgrades openresty-openssl3, -pcre2 and -zlib as needed.
-apt-get install -y --only-upgrade openresty || { echo "apt-get install failed"; exit 1; }
-echo "Upgraded OpenResty: $old -> $(running_version)"
 
 # The apt package ships its own openresty.service. We run nginx through lapis
 # instead, so make sure the package's service isn't holding ports 80/443.
@@ -43,12 +73,14 @@ if systemctl is-active --quiet openresty 2>/dev/null; then
 fi
 
 # Test the config lapis last compiled with the new binary. init_by_lua runs
-# here too, so this also catches Lua modules that fail to load.
+# here too, so this also catches Lua modules that fail to load. `-t` binds
+# the listen ports, so cloud needs authbind (as in bin/snapcloud_daemon).
 echo "Testing nginx config with the new binary:"
-if ! runuser -l cloud -c "cd $APP_DIR && set -a && . ./.env && set +a && openresty -p $APP_DIR/ -c nginx.conf.compiled -t"; then
+if ! runuser -l cloud -c "cd $APP_DIR && set -a && . ./.env && set +a && authbind --deep openresty -p $APP_DIR/ -c nginx.conf.compiled -t"; then
     echo "Config test failed. snapcloud_daemon was NOT restarted, so the old" >&2
-    echo "binary keeps serving until the next restart. Fix the config, or" >&2
-    echo "downgrade: apt-get install openresty=$installed" >&2
+    echo "binary keeps serving until the next restart. Fix the config and run" >&2
+    echo "this script again, or downgrade with apt-get install openresty=<version>" >&2
+    echo "(versions: apt-cache policy openresty)." >&2
     exit 1
 fi
 
