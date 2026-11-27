@@ -177,6 +177,23 @@ function disk:retrieve (id, filename, delta)
     end
 end
 
+-- Stream a stored file to `write` (e.g. ngx.print) in fixed 64 KB chunks, so a
+-- large file is never held whole in the worker's Lua heap the way retrieve's
+-- read('*all') does. Returns true if the file existed and was streamed, false
+-- otherwise (so the caller can emit a placeholder).
+function disk:stream (id, filename, delta, write)
+    local dir = self:version_directory(id, delta)
+    local file = io.open(dir .. '/' .. filename, 'rb')
+    if not file then return false end
+    while true do
+        local chunk = file:read(65536)
+        if not chunk then break end
+        write(chunk)
+    end
+    file:close()
+    return true
+end
+
 function disk:retrieve_thumbnail (id)
     return self:retrieve(id, 'thumbnail')
 end
