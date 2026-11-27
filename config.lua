@@ -37,7 +37,6 @@ config({'development', 'staging', 'production', 'test'}, {
         port = os.getenv('DATABASE_PORT') or '5432',
         user = os.getenv('DATABASE_USERNAME') or 'cloud',
         password = os.getenv('DATABASE_PASSWORD') or 'snap-cloud-password',
-        database = os.getenv('DATABASE_NAME') or 'snapcloud',
         -- Shown in pg_stat_activity, so our connections can be told apart.
         application_name = 'snapcloud'
     },
@@ -103,6 +102,17 @@ config({'development', 'test'}, {
     ssl_nginx_server_config = ''
 })
 
+-- Without DATABASE_NAME, each environment uses snapcloud_<environment>, the
+-- same name bin/lapis-migrate creates.
+for _, env in ipairs({'development', 'staging', 'production'}) do
+    config(env, {
+        postgres = {
+            database = os.getenv('DATABASE_NAME') or ('snapcloud_' .. env)
+        }
+    })
+end
+
+-- Tests always use their own database, whatever .env says.
 config({'test'}, {
     postgres = {
         database = 'snapcloud_test'
