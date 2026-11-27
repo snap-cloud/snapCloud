@@ -30,6 +30,7 @@
             </div>
             <iframe
                 title="<%= title %>"
+                data-axe-excluded="true"
                 allow="geolocation; microphone; camera" sandbox="allow-scripts allow-same-origin" src="<%= project:url_for('viewer', params.devVersion) %>" height="406"></iframe>
         </div>
         <script type="text/javascript">

@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Snap! Community Site",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "playwright test",
+    "test:e2e": "playwright test --grep-invert \"@axe\"",
+    "test:a11y": "playwright test --grep \"@axe\"",
+    "test:ui": "playwright test --ui",
     "vendor": "make vendor",
     "vendor-bootstrap": "make vendor-bootstrap",
     "vendor-fontawesome": "make vendor-fontawesome",
@@ -26,7 +29,10 @@
     "file-saver": "^2.0.5"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "^1.48.0",
     "maildev": "^3.0.0",
+    "pg": "^8.13.0",
     "sass": "^1.77.2"
   }
 }
