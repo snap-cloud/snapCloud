@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# List the projects created or saved since a given time, as directories
+# relative to the project store (e.g. 15491/15491148), one per line. Run as
+# cloud on the server.
+#
+#   bin/changed-project-dirs '2026-11-20 01:00:02-0800'
+#
+# The off-site backup feeds this list to `rsync --files-from`, so it copies
+# only what changed instead of walking every file in the store. Projects with
+# no directory on disk are left out, since rsync treats a missing entry as an
+# error.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+since=${1:-}
+
+if ! [[ $since =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}\ [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{4}$ ]]; then
+    sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//' >&2
+    exit 1
+fi
+
+set +u; . ./.env; set -u
+db=${DATABASE_NAME:-snapcloud}
+
+cd "${PROJECT_STORAGE_PATH:-store}"
+psql -X -At -v ON_ERROR_STOP=1 -v since="$since" -d "$db" <<'SQL' |
+SELECT id / 1000 || '/' || id FROM projects
+WHERE lastupdated > :'since'::timestamptz OR created > :'since'::timestamptz
+ORDER BY id;
+SQL
+while read -r dir; do
+    if [ -d "$dir" ]; then printf '%s\n' "$dir"; fi
+done
