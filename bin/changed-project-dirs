@@ -20,7 +20,7 @@ if ! [[ $since =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}\ [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-
 fi
 
 set +u; . ./.env; set -u
-db=${DATABASE_NAME:-snapcloud}
+db=${DATABASE_NAME:-snapcloud_${LAPIS_ENVIRONMENT:-development}}
 
 cd "${PROJECT_STORAGE_PATH:-store}"
 psql -X -At -v ON_ERROR_STOP=1 -v since="$since" -d "$db" <<'SQL' |
