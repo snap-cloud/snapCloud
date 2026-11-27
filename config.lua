@@ -130,11 +130,8 @@ config('production', {
     -- __Host- cookies can only be set by this exact host, over HTTPS, with
     -- Path=/ and no Domain attribute, so no subdomain (extensions.snap.
     -- berkeley.edu is plain HTTP) can plant or overwrite a session.
-    -- lib/cookies.lua works around lapis percent-encoding the name, and
-    -- migrates sessions from legacy_session_name so nobody is logged out.
-    -- Drop legacy_session_name once the old cookies have aged out (35 days).
+    -- lib/cookies.lua works around lapis percent-encoding the name.
     session_name = '__Host-snapsession',
-    legacy_session_name = 'snapsession',
 
     logging = {
         queries = false,
