@@ -67,7 +67,8 @@ end
 local db = pgmoon.new({
     host = os.getenv('DATABASE_HOST') or '127.0.0.1',
     port = os.getenv('DATABASE_PORT') or '5432',
-    database = os.getenv('DATABASE_NAME') or 'snapcloud',
+    database = os.getenv('DATABASE_NAME') or
+        ('snapcloud_' .. (os.getenv('LAPIS_ENVIRONMENT') or 'development')),
     user = os.getenv('DATABASE_USERNAME') or 'cloud',
     password = os.getenv('DATABASE_PASSWORD') or 'snap-cloud-password'
 })

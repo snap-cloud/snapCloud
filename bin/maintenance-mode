@@ -19,7 +19,7 @@ case "$mode" in
 esac
 
 set +u; . ./.env; set -u
-db=${DATABASE_NAME:-snapcloud}
+db=${DATABASE_NAME:-snapcloud_${LAPIS_ENVIRONMENT:-development}}
 
 # A session that is never read-only, so `off` works on a locked database.
 db_sql() { PGOPTIONS='-c default_transaction_read_only=off' psql -X -q -v ON_ERROR_STOP=1 -d "$db" -c "$1"; }

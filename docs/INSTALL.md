@@ -375,7 +375,7 @@ export DATABASE_HOST=127.0.0.1
 export DATABASE_PORT=5432
 export DATABASE_USERNAME=cloud
 export DATABASE_PASSWORD=snap-cloud-password
-export DATABASE_NAME=snapcloud
+export DATABASE_NAME=snapcloud_production
 export HOSTNAME=snap.berkeley.edu
 ```
 There are a lot of options defined in `config.lua`. Setting the environment is helpful because you may want to have a "staging" server with a slightly different configuration.
