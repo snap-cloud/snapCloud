@@ -652,7 +652,8 @@ end
 local filter_clause = function (params, allowed_fields)
     local clause = ''
     for key, value in pairs(params) do
-        if key:find('filter_') == 1 then
+        -- filter_order_by is the sort dropdown, handled by order_by_clause.
+        if key:find('filter_') == 1 and key ~= 'filter_order_by' then
             local field = key:sub(8)
             if not allowed_fields[field] then
                 yield_error(err.invalid_filter)

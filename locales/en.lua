@@ -278,6 +278,8 @@ local locale = {
     -- ============
     profile_title = "@1's profile", -- @1 becomes the user's username
     join_date = "Joined", -- date of user creation follows
+    session_count = "Sessions",
+    last_login = "Last login", -- date of last login follows, or "never"
     delete_date = "Deleted", -- date of user deletion follows
     email = "Email",
     role = "Role",
